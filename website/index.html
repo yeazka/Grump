@@ -1,0 +1,2720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Grump Notch turns the top edge of Windows into an expressive, moody Notch for music, focus timers, AI coding activity, and system controls.">
+  <meta name="theme-color" content="#0b0704">
+  <title>Grump Notch: Your Desktop Just Got Angrier</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/jpeg" href="assets/grump-logo.jpg">
+  <link rel="apple-touch-icon" href="assets/grump-logo.jpg">
+
+  <!-- OpenGraph / Social Sharing -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Grump Notch: Your Desktop Just Got Angrier">
+  <meta property="og:description" content="The moody Notch for Windows 10 &amp; 11. WebGL media player, synced lyrics, focus timer, and cursor-reactive LED eyes.">
+  <meta property="og:image" content="assets/grump-logo.jpg">
+  <meta property="og:image:alt" content="Grump Notch Gold Matrix Mascot">
+
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Grump Notch: Your Desktop Just Got Angrier">
+  <meta name="twitter:description" content="The moody Notch for Windows 10 &amp; 11. Cursor-reactive eyes, WebGL music player, and liquid glass controls.">
+  <meta name="twitter:image" content="assets/grump-logo.jpg">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,500;0,600;0,700;0,800;1,700;1,800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #0b0704;
+      --surface: #14110e;
+      --surface-elevated: #1e1914;
+      --text: #ffffff;
+      --muted: #b8b2ac;
+      --line: rgba(255, 235, 200, 0.12);
+      --amber: #f59e0b;
+      --amber-bright: #fbbf24;
+      --orange: #ea580c;
+      --spring: cubic-bezier(0.34, 1.35, 0.5, 1);
+      --u: 1;
+      color-scheme: dark;
+      scroll-behavior: smooth;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      letter-spacing: -0.02em;
+      line-height: 1.5;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection {
+      background: var(--amber);
+      color: #0b0704;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    a[href],
+    button:not(:disabled),
+    [role="button"]:not([aria-disabled="true"]) {
+      cursor: pointer;
+    }
+
+    button:disabled,
+    [aria-disabled="true"] {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    a:focus-visible,
+    button:focus-visible,
+    iframe:focus-visible {
+      outline: 2px solid var(--amber-bright);
+      outline-offset: 3px;
+    }
+
+    .wrap {
+      width: min(1220px, calc(100% - 48px));
+      margin-inline: auto;
+    }
+
+    /* Header: Edge-to-Edge Full Width, Invisible at Top, Liquid Glass On Scroll */
+    .site-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      z-index: 100;
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      pointer-events: none;
+    }
+
+    /* Smooth liquid glass backdrop: zero hard lines, transparent fade away at the bottom */
+    .site-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 114px;
+      background: linear-gradient(180deg, rgba(16, 12, 10, 0.92) 0%, rgba(14, 10, 8, 0.65) 50%, rgba(10, 7, 5, 0.22) 80%, rgba(10, 7, 5, 0) 100%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 100%);
+      -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 100%);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: -1;
+    }
+
+    /* Fade in smoothly on scroll */
+    .site-header.scrolled::before {
+      opacity: 1;
+    }
+
+    .header-inner {
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 72px;
+      gap: 16px;
+    }
+
+    .brand-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 44px;
+      padding-right: 8px;
+      font-weight: 800;
+      font-size: 21px;
+      letter-spacing: -0.04em;
+    }
+
+    .brand-logo-box {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      overflow: hidden;
+      background: #000000;
+      border: 1px solid rgba(245, 158, 11, 0.42);
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.32);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: transform 0.25s var(--spring);
+    }
+
+    .brand-link:hover .brand-logo-box {
+      transform: scale(1.06);
+    }
+
+    .brand-logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1.22);
+      display: block;
+    }
+
+    .brand-dot {
+      color: var(--amber);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .main-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #ded8d2;
+      transition: color 0.2s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--amber-bright);
+    }
+
+    /* Language Switcher */
+    .lang-switch {
+      position: relative;
+      display: inline-grid;
+      grid-template-columns: 1fr 1fr;
+      padding: 4px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      min-height: 44px;
+      align-items: center;
+    }
+
+    .lang-thumb {
+      position: absolute;
+      top: 4px;
+      bottom: 4px;
+      left: 4px;
+      width: calc(50% - 4px);
+      border-radius: 9999px;
+      background: var(--amber-bright);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+      transition: transform 0.38s var(--spring);
+      pointer-events: none;
+    }
+
+    .lang-switch[data-lang="id"] .lang-thumb {
+      transform: translateX(100%);
+    }
+
+    .lang-btn {
+      position: relative;
+      z-index: 1;
+      border: 0;
+      background: transparent;
+      color: #ded8d2;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      min-width: 44px;
+      min-height: 36px;
+      padding: 0 12px;
+      border-radius: 9999px;
+      transition: color 0.2s ease;
+    }
+
+    .lang-btn[aria-pressed="true"] {
+      color: #0b0704;
+    }
+
+    .lang-btn:hover:not([aria-pressed="true"]) {
+      color: var(--text);
+    }
+
+    /* GitHub Link without container box */
+    .github-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 44px;
+      padding: 0 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #ded8d2;
+      background: transparent;
+      border: 0;
+      transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .github-link:hover {
+      color: var(--amber-bright);
+      transform: translateY(-1px);
+    }
+    .github-link[aria-disabled="true"] { opacity: .5; pointer-events: none; }
+
+    /* Liquid Glass Buttons */
+    .liquid-glass-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 11px;
+      min-height: 48px;
+      padding: 13px 28px;
+      border-radius: 9999px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 180, 50, 0.1) 50%, rgba(255, 255, 255, 0.05) 100%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 220, 150, 0.36);
+      box-shadow:
+        0 8px 28px rgba(0, 0, 0, 0.35),
+        inset 0 1.5px 1px rgba(255, 255, 255, 0.42),
+        inset 0 -2px 6px rgba(234, 88, 12, 0.18);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      transition: transform 0.28s var(--spring), border-color 0.25s ease, box-shadow 0.25s ease;
+      overflow: hidden;
+    }
+
+    .liquid-glass-btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 235, 180, 0.65);
+      box-shadow:
+        0 12px 36px rgba(245, 158, 11, 0.28),
+        inset 0 2px 2px rgba(255, 255, 255, 0.58),
+        inset 0 -2px 8px rgba(234, 88, 12, 0.28);
+    }
+
+    .liquid-glass-btn:active {
+      transform: translateY(0) scale(0.98);
+    }
+    .liquid-glass-btn[aria-disabled="true"] {
+      opacity: 0.55;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .liquid-glass-primary {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 60%, #d97706 100%);
+      color: #0b0704;
+      border: 1px solid rgba(255, 248, 220, 0.72);
+      box-shadow:
+        0 12px 34px rgba(245, 158, 11, 0.38),
+        inset 0 2px 2px rgba(255, 255, 255, 0.75),
+        inset 0 -2px 6px rgba(146, 64, 14, 0.35);
+      font-weight: 800;
+    }
+
+    .liquid-glass-primary:hover {
+      background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 60%, #f59e0b 100%);
+      box-shadow:
+        0 16px 42px rgba(245, 158, 11, 0.52),
+        inset 0 2px 2px rgba(255, 255, 255, 0.88),
+        inset 0 -2px 8px rgba(146, 64, 14, 0.4);
+    }
+
+    /* Overview / Hero Section */
+    .hero-section {
+      position: relative;
+      width: 100%;
+      min-height: 94dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 112px 20px 88px;
+      overflow: hidden;
+    }
+
+    .warm-video-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+      filter: hue-rotate(145deg) saturate(1.42) brightness(1.28);
+    }
+
+    .warm-ambient-glow {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background:
+        radial-gradient(circle at 50% 36%, rgba(11, 7, 4, 0.12) 0%, rgba(11, 7, 4, 0.48) 72%, #0b0704 100%),
+        radial-gradient(circle at 50% 30%, rgba(245, 158, 11, 0.35) 0%, transparent 62%);
+      pointer-events: none;
+    }
+
+    .hero-bottom-fade {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 200px;
+      background: linear-gradient(to top, #0b0704 10%, rgba(11, 7, 4, 0.58) 55%, transparent 100%);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 1180px;
+      margin-inline: auto;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Strictly 2-Line Headline in both EN and ID */
+    .hero-title {
+      margin: 0;
+      font-size: clamp(24px, 4.5vw, 66px);
+      font-weight: 800;
+      line-height: 1.12;
+      letter-spacing: -0.04em;
+      color: var(--text);
+      text-shadow: 0 4px 28px rgba(0, 0, 0, 0.72);
+    }
+
+    .hero-line {
+      display: block;
+      white-space: nowrap;
+    }
+
+    .hero-title-accent {
+      background: linear-gradient(95deg, #fde68a 0%, #fbbf24 45%, #f97316 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-style: italic;
+      font-weight: 800;
+      padding-right: 4px;
+    }
+
+    .hero-lead {
+      margin: 22px auto 0;
+      max-width: 640px;
+      font-size: clamp(16px, 1.8vw, 19px);
+      font-weight: 500;
+      line-height: 1.65;
+      color: #ded8d2;
+      text-shadow: 0 2px 18px rgba(0, 0, 0, 0.78);
+    }
+
+    .hero-cta-row {
+      margin-top: 34px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .hero-cta-row .liquid-glass-btn {
+      min-width: 200px;
+    }
+
+    /* Downloads text only - zero container box */
+    .hero-downloads-text {
+      margin-top: 22px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.01em;
+      text-shadow: 0 2px 14px rgba(0, 0, 0, 0.8);
+      display: inline-block;
+    }
+
+    /* Features Interactive Split Section (Left: Controls, Right: Giant Half-Laptop Cropped on Right) */
+    .features-section {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      padding: 28px 0 110px;
+      overflow-x: clip;
+    }
+
+    .interactive-split {
+      display: grid;
+      grid-template-columns: minmax(340px, 450px) minmax(0, 1fr);
+      gap: 48px;
+      align-items: center;
+    }
+
+    .testing-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      text-align: left;
+    }
+
+    .testing-header {
+      margin-bottom: 4px;
+    }
+
+    .testing-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      background: rgba(251, 191, 36, 0.10);
+      border: 1px solid rgba(251, 191, 36, 0.28);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #fbbf24;
+      margin-bottom: 10px;
+      width: fit-content;
+    }
+
+    .testing-badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #fbbf24;
+      box-shadow: 0 0 8px #f59e0b;
+      flex-shrink: 0;
+    }
+
+    .testing-header h2 {
+      margin: 0;
+      font-size: clamp(24px, 2.9vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.18;
+      color: #fafaf9;
+    }
+
+    /* Chapter / Section Group Headings for Testing Panel */
+    .panel-group-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 10px 0 6px;
+      padding: 0 2px;
+    }
+
+    .panel-group-header:first-of-type {
+      margin-top: 2px;
+    }
+
+    .panel-group-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(250, 250, 249, 0.52);
+    }
+
+    /* Placement Style Visual Cards (Separated with generous gap, matching Grump Settings) */
+    .dock-choices {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 0 0 12px;
+    }
+
+    .dock-choice-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 104px;
+      border-radius: 18px;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      background: linear-gradient(155deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.32), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(18px) saturate(150%);
+      -webkit-backdrop-filter: blur(18px) saturate(150%);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, background 0.2s ease;
+      padding: 0 0 12px;
+    }
+
+    .dock-choice-card:hover {
+      border-color: rgba(255, 255, 255, 0.28);
+      background: linear-gradient(155deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+      transform: translateY(-1px);
+    }
+
+    .dock-choice-card:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    .dock-choice-card[aria-pressed="true"] {
+      border-color: #fde68a;
+      background: linear-gradient(155deg, rgba(251, 191, 36, 0.18), rgba(245, 158, 11, 0.06));
+      box-shadow:
+        0 8px 24px rgba(245, 158, 11, 0.32),
+        inset 0 1.5px 2px rgba(255, 255, 255, 0.75),
+        0 0 0 1px rgba(253, 230, 138, 0.45);
+    }
+
+    .dock-choice-card[aria-pressed="true"] .dock-card-label {
+      color: #fbbf24;
+      font-weight: 750;
+    }
+
+    .dock-card-preview {
+      position: relative;
+      width: 100%;
+      height: 64px;
+      background: radial-gradient(120% 100% at 50% 0%, rgba(40, 44, 56, 0.75) 0%, rgba(10, 10, 14, 0.95) 100%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .dock-card-bezel {
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(180deg, #4b4b5c 0%, #252530 100%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    /* Floating island pill in preview */
+    .dock-card-pill {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 66px;
+      height: 19px;
+      border-radius: 10px;
+      background: #000000;
+      border: 1.2px solid rgba(255, 255, 255, 0.40);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .dock-card:hover .dock-card-pill {
+      transform: translateX(-50%) translateY(2px);
+    }
+
+    /* Anchored notch in preview */
+    .dock-card-notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 92px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dock-card-notch svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.7));
+    }
+
+    .dock-card-eyes {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .dock-card-eyes i {
+      display: block;
+      width: 4px;
+      height: 7px;
+      border-radius: 2px;
+      background: #ffffff;
+      box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+    }
+
+    .dock-choice-card[aria-pressed="true"] .dock-card-eyes i {
+      background: #fbbf24;
+      box-shadow: 0 0 6px #f59e0b;
+    }
+
+    .dock-choice-card[aria-pressed="true"] .dock-card-pill {
+      border-color: rgba(253, 230, 138, 0.85);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+    }
+
+    .dock-choice-card[aria-pressed="true"] .dock-card-notch svg path {
+      stroke: rgba(253, 230, 138, 0.85);
+    }
+
+    .dock-card-label {
+      margin-top: 10px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+      transition: color 0.2s ease;
+    }
+
+    /* 3x3 Balanced Grid for 9 Interactive States (Zero Orphans) */
+    .state-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 0 0 12px;
+    }
+
+    /* 2x4 Balanced Grid for 8 Eye Expressions & FX (Zero Orphans) */
+    .eye-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin: 0 0 8px;
+      padding-top: 0;
+      border-top: none;
+    }
+
+    /* Shared iOS Liquid Glass Pill Button */
+    .try-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 8px 12px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(250, 250, 249, 0.76);
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.03));
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.26), inset 0 1px 0.8px rgba(255, 255, 255, 0.22);
+      backdrop-filter: blur(16px) saturate(150%);
+      -webkit-backdrop-filter: blur(16px) saturate(150%);
+      white-space: nowrap;
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .eye-btn {
+      justify-content: flex-start;
+      padding: 7px 14px 7px 9px;
+    }
+
+    .try-btn:hover {
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.28);
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.06));
+      transform: translateY(-1px);
+    }
+
+    .try-btn:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    .try-btn[aria-pressed="true"] {
+      color: #0b0704;
+      font-weight: 750;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+      border-color: #fde68a;
+      box-shadow:
+        0 8px 24px rgba(245, 158, 11, 0.45),
+        inset 0 1.5px 2px rgba(255, 255, 255, 0.82),
+        inset 0 -1.5px 4px rgba(180, 83, 9, 0.35);
+    }
+
+    /* Miniature Eye Shape Previews inside Buttons */
+    .eye-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      width: 30px;
+      height: 22px;
+      border-radius: 999px;
+      background: #050506;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12);
+      padding: 0 5px;
+      flex-shrink: 0;
+    }
+
+    .eye-chip i {
+      display: block;
+      font-style: normal;
+    }
+
+    /* Shape 1: Normal Vertical Pill Eyes */
+    .eye-shape-normal i {
+      width: 4px;
+      height: 8px;
+      border-radius: 3px;
+      background: #ffffff;
+    }
+
+    /* Shape 2: Happy Curved Arcs (^ ^) */
+    .eye-shape-happy i {
+      width: 6px;
+      height: 5px;
+      border-top: 2.2px solid #ffffff;
+      border-radius: 6px 6px 0 0;
+      margin-top: 2px;
+    }
+
+    /* Shape 3: Flirty Wink (• -) */
+    .eye-shape-flirty i:first-child {
+      width: 4px;
+      height: 8px;
+      border-radius: 3px;
+      background: #ffffff;
+    }
+    .eye-shape-flirty i:last-child {
+      width: 6px;
+      height: 2.2px;
+      border-radius: 2px;
+      background: #ffffff;
+    }
+
+    /* Shape 4: Sleep Flat Lines (- -) */
+    .eye-shape-sleep i {
+      width: 6px;
+      height: 2px;
+      border-radius: 2px;
+      background: #94a3b8;
+    }
+
+    /* FX 1: Grump Gold Matrix */
+    .eye-fx-gold i {
+      width: 5px;
+      height: 8px;
+      background: #fbbf24;
+      box-shadow: 0 0 6px #f59e0b;
+      clip-path: polygon(0 15%, 100% 35%, 100% 100%, 0 85%);
+    }
+    .eye-fx-gold i:last-child {
+      clip-path: polygon(0 35%, 100% 15%, 100% 85%, 0 100%);
+    }
+
+    /* FX 2: Laser Red */
+    .eye-fx-laser i {
+      width: 5px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ef4444;
+      box-shadow: 0 0 8px #ef4444;
+    }
+
+    /* FX 3: Sakura Pink */
+    .eye-fx-pink i {
+      width: 5px;
+      height: 8px;
+      background: #f472b6;
+      box-shadow: 0 0 6px #ec4899;
+      clip-path: polygon(0 15%, 100% 35%, 100% 100%, 0 85%);
+    }
+    .eye-fx-pink i:last-child {
+      clip-path: polygon(0 35%, 100% 15%, 100% 85%, 0 100%);
+    }
+
+    /* FX 4: Berserk Void */
+    .eye-fx-berserk i {
+      width: 6px;
+      height: 7px;
+      background: #dc2626;
+      box-shadow: 0 0 7px #dc2626;
+      clip-path: polygon(0 0, 100% 35%, 80% 100%, 0 80%);
+    }
+    .eye-fx-berserk i:last-child {
+      clip-path: polygon(0 35%, 100% 0, 100% 80%, 20% 100%);
+    }
+
+    .mode-caption {
+      margin: 2px 0 0;
+      padding: 0;
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--muted);
+      min-height: 3.1em;
+    }
+
+    /* Right Column: Giant Half-Laptop Screen Stage (Cut Off on the Right) */
+    .laptop-stage {
+      position: relative;
+      width: 100%;
+      min-height: 600px;
+      --notch-x: clamp(390px, 34vw, 490px);
+    }
+
+    .laptop {
+      position: relative;
+      width: 1040px;
+      height: 600px;
+      overflow: hidden;
+      -webkit-mask: linear-gradient(#000 82%, transparent);
+      mask: linear-gradient(#000 82%, transparent);
+    }
+
+    .lid {
+      position: absolute;
+      inset: 0;
+      bottom: -80px;
+      border-radius: 34px 34px 0 0;
+      background: linear-gradient(#42454e, #22242a 16px);
+      padding: 2.5px;
+      box-shadow: 0 32px 96px rgba(0, 0, 0, 0.94);
+    }
+
+    .bezel {
+      position: absolute;
+      inset: 2.5px;
+      border-radius: inherit;
+      background: #050506;
+      padding: 9px;
+    }
+
+    .cam {
+      position: absolute;
+      top: 2px;
+      left: calc(var(--notch-x) + 9px);
+      width: 6px;
+      height: 6px;
+      margin-left: -3px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 40% 40%, #2b3a55, #0b0f18);
+      z-index: 5;
+    }
+
+    .screen {
+      position: absolute;
+      inset: 9px;
+      bottom: 0;
+      overflow: hidden;
+      border-radius: 24px 24px 0 0;
+      background: #050506 url('assets/mac-pro-wallpaper.png?v=orange2') left top / 100% 100% no-repeat;
+    }
+
+    .screen-vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at var(--notch-x) 0%, transparent 45%, rgba(0, 0, 0, 0.28) 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .grump-iframe {
+      position: absolute;
+      top: 0;
+      left: var(--notch-x);
+      width: 820px;
+      height: 100%;
+      transform: translateX(-50%);
+      border: 0;
+      background: transparent;
+      color-scheme: dark;
+      z-index: 10;
+    }
+
+    /* Footer */
+    .site-footer {
+      padding: 32px 0 40px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .footer-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .footer-brand img {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      object-fit: cover;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .footer-links-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .footer-link {
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.18s ease;
+    }
+    .footer-link:hover {
+      color: var(--amber-bright);
+    }
+    .footer-sep {
+      color: rgba(255, 235, 200, 0.25);
+    }
+
+    .testi-trakteer-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-left: 14px;
+      padding: 5px 13px;
+      border-radius: 999px;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: #fbbf24;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-decoration: none;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .testi-trakteer-btn:hover {
+      background: rgba(245, 158, 11, 0.22);
+      border-color: rgba(251, 191, 36, 0.7);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(245, 158, 11, 0.28);
+      color: #fff;
+    }
+
+    /* Responsive Breakpoints */
+    @media (max-width: 1024px) {
+      .interactive-split {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+
+      .laptop-stage {
+        order: -1;
+        min-height: 480px;
+        --notch-x: clamp(240px, 46vw, 380px);
+      }
+
+      .laptop {
+        width: 1100px;
+        height: 480px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .wrap {
+        width: calc(100% - 28px);
+      }
+
+      .header-inner {
+        min-height: 64px;
+        gap: 8px;
+      }
+
+      .brand-link {
+        font-size: 18px;
+        gap: 8px;
+      }
+
+      .header-right {
+        gap: 8px;
+      }
+
+      .nav-link {
+        padding: 0 8px;
+        font-size: 13px;
+      }
+
+      .github-link span {
+        display: none;
+      }
+
+      .hero-section {
+        padding: 96px 14px 68px;
+      }
+
+      .hero-line {
+        white-space: normal;
+      }
+
+      .hero-cta-row {
+        width: 100%;
+        flex-direction: column;
+      }
+
+      .hero-cta-row .liquid-glass-btn {
+        width: 100%;
+      }
+
+      .state-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .laptop-stage {
+        min-height: 360px;
+        --notch-x: 50%;
+      }
+
+      .laptop {
+        width: 100%;
+        height: 360px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+        @media (prefers-reduced-motion: reduce) {
+      .testi-ticker-track {
+        animation: none !important;
+      }
+    }
+
+    /* Testimonials Section - Pure Black, Grand Layout, No Card Container Box */
+    .testimonials-section {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      padding: 140px 0 170px;
+      overflow: hidden;
+      background: #000000;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .testimonial-card-container {
+      position: relative;
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 20px 0 60px;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      border-radius: 0;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      overflow: visible;
+    }
+
+    /* Oversized index number - positioned to bleed off left edge */
+    .oversized-number {
+      position: absolute;
+      left: -48px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: clamp(18rem, 32vw, 32rem);
+      font-weight: 900;
+      line-height: 0.8;
+      letter-spacing: -0.06em;
+      color: rgba(255, 255, 255, 0.04);
+      user-select: none;
+      pointer-events: none;
+      transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease, filter 0.45s ease;
+      will-change: transform;
+      z-index: 1;
+    }
+
+    /* Asymmetric layout */
+    .testi-layout {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: stretch;
+      min-height: 420px;
+    }
+
+    /* Left column - vertical text & progress */
+    .testi-left-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding-right: 56px;
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      flex-shrink: 0;
+    }
+
+    .testi-vertical-label {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: #a89f91;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+    }
+
+    .testi-progress-track {
+      position: relative;
+      height: 140px;
+      width: 2px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      margin-top: 36px;
+      overflow: hidden;
+    }
+
+    .testi-progress-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: linear-gradient(to bottom, #ff9d3b, #ff7700);
+      box-shadow: 0 0 10px rgba(255, 119, 0, 0.7);
+      border-radius: 999px;
+      transform-origin: top;
+      transition: height 0.5s cubic-bezier(0.22, 1, 0.36, 1), width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Center column - main content */
+    .testi-main-col {
+      flex: 1;
+      padding-left: 64px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Company badge */
+    .testi-company-row {
+      margin-bottom: 32px;
+    }
+
+    .testi-company-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.8rem;
+      color: #ded8d2;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      letter-spacing: 0.03em;
+    }
+
+    .testi-badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ff7700;
+      box-shadow: 0 0 8px #ff7700;
+      flex-shrink: 0;
+    }
+
+    /* Big Quote */
+    .testi-quote-wrap {
+      min-height: 160px;
+      display: flex;
+      align-items: center;
+      margin-bottom: 48px;
+    }
+
+    .testi-quote-text {
+      margin: 0;
+      font-size: clamp(2.4rem, 4.4vw, 3.8rem);
+      font-weight: 300;
+      line-height: 1.15;
+      letter-spacing: -0.025em;
+      color: #ffffff;
+      transition: opacity 0.32s ease, transform 0.32s ease;
+    }
+
+    /* Author & Nav Row */
+    .testi-author-nav-row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .testi-author-info {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .testi-author-line {
+      width: 36px;
+      height: 1px;
+      background: #ffffff;
+      transform-origin: left;
+      transition: transform 0.5s ease;
+    }
+
+    .testi-author-name {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #ffffff;
+      letter-spacing: -0.01em;
+    }
+
+    .testi-author-role {
+      margin: 3px 0 0;
+      font-size: 0.92rem;
+      color: #a89f91;
+    }
+
+    /* Nav Buttons */
+    .testi-nav-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .testi-nav-btn {
+      position: relative;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.04);
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      overflow: hidden;
+      transition: border-color 0.25s ease, transform 0.15s ease;
+    }
+
+    .testi-nav-btn:hover {
+      border-color: rgba(255, 140, 0, 0.55);
+    }
+
+    .testi-nav-btn:active {
+      transform: scale(0.94);
+    }
+
+    .testi-btn-fill {
+      position: absolute;
+      inset: 0;
+      background: #ff7700;
+      transform: translateX(-100%);
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      z-index: 1;
+    }
+
+    .testi-nav-btn:hover .testi-btn-fill {
+      transform: translateX(0);
+    }
+
+    #testi-next-btn .testi-btn-fill {
+      transform: translateX(100%);
+    }
+
+    #testi-next-btn:hover .testi-btn-fill {
+      transform: translateX(0);
+    }
+
+    .testi-nav-icon {
+      position: relative;
+      z-index: 2;
+      transition: color 0.25s ease;
+    }
+
+    .testi-nav-btn:hover .testi-nav-icon {
+      color: #000000;
+    }
+
+    /* Ticker marquee at bottom */
+    .testi-ticker {
+      position: absolute;
+      bottom: -30px;
+      left: 0;
+      right: 0;
+      overflow: hidden;
+      opacity: 0.05;
+      pointer-events: none;
+      user-select: none;
+      z-index: 1;
+    }
+
+    .testi-ticker-track {
+      display: flex;
+      white-space: nowrap;
+      font-size: 4.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      animation: testiTicker 28s linear infinite;
+    }
+
+    @keyframes testiTicker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .testimonials-section {
+        padding: 90px 0 110px;
+      }
+      .testi-layout {
+        flex-direction: column;
+      }
+      .testi-left-col {
+        flex-direction: row;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding-right: 0;
+        padding-bottom: 20px;
+        margin-bottom: 28px;
+        justify-content: flex-start;
+        gap: 20px;
+      }
+      .testi-vertical-label {
+        writing-mode: horizontal-tb;
+      }
+      .testi-progress-track {
+        height: 2px;
+        width: 80px;
+        margin-top: 0;
+      }
+      .testi-progress-fill {
+        height: 100% !important;
+      }
+      .testi-main-col {
+        padding-left: 0;
+      }
+      .oversized-number {
+        font-size: 10rem;
+        left: -10px;
+      }
+    }
+
+
+    /* Testimonials & Feedback Architectural Stage Layout */
+    .testimonial-wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    /* Subtle architectural stage separator */
+    .stage-divider {
+      max-width: 1140px;
+      margin: 120px auto 110px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.12) 20%, rgba(255, 255, 255, 0.12) 80%, transparent 100%);
+    }
+
+    /* Feedback Stage Container (Mirrors Testimonial Stage exactly) */
+    .feedback-card-container {
+      position: relative;
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 20px 0 40px;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      border-radius: 0;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      overflow: visible;
+    }
+
+    .fb-progress-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, #ff9d3b, #ff7700);
+      box-shadow: 0 0 10px rgba(255, 119, 0, 0.7);
+      border-radius: 999px;
+    }
+
+    /* Feedback Stage Content */
+    .fb-hero-wrap {
+      margin-bottom: 36px;
+    }
+
+    .fb-hero-title {
+      margin: 0 0 12px;
+      font-size: clamp(2rem, 3.8vw, 3.2rem);
+      font-weight: 350;
+      line-height: 1.15;
+      letter-spacing: -0.025em;
+      color: #ffffff;
+    }
+
+    .fb-hero-sub {
+      margin: 0;
+      font-size: 1.05rem;
+      color: #a89f91;
+      line-height: 1.5;
+      max-width: 680px;
+    }
+
+    /* Category Selector */
+    .fb-types {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+
+    .fb-type-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 18px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #ded8d2;
+      font-size: 0.86rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.22s ease;
+    }
+
+    .fb-type-chip:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 140, 0, 0.35);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .fb-type-chip.active {
+      background: rgba(255, 140, 0, 0.15);
+      border-color: #ff9d3b;
+      color: #ff9d3b;
+      box-shadow: 0 0 16px rgba(255, 140, 0, 0.25);
+    }
+
+    /* Form Fields */
+    .fb-field {
+      margin-bottom: 18px;
+    }
+
+    .fb-textarea {
+      width: 100%;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 1.02rem;
+      line-height: 1.6;
+      padding: 18px 22px;
+      transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+      box-sizing: border-box;
+      resize: vertical;
+      min-height: 125px;
+    }
+
+    .fb-textarea:focus, .fb-input:focus {
+      outline: none;
+      border-color: #ff9d3b;
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 0 0 3px rgba(255, 157, 59, 0.18), 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .fb-input {
+      width: 100%;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 14px 20px;
+      transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+      box-sizing: border-box;
+    }
+
+    .fb-textarea::placeholder, .fb-input::placeholder {
+      color: rgba(255, 255, 255, 0.32);
+    }
+
+    /* Bottom Status & Action Row (Mirrors .testi-author-nav-row) */
+    .fb-action-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      margin-top: 26px;
+      flex-wrap: wrap;
+    }
+
+    .fb-dest-info {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .fb-dest-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #ffffff;
+      display: block;
+    }
+
+    .fb-dest-sub {
+      margin: 2px 0 0;
+      font-size: 0.82rem;
+      color: #8b8175;
+    }
+
+    /* Grand Submit Button */
+    .fb-grand-submit-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 32px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: linear-gradient(135deg, #ff9d3b, #ff7700);
+      color: #0c0907;
+      font-size: 0.95rem;
+      font-weight: 750;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      box-shadow: 0 8px 28px rgba(255, 119, 0, 0.38);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+      overflow: hidden;
+    }
+
+    .fb-grand-submit-btn:hover {
+      filter: brightness(1.1);
+      box-shadow: 0 10px 36px rgba(255, 119, 0, 0.52);
+      transform: translateY(-2px);
+    }
+
+    .fb-grand-submit-btn:active {
+      transform: translateY(0) scale(0.98);
+    }
+    .fb-grand-submit-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .fb-error-banner {
+      margin-top: 14px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      background: rgba(239, 68, 68, 0.14);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: #fca5a5;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    .fb-success-banner {
+      margin-top: 14px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      background: rgba(34, 197, 94, 0.14);
+      border: 1px solid rgba(34, 197, 94, 0.35);
+      color: #86efac;
+      font-size: 0.86rem;
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      .stage-divider {
+        margin: 80px auto 60px;
+      }
+      .fb-hero-title {
+        font-size: 1.8rem;
+      }
+      .fb-action-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 18px;
+      }
+      .fb-grand-submit-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    /* White Microsoft Store Button */
+    .liquid-glass-btn.btn-msstore-white {
+      background: #ffffff;
+      color: #0c0907;
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 4px 18px rgba(255, 255, 255, 0.22);
+      font-weight: 700;
+    }
+
+    .liquid-glass-btn.btn-msstore-white:hover {
+      background: #f0f0f0;
+      color: #000000;
+      border-color: #ffffff;
+      box-shadow: 0 6px 26px rgba(255, 255, 255, 0.38);
+      transform: translateY(-2px);
+    }
+
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a href="#overview" class="brand-link">
+        <span class="brand-logo-box">
+          <img src="assets/grump-logo.jpg" alt="Grump Gold Matrix eyes logo" width="34" height="34" fetchpriority="high">
+        </span>
+        <span>Grump<span class="brand-dot">.</span></span>
+      </a>
+
+      <div class="header-right">
+        <nav class="main-nav" aria-label="Main navigation">
+          <a href="#overview" class="nav-link" data-i18n="nav-overview">Overview</a>
+          <a href="#features" class="nav-link" data-i18n="nav-features">Features</a>
+          <a href="#testimonials" class="nav-link" data-i18n="nav-testimonials">Testimonials</a>
+        </nav>
+
+        <div class="lang-switch" id="lang-switch" data-lang="en" role="group" aria-label="Language">
+          <span class="lang-thumb" aria-hidden="true"></span>
+          <button type="button" id="lang-en" class="lang-btn" aria-pressed="true" onclick="setLang('en')">EN</button>
+          <button type="button" id="lang-id" class="lang-btn" aria-pressed="false" onclick="setLang('id')">ID</button>
+        </div>
+
+        <a
+          class="github-link"
+          data-github-link
+          href="https://github.com/yeazka/Grump"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+          </svg>
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content">
+
+    <section id="overview" class="hero-section" aria-labelledby="hero-heading">
+      <video
+        id="hero-video"
+        autoplay
+        loop
+        muted
+        playsinline
+        width="1920"
+        height="1080"
+        class="warm-video-layer"
+      >
+        <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260210_031346_d87182fb-b0af-4273-84d1-c6fd17d6bf0f.mp4" type="video/mp4">
+      </video>
+
+      <div class="warm-ambient-glow" aria-hidden="true"></div>
+      <div class="hero-bottom-fade" aria-hidden="true"></div>
+
+      <div class="hero-content">
+        <h1 id="hero-heading" class="hero-title" data-i18n="hero-title">
+          <span class="hero-line">Your desktop is boring af,</span>
+          <span class="hero-line">so we made it <span class="hero-title-accent">angrier.</span></span>
+        </h1>
+
+        <p class="hero-lead" data-i18n="hero-subtext">
+          The moody Notch for Windows. It judges your Spotify taste, controls your PC, and shoots lasers at your cursor when you annoy it.
+        </p>
+
+        <div class="hero-cta-row">
+          <!-- 1. Download Setup installer -->
+          <a
+            class="liquid-glass-btn liquid-glass-primary"
+            id="btn-dl-setup"
+            href="https://github.com/yeazka/Grump/releases"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Download Grump Setup from GitHub"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.951-1.801"/>
+            </svg>
+            <span data-i18n="btn-dl-setup">Download Setup</span>
+          </a>
+
+          <!-- 2. Microsoft Store install (White Button) -->
+          <a
+            class="liquid-glass-btn btn-msstore-white"
+            id="btn-dl-msstore"
+            aria-disabled="true"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M19.5 7.5h-3.75v-1.5A3.75 3.75 0 0 0 12 2.25a3.75 3.75 0 0 0-3.75 3.75v1.5H4.5A2.25 2.25 0 0 0 2.25 9.75v9.75A2.25 2.25 0 0 0 4.5 21.75h15a2.25 2.25 0 0 0 2.25-2.25V9.75A2.25 2.25 0 0 0 19.5 7.5zm-9.75-1.5a2.25 2.25 0 0 1 4.5 0v1.5h-4.5v-1.5zm10.5 13.5a.75.75 0 0 1-.75.75H4.5a.75.75 0 0 1-.75-.75V9.75a.75.75 0 0 1 .75-.75h15a.75.75 0 0 1 .75.75v9.75z"/>
+              <rect x="7" y="11.5" width="4.2" height="4.2" fill="#f25022"/>
+              <rect x="12.8" y="11.5" width="4.2" height="4.2" fill="#7fba00"/>
+              <rect x="7" y="16.5" width="4.2" height="4.2" fill="#00a4ef"/>
+              <rect x="12.8" y="16.5" width="4.2" height="4.2" fill="#ffb900"/>
+            </svg>
+            <span data-i18n="btn-dl-msstore">Coming soon</span>
+          </a>
+
+          <!-- 3. Support on Trakteer -->
+          <a
+            class="liquid-glass-btn btn-trakteer"
+            id="btn-trakteer"
+            href="https://trakteer.id/sewelaspixel/tip"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Support on Trakteer"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#fbbf24" aria-hidden="true">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+            <span data-i18n="btn-support">Support me</span>
+          </a>
+        </div>
+
+        <div class="hero-downloads-text" aria-label="Download statistics">
+          <span class="stats-text" data-i18n="hero-downloads">Windows installer will be hosted on GitHub Releases</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="features-section" aria-labelledby="demo-heading">
+      <div class="wrap interactive-split">
+
+        <!-- Left Column: Interactive Testing Controls (Antislop Audited: Segmented Switch + Balanced 3x3 & 2x4 Liquid Glass Grids) -->
+        <div class="testing-panel">
+          <div class="testing-header">
+            <div class="testing-badge" aria-hidden="true">
+              <span class="testing-badge-dot"></span>
+              <span data-i18n="demo-tag">1:1 Interactive Demo</span>
+            </div>
+            <h2 id="demo-heading" data-i18n="demo-title">Move your cursor near Grump and see what happens.</h2>
+          </div>
+
+          <!-- Bab 1: Notch Position -->
+          <div class="panel-group-header">
+            <span class="panel-group-label" data-i18n="label-dock">Notch Position (Anchored / Floating)</span>
+          </div>
+          <div class="dock-choices" role="group" aria-label="Notch dock mode">
+            <button type="button" class="dock-choice-card" id="btn-dock-anchored" aria-pressed="true" onclick="setDockMode('anchored')">
+              <div class="dock-card-preview" aria-hidden="true">
+                <div class="dock-card-bezel"></div>
+                <div class="dock-card-notch">
+                  <svg viewBox="0 0 110 32" preserveAspectRatio="none">
+                    <path d="M 0 0 C 6 0 14 6 14 12 L 14 20 A 12 12 0 0 0 26 32 L 84 32 A 12 12 0 0 0 96 20 L 96 12 C 96 6 104 0 110 0 Z" fill="#050508" stroke="rgba(255,255,255,0.45)" stroke-width="1.4"/>
+                  </svg>
+                  <div class="dock-card-eyes"><i></i><i></i></div>
+                </div>
+              </div>
+              <span class="dock-card-label" data-i18n="btn-anchored">Anchored</span>
+            </button>
+
+            <button type="button" class="dock-choice-card" id="btn-dock-island" aria-pressed="false" onclick="setDockMode('island')">
+              <div class="dock-card-preview" aria-hidden="true">
+                <div class="dock-card-bezel"></div>
+                <div class="dock-card-pill">
+                  <div class="dock-card-eyes"><i></i><i></i></div>
+                </div>
+              </div>
+              <span class="dock-card-label" data-i18n="btn-floating">Floating</span>
+            </button>
+          </div>
+
+          <!-- Bab 2: Interactive Features -->
+          <div class="panel-group-header">
+            <span class="panel-group-label" data-i18n="label-states">Interactive Features</span>
+          </div>
+          <div class="state-grid" role="group" aria-label="Preview the notch">
+            <button type="button" class="try-btn state-btn" id="btn-mode-weather" data-mode="weather" aria-pressed="true" onclick="setDemoMode('weather')" data-i18n="state-weather">Weather &amp; Clock</button>
+            <button type="button" class="try-btn state-btn" id="btn-mode-closed" data-mode="closed" aria-pressed="false" onclick="setDemoMode('closed')" data-i18n="state-closed">Auto-Dodge</button>
+            <button type="button" class="try-btn state-btn" id="btn-mode-compact-music" data-mode="compact-music" aria-pressed="false" onclick="setDemoMode('compact-music')" data-i18n="state-compact-music">Compact Lyric</button>
+            <button type="button" class="try-btn state-btn" id="btn-mode-music" data-mode="music" aria-pressed="false" onclick="setDemoMode('music')" data-i18n="state-music">Music Player</button>
+            <button type="button" class="try-btn state-btn" id="btn-mode-timer" data-mode="timer" aria-pressed="false" onclick="setDemoMode('timer')" data-i18n="state-timer">Focus Timer</button>
+            <button type="button" class="try-btn state-btn" id="btn-mode-dashboard" data-mode="dashboard" aria-pressed="false" onclick="setDemoMode('dashboard')" data-i18n="state-dashboard">Control Hub</button>
+            <button type="button" class="try-btn state-btn" id="btn-mode-ai-work" data-mode="ai-work" aria-pressed="false" onclick="setDemoMode('ai-work')" data-i18n="state-ai-work">AI Activity</button>
+            <button type="button" class="try-btn state-btn" id="btn-mode-headphones" data-mode="headphones" aria-pressed="false" onclick="setDemoMode('headphones')" data-i18n="state-headphones">Headphones</button>
+            <button type="button" class="try-btn state-btn" id="btn-mode-charging" data-mode="charging" aria-pressed="false" onclick="setDemoMode('charging')" data-i18n="state-charging">Charging</button>
+          </div>
+
+          <!-- Bab 3: Eye Shapes & Angry FX -->
+          <div class="panel-group-header">
+            <span class="panel-group-label" data-i18n="label-eyes">Eye Shapes &amp; Angry FX</span>
+          </div>
+          <div class="eye-grid" role="group" aria-label="Eye shapes and visual effects">
+            <button type="button" class="try-btn eye-btn" id="btn-eye-gold" aria-pressed="false" onclick="setAngryVariant('gold-matrix')">
+              <span class="eye-chip eye-fx-gold" aria-hidden="true"><i></i><i></i></span>
+              <span data-i18n="eye-gold">Grump Gold</span>
+            </button>
+
+            <button type="button" class="try-btn eye-btn" id="btn-eye-laser" aria-pressed="false" onclick="setAngryVariant('laser')">
+              <span class="eye-chip eye-fx-laser" aria-hidden="true"><i></i><i></i></span>
+              <span data-i18n="eye-laser">Laser Beam</span>
+            </button>
+
+            <button type="button" class="try-btn eye-btn" id="btn-eye-pink" aria-pressed="false" onclick="setAngryVariant('pink')">
+              <span class="eye-chip eye-fx-pink" aria-hidden="true"><i></i><i></i></span>
+              <span data-i18n="eye-pink">Sakura Pink</span>
+            </button>
+
+            <button type="button" class="try-btn eye-btn" id="btn-eye-berserk" aria-pressed="false" onclick="setAngryVariant('berserk')">
+              <span class="eye-chip eye-fx-berserk" aria-hidden="true"><i></i><i></i></span>
+              <span data-i18n="eye-berserk">Berserk Void</span>
+            </button>
+
+            <button type="button" class="try-btn eye-btn" id="btn-shape-normal" aria-pressed="false" onclick="setEyeShape('normal')">
+              <span class="eye-chip eye-shape-normal" aria-hidden="true"><i></i><i></i></span>
+              <span data-i18n="eye-normal">Normal Eyes</span>
+            </button>
+
+            <button type="button" class="try-btn eye-btn" id="btn-shape-happy" aria-pressed="false" onclick="setEyeShape('happy')">
+              <span class="eye-chip eye-shape-happy" aria-hidden="true"><i></i><i></i></span>
+              <span data-i18n="eye-happy">Happy Arc</span>
+            </button>
+
+            <button type="button" class="try-btn eye-btn" id="btn-shape-flirty" aria-pressed="false" onclick="setEyeShape('flirty')">
+              <span class="eye-chip eye-shape-flirty" aria-hidden="true"><i></i><i></i></span>
+              <span data-i18n="eye-flirty">Flirty Wink</span>
+            </button>
+
+            <button type="button" class="try-btn eye-btn" id="btn-shape-sleep" aria-pressed="false" onclick="setEyeShape('sleep')">
+              <span class="eye-chip eye-shape-sleep" aria-hidden="true"><i></i><i></i></span>
+              <span data-i18n="eye-sleepy">Sleepy</span>
+            </button>
+          </div>
+
+          <p id="demo-mode-caption" class="mode-caption" aria-live="polite">
+            Move your cursor near the notch on the right screen to provoke Grump, or click any feature and eye shape above.
+          </p>
+        </div>
+
+        <!-- Right Column: Half-Laptop Screen with 1:1 Grump Engine -->
+        <div class="laptop-stage">
+          <div class="laptop" id="laptop">
+            <div class="lid">
+              <div class="bezel">
+                <span class="cam" aria-hidden="true"></span>
+                <div class="screen" id="laptop-screen">
+                  <div class="screen-vignette" aria-hidden="true"></div>
+                  <iframe
+                    id="grump-demo-frame"
+                    src="grump-app/"
+                    width="640"
+                    height="420"
+                    class="grump-iframe"
+                    title="Grump 1:1 Interactive Notch Preview"
+                  ></iframe>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- Testimonials & Feedback Section -->
+    <section id="testimonials" class="testimonials-section" aria-labelledby="testimonials-heading">
+      <div class="wrap testimonial-wrap">
+          
+          <!-- Left Column: Creator Notes Stage (Azka) -->
+          <div class="testimonial-card-container" id="testimonial-container">
+            <div class="oversized-number" id="testi-big-num" aria-hidden="true">01</div>
+
+            <div class="testi-layout">
+              <!-- Left column: vertical title & vertical progress bar -->
+              <div class="testi-left-col">
+                <span class="testi-vertical-label" data-i18n="testi-section-label">CREATOR'S NOTE</span>
+                <div class="testi-progress-track">
+                  <div class="testi-progress-fill" id="testi-progress-bar" style="height: 33.33%;"></div>
+                </div>
+              </div>
+
+              <!-- Center column: main content -->
+              <div class="testi-main-col">
+                <!-- Company / Role Badge -->
+                <div class="testi-company-row">
+                  <span class="testi-company-badge">
+                    <span class="testi-badge-dot" aria-hidden="true"></span>
+                    <span id="testi-company">Creator</span>
+                  </span>
+                </div>
+
+                <!-- Big Typography Quote -->
+                <div class="testi-quote-wrap">
+                  <blockquote id="testi-quote" class="testi-quote-text">
+                    &ldquo;I built Grump because desktop notches shouldn't be boring. Handcrafted every pixel, shader, and laser at night. Hope you all love using it!&rdquo;
+                  </blockquote>
+                </div>
+
+                <!-- Author & Navigation Row -->
+                <div class="testi-author-nav-row">
+                  <div class="testi-author-info">
+                    <div class="testi-author-line" aria-hidden="true"></div>
+                    <div>
+                      <h3 id="testi-author" class="testi-author-name">Azka</h3>
+                      <p id="testi-role" class="testi-author-role">Creator of Grump</p>
+                    </div>
+                    <a
+                      href="https://trakteer.id/sewelaspixel/tip"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="testi-trakteer-btn"
+                      title="Dukung Sewelas Pixel di Trakteer"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="#fbbf24" aria-hidden="true">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                      </svg>
+                      <span data-i18n="testi-trakteer">Traktir Kopi</span>
+                    </a>
+                  </div>
+
+                  <!-- Navigation Buttons -->
+                  <div class="testi-nav-group" role="group" aria-label="Testimonial navigation">
+                    <button type="button" class="testi-nav-btn" id="testi-prev-btn" onclick="prevTestimonial()" aria-label="Previous testimonial">
+                      <span class="testi-btn-fill" aria-hidden="true"></span>
+                      <svg width="18" height="18" viewBox="0 0 16 16" fill="none" class="testi-nav-icon">
+                        <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                    <button type="button" class="testi-nav-btn" id="testi-next-btn" onclick="nextTestimonial()" aria-label="Next testimonial">
+                      <span class="testi-btn-fill" aria-hidden="true"></span>
+                      <svg width="18" height="18" viewBox="0 0 16 16" fill="none" class="testi-nav-icon">
+                        <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stage Divider -->
+          <div class="stage-divider" aria-hidden="true"></div>
+
+          <!-- Stage 2: Feedback & Ideas Stage (Mirrors Testimonial Stage exactly) -->
+          <div class="feedback-card-container" id="feedback-container">
+            <div class="testi-layout">
+              <!-- Left column: vertical title & vertical track -->
+              <div class="testi-left-col">
+                <span class="testi-vertical-label" data-i18n="fb-tag">FEEDBACK &amp; IDEAS</span>
+                <div class="testi-progress-track">
+                  <div class="fb-progress-fill" aria-hidden="true"></div>
+                </div>
+              </div>
+
+              <!-- Main column: content and form -->
+              <div class="testi-main-col">
+                <!-- Direct Channel Badge -->
+                <div class="testi-company-row">
+                  <span class="testi-company-badge">
+                    <span class="testi-badge-dot" aria-hidden="true"></span>
+                    <span data-i18n="fb-badge">DIRECT TO CREATOR</span>
+                  </span>
+                </div>
+
+                <!-- Big Typography Title & Subtitle -->
+                <div class="fb-hero-wrap">
+                  <h3 class="fb-hero-title" data-i18n="fb-title">Got an idea or found a bug? Send it over.</h3>
+                  <p class="fb-hero-sub" data-i18n="fb-sub">No tickets or corporate bureaucracy. Handcrafted by Azka, shaped by you.</p>
+                </div>
+
+                <!-- Feedback Form -->
+                <form id="fb-form" class="fb-form" onsubmit="handleFeedbackSubmit(event)">
+                  <!-- Category Selector -->
+                  <div class="fb-types" role="group" aria-label="Feedback category">
+                    <button type="button" class="fb-type-chip active" data-type="idea" onclick="selectFbType(this)">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+                      <span data-i18n="fb-type-idea">Idea</span>
+                    </button>
+                    <button type="button" class="fb-type-chip" data-type="bug" onclick="selectFbType(this)">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 2 1.88 1.88"/><path d="M14.12 3.88 16 2"/><path d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6"/><path d="M12 20v-9"/><path d="M6.53 9C4.6 8.8 3 7.1 3 5"/><path d="M6 13H2"/><path d="M3 21c0-2.1 1.7-3.9 3.8-4"/><path d="M20.97 5c0 2.1-1.6 3.8-3.5 4"/><path d="M22 13h-4"/><path d="M17.2 17c2.1.1 3.8 1.9 3.8 4"/></svg>
+                      <span data-i18n="fb-type-bug">Bug</span>
+                    </button>
+                    <button type="button" class="fb-type-chip" data-type="cheer" onclick="selectFbType(this)">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                      <span data-i18n="fb-type-cheer">Cheer</span>
+                    </button>
+                  </div>
+
+                  <!-- Message Textarea -->
+                  <div class="fb-field">
+                    <textarea
+                      id="fb-text"
+                      class="fb-textarea"
+                      rows="3"
+                      required
+                      placeholder="What's on your mind? Share your thoughts, feature ideas, or issues..."
+                      data-i18n-placeholder="fb-placeholder"
+                    ></textarea>
+                  </div>
+
+                  <!-- Optional Contact Handle / Email -->
+                  <div class="fb-field">
+                    <input
+                      type="text"
+                      id="fb-contact"
+                      class="fb-input"
+                      placeholder="Your email or contact handle (optional)"
+                      data-i18n-placeholder="fb-contact-placeholder"
+                    />
+                  </div>
+
+                  <!-- Author-style Delivery Note & Action Button Row -->
+                  <div class="fb-action-row">
+                    <div class="fb-dest-info">
+                      <div class="testi-author-line" aria-hidden="true"></div>
+                      <div>
+                        <span class="fb-dest-title" data-i18n="fb-note">Delivered directly to the creator</span>
+                        <p class="fb-dest-sub" data-i18n="fb-dest-sub">Feedback channel coming soon</p>
+                      </div>
+                    </div>
+
+                    <!-- Grand Submit Button -->
+                    <button type="submit" class="fb-grand-submit-btn" id="fb-submit-btn">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                      </svg>
+                      <span id="fb-btn-text" data-i18n="fb-btn-submit">Send Feedback</span>
+                    </button>
+                  </div>
+
+                  <div id="fb-success-banner" class="fb-success-banner" style="display: none;" role="status">
+                    <span data-i18n="fb-success">Feedback sent successfully! Thank you for helping shape Grump!</span>
+                  </div>
+
+                  <div id="fb-error-banner" class="fb-error-banner" style="display: none;" role="alert">
+                    <span data-i18n="fb-error">Failed to send feedback. Please check your connection.</span>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom subtle ticker marquee -->
+        <div class="testi-ticker" aria-hidden="true">
+          <div class="testi-ticker-track">
+            <span data-i18n="marquee-text">Grump &bull; Built by Azka &bull; Moody Notch for Windows &bull; Free &amp; Open Source &bull; Grump &bull; Built by Azka &bull; Moody Notch for Windows &bull; Free &amp; Open Source &bull;&nbsp;</span>
+            <span data-i18n="marquee-text">Grump &bull; Built by Azka &bull; Moody Notch for Windows &bull; Free &amp; Open Source &bull; Grump &bull; Built by Azka &bull; Moody Notch for Windows &bull; Free &amp; Open Source &bull;&nbsp;</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <div class="footer-brand">
+        <img src="assets/grump-logo.jpg" alt="Grump" width="22" height="22">
+        <span>Grump Notch</span>
+        <span style="color:var(--muted);font-weight:500">&bull; Windows 10 &amp; 11</span>
+      </div>
+      <div class="footer-links-row">
+        <a href="https://trakteer.id/sewelaspixel/tip" target="_blank" rel="noopener noreferrer" class="footer-link">Trakteer</a>
+        <span class="footer-sep">&bull;</span>
+        <a href="https://github.com/yeazka/Grump" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub</a>
+        <span class="footer-sep">&bull;</span>
+        <span class="footer-note" data-i18n="footer-crafted">Crafted with attitude &bull; &copy; 2026 Grump</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const translations = {
+      en: {
+        "page-title": "Grump Notch: Your Desktop Just Got Angrier",
+        "nav-overview": "Overview",
+        "nav-features": "Features",
+        "hero-title": "<span class=\"hero-line\">Your desktop is boring af,</span><span class=\"hero-line\">so we made it <span class=\"hero-title-accent\">angrier.</span></span>",
+        "hero-subtext": "The moody Notch for Windows. It judges your Spotify taste, controls your PC, and shoots lasers at your cursor when you annoy it.",
+        "btn-download": "Download for Windows",
+        "btn-support": "Support me",
+        "testi-trakteer": "Tip on Trakteer",
+        "nav-testimonials": "Testimonials",
+        "testi-section-label": "CREATOR'S NOTE",
+        "btn-dl-setup": "Download Setup",
+        "btn-dl-msstore": "Coming soon",
+        "fb-tag": "FEEDBACK &amp; IDEAS",
+        "fb-badge": "DIRECT TO CREATOR",
+        "fb-title": "Got an idea or found a bug? Send it over.",
+        "fb-sub": "No tickets or corporate bureaucracy. Handcrafted by Azka, shaped by you.",
+        "fb-type-idea": "Idea",
+        "fb-type-bug": "Bug",
+        "fb-type-cheer": "Cheer",
+        "fb-placeholder": "What's on your mind? Share your thoughts, feature ideas, or issues...",
+        "fb-contact-placeholder": "Your email or contact handle (optional)",
+        "fb-btn-submit": "Feedback coming soon",
+        "fb-note": "Delivered directly to the creator",
+        "fb-dest-sub": "Feedback channel coming soon",
+        "fb-success": "Feedback sent successfully! Thank you for helping shape Grump!",
+        "fb-error": "Failed to send feedback. Please check your connection.",
+        "hero-downloads": "Windows installer hosted on GitHub Releases",
+        "demo-tag": "1:1 Interactive Demo",
+        "demo-title": "Move your cursor near Grump and see what happens.",
+        "demo-desc": "Move your cursor near Grump and see what happens.",
+        "label-dock": "Notch Position (Anchored / Floating)",
+        "btn-anchored": "Anchored",
+        "btn-floating": "Floating",
+        "label-states": "Interactive Features",
+        "state-weather": "Weather &amp; Clock",
+        "state-closed": "Auto-Dodge",
+        "state-compact-music": "Compact Lyric",
+        "state-music": "Music Player",
+        "state-timer": "Focus Timer",
+        "state-dashboard": "Control Hub",
+        "state-ai-work": "AI Activity",
+        "state-headphones": "Headphones",
+        "state-charging": "Charging",
+        "label-eyes": "Eye Shapes &amp; Angry FX",
+        "eye-gold": "Grump Gold",
+        "eye-laser": "Laser Beam",
+        "eye-pink": "Sakura Pink",
+        "eye-berserk": "Berserk Void",
+        "eye-normal": "Normal Eyes",
+        "eye-happy": "Happy Arc",
+        "eye-flirty": "Flirty Wink",
+        "eye-sleepy": "Sleepy",
+        "marquee-text": "Grump &bull; Built by Azka &bull; Moody Notch for Windows &bull; Free &amp; Open Source &bull; Grump &bull; Built by Azka &bull; Moody Notch for Windows &bull; Free &amp; Open Source &bull;&nbsp;",
+        "footer-crafted": "Crafted with attitude &bull; &copy; 2026 Grump"
+      },
+      id: {
+        "page-title": "Grump Notch: Desktop Lu Jadi Lebih Galak",
+        "nav-overview": "Ringkasan",
+        "nav-features": "Fitur",
+        "hero-title": "<span class=\"hero-line\">Desktop lu ngebosenin bgt,</span><span class=\"hero-line\">makanya kita bikin lebih <span class=\"hero-title-accent\">galak.</span></span>",
+        "hero-subtext": "Notch moody buat Windows. Nge-judge selera Spotify lu, kontrol PC lu, dan nembak laser ke kursor kalo lu usilin.",
+        "btn-download": "Download buat Windows",
+        "btn-support": "Support me",
+        "testi-trakteer": "Traktir Kopi",
+        "nav-testimonials": "Testimoni",
+        "testi-section-label": "CATATAN KREATOR",
+        "btn-dl-setup": "Download Setup",
+        "btn-dl-msstore": "Coming soon",
+        "fb-tag": "FEEDBACK &amp; IDE",
+        "fb-badge": "LANGSUNG KE KREATOR",
+        "fb-title": "Punya ide atau nemu bug? Kirim langsung ke sini.",
+        "fb-sub": "Tanpa tiket atau birokrasi ribet. Dibaca langsung sama kreator.",
+        "fb-type-idea": "Ide",
+        "fb-type-bug": "Bug",
+        "fb-type-cheer": "Apresiasi",
+        "fb-placeholder": "Ada ide baru atau nemu kendala? Tulis unek-unek lu di sini...",
+        "fb-contact-placeholder": "Email atau kontak lu (opsional)",
+        "fb-btn-submit": "Feedback segera hadir",
+        "fb-note": "Terkirim langsung ke kreator",
+        "fb-dest-sub": "Kanal feedback segera hadir",
+        "fb-success": "Feedback berhasil terkirim! Makasih banyak udah bantu Grump!",
+        "fb-error": "Gagal mengirim feedback. Cek koneksi lu.",
+        "hero-downloads": "Installer Windows tersedia lewat GitHub Releases",
+        "demo-tag": "Demo 1:1 Interaktif",
+        "demo-title": "Arahkan kursor mendekat ke Grump dan lihat apa yang terjadi.",
+        "demo-desc": "Arahkan kursor mendekat ke Grump dan lihat apa yang terjadi.",
+        "label-dock": "Notch Position (Anchored / Floating)",
+        "btn-anchored": "Anchored",
+        "btn-floating": "Floating",
+        "label-states": "Interactive Features",
+        "state-weather": "Weather &amp; Clock",
+        "state-closed": "Auto-Dodge",
+        "state-compact-music": "Compact Lyric",
+        "state-music": "Music Player",
+        "state-timer": "Focus Timer",
+        "state-dashboard": "Control Hub",
+        "state-ai-work": "AI Activity",
+        "state-headphones": "Headphones",
+        "state-charging": "Charging",
+        "label-eyes": "Eye Shapes &amp; Angry FX",
+        "eye-gold": "Grump Gold",
+        "eye-laser": "Laser Beam",
+        "eye-pink": "Sakura Pink",
+        "eye-berserk": "Berserk Void",
+        "eye-normal": "Normal Eyes",
+        "eye-happy": "Happy Arc",
+        "eye-flirty": "Flirty Wink",
+        "eye-sleepy": "Sleepy",
+        "marquee-text": "Grump &bull; Dibuat oleh Azka &bull; Notch Moody untuk Windows &bull; Gratis &amp; Open Source &bull; Grump &bull; Dibuat oleh Azka &bull; Notch Moody untuk Windows &bull; Gratis &amp; Open Source &bull;&nbsp;",
+        "footer-crafted": "Dibuat penuh karakter &bull; &copy; 2026 Grump"
+      }
+    };
+
+    const captions = {
+      en: {
+        anchored: "Anchored mode: Grump merges directly into the top bezel of your screen like a native MacBook notch.",
+        island: "Floating mode: Grump detaches from the top bezel and floats as a sleek rounded floating notch.",
+        weather: "Expands smoothly to display live local weather (29°C) on the left and time on the right while eyes track your cursor.",
+        closed: "Auto-Dodge mode: move your cursor near the top center of the laptop screen to watch Grump flatten into a 3px line.",
+        "compact-music": "Compact media bar with live synced lyrics that dynamically morph the island's width to fit every line.",
+        music: "Full media player with reactive WebGL shader background, album art color extraction, and interactive playback controls.",
+        timer: "iOS Liquid Glass focus timer: drag the ruler ticks left or right inside the island, or press Pause / Start Timer.",
+        dashboard: "Quick control center with interactive iOS Liquid Glass Brightness and Volume sliders, Wi-Fi and Bluetooth popovers, and Quiet Mode.",
+        "ai-work": "Real-time AI activity monitor for Antigravity, Claude, Codex, and ChatGPT with an animated 9-pixel status matrix.",
+        headphones: "AirPods and Bluetooth audio connection toast with spatial wave animation and battery status.",
+        charging: "Battery charging, unplugged, and low-battery surge notifications.",
+        eye: "Previewing Grump's eye expression and VFX on the screen. Move your cursor near the notch to interact."
+      },
+      id: {
+        anchored: "Mode Menempel: Grump nempel menyatu sama bezel atas layar lu persis kayak notch bawaan MacBook.",
+        island: "Mode Melayang: Grump lepas dari bezel atas dan melayang jadi kapsul floating notch.",
+        weather: "Melebar mulus nampilin cuaca lokal (29°C) di kiri dan jam di kanan sambil matanya tetep ngelirik kursor lu.",
+        closed: "Mode Auto-Dodge: arahin kursor lu ke tengah atas layar laptop buat liat Grump ngeles jadi garis tipis 3px.",
+        "compact-music": "Mode musik ringkas dengan lirik tersinkronisasi yang lebarnya ngikutin panjang kalimat lagu secara otomatis.",
+        music: "Pemutar musik lengkap dengan background WebGL shader reaktif, ekstraksi warna cover lagu, dan kontrol penuh.",
+        timer: "Focus Timer bergaya iOS Liquid Glass: geser penggaris menit di dalam pulau ke kiri atau kanan, lalu klik Start/Pause Timer.",
+        dashboard: "Pusat kontrol cepat dengan slider Brightness dan Volume iOS Liquid Glass yang bisa digeser, Wi-Fi/Bluetooth, dan Quiet Mode.",
+        "ai-work": "Indikator aktivitas AI real-time buat Antigravity, Claude, Codex, dan ChatGPT dengan animasi matriks 9-piksel.",
+        headphones: "Animasi notifikasi saat TWS atau AirPods tersambung lengkap dengan efek gelombang suara.",
+        charging: "Animasi surge pengisian daya baterai saat charger dicolok atau dicabut.",
+        eye: "Menampilkan bentukan mata dan efek marah Grump di layar kanan. Deketin kursor lu ke notch buat nyobain."
+      }
+    };
+
+    let currentLang = 'en';
+    let currentCaptionKey = 'weather';
+
+    function updateCaption(key) {
+      if (key) currentCaptionKey = key;
+      const captionEl = document.getElementById('demo-mode-caption');
+      if (captionEl && captions[currentLang] && captions[currentLang][currentCaptionKey]) {
+        captionEl.textContent = captions[currentLang][currentCaptionKey];
+      }
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang;
+      const dict = translations[lang];
+      if (dict && dict["page-title"]) {
+        document.title = dict["page-title"];
+      }
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict && dict[key] !== undefined) el.innerHTML = dict[key];
+      });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (dict && dict[key] !== undefined) el.placeholder = dict[key];
+      });
+
+      const sw = document.getElementById('lang-switch');
+      const btnEn = document.getElementById('lang-en');
+      const btnId = document.getElementById('lang-id');
+      if (sw) sw.setAttribute('data-lang', lang);
+      if (btnEn) btnEn.setAttribute('aria-pressed', String(lang === 'en'));
+      if (btnId) btnId.setAttribute('aria-pressed', String(lang === 'id'));
+      updateCaption();
+      renderTestimonial(activeTestiIndex);
+    }
+
+    function sendToGrump(payload) {
+      const frame = document.getElementById('grump-demo-frame');
+      if (frame && frame.contentWindow) {
+        frame.contentWindow.postMessage({ type: 'grump-demo', ...payload }, '*');
+      }
+    }
+
+    function fitLaptopScale() {
+      const vw = window.innerWidth;
+      const u = vw > 1024 ? 1.08 : (vw > 640 ? 1.0 : Math.max(0.68, (vw - 44) / 440));
+      document.documentElement.style.setProperty('--u', u.toFixed(3));
+      sendToGrump({ action: 'scale', scale: u });
+    }
+    window.addEventListener('resize', fitLaptopScale);
+    window.addEventListener('DOMContentLoaded', fitLaptopScale);
+    document.getElementById('grump-demo-frame').addEventListener('load', fitLaptopScale);
+
+    async function resolveInstaller() {
+      const button = document.getElementById('btn-dl-setup');
+      try {
+        const res = await fetch('https://api.github.com/repos/yeazka/Grump/releases/latest', {
+          headers: { Accept: 'application/vnd.github+json' }
+        });
+        if (!res.ok) return;
+        const release = await res.json();
+        const asset = (release.assets || []).find(item =>
+          /^Grump-Setup-\d+\.\d+\.\d+\.exe$/i.test(item.name || '') &&
+          /^https:\/\/github\.com\//i.test(item.browser_download_url || '')
+        );
+        if (!asset) return;
+        button.href = asset.browser_download_url;
+        button.removeAttribute('aria-disabled');
+        button.title = `Grump ${release.tag_name || ''} · Windows installer`;
+        document.querySelectorAll('[data-github-link]').forEach(link => {
+          link.href = 'https://github.com/yeazka/Grump';
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.removeAttribute('aria-disabled');
+        });
+        translations.en['btn-dl-setup'] = 'Download Setup';
+        translations.id['btn-dl-setup'] = 'Download Setup';
+
+        translations.en['hero-downloads'] = `${Number(asset.download_count || 0).toLocaleString('en-US')} setup downloads · GitHub Releases`;
+        translations.id['hero-downloads'] = `${Number(asset.download_count || 0).toLocaleString('id-ID')} unduhan setup · GitHub Releases`;
+        button.querySelector('[data-i18n="btn-dl-setup"]').textContent = translations[currentLang]['btn-dl-setup'];
+        
+        document.querySelector('[data-i18n="hero-downloads"]').textContent = translations[currentLang]['hero-downloads'];
+      } catch (err) {
+        console.warn('Installer release unavailable:', err);
+      }
+    }
+    resolveInstaller();
+
+    function setDockMode(dockMode) {
+      document.getElementById('btn-dock-anchored').setAttribute('aria-pressed', String(dockMode === 'anchored'));
+      document.getElementById('btn-dock-island').setAttribute('aria-pressed', String(dockMode === 'island'));
+      sendToGrump({ action: 'dock', dockMode });
+      updateCaption(dockMode);
+    }
+
+    function setDemoMode(mode) {
+      document.querySelectorAll('.state-btn').forEach(btn => {
+        btn.setAttribute('aria-pressed', String(btn.dataset.mode === mode));
+      });
+      document.querySelectorAll('.eye-btn').forEach(btn => {
+        btn.setAttribute('aria-pressed', 'false');
+      });
+      sendToGrump({ mode });
+      updateCaption(mode);
+    }
+
+    function setAngryVariant(variant) {
+      document.querySelectorAll('.state-btn').forEach(btn => {
+        btn.setAttribute('aria-pressed', 'false');
+      });
+      document.querySelectorAll('.eye-btn').forEach(btn => {
+        btn.setAttribute('aria-pressed', 'false');
+      });
+      const idMap = {
+        'gold-matrix': 'btn-eye-gold',
+        'laser': 'btn-eye-laser',
+        'pink': 'btn-eye-pink',
+        'berserk': 'btn-eye-berserk'
+      };
+      const active = document.getElementById(idMap[variant]);
+      if (active) active.setAttribute('aria-pressed', 'true');
+      sendToGrump({ action: 'variant', variant });
+      updateCaption('eye');
+    }
+
+    function setEyeShape(shape) {
+      document.querySelectorAll('.state-btn').forEach(btn => {
+        btn.setAttribute('aria-pressed', 'false');
+      });
+      document.querySelectorAll('.eye-btn').forEach(btn => {
+        btn.setAttribute('aria-pressed', String(btn.id === 'btn-shape-' + shape));
+      });
+      sendToGrump({ action: 'eyeshape', shape });
+      updateCaption('eye');
+    }
+
+    /* Testimonials Interactive State Engine */
+    const testimonialsData = [
+      {
+        quote: "I built Grump because desktop notches shouldn't be boring. Handcrafted every pixel, shader, and laser at night. Hope you all love using it!",
+        quote_id: "Gue bikin Grump karena notch di desktop harusnya gak ngebosenin. Dikerjain santai tiap malam dari pixel, shader, sampai lasernya. Semoga kalian suka dan betah pakenya!",
+        author: "Azka",
+        role: "Creator of Grump",
+        role_id: "Kreator Grump",
+        company: "Creator",
+        company_id: "Kreator"
+      },
+      {
+        quote: "Grump is intentionally moody: it judges your music, tracks your cursor, and shoots lasers if annoyed. Hope you enjoy every little mood.",
+        quote_id: "Grump ini sengaja gue bikin moody: suka ngelirik kursor, nge-judge selera musik, dan nembak laser kalau diusilin. Semoga kalian suka sama tiap mood-nya.",
+        author: "Azka",
+        role: "Creator of Grump",
+        role_id: "Kreator Grump",
+        company: "Personality",
+        company_id: "Karakter"
+      },
+      {
+        quote: "From a small late-night experiment to something alive on your screens. Huge thanks to everyone supporting from day one. Hope you all like it!",
+        quote_id: "Dari proyek eksperimen kecil sampai akhirnya beneran hidup di layar kalian. Makasih banyak buat yang sudah support dari awal, semoga kalian suka!",
+        author: "Azka",
+        role: "Creator of Grump",
+        role_id: "Kreator Grump",
+        company: "Indie Project",
+        company_id: "Proyek Indie"
+      }
+    ];
+
+    let activeTestiIndex = 0;
+    let testiTimer = null;
+
+    function renderTestimonial(index) {
+      const data = testimonialsData[index];
+      if (!data) return;
+
+      const numEl = document.getElementById('testi-big-num');
+      const companyEl = document.getElementById('testi-company');
+      const quoteEl = document.getElementById('testi-quote');
+      const authorEl = document.getElementById('testi-author');
+      const roleEl = document.getElementById('testi-role');
+      const progressEl = document.getElementById('testi-progress-bar');
+
+      // Update progress bar
+      if (progressEl) {
+        const pct = ((index + 1) / testimonialsData.length) * 100;
+        if (window.innerWidth <= 768) {
+          progressEl.style.width = pct + '%';
+          progressEl.style.height = '100%';
+        } else {
+          progressEl.style.height = pct + '%';
+          progressEl.style.width = '100%';
+        }
+      }
+
+      // Smooth text transitions
+      if (quoteEl) {
+        quoteEl.style.opacity = '0';
+        quoteEl.style.transform = 'translateY(12px)';
+        setTimeout(() => {
+          quoteEl.innerHTML = `&ldquo;${currentLang === 'id' ? data.quote_id : data.quote}&rdquo;`;
+          quoteEl.style.opacity = '1';
+          quoteEl.style.transform = 'translateY(0)';
+        }, 160);
+      }
+
+      if (numEl) {
+        numEl.style.opacity = '0';
+        numEl.style.filter = 'blur(8px)';
+        setTimeout(() => {
+          numEl.textContent = String(index + 1).padStart(2, '0');
+          numEl.style.opacity = '1';
+          numEl.style.filter = 'blur(0px)';
+        }, 160);
+      }
+
+      if (companyEl) companyEl.textContent = currentLang === 'id' ? data.company_id : data.company;
+      if (authorEl) authorEl.textContent = data.author;
+      if (roleEl) roleEl.textContent = currentLang === 'id' ? data.role_id : data.role;
+    }
+
+    function nextTestimonial() {
+      activeTestiIndex = (activeTestiIndex + 1) % testimonialsData.length;
+      renderTestimonial(activeTestiIndex);
+      resetTestiTimer();
+    }
+
+    function prevTestimonial() {
+      activeTestiIndex = (activeTestiIndex - 1 + testimonialsData.length) % testimonialsData.length;
+      renderTestimonial(activeTestiIndex);
+      resetTestiTimer();
+    }
+
+    
+    function selectFbType(btn) {
+      document.querySelectorAll('.fb-type-chip').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+      // Feedback endpoint configuration
+      // Option A (Recommended for production): Deploy website/feedback-worker to Cloudflare Workers and put the URL here.
+      // Option B (Quick testing): Put a Discord Webhook URL directly here (https://discord.com/api/webhooks/...).
+      const FEEDBACK_ENDPOINT = "";
+
+      async function handleFeedbackSubmit(e) {
+        e.preventDefault();
+        const activeChip = document.querySelector('.fb-type-chip.active');
+        const type = activeChip ? activeChip.getAttribute('data-type') : 'idea';
+        const text = document.getElementById('fb-text')?.value.trim();
+        const contact = document.getElementById('fb-contact')?.value.trim();
+        const submitBtn = document.getElementById('fb-submit-btn');
+        const btnText = document.getElementById('fb-btn-text');
+        const banner = document.getElementById('fb-success-banner');
+        const errBanner = document.getElementById('fb-error-banner');
+
+        if (!text) return;
+
+        if (!FEEDBACK_ENDPOINT || FEEDBACK_ENDPOINT.trim() === "") {
+          if (errBanner) {
+            errBanner.textContent = (currentLang === 'id')
+              ? 'Kanal feedback sedang disiapkan. Silakan coba beberapa saat lagi.'
+              : 'Feedback channel is being prepared. Please check back shortly.';
+            errBanner.style.display = 'block';
+            setTimeout(() => { errBanner.style.display = 'none'; }, 6000);
+          }
+          console.info("[Grump Feedback] Endpoint is not set yet. Set FEEDBACK_ENDPOINT in index.html with your Cloudflare Worker or Discord Webhook URL.");
+          return;
+        }
+
+        // Set status loading
+        if (submitBtn) submitBtn.disabled = true;
+        const prevText = btnText ? btnText.textContent : '';
+        if (btnText) btnText.textContent = (currentLang === 'id' ? 'Mengirim...' : 'Sending...');
+
+        // Detect if endpoint is a direct Discord Webhook or Cloudflare Worker proxy
+        const isDiscordDirect = FEEDBACK_ENDPOINT.includes('discord.com/api/webhooks');
+        let payload;
+
+        if (isDiscordDirect) {
+          const categoryMeta = {
+            idea: { label: 'Idea / Suggestion', color: 16751360 }, // Amber #ff9d00
+            bug: { label: 'Bug Report', color: 15682628 },        // Red #ef4444
+            cheer: { label: 'Cheer / Feedback', color: 15485337 }  // Pink #ec4899
+          };
+          const cat = categoryMeta[type] || categoryMeta.idea;
+          payload = {
+            username: "Grump Feedback",
+            avatar_url: "https://raw.githubusercontent.com/yeazka/Grump/main/assets/icon.png",
+            embeds: [
+              {
+                title: cat.label,
+                description: text,
+                color: cat.color,
+                fields: [
+                  { name: "Category", value: type.toUpperCase(), inline: true },
+                  { name: "Contact", value: contact || "Anonymous", inline: true }
+                ],
+                footer: { text: "Grump Website Feedback" },
+                timestamp: new Date().toISOString()
+              }
+            ]
+          };
+        } else {
+          // Cloudflare Worker format (website/feedback-worker/worker.js)
+          payload = { type, text, contact };
+        }
+
+        try {
+          const res = await fetch(FEEDBACK_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          if (res.ok || res.status === 204) {
+            if (banner) {
+              banner.style.display = 'block';
+              setTimeout(() => { banner.style.display = 'none'; }, 6000);
+            }
+            document.getElementById('fb-form').reset();
+          } else {
+            throw new Error(`HTTP ${res.status}`);
+          }
+        } catch (err) {
+          console.error("Gagal mengirim feedback:", err);
+          if (errBanner) {
+            errBanner.textContent = (currentLang === 'id')
+              ? 'Gagal mengirim feedback. Cek koneksi lu atau coba lagi nanti.'
+              : 'Failed to send feedback. Please check your connection or try again later.';
+            errBanner.style.display = 'block';
+            setTimeout(() => { errBanner.style.display = 'none'; }, 6000);
+          }
+        } finally {
+          if (submitBtn) submitBtn.disabled = false;
+          if (btnText) btnText.textContent = prevText;
+        }
+      }
+
+      function resetTestiTimer() {
+      if (testiTimer) clearInterval(testiTimer);
+      testiTimer = setInterval(nextTestimonial, 6000);
+    }
+
+    // Parallax mouse magnetic effect on big number
+    function initTestiParallax() {
+      function attachParallax(containerId, numId) {
+        const container = document.getElementById(containerId);
+        const numEl = document.getElementById(numId);
+        if (!container || !numEl) return;
+
+        container.addEventListener('mousemove', (e) => {
+          const rect = container.getBoundingClientRect();
+          const centerX = rect.left + rect.width / 2;
+          const centerY = rect.top + rect.height / 2;
+          const deltaX = (e.clientX - centerX) / (rect.width / 2);
+          const deltaY = (e.clientY - centerY) / (rect.height / 2);
+          const moveX = deltaX * 22;
+          const moveY = deltaY * 12;
+          numEl.style.transform = `translate(${moveX}px, calc(-50% + ${moveY}px))`;
+        });
+
+        container.addEventListener('mouseleave', () => {
+          numEl.style.transform = `translate(0px, -50%)`;
+        });
+      }
+
+      attachParallax('testimonial-container', 'testi-big-num');
+    }
+
+    function checkHeaderScroll() {
+      const header = document.querySelector('.site-header');
+      if (header) {
+        header.classList.toggle('scrolled', window.scrollY > 20);
+      }
+    }
+    window.addEventListener('scroll', checkHeaderScroll, { passive: true });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      setLang('en');
+      initTestiParallax();
+      checkHeaderScroll();
+      resetTestiTimer();
+    });
+
+  </script>
+</body>
+</html>

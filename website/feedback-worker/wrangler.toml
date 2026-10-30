@@ -1,0 +1,19 @@
+name = "grump-feedback"
+main = "worker.js"
+compatibility_date = "2024-09-23"
+
+# Setup instructions:
+# 1. Create a KV namespace for rate limiting:
+#    npx wrangler kv namespace create FEEDBACK_RATE
+#    Then paste the returned id into the id field below:
+[[kv_namespaces]]
+binding = "FEEDBACK_RATE"
+id = "<your-kv-namespace-id>"
+
+[vars]
+# Replace with your production domain (without trailing slash)
+ALLOWED_ORIGIN = "https://yeazka.github.io"
+
+# Secret configuration:
+# 2. Add your private Discord Webhook URL as a Cloudflare Worker secret:
+#    npx wrangler secret put DISCORD_WEBHOOK_URL

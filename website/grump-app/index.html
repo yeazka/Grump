@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+
+<meta name="color-scheme" content="dark"><title>Grump</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="island-controls.css">
+</head>
+<body>
+<!-- SVG Filter untuk Efek Liquid Glass (Refraksi / Distorsi Kaca Cair) -->
+<svg class="svg-defs" aria-hidden="true">
+  <defs>
+    <filter id="container-glass" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.05 0.05" numOctaves="1" seed="1" result="turbulence" />
+      <feGaussianBlur in="turbulence" stdDeviation="2" result="blurredNoise" />
+      <feDisplacementMap in="SourceGraphic" in2="blurredNoise" scale="34" xChannelSelector="R" yChannelSelector="B" result="displaced" />
+      <feGaussianBlur in="displaced" stdDeviation="3" result="finalBlur" />
+      <feComposite in="finalBlur" in2="finalBlur" operator="over" />
+    </filter>
+    <linearGradient id="sakuraGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffc2df"/>
+      <stop offset="45%" stop-color="#ff69b4"/>
+      <stop offset="100%" stop-color="#db2777"/>
+    </linearGradient>
+  </defs>
+</svg>
+<!-- Laser Beam VFX Layer (shoots through container onto cursor) -->
+<svg id="laser-overlay" class="laser-overlay" aria-hidden="true">
+  <defs>
+    <filter id="laserGlowFilter" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="3" result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <line id="laser-beam-l" class="laser-beam" x1="0" y1="0" x2="0" y2="0"/>
+  <line id="laser-beam-r" class="laser-beam" x1="0" y1="0" x2="0" y2="0"/>
+  <line id="laser-core-l" class="laser-core" x1="0" y1="0" x2="0" y2="0"/>
+  <line id="laser-core-r" class="laser-core" x1="0" y1="0" x2="0" y2="0"/>
+  <g id="laser-target" class="laser-target" style="display: none;">
+    <circle class="laser-target-halo" cx="0" cy="0" r="14"/>
+    <circle class="laser-target-core" cx="0" cy="0" r="4.5"/>
+    <line class="laser-spark sp1" x1="-12" y1="0" x2="12" y2="0"/>
+    <line class="laser-spark sp2" x1="0" y1="-12" x2="0" y2="12"/>
+    <line class="laser-spark sp3" x1="-8" y1="-8" x2="8" y2="8"/>
+    <line class="laser-spark sp4" x1="-8" y1="8" x2="8" y2="-8"/>
+  </g>
+</svg>
+
+<div id="island" data-key="idle" data-theme="default" data-angry-variant="gold-matrix" data-dock="island">
+  <!-- Seamless Vector Notch Silhouette for Anchored Mode -->
+  <svg id="island-notch-svg" class="island-notch-svg" aria-hidden="true">
+    <path id="notch-fill" d="" fill="#000000"/>
+    <path id="notch-stroke" d="" fill="none" stroke="rgba(255, 255, 255, 0.18)" stroke-width="1.2"/>
+    <path id="notch-angry" d="" fill="none" stroke="#ff0000" stroke-width="1.6" opacity="0"/>
+  </svg>
+
+  <!-- Sakura Flower Petal Particles Container for Pink Angry Mode -->
+  <div id="sakura-container" class="sakura-container" aria-hidden="true"></div>
+  <!-- Berserk Lightning & Void Sparks Container -->
+  <div id="berserk-container" class="berserk-container" aria-hidden="true"></div>
+
+  <div id="island-content-clip">
+
+  <!-- IDLE: jam / mata / countdown timer aktif -->
+  <section class="view on" id="v-idle" data-mode="eyes">
+    <div id="idle-timer" class="idle-timer" style="display: none;">
+      <div class="idle-timer-badge">
+        <svg class="idle-timer-ring-svg" viewBox="0 0 20 20">
+          <circle class="itr-bg" cx="10" cy="10" r="7"/>
+          <circle class="itr-fg" id="idle-timer-ring" cx="10" cy="10" r="7" pathLength="100"/>
+        </svg>
+      </div>
+      <span id="idle-timer-text">05:00</span>
+    </div>
+        <!-- Weather & Time Side Info (Muncul tiap 30 detik selama 10 detik) -->
+    <div id="idle-weather" class="idle-side-info left" aria-hidden="true">
+      <svg class="idle-cloud-svg" viewBox="0 0 24 24"><path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
+      <span id="idle-weather-text">29°C</span>
+    </div>
+    <span id="i-clock">00:00</span>
+    <div id="eyes"><i><span class="cyber-grid"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></span></i><i><span class="cyber-grid"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></span></i></div>
+    <div id="idle-time" class="idle-side-info right" aria-hidden="true">
+      <span id="idle-time-text">00:00</span>
+    </div>
+
+  </section>
+
+  <!-- Activity from Codex, Claude, and Antigravity -->
+  <section class="view" id="v-work" aria-label="AI app activity">
+    <div id="work-detail"><span id="work-detail-main"></span><span id="work-detail-metric"></span></div>
+    <div class="work-row"><div class="work-pixels" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><strong id="work-title">Working</strong></div>
+  </section>
+
+  <!-- PEEKABOO / TUCK NOTCH -->
+  <section class="view" id="v-peekaboo">
+    <div class="pk-eyes" id="pk-eyes"><i></i><i></i></div>
+    <div class="pk-bars" id="pk-bars"><i></i><i></i><i></i><i></i></div>
+  </section>
+
+  <!-- COMPACT -->
+  <section class="view" id="v-compact" data-lead="art" data-trail="bars">
+    <div class="c-beam-light" aria-hidden="true"></div>
+    <div class="c-lead">
+      <div class="app-logo art sm" id="c-art"><span id="c-app-ico" data-app="spotify" data-ico="spotify"></span></div>
+      <svg class="ring-sm" viewBox="0 0 24 24"><circle class="bg" cx="12" cy="12" r="9"/><circle class="fg" id="c-ringfg" cx="12" cy="12" r="9" pathLength="100"/></svg>
+    </div>
+    <div class="c-mid" id="c-mid">
+      <span class="c-lyric" id="c-lyric"></span>
+    </div>
+    <div class="c-trail">
+      <div class="c-timer-pill" id="c-timer" style="display: none;">
+        <div class="c-timer-ring-box">
+          <svg class="c-tr-svg" viewBox="0 0 16 16">
+            <circle class="ctr-bg" cx="8" cy="8" r="5.5"/>
+            <circle class="ctr-fg" id="c-timer-ring" cx="8" cy="8" r="5.5" pathLength="100"/>
+          </svg>
+        </div>
+        <span class="c-timer-val" id="c-timer-val">05:00</span>
+      </div>
+      <div class="bars" id="c-bars"><i></i><i></i><i></i><i></i></div>
+    </div>
+  </section>
+
+  <!-- NOTICE -->
+  <section class="view" id="v-notice">
+    <span class="n-ico" id="n-ico" data-ico="bell"></span><span id="n-text">—</span>
+  </section>
+
+  <!-- CHARGE (Animasi Cas ala iPhone) -->
+  <section class="view" id="v-charge" data-state="charging">
+    <div class="ch-wave"></div>
+    <div class="ch-left">
+      <span class="ch-label" id="ch-label">Charging</span>
+    </div>
+    <div class="ch-right">
+      <span class="ch-pct" id="ch-pct">100%</span>
+      <div class="ch-bat">
+        <div class="ch-bat-body">
+          <div class="ch-bat-fill" id="ch-fill"></div>
+        </div>
+        <div class="ch-bat-cap"></div>
+        <span class="ch-bolt" id="ch-bolt" data-ico="bolt"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- HEADSET CONNECTED (Animasi Bluetooth Headset ala AirPods) -->
+  <section class="view" id="v-headset">
+    <div class="hs-wave"></div>
+    <div class="hs-left">
+      <div class="hs-ico-wrap">
+        <span class="hs-ico" id="hs-ico" data-ico="headphones"></span>
+        <span class="hs-ring"></span>
+      </div>
+      <div class="hs-meta">
+        <span class="hs-name" id="hs-name">Headphones</span>
+        <span class="hs-status"><i class="hs-dot"></i><span id="hs-status-text">Connected</span></span>
+      </div>
+    </div>
+    <div class="hs-right">
+      <div class="hs-bars"><i></i><i></i><i></i><i></i></div>
+      <div class="hs-badge">
+        <span class="hs-bt-ico" data-ico="bluetooth"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUIET PROMPT (Pertanyaan saat kerja / nonton film: Aku masuk quiet mode ya?) -->
+  <section class="view" id="v-prompt">
+    <div class="pr-mascot">
+      <div class="pr-eyes"><i></i><i></i></div>
+    </div>
+    <div class="pr-text">Aku masuk quiet mode ya?</div>
+    <div class="pr-actions">
+      <button class="pr-btn yes" data-act="prompt-yes" title="Ya (masuk Quiet Mode)" aria-label="Ya">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5L19.5 6.5"/></svg>
+      </button>
+      <button class="pr-btn no" data-act="prompt-no" title="Tidak (tetap normal)" aria-label="Tidak">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- HOME -->
+  <section class="view" id="v-home">
+    <div class="h-header-split">
+      <!-- Left side: Quick actions + Clock + Date -->
+      <div class="h-clock-side">
+        <div class="h-actions-row">
+          <button class="h-icon-btn" data-act="bluetoothsettings" title="Bluetooth settings" aria-label="Bluetooth settings"><span data-ico="bluetooth"></span></button>
+          <button class="h-icon-btn" data-act="wifisettings" title="Wi-Fi settings" aria-label="Wi-Fi settings"><span data-ico="wifi"></span></button>
+          <button class="h-icon-btn h-quiet-btn" data-act="togglequiet" id="h-quiet-btn" title="Toggle Quiet Mode" aria-label="Toggle Quiet Mode">
+            <span data-ico="moon"></span>
+          </button>
+          <button class="h-icon-btn h-gear-btn" data-act="settings" title="Preferences" aria-label="Preferences">
+            <span data-ico="gear"></span>
+          </button>
+        </div>
+        <div class="h-time" id="h-time">00:00</div>
+        <div class="h-date" id="h-date">—</div>
+      </div>
+
+    </div>
+    <div class="h-sliders" id="h-sliders" aria-label="Quick Controls">
+      <!-- Brightness Slider (iOS Liquid Glass Capsule - Top) -->
+      <div class="ios-slider" id="slider-brightness" data-slider="brightness" role="slider" aria-label="Brightness" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+        <div class="slider-track">
+          <div class="slider-fill" id="fill-brightness" style="width: 50%;">
+            <div class="slider-sheen"></div>
+          </div>
+        </div>
+        <div class="slider-content">
+          <div class="slider-lead">
+            <div class="slider-icon" id="ico-brightness"><span data-ico="brightness"></span></div>
+            <span class="slider-label">Brightness</span>
+          </div>
+          <span class="slider-val" id="val-brightness">50%</span>
+        </div>
+      </div>
+
+      <!-- Volume Slider (iOS Liquid Glass Capsule - Bottom) -->
+      <div class="ios-slider" id="slider-volume" data-slider="volume" role="slider" aria-label="Volume" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+        <div class="slider-track">
+          <div class="slider-fill" id="fill-volume" style="width: 50%;">
+            <div class="slider-sheen"></div>
+          </div>
+        </div>
+        <div class="slider-content">
+          <div class="slider-lead">
+            <div class="slider-icon" id="ico-volume"><span data-ico="volume"></span></div>
+            <span class="slider-label">Volume</span>
+          </div>
+          <span class="slider-val" id="val-volume">50%</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="v-connectivity" class="connection-popover" role="dialog" aria-label="Connections" hidden>
+    <div class="connection-head"><button data-act="connectionback" aria-label="Back to dashboard"><span data-ico="back"></span></button><strong id="connection-title">Bluetooth</strong><button id="connection-refresh" title="Refresh" aria-label="Refresh"><span data-ico="reset"></span></button><button id="connection-power" role="switch" aria-checked="false" aria-label="Bluetooth power"><i></i></button></div>
+    <div id="connection-message" role="status"></div>
+    <div id="connection-list"></div>
+    <form id="connection-password" hidden><input type="password" id="connection-secret" autocomplete="off" placeholder="Network password" aria-label="Network password"><button type="submit">Join</button><button type="button" id="connection-cancel" aria-label="Cancel"><span data-ico="close"></span></button></form>
+  </section>
+  <!-- MUSIC -->
+  <section class="view" id="v-music">
+    <!-- Music background shader canvas -->
+    <canvas id="music-shader-bg" class="music-shader-canvas" aria-hidden="true"></canvas>
+    <div class="m-shader-overlay" aria-hidden="true"></div>
+
+    <div class="m-top">
+      <div class="art lg noart" id="m-art"><span data-ico="note"></span></div>
+      <div class="m-meta">
+        <div class="m-title" id="m-title">—</div>
+        <div class="m-artist" id="m-artist">—</div>
+      </div>
+      <button class="icon-btn" data-act="lyrics" title="Lyrics"><span data-ico="mic"></span></button>
+      <div class="bars big" id="m-bars"><i></i><i></i><i></i><i></i></div>
+      <div class="app-logo big" id="m-app-ico" title="Media App"></div>
+      <button class="icon-btn m-close" data-act="closemusic" title="Close"><span data-ico="close"></span></button>
+    </div>
+    <div class="m-prog">
+      <span id="m-cur">0:00</span>
+      <div class="bar" id="m-bar"><div class="track"><i id="m-fill"></i></div></div>
+      <span id="m-rem">-0:00</span>
+    </div>
+    <div class="m-ctl">
+      <button class="ctl prev" data-act="prev" aria-label="Previous"><span data-ico="prev"></span></button>
+      <button class="ctl play" data-act="toggle" aria-label="Play/Pause"><span id="m-pp" data-ico="pause"></span></button>
+      <button class="ctl next" data-act="next" aria-label="Next"><span data-ico="next"></span></button>
+    </div>
+    <!-- Cahaya bias bawah di dalam pop-up (bukan glowing keluar) -->
+    <div class="m-inner-beam" id="m-inner-beam" aria-hidden="true"></div>
+  </section>
+
+  <!-- LYRICS (Full-width immersive lyric view - tidak kepotong) -->
+  <section class="view" id="v-lyrics">
+    <div class="ly-top-bar">
+      <div class="ly-track-info">
+        <div class="art sm noart" id="ly-art"><span data-ico="note"></span></div>
+        <div class="ly-meta-col">
+          <div class="ly-title" id="ly-title">—</div>
+          <div class="ly-artist" id="ly-artist">—</div>
+        </div>
+      </div>
+      <div class="ly-top-actions">
+        <button class="icon-btn ly-play-btn" data-act="toggle" title="Play/Pause"><span id="ly-pp" data-ico="pause"></span></button>
+        <button class="icon-btn ly-back-btn" data-act="music" title="Back to Music"><span data-ico="close"></span></button>
+      </div>
+    </div>
+    <div class="ly-win" id="ly-win">
+      <div class="ly-list" id="ly-list"></div>
+    </div>
+  </section>
+
+  <!-- TIMER (Redesigned with iOS Liquid Glass UI) -->
+  <section class="view grump-panel" id="v-timer">
+    <div class="m-inner-beam timer-inner-beam" aria-hidden="true"></div>
+    <div id="timer-ruler" role="slider" tabindex="0" aria-label="Timer minutes" aria-valuemin="1" aria-valuemax="120" aria-valuenow="5"><div id="timer-ticks"></div><i class="timer-pointer"></i></div>
+    <div class="ruler-footer"><button data-act="timertoggle" id="timer-toggle"><span id="timer-toggle-text">Start Timer</span></button><button data-act="timerreset" id="timer-reset" title="Reset Timer" aria-label="Reset Timer"><span data-ico="close"></span></button><div class="timer-digits" id="timer-digits">05:00</div></div>
+    
+  </section>
+
+  <!-- STASH (File Drop Pocket) -->
+  <section class="view grump-panel" id="v-stash">
+    <div class="stash-top-bar">
+      <div class="stash-heading">
+        <span class="stash-title">Stash</span>
+        <span class="stash-sub">Drop files here • Drag out anytime</span>
+      </div>
+      <button class="stash-clear-btn" id="s-clear" data-act="sclear" style="display:none;">Clear all</button>
+    </div>
+    <div class="stash-list" id="s-list"></div>
+  </section>
+
+  </div>
+  <div id="grump-feeding" aria-hidden="true"><div class="feeding-eyes"><i></i><i></i></div><div class="feeding-mouth"><i></i></div><span>Drop it. I'll keep it.</span></div>
+  <!-- PAGER -->
+  <div id="pager">
+    <button class="pg l" data-act="pgprev"><span data-ico="back"></span></button>
+    <button class="pg r" data-act="pgnext"><span data-ico="right"></span></button>
+    <div id="dots"></div>
+  </div>
+</div>
+<script src="js/demo-bridge.js"></script>
+<script src="js/core.js"></script>
+<script src="js/shader-bg.js"></script>
+<script src="js/music.js"></script>
+<script src="js/shelf.js"></script>
+<script src="js/system.js"></script>
+<script src="js/features.js"></script>
+<script src="js/timer-ruler.js"></script>
+<script src="js/connectivity.js"></script>
+<script src="js/personality.js"></script>
+<script src="js/boot.js"></script>
+</body>
+</html>
