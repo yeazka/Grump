@@ -107,9 +107,9 @@ class Spring {
 const EXP_SIZE = [392, 196, 40];
 const SIZES = {
   idle: [124, 36, 18], minimal: [150, 6, 3], tuck: [56, 22, 11], peekaboo: [56, 22, 11], quiettuck: [68, 7, 3.5], tuckhide: [38, 19, 14], compact: [312, 36, 18], work: [128, 32, 16], notice: [300, 40, 20], prompt: [320, 42, 21], charge: [296, 44, 22], headset: [312, 44, 22],
-  home: EXP_SIZE, music: EXP_SIZE, lyrics: EXP_SIZE, timer: EXP_SIZE, stash: EXP_SIZE, connectivity: EXP_SIZE,
+  home: EXP_SIZE, music: EXP_SIZE, lyrics: EXP_SIZE, timer: EXP_SIZE, stash: EXP_SIZE, addons: EXP_SIZE, todo: EXP_SIZE, notes: EXP_SIZE, prayer: EXP_SIZE, water: EXP_SIZE, connectivity: EXP_SIZE,
 };
-const PAGE_OF = { home: 'home', music: 'music', lyrics: 'music', timer:'timer', stash:'stash' };
+const PAGE_OF = { home: 'home', music: 'music', lyrics: 'music', timer:'timer', stash:'stash', addons:'addons', todo:'todo', notes:'notes', prayer:'prayer', water:'water' };
 const island = $('#island');
 const WIN_W = 440;
 const sw = new Spring(124, 400, 26), sh = new Spring(36, 320, 18), sr = new Spring(18, 540, 36);
@@ -157,7 +157,7 @@ function reportRect() {
   const isAnchored = (S.settings && S.settings.dockMode === 'anchored') || curKey === 'tuck' || curKey === 'peekaboo' || curKey === 'quiettuck';
   const isTop = isAnchored;
   const rw = (curKey === 'tuck' || curKey === 'peekaboo') ? Math.round(sw.t) : (curKey === 'quiettuck' ? 68 : Math.round(sw.t));
-  const rh = (curKey === 'tuck' || curKey === 'peekaboo') ? Math.round(sh.t) : (curKey === 'quiettuck' ? 7 : Math.round(sh.t));
+  const rh = island.dataset.connectivityOpen === '1' ? Math.max(Math.round(sh.t), 238) : ((curKey === 'tuck' || curKey === 'peekaboo') ? Math.round(sh.t) : (curKey === 'quiettuck' ? 7 : Math.round(sh.t)));
   const rl = Math.round((window.innerWidth - rw) / 2);
   const rt = isTop ? 0 : 10;
   const sig = `${rl},${rt},${rw},${rh}`;
@@ -192,6 +192,8 @@ function paintIsland() {
       const angryEl = $('#notch-angry');
       if (fillEl) fillEl.setAttribute('d', fill);
       if (strokeEl) strokeEl.setAttribute('d', stroke);
+      const ringEl = $('#notch-ring');
+      if (ringEl) ringEl.setAttribute('d', stroke);
       if (angryEl) angryEl.setAttribute('d', stroke);
 
       const isAngry = island.dataset.angry === '1';
@@ -295,7 +297,7 @@ function kick() {
 const S = {
   expanded: false, view: 'home', peek: null, ring: null, notice: null, charge: null, headset: null, workActivity: null,
   lastPage: 'home', focusLock: false, activityAt: Date.now(),
-  settings: { mascot: true, minimal: false, autoTuck: true },
+  settings: { mascot: true, minimal: false, autoTuck: true }, addonPages: [],
   tuckApp: false,
   shyTuck: false,
   peekaboo: false,
@@ -316,8 +318,11 @@ function pageList() {
   return [
     'home',
     S.settings.menuMusic !== false ? 'music' : null,
+    ...['todo', 'notes'].filter(page => S.addonPages.includes(page)),
+    ...S.addonPages.filter(page => page !== 'todo' && page !== 'notes'),
     S.settings.menuTimer !== false ? 'timer' : null,
-    S.settings.menuStash !== false ? 'stash' : null
+    S.settings.menuStash !== false ? 'stash' : null,
+    S.addonPages.length < 4 ? 'addons' : null
   ].filter(Boolean);
 }
 const pageTarget = (p) => p;
@@ -418,6 +423,7 @@ function layout() {
   bridge.forceShow(!!(S.ring || S.charge || S.headset || S.prompt));
 }
 function go(view) {
+  if (isTuckDodging) resetDodgeState();
   if(S.view==='timer' && view!=='timer' && typeof closeCustomTimer==='function')closeCustomTimer();
   const wasExpanded = S.expanded;
   if (wasExpanded && PAGE_OF[curKey] && PAGE_OF[view] && PAGE_OF[curKey] !== PAGE_OF[view]) {
@@ -479,7 +485,7 @@ function renderPager() {
   island.dataset.paged = showPager ? '1' : '0';
   island.dataset.expanded = (S.expanded || curKey === 'ring') ? '1' : '0';
   if (!showPager) return;
-  const names={home:'Dashboard',music:'Music',timer:'Timer',stash:'File Stash'};
+  const names={home:'Dashboard',music:'Music',timer:'Timer',stash:'File Stash',addons:'Add features',todo:'To-do',notes:'Notes',prayer:'Sholat',water:'Minum'};
   const html = list.map((p) => `<i role="button" tabindex="0" aria-label="${names[p]}" title="${names[p]}" class="${p === pg ? 'on' : ''}" data-act="goto" data-p="${p}"></i>`).join('');
   setHTML('dots', html);
 }
@@ -638,7 +644,7 @@ window.addEventListener('pointermove', (e) => {
   const dx = e.clientX - dragState.startX;
   const dy = e.clientY - dragState.startY;
   if (!dragState.active) {
-    if (Math.abs(dx) > 6 && Math.abs(dx) >= Math.abs(dy)) {
+    if (Math.abs(dx) > 14 && Math.abs(dx) >= Math.abs(dy) * 1.25) {
       dragState.active = true;
       S.dragLock = true;
       if (bridge.setDragActive) bridge.setDragActive(true);
@@ -691,7 +697,7 @@ window.addEventListener('pointermove', (e) => {
   dragState.curEl = curEl;
   dragState.targetOffset = targetOffset;
 });
-function finishDrag() {
+function finishDrag(e) {
   if (!dragState) return;
   const st = dragState;
   dragState = null;
@@ -701,8 +707,7 @@ function finishDrag() {
   island.classList.remove('dragging');
 
   if (!st.active) return;
-  suppressClickUntil = performance.now() + 200;
-
+  if (e?.type === 'pointercancel') st.dx = 0;
   const dt = Math.max(16, performance.now() - st.t0);
   const vel = Math.abs(st.dx) / dt;
   const curEl = st.curEl;
@@ -713,6 +718,7 @@ function finishDrag() {
   const DURATION = '340ms';
 
   if (shouldSwitch) {
+    suppressClickUntil = performance.now() + 200;
     isSliding = true;
     if (curEl) {
       curEl.style.transition = `transform ${DURATION} ${EASING}, opacity ${DURATION} cubic-bezier(0.2, 0.9, 0.3, 1)`;
@@ -786,7 +792,7 @@ island.addEventListener('wheel', (e) => {
     holds[(w.dataset.wheel === 'h' ? 'h' : 'm') + (up ? 'inc' : 'dec')]();
     return;
   }
-  if (S.expanded && PAGE_OF[curKey] && !e.target.closest('#v-connectivity,#connection-list,#timer-ruler,input,textarea,.ios-slider,#m-bar') && Math.max(Math.abs(e.deltaX),Math.abs(e.deltaY)) > 16) {
+  if (S.expanded && PAGE_OF[curKey] && !e.target.closest('#v-connectivity,#connection-list,#timer-ruler,.addon-body,input,textarea,.ios-slider,#m-bar') && Math.max(Math.abs(e.deltaX),Math.abs(e.deltaY)) > 16) {
     const now = performance.now();
     if (now - lastWheelSlide > 320) {
       lastWheelSlide = now;
@@ -824,7 +830,7 @@ function triggerPeekaboo(ms = 2600, force = false) {
   }, ms);
 }
 
-// Browser mode: notch aligns gracefully to the search bar
+// Browser mode: dynamic island aligns gracefully to the search bar
 let lastTuckPhase = null;
 
 function setInside(i) {
@@ -842,7 +848,7 @@ function setInside(i) {
     clearTimeout(hoverT); hoverT = null;
     clearTimeout(collapseT); collapseT = null;
     if (S.expanded && !S.ring && !S.focusLock && !S.dragLock) {
-      collapseT = setTimeout(() => { if (!inside && !S.focusLock && !S.dragLock) collapse(); }, 35);
+      collapseT = setTimeout(() => { if (!inside && !S.focusLock && !S.dragLock) collapse(); }, 280);
     } else if (!S.expanded && (S.tuckApp || S.peekaboo)) {
       layout();
     }

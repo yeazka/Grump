@@ -1,6 +1,7 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const {readJson,writeJson}=require('./json-store.cjs');
 const PRAYERS = [['Fajr','Subuh'],['Dhuhr','Dzuhur'],['Asr','Ashar'],['Maghrib','Maghrib'],['Isha','Isya']];
 const FEATURES = new Set(['todo','notes','prayer','water']);
 const DEFAULT = {selected:[],city:'Jakarta',waterMinutes:60,waterEnabled:false,prayerEnabled:false,prayer:null,waterNextAt:0,lastAlerts:{}};
@@ -9,12 +10,18 @@ function dateInZone(timezone){
   const value=type=>parts.find(x=>x.type===type)?.value;
   return `${value('year')}-${value('month')}-${value('day')}`;
 }
-function installPersonalFeatures({app,ipcMain,net,Notification,fromUi,broadcast,icon}) {
+function installPersonalFeatures({app,ipcMain,net,Notification,fromUi,broadcast,icon,onStorageError=()=>{}}) {
   const dataFile=path.join(app.getPath('userData'),'personal-features.json');
   let data={...DEFAULT};
-  try { const saved=JSON.parse(fs.readFileSync(dataFile,'utf8')); if(saved && typeof saved==='object') data={...DEFAULT,...saved}; } catch {}
+  data={...DEFAULT,...readJson(dataFile,{})};
+  data.city=typeof data.city==='string'&&/^[\p{L}\s.'-]{2,60}$/u.test(data.city)?data.city:'Jakarta';
+  data.waterMinutes=[15,30,45,60,90,120].includes(data.waterMinutes)?data.waterMinutes:60;
+  data.waterNextAt=Number.isFinite(data.waterNextAt)?data.waterNextAt:0;
+  data.waterEnabled=data.waterEnabled===true;data.prayerEnabled=data.prayerEnabled===true;
+  data.lastAlerts=data.lastAlerts&&typeof data.lastAlerts==='object'?data.lastAlerts:{};
+  if(data.prayer){try{dateInZone(data.prayer.timezone);if(!data.prayer.times||typeof data.prayer.date!=='string')data.prayer=null;}catch{data.prayer=null;}}
   data.selected=Array.isArray(data.selected)?[...new Set(data.selected.filter(x=>FEATURES.has(x)))]:[];
-  const save=()=>{try{fs.writeFileSync(dataFile,JSON.stringify(data));}catch{}};
+  const save=()=>{try{writeJson(dataFile,data);return true;}catch(error){onStorageError(error);return false;}};
   const state=()=>({...data,prayer:data.prayer && {date:data.prayer.date,city:data.prayer.city,timezone:data.prayer.timezone,times:data.prayer.times},prayerStatus:data.prayer?'ready':prayerLoading?'loading':data.prayerEnabled&&prayerRetryAt?'unavailable':'off',source:'AlAdhan'});
   const publish=()=>broadcast('addon-state',state());
   const notify=(title,body)=>{
@@ -50,6 +57,8 @@ function installPersonalFeatures({app,ipcMain,net,Notification,fromUi,broadcast,
   }
   function tick(){
     const now=Date.now();
+    const today=dateInZone('Asia/Jakarta');
+    for(const key of Object.keys(data.lastAlerts))if(key.slice(0,10)<today)delete data.lastAlerts[key];
     if(data.waterEnabled && data.selected.includes('water')){
       if(!data.waterNextAt){data.waterNextAt=now+data.waterMinutes*60000;save();publish();}
       else if(now>=data.waterNextAt){data.waterNextAt=now+data.waterMinutes*60000;save();publish();notify('Grump · Minum dulu','Ambil air sebentar.');}
@@ -69,6 +78,7 @@ function installPersonalFeatures({app,ipcMain,net,Notification,fromUi,broadcast,
   ipcMain.handle('addon-state',e=>fromUi(e)?state():null);
   ipcMain.handle('addon-command',async(e,command,value)=>{
     if(!fromUi(e))return null;
+    const before=JSON.stringify(data);
     if(command==='select' && FEATURES.has(value)){if(!data.selected.includes(value))data.selected.push(value);}
     else if(command==='remove' && FEATURES.has(value)){data.selected=data.selected.filter(x=>x!==value);if(value==='water')data.waterEnabled=false;if(value==='prayer')data.prayerEnabled=false;}
     else if(command==='city' && typeof value==='string' && /^[\p{L}\s.'-]{2,60}$/u.test(value.trim())){data.city=value.trim();data.prayer=null;prayerRetryAt=0;}
@@ -76,7 +86,7 @@ function installPersonalFeatures({app,ipcMain,net,Notification,fromUi,broadcast,
     else if(command==='water-enabled' && typeof value==='boolean'){data.waterEnabled=value;data.waterNextAt=value?Date.now()+data.waterMinutes*60000:0;}
     else if(command==='prayer-enabled' && typeof value==='boolean'){data.prayerEnabled=value;}
     else return null;
-    save();publish();
+    if(!save()){data=JSON.parse(before);publish();return null;}publish();
     if(command==='city'||command==='prayer-enabled')await refreshPrayer(true);
     return state();
   });

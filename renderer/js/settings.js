@@ -123,7 +123,7 @@ function updateUI() {
   document.getElementById('sensitivity-value').textContent=Number(settings.sensitivity).toFixed(1)+'×';
   document.getElementById('fullscreen-switch').checked=settings.hideFullscreen!==false;
   document.getElementById('cursor-hug-switch').checked=settings.cursorHug!==false;
-  document.getElementById('birthday-input').value=settings.birthday?'2000-'+settings.birthday:'';
+  if (typeof syncBirthdayPicker === "function" && birthdayPickerReady) syncBirthdayPicker();
   for (const {host,island} of previews) {
     if (!host.hasAttribute('data-theme-demo')) island.dataset.theme = settings.theme;
   }
@@ -237,6 +237,7 @@ for(const [key,title,description] of [
   ['batteryToast','Battery notifications','Charging, unplugged, and low battery alerts.'],
   ['headsetToast','Headset notifications','Notice when headphones or earbuds connect.'],
   ['gameModeQuiet','Auto game mode','Automatically hide and silence Grump during games.'],
+  ['clipboardEnabled','Clipboard history','Optional. Keeps recent copies in memory on this device. Turning off clears recent history.'],
   ['weatherEnabled','Weather','Show live weather beside Grump’s eyes.']
 ]) {
   const label=document.createElement('label');label.className='toggle-row';
@@ -252,7 +253,35 @@ for(const [id,key] of [['radius-slider','angryRadius'],['sensitivity-slider','se
 });
 document.getElementById('fullscreen-switch').addEventListener('change',e=>{settings.hideFullscreen=e.target.checked;bridge.saveSettings({hideFullscreen:settings.hideFullscreen});updateUI()});
 document.getElementById('cursor-hug-switch').addEventListener('change',e=>{settings.cursorHug=e.target.checked;bridge.saveSettings({cursorHug:settings.cursorHug});updateUI()});
-document.getElementById('birthday-input').addEventListener('change',e=>{settings.birthday=e.target.value?e.target.value.slice(5):'';bridge.saveSettings({birthday:settings.birthday});updateUI()});
+var birthdayPickerReady=false;
+const birthdayMonth=document.getElementById('birthday-month'),birthdayDay=document.getElementById('birthday-day'),birthdayYear=document.getElementById('birthday-year');
+for(let y=new Date().getFullYear();y>=1900;y--)birthdayYear.add(new Option(String(y),String(y)));
+for(let m=1;m<=12;m++)birthdayMonth.add(new Option(new Date(2000,m-1,1).toLocaleString('en',{month:'short'}),String(m).padStart(2,'0')));
+function fillBirthdayDays(day){
+  const month=Number(birthdayMonth.value),year=Number(birthdayYear.value)||2000;
+  const count=month?new Date(year,month,0).getDate():0;
+  birthdayDay.replaceChildren(new Option('Day',''));
+  for(let d=1;d<=count;d++)birthdayDay.add(new Option(String(d),String(d).padStart(2,'0')));
+  birthdayDay.disabled=!month;birthdayDay.value=Number(day)<=count?day:'';
+}
+function syncBirthdayPicker(){
+  const parts=(settings.birthday||'').split('-'),full=parts.length===3;
+  birthdayYear.value=full?parts[0]:'';birthdayMonth.value=parts[full?1:0]||'';fillBirthdayDays(parts[full?2:1]||'');
+}
+function saveBirthday(){
+  fillBirthdayDays(birthdayDay.value);
+  const month=birthdayMonth.value,day=birthdayDay.value,year=birthdayYear.value;
+  const future=year&&month&&day&&new Date(Number(year),Number(month)-1,Number(day))>new Date();
+  birthdayYear.setCustomValidity(future?'Choose a date that has already happened.':'');
+  if(future){birthdayYear.reportValidity();return;}
+  if(!month||!day)return;
+  settings.birthday=(year?year+'-':'')+month+'-'+day;
+  bridge.saveSettings({birthday:settings.birthday});
+}
+birthdayPickerReady=true;syncBirthdayPicker();
+for(const input of [birthdayMonth,birthdayDay,birthdayYear])input.addEventListener('change',saveBirthday);
+document.getElementById('birthday-clear').addEventListener('click',()=>{settings.birthday='';birthdayYear.setCustomValidity('');bridge.saveSettings({birthday:''});syncBirthdayPicker();});
+
 updateUI();
 
 for(const key of ['Width','Height'])document.getElementById(key.toLowerCase()+'-slider').addEventListener('input',e=>{settings['island'+key]=Number(e.target.value);bridge.saveSettings({['island'+key]:Number(e.target.value)});updateUI();});

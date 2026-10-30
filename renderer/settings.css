@@ -413,3 +413,5 @@ input[type="range"]::-webkit-slider-thumb{background:#ffcf68;border-color:#fff6d
 .settings-footer{border-top-color:rgba(255,255,255,.13)}
 .text-button{color:#eef1f9}
 .quit-app-btn{background:rgba(255,116,94,.17);border-color:rgba(255,140,112,.40);color:#ffb5a4}
+
+.preference-select-row{gap:16px;min-height:48px}.preference-select-row label{flex:1;min-width:0}.preference-select-row select,.birthday-picker button{height:38px;border-radius:19px;background:#3e4350;color:#fff;border:1px solid #ffffff36;padding:0 13px;font:inherit}.preference-select-row select:focus-visible,.birthday-picker button:focus-visible{outline:2px solid #ffc457;outline-offset:2px}.birthday-picker{display:flex;align-items:center;gap:6px}.birthday-picker select{min-width:0}.birthday-picker button{width:38px;padding:0;cursor:pointer;font-size:20px}#weather-city{width:185px;max-width:50%}select option{background:#252832;color:white}

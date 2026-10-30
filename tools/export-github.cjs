@@ -5,6 +5,7 @@ const cp = require('node:child_process');
 const { forbidden } = require('./audit-package.cjs');
 
 const root = path.resolve(__dirname, '..');
+cp.execFileSync(process.execPath,[path.join(__dirname,'audit-git.cjs'),'--history'],{cwd:root,stdio:'inherit'});
 const files = cp.execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '-z'], {
   cwd: root, encoding: 'utf8'
 }).split('\0').filter(Boolean);

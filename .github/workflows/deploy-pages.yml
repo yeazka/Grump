@@ -30,10 +30,18 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Prepare public website
+        run: |
+          mkdir -p public-site
+          cp website/index.html public-site/
+          cp -R website/assets website/grump-app public-site/
+          if [ -d website/public ]; then cp -R website/public/. public-site/; fi
+          touch public-site/.nojekyll
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'website'
+          path: 'public-site'
 
       - name: Deploy to GitHub Pages
         id: deployment

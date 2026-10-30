@@ -20,7 +20,17 @@ for (const [tab, sectionIds] of [
   settingsContent.insertBefore(pane, featuresPane);
 }
 const defaults = { offsetX: 0, theme: 'default', eyeMode: 'auto', staticExp: 'normal', angryVariant: 'gold-matrix', dockMode: 'island', islandWidth:128, islandHeight:32, islandTransparency:0, weatherEnabled:false, weatherCity:'jakarta' };
-let settings = { ...defaults, angryRadius:145, sensitivity:1, quiet:false, menuMusic:true, menuTimer:true, menuStash:true, menuQuiet:true, batteryToast:true, headsetToast:true, hideFullscreen:true, smartQuietPrompt:true, gameModeQuiet:true, dockMode:'island' };
+let settings = { ...defaults, angryRadius:145, sensitivity:1, quiet:false, menuMusic:true, menuTimer:true, menuStash:true, menuQuiet:false, batteryToast:true, headsetToast:true, hideFullscreen:true, smartQuietPrompt:false, gameModeQuiet:true, dockMode:'island' };
+let addonSettings={selected:[]};
+function updateAddonSettings(){document.querySelectorAll('[data-addon-feature]').forEach(input=>{input.checked=addonSettings.selected?.includes(input.dataset.addonFeature)||false;});}
+bridge.onAddonState?.(state=>{if(state){addonSettings=state;updateAddonSettings();}});
+bridge.addonState?.().then(state=>{if(state){addonSettings=state;updateAddonSettings();}}).catch(()=>{});
+document.querySelectorAll('[data-addon-feature]').forEach(input=>input.addEventListener('change',async()=>{
+  let state=null;
+  try{state=await bridge.addonCommand?.(input.checked?'select':'remove',input.dataset.addonFeature);}catch{}
+  if(state)addonSettings=state;
+  updateAddonSettings();
+}));
 const previews = [];
 const visibility = new IntersectionObserver(entries => {
   for (const entry of entries) entry.target.toggleAttribute('data-paused', !entry.isIntersecting);
@@ -48,16 +58,7 @@ function preview(button, { theme = 'default', exp = 'normal', variant = 'classic
     const burst = document.createElement('span');
     burst.className = 'gold-burst';
     burst.setAttribute('aria-hidden', 'true');
-    for (let side = 0; side < 2; side++) for (let n = 0; n < 8; n++) {
-      const spark = document.createElement('b');
-      const angle = (-150 + n * 43) * Math.PI / 180;
-      const distance = 12 + (n % 3) * 4;
-      spark.style.setProperty('--origin-x', side ? '72%' : '28%');
-      spark.style.setProperty('--burst-x', `${Math.round(Math.cos(angle) * distance)}px`);
-      spark.style.setProperty('--burst-y', `${Math.round(Math.sin(angle) * distance * .65)}px`);
-      spark.style.animationDelay = `${-(side * .7 + n * .018)}s`;
-      burst.append(spark);
-    }
+    for (let n = 0; n < 16; n++) burst.append(document.createElement('b'));
     shadow.querySelector('#eyes').append(burst);
   }
   button.prepend(host);
@@ -110,7 +111,7 @@ function updateUI() {
   document.getElementById('transparency-value').textContent = transparency + '%';
   document.getElementById('pos-slider').value = settings.offsetX;
   document.getElementById('pos-badge').textContent = (settings.offsetX > 0 ? '+' : '') + settings.offsetX + ' px';
-  for(const key of ['menuMusic','menuTimer','menuStash','batteryToast','headsetToast','smartQuietPrompt','gameModeQuiet','weatherEnabled']) {
+  for(const key of ['menuMusic','menuTimer','menuStash','batteryToast','headsetToast','gameModeQuiet','weatherEnabled']) {
     const el = document.querySelector('[data-setting="'+key+'"]');
     if (el) el.checked = key === 'weatherEnabled' ? settings[key] === true : settings[key] !== false;
   }
@@ -120,7 +121,6 @@ function updateUI() {
   document.getElementById('radius-value').textContent=settings.angryRadius+' px';
   document.getElementById('sensitivity-slider').value=settings.sensitivity;
   document.getElementById('sensitivity-value').textContent=Number(settings.sensitivity).toFixed(1)+'×';
-  document.getElementById('quiet-switch').checked=!!settings.quiet;
   document.getElementById('fullscreen-switch').checked=settings.hideFullscreen!==false;
   document.getElementById('cursor-hug-switch').checked=settings.cursorHug!==false;
   document.getElementById('birthday-input').value=settings.birthday?'2000-'+settings.birthday:'';
@@ -146,10 +146,13 @@ document.getElementById('pos-slider').addEventListener('input', e => {
 document.getElementById('btn-center').addEventListener('click', () => {
   settings.offsetX = 0; bridge.setOffset(0); updateUI();
 });
-document.getElementById('btn-reset').addEventListener('click', () => {
+document.getElementById('btn-reset').addEventListener('click', async () => {
   settings = {...settings,...defaults}; bridge.saveSettings(defaults); updateUI();
+  for(const id of ['todo','notes','prayer','water']){
+    try{const state=await bridge.addonCommand?.('remove',id);if(state)addonSettings=state;}catch{}
+  }
+  updateAddonSettings();
 });
-document.getElementById('btn-test-prompt')?.addEventListener('click', () => bridge.testQuietPrompt?.());
 document.querySelectorAll('.settings-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     const target = tab.dataset.tab;
@@ -182,53 +185,50 @@ document.addEventListener('visibilitychange', () => {
 /* ---------- Software Updates Handler ---------- */
 const btnCheckUpdates = document.getElementById('btn-check-updates');
 const updateTxt = document.getElementById('update-status-txt');
+let updateReady = false;
+let updateStatusSeen = false;
+bridge.appVersion?.().then(version => { if (updateTxt && !updateStatusSeen) updateTxt.textContent = `Version ${version}`; }).catch(() => {});
+function showUpdateStatus(data) {
+  if (!updateTxt || !data) return;
+  if (updateReady && data.status !== 'downloaded') return;
+  updateStatusSeen = true;
+  if (data.status === 'downloaded') {
+    updateReady = true;
+    updateTxt.textContent = `Update ready (v${data.version})`;
+    if (btnCheckUpdates) { btnCheckUpdates.textContent = 'Restart & Install'; btnCheckUpdates.disabled = false; }
+  } else if (data.status === 'downloading') {
+    updateTxt.textContent = `Downloading: ${data.percent}%`;
+    if (btnCheckUpdates) btnCheckUpdates.disabled = true;
+  } else if (data.status === 'available') {
+    updateTxt.textContent = `Downloading update v${data.version}...`;
+    if (btnCheckUpdates) btnCheckUpdates.disabled = true;
+  } else if (data.status === 'latest') {
+    updateTxt.textContent = `You have the latest version (v${data.version})`;
+    if (btnCheckUpdates) btnCheckUpdates.disabled = false;
+  } else if (data.status === 'idle') {
+    updateTxt.textContent = `Version ${data.version}`;
+    if (btnCheckUpdates) btnCheckUpdates.disabled = false;
+  } else {
+    updateTxt.textContent = data.msg || (data.status === 'error' ? 'Unable to check for updates' : 'Update status unavailable');
+    if (btnCheckUpdates) btnCheckUpdates.disabled = false;
+  }
+}
 if (btnCheckUpdates) {
   btnCheckUpdates.addEventListener('click', async () => {
+    if (updateReady) { bridge.restartAppUpdate?.(); return; }
     if (updateTxt) updateTxt.textContent = 'Checking for updates...';
     btnCheckUpdates.disabled = true;
     try {
       const res = await bridge.checkForUpdates?.();
-      if (res?.status === 'downloaded') {
-        if (updateTxt) updateTxt.textContent = `Update ready! (v${res.version})`;
-        btnCheckUpdates.textContent = 'Restart & Install';
-        btnCheckUpdates.disabled = false;
-        btnCheckUpdates.onclick = () => bridge.restartAppUpdate?.();
-      } else if (res?.status === 'available') {
-        if (updateTxt) updateTxt.textContent = `Downloading update v${res.version}...`;
-      } else if (res?.status === 'store') {
-        if (updateTxt) updateTxt.textContent = 'Managed by Microsoft Store';
-        btnCheckUpdates.disabled = false;
-      } else if (res?.status === 'steam') {
-        if (updateTxt) updateTxt.textContent = 'Managed by Steam';
-        btnCheckUpdates.disabled = false;
-      } else {
-        if (updateTxt) updateTxt.textContent = 'You have the latest version (v1.0.0)';
-        setTimeout(() => { btnCheckUpdates.disabled = false; }, 2000);
-      }
+      showUpdateStatus(res);
     } catch (_) {
-      if (updateTxt) updateTxt.textContent = 'Unable to check for updates';
-      btnCheckUpdates.disabled = false;
+      showUpdateStatus({status:'error'});
     }
   });
 }
 
 if (bridge.onUpdateStatus) {
-  bridge.onUpdateStatus((data) => {
-    if (!updateTxt) return;
-    if (data.status === 'downloading') {
-      updateTxt.textContent = `Downloading: ${data.percent}%`;
-    } else if (data.status === 'downloaded') {
-      updateTxt.textContent = `Update ready (v${data.version})`;
-      if (btnCheckUpdates) {
-        btnCheckUpdates.textContent = 'Restart & Install';
-        btnCheckUpdates.disabled = false;
-        btnCheckUpdates.onclick = () => bridge.restartAppUpdate?.();
-      }
-    } else if (data.status === 'error') {
-      updateTxt.textContent = 'Update check failed';
-      if (btnCheckUpdates) btnCheckUpdates.disabled = false;
-    }
-  });
+  bridge.onUpdateStatus(showUpdateStatus);
 }
 for(const [key,title,description] of [
   ['menuMusic','Music','Mini-player and synchronized lyrics.'],
@@ -236,7 +236,6 @@ for(const [key,title,description] of [
   ['menuStash','Stash','Drag files into the island to stash temporarily and drag out anytime.'],
   ['batteryToast','Battery notifications','Charging, unplugged, and low battery alerts.'],
   ['headsetToast','Headset notifications','Notice when headphones or earbuds connect.'],
-  ['smartQuietPrompt','Smart quiet suggestion','Suggest quiet mode during deep work or movies.'],
   ['gameModeQuiet','Auto game mode','Automatically hide and silence Grump during games.'],
   ['weatherEnabled','Weather','Show live weather beside Grump’s eyes.']
 ]) {
@@ -251,7 +250,6 @@ document.getElementById('weather-city').addEventListener('change',e=>{settings.w
 for(const [id,key] of [['radius-slider','angryRadius'],['sensitivity-slider','sensitivity']])document.getElementById(id).addEventListener('input',e=>{
   settings[key]=Number(e.target.value);bridge.saveSettings({[key]:settings[key]});updateUI();
 });
-document.getElementById('quiet-switch').addEventListener('change',e=>{settings.quiet=e.target.checked;bridge.saveSettings({quiet:settings.quiet,quietUntil:0});updateUI()});
 document.getElementById('fullscreen-switch').addEventListener('change',e=>{settings.hideFullscreen=e.target.checked;bridge.saveSettings({hideFullscreen:settings.hideFullscreen});updateUI()});
 document.getElementById('cursor-hug-switch').addEventListener('change',e=>{settings.cursorHug=e.target.checked;bridge.saveSettings({cursorHug:settings.cursorHug});updateUI()});
 document.getElementById('birthday-input').addEventListener('change',e=>{settings.birthday=e.target.value?e.target.value.slice(5):'';bridge.saveSettings({birthday:settings.birthday});updateUI()});

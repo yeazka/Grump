@@ -1,11 +1,14 @@
 # Discord feedback endpoint
 
-The website is static. Never paste a Discord webhook into `index.html`: visitors can read it. This Worker accepts the website form, validates it, limits requests with Cloudflare KV, and forwards to Discord using a Worker secret.
+The static website calls this Worker. The Discord webhook stays in the existing DISCORD_WEBHOOK_URL Worker secret, never in frontend assets.
 
-1. Create a Discord channel webhook. Keep its full URL private.
-2. Create a Cloudflare KV namespace named `FEEDBACK_RATE` and a Worker using `worker.js`.
-3. Bind the KV namespace as `FEEDBACK_RATE`. Set `ALLOWED_ORIGIN` to the exact website origin, without a trailing slash. Set `DISCORD_WEBHOOK_URL` as a Worker **Secret**, not a plaintext variable.
-4. Deploy the Worker. Test `POST /feedback` from the real website origin, then set `FEEDBACK_ENDPOINT` in `../index.html` to the public Worker URL ending in `/feedback`.
-5. Recheck that neither the website bundle nor the GitHub source export contains the webhook URL.
+## Deployment
 
-The form stays disabled while `FEEDBACK_ENDPOINT` is empty. The current worker allows at most five requests per IP per hour; Cloudflare KV is eventually consistent, so add Turnstile or WAF rules before a large public launch.
+1. Keep the existing secret; do not paste its value into source or logs.
+2. Run `npx wrangler deploy` in this directory. wrangler.toml binds FEEDBACK_LIMITER and migrates its SQLite Durable Object class automatically.
+3. ALLOWED_ORIGIN is a comma-separated list of exact origins without trailing slashes. The current list allows localhost:3000 and yeazka.github.io.
+4. The website FEEDBACK_ENDPOINT stays unchanged. Validate OPTIONS and rejected requests without sending test messages to Discord. End-to-end delivery tests send a real message and need an explicitly authorized test.
+
+Each hashed-IP Durable Object allows five submissions in a fixed one-hour window. Quota consumption is transactional across concurrent requests. Failed Discord deliveries also consume a slot to avoid retry storms. Storage failures return JSON 503 with CORS. Bodies are capped at 6000 bytes while streaming; Discord mentions are disabled.
+
+The previous FEEDBACK_RATE KV namespace is no longer used; deployment does not delete its stored data. Origin checks protect browser usage, not arbitrary HTTP clients. Larger launches may also need Turnstile/WAF rules to reduce distributed abuse.

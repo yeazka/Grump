@@ -3,9 +3,10 @@ const { app, BrowserWindow, ipcMain, clipboard, ClipboardItem, nativeImage, desk
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const {readJson,writeJson}=require('./json-store.cjs');
 const {trustedSender,lockWindow} = require('./ipc-security.cjs');
 
-function installProductivity({ icon, onEvent, onPaste, allowIsland }) {
+function installProductivity({ icon, onEvent, onPaste, allowIsland, clipboardEnabled=false, onStorageError=()=>{} }) {
   // Integration tests execute main.js in plain Node with a mocked Electron API.
   if (!app?.getPath || !ipcMain?.handle) return {open:()=>{},getState:()=>({tasks:[],downloads:[]})};
   let win = null;
@@ -14,11 +15,13 @@ function installProductivity({ icon, onEvent, onPaste, allowIsland }) {
   const dataFile = path.join(app.getPath('userData'), 'productivity.json');
   const imageDir = path.join(app.getPath('userData'), 'clipboard-pins');
   let data = { pins: [], notes: [], tasks: [], birthday: '' };
-  try { data = { ...data, ...JSON.parse(fs.readFileSync(dataFile, 'utf8')) }; } catch (_) {}
-  const save = () => fs.writeFileSync(dataFile, JSON.stringify(data));
+  data={...data,...readJson(dataFile,{})};
+  for(const key of ['pins','notes','tasks'])data[key]=Array.isArray(data[key])?data[key].filter(item=>item&&typeof item.id==='string'&&typeof item.text==='string').slice(0,2000):[];
+  data.pins=data.pins.filter(item=>!item.imageFile||(/^[a-f0-9]{20}$/.test(item.id)&&path.resolve(item.imageFile)===path.join(imageDir,item.id+'.png')));
+  const save=()=>{try{writeJson(dataFile,data);return true;}catch(error){onStorageError(error);return false;}};
   const history = [];
   let lastClipboardHash = '';
-  let clipboardPaused=false;
+  let clipboardPaused=true, clipboardAllowed=false, clipboardTimer=null;
   let downloads = [];
   let downloadSnapshot = new Map();
   let lastDownloadPoll = Date.now();
@@ -46,21 +49,22 @@ function installProductivity({ icon, onEvent, onPaste, allowIsland }) {
 
   let clipboardBusy=false;
   async function observeClipboard() {
-    if(clipboardBusy||clipboardPaused)return;
+    if(clipboardBusy||clipboardPaused||!clipboardAllowed)return;
     clipboardBusy=true;
     try {
     const [clip]=await clipboard.read();
     if(!clip)return;
     const imageType=clip.types.find(t=>t==='image/png'||t==='image/jpeg');
     const imageBlob=imageType?await clip.getType(imageType):null;
-    const image=imageBlob?nativeImage.createFromBuffer(Buffer.from(await imageBlob.arrayBuffer())):null;
+    if(imageBlob&&imageBlob.size>4*1024*1024)return;
     const text=clip.types.includes('text/plain')?await (await clip.getType('text/plain')).text():'';
-    if((!text || !text.trim()) && (!image||image.isEmpty()))return;
-    const blob=image ? image.toPNG() : Buffer.from(text,'utf8');
-    if(blob.length>4*1024*1024)return;
+    const blob=imageBlob?Buffer.from(await imageBlob.arrayBuffer()):Buffer.from(text,'utf8');
+    if(!blob.length||blob.length>4*1024*1024)return;
     const hash=crypto.createHash('sha256').update(blob).digest('hex');
-    if(hash===lastClipboardHash)return;
+    if(hash===lastClipboardHash||!clipboardAllowed||clipboardPaused)return;
     lastClipboardHash=hash;
+    const image=imageBlob?nativeImage.createFromBuffer(blob):null;
+    if(image){const size=image.getSize();if(image.isEmpty()||size.width*size.height>16000000)return;}
     const kind=image?'image':/^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(text.trim())?'hex':/^https?:\/\//i.test(text.trim())?'link':'text';
     const item={id:hash.slice(0,20),hash,kind,text:image?'':text.slice(0,20000),at:Date.now(),preview:image?image.resize({width:96,height:68,quality:'good'}).toDataURL():''};
     if(image)item.image=image.toPNG();
@@ -71,10 +75,20 @@ function installProductivity({ icon, onEvent, onPaste, allowIsland }) {
     publish();
     } catch(_) {} finally {clipboardBusy=false;}
   }
-  setInterval(observeClipboard,850);
+  function configureClipboard(enabled){
+    const allowed=enabled===true;
+    if(allowed===clipboardAllowed)return;
+    clipboardAllowed=allowed;clipboardPaused=!allowed;
+    if(clipboardTimer)clearInterval(clipboardTimer);clipboardTimer=null;
+    if(allowed)clipboardTimer=setInterval(observeClipboard,1500);
+    else{history.length=0;lastClipboardHash='';}
+    publish();
+  }
+  configureClipboard(clipboardEnabled);
   ipcMain.handle('productivity-clipboard',async(e,command,id)=>{
     if(!fromUi(e))return false;
-    if(command==='pause'){clipboardPaused=!clipboardPaused;publish();return clipboardPaused;}
+    if(command==='pause'){if(!clipboardAllowed)return true;clipboardPaused=!clipboardPaused;publish();return clipboardPaused;}
+    const before=JSON.stringify(data);
     const item=history.find(x=>x.id===id)||data.pins.find(x=>x.id===id);
     if(command==='clear'){history.length=0;publish();return true;}
     if(!item)return false;
@@ -97,33 +111,41 @@ function installProductivity({ icon, onEvent, onPaste, allowIsland }) {
         pin.imageFile=path.join(imageDir,item.id+'.png');
         fs.writeFileSync(pin.imageFile,item.image);
       }
-      data.pins.unshift(pin);save();
+      data.pins.unshift(pin);if(!save()){data=JSON.parse(before);if(pin.imageFile)try{fs.unlinkSync(pin.imageFile);}catch{}return false;}
     }
     if(command==='unpin'){
       const pin=data.pins.find(x=>x.id===id);
       data.pins=data.pins.filter(x=>x.id!==id);
+      if(!save()){data=JSON.parse(before);return false;}
       if(pin?.imageFile)try{fs.unlinkSync(pin.imageFile);}catch(_){}
-      save();
     }
     publish();return true;
   });
   ipcMain.handle('productivity-save',(e,type,payload)=>{
     if(!fromUi(e))return false;
+    const before=JSON.stringify(data);
     if(type==='note' && typeof payload?.text==='string'){
       const text=payload.text.trim().slice(0,10000);
       if(!text)return false;
+      if(data.notes.length>=2000)return false;
       data.notes.unshift({id:crypto.randomUUID(),text,at:Date.now()});
+    } else if(type==='update-note' && typeof payload?.id==='string' && typeof payload?.text==='string'){
+      const note=data.notes.find(x=>x.id===payload.id),text=payload.text.trim().slice(0,10000);
+      if(!note||!text)return false;note.text=text;note.at=Date.now();
+      data.notes=data.notes.filter(x=>x.id!==note.id);data.notes.unshift(note);
     } else if(type==='task' && typeof payload?.text==='string'){
       const text=payload.text.trim().slice(0,500);
       if(!text)return false;
+      if(data.tasks.length>=2000)return false;
       data.tasks.unshift({id:crypto.randomUUID(),text,done:false,important:!!payload.important,remindAt:Number.isFinite(payload.remindAt)?payload.remindAt:0,notified:false});
       if(payload.important)onEvent?.({reminder:text});
     } else if(type==='task-toggle'){
       const task=data.tasks.find(x=>x.id===payload);if(!task)return false;task.done=!task.done;
     } else if(type==='delete-note')data.notes=data.notes.filter(x=>x.id!==payload);
     else if(type==='delete-task')data.tasks=data.tasks.filter(x=>x.id!==payload);
+    else if(type==='clear-tasks'){if(!data.tasks.length)return false;data.tasks=[];}
     else return false;
-    save();publish();return true;
+    if(!save()){data=JSON.parse(before);publish();return false;}publish();return true;
   });
   setInterval(()=>{
     const now=Date.now();let changed=false;
@@ -133,31 +155,30 @@ function installProductivity({ icon, onEvent, onPaste, allowIsland }) {
 
   const downloadDir=app.getPath('downloads');
   const partial=/\.(crdownload|part|download|partial)$/i;
-  function pollDownloads(){
-    let names=[];try{names=fs.readdirSync(downloadDir).filter(name=>partial.test(name));}catch(_){return;}
-    const now=Date.now(),next=new Map();
-    for(const name of names){
-      if(!partial.test(name))continue;
-      try{
-        const stat=fs.statSync(path.join(downloadDir,name));if(!stat.isFile())continue;
-        const prev=downloadSnapshot.get(name);
-        const delta=prev?Math.max(0,stat.size-prev.size):0;
-        const speed=Math.round(delta/Math.max(.25,(now-lastDownloadPoll)/1000));
-        next.set(name,{size:stat.size,speed,seenAt:now});
-      }catch(_){}
-    }
-    for(const [name,prev] of downloadSnapshot)if(!next.has(name)){
-      const base=name.replace(partial,'');
-      if(fs.existsSync(path.join(downloadDir,base))){downloads.unshift({id:base+'-'+now,name:base,status:'done',bytes:prev.size,speed:0,at:now});}
-    }
-    for(const [name,item] of next)downloads=downloads.filter(x=>x.name!==name || x.status!=='active');
-    for(const [name,item] of next)downloads.unshift({id:name,name:name.replace(partial,''),status:'active',bytes:item.size,speed:item.speed,at:now});
-    downloads=downloads.slice(0,20);
-    downloadSnapshot=next;lastDownloadPoll=now;
-    const signature=JSON.stringify(downloads.map(x=>[x.name,x.status,Math.floor(x.bytes/65536)]));
-    if(signature!==lastEmit){lastEmit=signature;publish();}
+  let downloadBusy=false;
+  async function pollDownloads(){
+    if(downloadBusy)return;downloadBusy=true;
+    try{
+      const names=(await fs.promises.readdir(downloadDir)).filter(name=>partial.test(name));
+      const now=Date.now(),next=new Map();
+      for(const name of names){
+        try{const stat=await fs.promises.stat(path.join(downloadDir,name));if(!stat.isFile())continue;
+          const prev=downloadSnapshot.get(name),delta=prev?Math.max(0,stat.size-prev.size):0;
+          next.set(name,{size:stat.size,speed:Math.round(delta/Math.max(.25,(now-lastDownloadPoll)/1000))});
+        }catch{}
+      }
+      const completed=downloads.filter(item=>item.status!=='active');
+      for(const [name,prev] of downloadSnapshot)if(!next.has(name)){
+        const base=name.replace(partial,'');
+        try{const stat=await fs.promises.stat(path.join(downloadDir,base));if(stat.isFile())completed.unshift({id:name+'-'+now,name:base,status:'done',bytes:stat.size,speed:0,at:now});}catch{}
+      }
+      downloads=[...Array.from(next,([name,item])=>({id:name,name:name.replace(partial,''),status:'active',bytes:item.size,speed:item.speed,at:now})),...completed].slice(0,20);
+      downloadSnapshot=next;lastDownloadPoll=now;
+      const signature=JSON.stringify(downloads.map(x=>[x.id,x.status,Math.floor(x.bytes/65536),Math.floor(x.speed/65536)]));
+      if(signature!==lastEmit){lastEmit=signature;publish();}
+    }catch{}finally{downloadBusy=false;}
   }
-  setInterval(pollDownloads,1100);
+  setInterval(pollDownloads,2000);
 
   ipcMain.handle('productivity-capture-sources',async e=>{
     if(!fromUi(e))return [];
@@ -223,6 +244,6 @@ function installProductivity({ icon, onEvent, onPaste, allowIsland }) {
     try {const result=await worker.recognize(lastCapture);return result.data.text.trim().slice(0,20000);}
     finally {await worker.terminate();}
   });
-  return { open, getState:()=>({tasks:data.tasks,downloads}) };
+  return { open, configureClipboard, pollDownloads, getState:()=>({tasks:data.tasks,downloads,clipboardPaused}) };
 }
 module.exports={installProductivity};

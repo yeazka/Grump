@@ -157,7 +157,7 @@ function reportRect() {
   const isAnchored = (S.settings && S.settings.dockMode === 'anchored') || curKey === 'tuck' || curKey === 'peekaboo' || curKey === 'quiettuck';
   const isTop = isAnchored;
   const rw = (curKey === 'tuck' || curKey === 'peekaboo') ? Math.round(sw.t) : (curKey === 'quiettuck' ? 68 : Math.round(sw.t));
-  const rh = (curKey === 'tuck' || curKey === 'peekaboo') ? Math.round(sh.t) : (curKey === 'quiettuck' ? 7 : Math.round(sh.t));
+  const rh = island.dataset.connectivityOpen === '1' ? Math.max(Math.round(sh.t), 238) : ((curKey === 'tuck' || curKey === 'peekaboo') ? Math.round(sh.t) : (curKey === 'quiettuck' ? 7 : Math.round(sh.t)));
   const rl = Math.round((window.innerWidth - rw) / 2);
   const rt = isTop ? 0 : 10;
   const sig = `${rl},${rt},${rw},${rh}`;
@@ -192,6 +192,8 @@ function paintIsland() {
       const angryEl = $('#notch-angry');
       if (fillEl) fillEl.setAttribute('d', fill);
       if (strokeEl) strokeEl.setAttribute('d', stroke);
+      const ringEl = $('#notch-ring');
+      if (ringEl) ringEl.setAttribute('d', stroke);
       if (angryEl) angryEl.setAttribute('d', stroke);
 
       const isAngry = island.dataset.angry === '1';
@@ -316,9 +318,10 @@ function pageList() {
   return [
     'home',
     S.settings.menuMusic !== false ? 'music' : null,
+    ...['todo', 'notes'].filter(page => S.addonPages.includes(page)),
+    ...S.addonPages.filter(page => page !== 'todo' && page !== 'notes'),
     S.settings.menuTimer !== false ? 'timer' : null,
     S.settings.menuStash !== false ? 'stash' : null,
-    ...S.addonPages,
     S.addonPages.length < 4 ? 'addons' : null
   ].filter(Boolean);
 }

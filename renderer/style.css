@@ -2619,7 +2619,7 @@ button:disabled { opacity:.35; cursor:default; }
 #island.dragging .view.on { animation: grump-resist .5s ease-in-out infinite; }
 #island.mouth-open #eyes::after { content:'';position:absolute;width:15px;height:10px;left:calc(50% - 7.5px);top:22px;background:#e33;border-radius:50% 50% 60% 60%;box-shadow:0 0 8px #e33;pointer-events:none; }
 #island.timer-panic { animation: grump-spam .35s ease-in-out 10; }
-#island.birthday #v-idle::before { content: ' '; position:absolute; width:26px; height:29px; left:calc(50% - 13px); top:-20px; background:linear-gradient(135deg,#fff 0 34%,#e22 35% 65%,#fff 66%); clip-path:polygon(50% 0,100% 100%,0 100%); transform:rotate(-12deg); z-index:8; pointer-events:none; }
+#island.birthday #v-idle::before { content: ''; position:absolute; width:11px; height:11px; left:calc(50% - 5px); top:2px; background:linear-gradient(145deg,#ffd77a 0 38%,#ff9052 39% 65%,#fff2c8 66%); clip-path:polygon(50% 0,100% 100%,0 100%); z-index:8; pointer-events:none; }
 @keyframes grump-spam { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
 @keyframes grump-dizzy { 0%,100%{transform:translateX(0)} 30%{transform:translateX(10px) rotate(5deg)} 70%{transform:translateX(-10px) rotate(-5deg)} }
 @keyframes grump-petted { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
@@ -3046,3 +3046,90 @@ button:disabled { opacity:.35; cursor:default; }
 .addon-controls,.addon-water{display:flex;align-items:center;gap:8px}.addon-controls form{display:flex;flex:1;gap:5px}.addon-controls input{width:90px}.addon-toggle{border-radius:14px;padding:5px 11px;font:inherit;font-size:11px;font-weight:650;flex:none}.addon-toggle.on{background:rgba(255,255,255,.85);color:#111}
 .addon-prayers{display:flex;gap:10px;overflow:auto;white-space:nowrap;margin-top:8px;scrollbar-width:none}.addon-prayers span{display:flex;flex-direction:column;color:#aaaab1;font-size:9px;gap:2px}.addon-prayers b{color:#fff;font-size:11px;font-weight:600}.addon-source{color:#717179;font-size:9px;display:block;margin-top:7px}
 .addon-water{height:42px}.addon-water>span{width:26px;height:26px;display:grid;place-items:center;border-radius:50%;background:rgba(90,164,255,.2);color:#9acbff}.addon-water>div{flex:1;display:flex;flex-direction:column;gap:2px}.addon-water b{font-size:12px}.addon-water small{font-size:10px;color:#a5a5aa}.addon-interval{display:flex;align-items:center;gap:8px;color:#a5a5aa;font-size:11px;margin-top:4px}.addon-interval select{flex:none;width:90px;cursor:pointer}.addon-interval option{background:#1c1c20;color:#fff}
+
+/* To-do keeps entry and progress visible while the task list scrolls. */
+#v-todo.grump-panel{padding:13px 28px 16px;background:#101012}
+.todo-head{height:27px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.todo-head-actions{display:flex;align-items:center;gap:9px;min-width:0}
+.todo-heading{display:flex;align-items:center;gap:8px;color:#f6f6f7;font-size:14px;font-weight:600;letter-spacing:-.02em;white-space:nowrap}
+.todo-heading>[data-ico]{width:16px;height:16px;display:grid;place-items:center;color:#c9c9ce}
+.todo-heading svg{width:15px;height:15px}
+.todo-totals{display:flex;align-items:center;gap:9px;color:#b7b7bd;font-size:10px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.todo-totals span{display:inline-flex;align-items:center;gap:4px}
+.todo-totals span::before{content:"";width:8px;height:8px;border:1px solid #99999f;border-radius:50%}
+#todo-done-count::before{border-color:#ffad3b;background:#ffad3b;box-shadow:inset 0 0 0 2px #29201a}
+.todo-clear{height:22px;padding:0 7px;border:1px solid #515157;border-radius:11px;background:#29292d;color:#d7d7dc;display:inline-flex;align-items:center;gap:3px;cursor:pointer;font:inherit;font-size:9px;white-space:nowrap}
+.todo-clear[hidden]{display:none}
+.todo-clear:hover,.todo-clear[data-confirm="1"]{background:#59302a;border-color:#a65b4a;color:#fff}
+.todo-clear [data-ico],.todo-clear svg{width:11px;height:11px;display:block}
+#v-todo .addon-body{height:140px;overflow:visible;display:flex;flex-direction:column}
+#v-todo .todo-form{height:29px;min-height:29px;margin:2px 0 6px;gap:6px}
+#v-todo .todo-form input{height:29px;border-radius:999px;background:#27272a;border-color:#414145;padding:0 12px;font-size:11px}
+#v-todo .todo-form input::placeholder{color:#a8a8ad}
+#v-todo .todo-form.is-invalid input,#v-todo .todo-form.is-invalid input:focus-visible{border-color:#ff5b57;outline:1px solid #ff5b57;outline-offset:0;animation:todo-input-shake .28s ease-in-out}
+@keyframes todo-input-shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-4px)}40%,80%{transform:translateX(4px)}}
+#v-todo .todo-form .addon-glass{height:29px;width:29px;border-radius:50%;background:rgba(255,255,255,.13)}
+#v-todo .todo-list{flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#5b5b60 transparent;display:flex;flex-direction:column;gap:5px;padding-right:3px}
+#v-todo .todo-list.has-more{mask-image:linear-gradient(to bottom,#000 0%,#000 calc(100% - 16px),transparent 100%);-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 calc(100% - 16px),transparent 100%)}
+#v-todo .todo-row{height:28px;min-height:28px;display:flex;align-items:center;gap:8px;padding:0 8px 0 6px;background:#303033;border:1px solid #49494d;border-radius:10px;color:#f4f4f5}
+#v-todo .todo-row.is-done{background:#333235}
+#v-todo .todo-row input{appearance:none;-webkit-appearance:none;width:17px;height:17px;min-width:17px;margin:0;border:1.5px solid #929298;border-radius:50%;background:transparent;cursor:pointer;display:grid;place-items:center}
+#v-todo .todo-row input:checked{border-color:#e9952e;background:#e9952e}
+#v-todo .todo-row input:checked::after{content:"";width:7px;height:4px;border-left:1.8px solid #21140a;border-bottom:1.8px solid #21140a;transform:translateY(-1px) rotate(-45deg)}
+#v-todo .todo-text{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
+#v-todo .is-done .todo-text{text-decoration:line-through;text-decoration-color:#a9a7a8;color:#c2c0c0}
+#v-todo .todo-row button{width:18px;height:18px;border:0;background:none;color:#aaaab0;display:grid;place-items:center;cursor:pointer;opacity:0;transition:opacity .15s ease,color .15s ease}
+#v-todo .todo-row:hover button,#v-todo .todo-row:focus-within button{opacity:1}
+#v-todo .todo-row button:hover{color:#fff}
+#v-todo .todo-row button svg{width:12px;height:12px}
+#v-todo .todo-empty{display:grid;place-items:center;min-height:60px;color:#a8a8ae;font-size:11px;text-align:center}
+#v-todo .todo-progress{height:26px;min-height:26px;padding-top:6px;display:grid;grid-template-columns:1fr auto;align-content:end;gap:4px;color:#aaaab0;font-size:9px;font-variant-numeric:tabular-nums}
+#v-todo .todo-progress-track{grid-column:1/-1;height:4px;border-radius:4px;background:#4a4a4e;overflow:hidden}
+#v-todo .todo-progress-track i{display:block;height:100%;background:#ffc06a;border-radius:4px;transition:width .22s ease-out}
+#v-todo :is(input,button):focus-visible{outline:2px solid #ffc06a;outline-offset:2px}
+@media(prefers-reduced-motion:reduce){#v-todo .todo-progress-track i,#v-todo .todo-row button{transition:none}#v-todo .todo-form.is-invalid input{animation:none}}
+#v-notes .addon-body{height:135px;overflow:hidden}
+.note-new,.note-editor-head button{border:0;background:none;color:#ffc06a;font:inherit;font-size:11px;cursor:pointer;padding:3px 0}
+.note-list{height:105px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#555 transparent}
+.note-row{display:flex;align-items:center;border-bottom:1px solid #39393d}
+.note-open{flex:1;min-width:0;border:0;background:none;text-align:left;color:#f4f4f6;cursor:pointer;padding:6px 0;display:flex;flex-direction:column;gap:2px;font:inherit}
+.note-open b,.note-open span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.note-open b{font-size:11px}.note-open span{font-size:10px;color:#aaa}
+.note-delete{border:0;background:none;color:#aaa;cursor:pointer}.note-delete svg{width:14px;height:14px}
+.note-editor-head{display:flex;justify-content:space-between;height:23px}.note-title,.note-editor{width:100%;box-sizing:border-box;border:0;outline:0;background:transparent;color:#f5f5f7;font-family:inherit}.note-title{height:25px;padding:0;font-size:15px;font-weight:650}.note-editor{height:79px;resize:none;padding:4px 0;font-size:12px;line-height:1.4;overflow:auto}.note-title::placeholder,.note-editor::placeholder{color:#85858d}.note-save-error{color:#ff8078;font-size:10px}
+
+#notch-ring { opacity: 0; pointer-events: none; stroke-dasharray: 18 82; }
+#island[data-anchored="1"].glass-ring #notch-ring { animation: notch-ring-sweep 2.4s ease-in-out; }
+#island[data-anchored="1"].glass-ring::after { animation: none; opacity: 0; }
+@keyframes notch-ring-sweep { 0% { opacity: 0; stroke-dashoffset: 18; } 14% { opacity: 1; } 84% { opacity: 1; } 100% { opacity: 0; stroke-dashoffset: -100; } }
+@media (prefers-reduced-motion: reduce) { #island[data-anchored="1"].glass-ring #notch-ring { animation: none; } }
+
+#island.birthday #v-idle #eyes{animation:birthday-bounce 2.8s ease-in-out infinite;transform-origin:center}
+@keyframes birthday-bounce{0%,72%,100%{translate:0 0}78%{translate:0 -3px}84%{translate:0 0}90%{translate:0 -2px}}
+@media (prefers-reduced-motion:reduce){#island.birthday #v-idle #eyes{animation:none}}
+
+
+#birthday-celebration{display:none;position:absolute;inset:0;align-items:center;justify-content:center;overflow:hidden;pointer-events:none;z-index:9}
+#island.birthday #v-idle::before{display:none}
+#island.birthday #v-idle #eyes,#island.birthday #v-idle #idle-weather,#island.birthday #v-idle #idle-time,#island.birthday #v-idle #idle-timer,#island.birthday #v-idle #i-clock{visibility:hidden}
+#island.birthday #birthday-celebration{display:flex}
+#birthday-celebration strong{font-size:12px;font-weight:700;white-space:nowrap;color:#fff;text-shadow:0 1px 4px #000;z-index:2}
+.birthday-confetti{position:absolute;inset:0;overflow:hidden}
+.birthday-confetti i{position:absolute;top:-8px;left:calc((var(--n) * 6%) + 2%);width:3px;height:5px;border-radius:1px;background:var(--c);animation:birthday-fall var(--duration) linear infinite;animation-delay:var(--delay);opacity:0}
+@keyframes birthday-fall{0%{transform:translate3d(0,-3px,0) rotate(0deg);opacity:0}15%{opacity:1}85%{opacity:1}100%{transform:translate3d(7px,46px,0) rotate(280deg);opacity:0}}
+@media(prefers-reduced-motion:reduce){.birthday-confetti i{animation:none;opacity:.65;top:20%}}
+.birthday-confetti i:nth-child(1){--n:0;--c:#ffd166;--duration:1.94s;--delay:-0.31s}
+.birthday-confetti i:nth-child(2){--n:1;--c:#ff7979;--duration:2.18s;--delay:-0.62s}
+.birthday-confetti i:nth-child(3){--n:2;--c:#8fdcff;--duration:2.42s;--delay:-0.93s}
+.birthday-confetti i:nth-child(4){--n:3;--c:#f5a6ed;--duration:2.66s;--delay:-1.24s}
+.birthday-confetti i:nth-child(5){--n:4;--c:#a6edbd;--duration:1.70s;--delay:-1.55s}
+.birthday-confetti i:nth-child(6){--n:5;--c:#fff1bb;--duration:1.94s;--delay:-1.86s}
+.birthday-confetti i:nth-child(7){--n:6;--c:#ffd166;--duration:2.18s;--delay:-2.17s}
+.birthday-confetti i:nth-child(8){--n:7;--c:#ff7979;--duration:2.42s;--delay:-0.28s}
+.birthday-confetti i:nth-child(9){--n:8;--c:#8fdcff;--duration:2.66s;--delay:-0.59s}
+.birthday-confetti i:nth-child(10){--n:9;--c:#f5a6ed;--duration:1.70s;--delay:-0.90s}
+.birthday-confetti i:nth-child(11){--n:10;--c:#a6edbd;--duration:1.94s;--delay:-1.21s}
+.birthday-confetti i:nth-child(12){--n:11;--c:#fff1bb;--duration:2.18s;--delay:-1.52s}
+.birthday-confetti i:nth-child(13){--n:12;--c:#ffd166;--duration:2.42s;--delay:-1.83s}
+.birthday-confetti i:nth-child(14){--n:13;--c:#ff7979;--duration:2.66s;--delay:-2.14s}
+.birthday-confetti i:nth-child(15){--n:14;--c:#8fdcff;--duration:1.70s;--delay:-0.25s}
+.birthday-confetti i:nth-child(16){--n:15;--c:#f5a6ed;--duration:1.94s;--delay:-0.56s}

@@ -207,7 +207,7 @@ public class FSCheck {
     if (d3dFullscreen) {
       fsOut = true;
       gameOut = true;
-    } else if (coversMon && coversWorkArea && hasNoCaption && !isMaximized) {
+    } else if (coversMon && coversWorkArea && hasNoCaption && (!isMaximized || (isBrowser && Math.Abs(r.L-mi.mon.L)<=2 && Math.Abs(r.T-mi.mon.T)<=2 && Math.Abs(r.R-mi.mon.R)<=2 && Math.Abs(r.B-mi.mon.B)<=2))) {
       fsOut = true;
       if (!isBrowser && !System.Text.RegularExpressions.Regex.IsMatch(proc, "^(explorer|devenv|code|notepad|winword|excel|powerpnt)$", System.Text.RegularExpressions.RegexOptions.IgnoreCase)) {
         gameOut = true;
@@ -231,6 +231,8 @@ public class FSCheck {
 "@
 $lastFs = $null
 $lastGame = $null
+$lastMonitorX = 0
+$lastMonitorY = 0
 $lastTuck = $null
 $lastFgApp = ''
 $lastFgTitle = ''
@@ -451,8 +453,10 @@ while ($true) {
     }
     if ($st -eq -1) {
         $tuck = if ($null -eq $lastTuck) { $false } else { [bool]$lastTuck }
+        if ($null -ne $lastFs) { $fs = [bool]$lastFs; $isGame = [bool]$lastGame; $monitorX = $lastMonitorX; $monitorY = $lastMonitorY }
     } else {
         $tuck = ($st -eq 1)
+        $lastMonitorX = $monitorX; $lastMonitorY = $monitorY
     }
     if ($fs -ne $lastFs -or $isGame -ne $lastGame -or $tuck -ne $lastTuck -or $fgProc -ne $lastFgApp -or $fgTitle -ne $lastFgTitle -or ($syncTick % 10 -eq 0)) {
         $lastFs = $fs; $lastGame = $isGame; $lastTuck = $tuck; $lastFgApp = $fgProc; $lastFgTitle = $fgTitle

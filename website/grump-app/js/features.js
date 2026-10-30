@@ -100,15 +100,6 @@ acts.timertoggle=()=>{
   bridge.timerCommand?.({action,seconds:timerSeconds});
 };
 acts.timerreset=()=>bridge.timerCommand?.({action:'reset'});
-acts.quietfor=el=>bridge.saveSettings({quiet:true,quietUntil:Date.now()+Number(el.dataset.minutes)*60000});
-acts.quiettoggle=()=>bridge.saveSettings({quiet:!S.settings.quiet,quietUntil:0});
-acts.togglequiet=()=>{
-  const next = !S.settings.quiet;
-  bridge.saveSettings({quiet:next,quietUntil:0});
-  if (typeof notice === 'function') {
-    notice('moon', next ? 'Quiet Mode ON' : 'Quiet Mode OFF', 1600);
-  }
-};
 bridge.onTimer?.(state=>{
   const changed=state.status!==timerState.status;
   timerState=state;
@@ -125,11 +116,6 @@ bridge.onTimer?.(state=>{
   if (changed && typeof layout === 'function') layout();
 });
 
-// ---------- Smart Quiet Mode Prompt (Nonton Film / Sedang Kerja) ----------
-let promptT = null;
-let lastPromptAt = 0;
-let workAppSeconds = 0;
-let movieSeconds = 0;
 let currentFgApp = '';
 let currentFgTitle = '';
 let currentFgIsGame = false;
@@ -138,39 +124,6 @@ let antigravityAnswering = { active: false, status: '', detail: '' };
 let claudeAnswering = { active: false, status: '', detail: '' };
 let chatgptAnswering = { active: false, status: '', detail: '' };
 let lastCreativeNotice = '';
-
-const WORK_APPS = new Set([
-  'code', 'cursor', 'windsurf', 'idea64', 'devenv', 'pycharm', 'webstorm',
-  'figma', 'winword', 'excel', 'powerpnt', 'photoshop', 'illustrator',
-  'blender', 'sublime_text', 'windowsterminal', 'powershell', 'cmd'
-]);
-const MOVIE_APPS = new Set([
-  'vlc', 'mpc-hc', 'mpc-be', 'potplayer', 'potplayermini64', 'netflix', 'disneyplus',
-  'primevideo', 'kmplayer', 'movies.tv'
-]);
-
-function triggerQuietPrompt(reason = 'work') {
-  if (S.settings.quiet || S.settings.smartQuietPrompt === false || S.prompt || S.expanded) return;
-  lastPromptAt = Date.now();
-  S.prompt = { reason };
-  const p = $('#v-prompt .pr-text');
-  if (p) p.textContent = 'Aku masuk quiet mode ya?';
-  layout();
-  bridge.forceShow(true);
-  clearTimeout(promptT);
-  promptT = setTimeout(() => {
-    dismissQuietPrompt();
-  }, 12000);
-}
-
-function dismissQuietPrompt() {
-  clearTimeout(promptT);
-  promptT = null;
-  if (!S.prompt) return;
-  S.prompt = null;
-  layout();
-  bridge.forceShow(false);
-}
 
 const workMeasure = document.createElement('canvas').getContext('2d');
 function workDetailParts(value) {
@@ -188,30 +141,6 @@ function measuredWorkWidth(detail, status) {
   const bottom=workMeasure.measureText(status).width + 22;
   return clamp(Math.ceil(Math.max(top+count,bottom)+26),128,392);
 }
-
-acts['prompt-quiet-yes'] = acts['prompt-yes'] = () => {
-  clearTimeout(promptT);
-  promptT = null;
-  const p = $('#v-prompt .pr-text');
-  if (p) p.textContent = 'Siap, hening dulu ya 🤫';
-  bridge.saveSettings({ quiet: true, quietUntil: 0 });
-  setTimeout(() => {
-    dismissQuietPrompt();
-  }, 1100);
-};
-
-acts['prompt-quiet-no'] = acts['prompt-no'] = () => {
-  clearTimeout(promptT);
-  promptT = null;
-  const p = $('#v-prompt .pr-text');
-  if (p) p.textContent = 'Oke, lanjut beraktivitas 👍';
-  lastPromptAt = Date.now();
-  setTimeout(() => {
-    dismissQuietPrompt();
-  }, 800);
-};
-
-bridge.onTestQuietPrompt?.(() => triggerQuietPrompt('test'));
 
 function refreshAiWorkActivity() {
   const identity = `${currentFgApp} ${currentFgTitle}`;
@@ -256,38 +185,3 @@ bridge.onFgApp?.((data) => {
     if(label!==lastCreativeNotice){lastCreativeNotice=label;notice('bell',label,3200);}
   } else lastCreativeNotice='';
 });
-
-setInterval(() => {
-  if (S.settings.quiet || S.settings.smartQuietPrompt === false || S.prompt || S.expanded) {
-    return;
-  }
-  const now = Date.now();
-  if (now - lastPromptAt < 20 * 60 * 1000) return; // Cooldown 20 menit agar tidak spam
-
-  // Deteksi nonton film / video
-  const isMediaPlaying = S.media && S.media.status === 'Playing';
-  const isMovieApp = MOVIE_APPS.has(currentFgApp);
-  if (isMovieApp || (isMediaPlaying && S.media.dur && S.media.dur > 180)) {
-    movieSeconds += 2;
-    if (movieSeconds >= 40) {
-      movieSeconds = 0;
-      workAppSeconds = 0;
-      triggerQuietPrompt('movie');
-      return;
-    }
-  } else {
-    movieSeconds = Math.max(0, movieSeconds - 1);
-  }
-
-  // Deteksi sedang kerja aktif
-  if (WORK_APPS.has(currentFgApp)) {
-    workAppSeconds += 2;
-    if (workAppSeconds >= 60) {
-      workAppSeconds = 0;
-      triggerQuietPrompt('work');
-      return;
-    }
-  } else {
-    workAppSeconds = Math.max(0, workAppSeconds - 1);
-  }
-}, 2000);

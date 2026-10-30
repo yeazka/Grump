@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, net, shell, Notification } = require('electron');
+const { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, net, shell, Notification, powerMonitor } = require('electron');
 const os = require('os');
 app.setName('Grump');
 const path = require('path');
@@ -7,8 +7,8 @@ const { spawn } = require('child_process');
 const { updateChannel, mediaDisplay, validLocalPath } = require('./runtime-policy.cjs');
 const { installProductivity } = require('./productivity.cjs');
 const { installPersonalFeatures } = require('./personal-features.cjs');
-const { codexActivity } = require('./codex-activity.cjs');
-const { antigravityActivity } = require('./antigravity-activity.cjs');
+const { createActivityMonitor } = require('./activity-monitor.cjs');
+const { readJson, writeJson, validBirthday } = require('./json-store.cjs');
 const { LOCATIONS, createWeatherService } = require('./weather.cjs');
 const { trustedSender, lockWindow } = require('./ipc-security.cjs');
 const channel = () => updateChannel({packaged:app.isPackaged, windowsStore:process.windowsStore, metadata:require('./package.json').grumpChannel, env:process.env, argv:process.argv});
@@ -29,19 +29,12 @@ const defaults = {
   theme:'default', eyeMode:'auto', staticExp:'normal', angryVariant:'gold-matrix',
   angryRadius:145, sensitivity:1, quiet:false, quietUntil:0, menuMusic:true, menuTimer:true,
   menuQuiet:false, batteryToast:true, headsetToast:true, gameModeQuiet:true, smartQuietPrompt:false,
-  islandWidth:128, islandHeight:32, islandTransparency:0, dockMode:'island', menuStash:true, birthday:'', cursorHug:true,
+  islandWidth:128, islandHeight:32, islandTransparency:0, dockMode:'island', menuStash:true, birthday:'', clipboardEnabled:false, cursorHug:true,
   weatherEnabled:false, weatherCity:'jakarta'
 };
 let settings = {...defaults};
 let weather;
 let timer = {status:'idle', duration:900000, remaining:900000, endAt:0};
-const readJson = p => {
-  try {
-    let s = fs.readFileSync(p, 'utf8');
-    if (s.charCodeAt(0) === 0xFEFF) s = s.slice(1);
-    return JSON.parse(s);
-  } catch { return null; }
-};
 const file = name => path.join(app.getPath('userData'),name);
 const log = msg => {
   try { fs.appendFileSync(file('island-debug.log'), new Date().toISOString() + ' ' + msg + '\n'); } catch {}
@@ -60,14 +53,22 @@ const fromIsland = e => trustedSender(e,islandWindows(),path.join(__dirname,'ren
 const fromSettings = e => trustedSender(e,[settingsWin],path.join(__dirname,'renderer','settings.html'));
 const fromUi = e => fromIsland(e) || fromSettings(e);
 function settingsFor(c) {return {...settings,_primary:c.displayId===screen.getPrimaryDisplay().id};}
+let settingsSaveTimer,settingsDirty=false,lastStorageError=0;
+function storageError(error) {
+  log('Data save failed: '+(error.code||error.message));
+  if(Date.now()-lastStorageError<30000)return;lastStorageError=Date.now();
+  if(Notification?.isSupported?.())new Notification({title:'Grump could not save',body:'Check free disk space and folder permissions. Your latest changes may not survive restart.'}).show();
+}
+function flushSettings(){clearTimeout(settingsSaveTimer);if(!settingsDirty)return;try{writeJson(file('settings.json'),settings);settingsDirty=false;}catch(error){storageError(error);}}
 function saveSettings() {
-  fs.writeFileSync(file('settings.json'),JSON.stringify(settings));
+  settingsDirty=true;clearTimeout(settingsSaveTimer);settingsSaveTimer=setTimeout(flushSettings,250);
+  productivity?.configureClipboard(settings.clipboardEnabled);
   for(const c of islands.values())send(c,'settings',settingsFor(c));
   if(settingsWin&&!settingsWin.isDestroyed())settingsWin.webContents.send('settings',settings);
   applyFullscreen();
   weather?.configure(settings.weatherEnabled, settings.weatherCity);
 }
-function updateSettings(patch) {
+function updateSettings(patch, persist=true) {
   if(!patch || typeof patch!=='object')return;
   for(const key of Object.keys(defaults)) {
     if(!(key in patch))continue;
@@ -81,12 +82,12 @@ function updateSettings(patch) {
     else if(key==='angryRadius' && Number.isFinite(value))settings[key]=Math.max(30,Math.min(300,value));
     else if(key==='sensitivity' && Number.isFinite(value))settings[key]=Math.max(.4,Math.min(2,value));
     else if(key==='quietUntil' && Number.isFinite(value))settings[key]=Math.max(0,Math.min(Date.now()+86400000,value));
-    else if(key==='birthday' && (value==='' || /^\d{2}-\d{2}$/.test(value)))settings[key]=value;
+    else if(key==='birthday' && validBirthday(value))settings[key]=value;
     else if(key==='weatherCity' && Object.hasOwn(LOCATIONS,value))settings[key]=value;
     else if({theme:['default','outline-glass','full-glass'],eyeMode:['auto','static'],staticExp:['normal','happy','flirty','laugh','sad','lol','greet'],angryVariant:['classic','lightning','flame','ember','pink','rage','laser','berserk','cyber-violet','cyber-amber','gold-matrix'],dockMode:['island','anchored']}[key]?.includes(value))settings[key]=value;
   }
   if(settings.eyeMode==='static' && settings.staticExp==='lol')settings.eyeMode='auto';
-  saveSettings();placeAll();
+  if(persist){saveSettings();placeAll();}
 }
 function selectedContext() {
   const d=screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
@@ -138,7 +139,7 @@ function pollPointer() {
     const reportedInside=x>=r.left-pad&&x<=r.left+r.width+pad&&y>=Math.max(0,r.top-pad)&&y<=r.top+r.height+pad;
     const centerInside=!c.tuck&&Math.abs(x-c.bounds.width/2)<=Math.max(68,Math.min(140,r.width/2+10))&&y>=0&&y<=Math.max(44,Math.min(86,r.top+r.height+8));
     const inside=!c.dodging&&(reportedInside||centerInside);
-    if(inside!==c.inside){c.inside=inside;send(c,'pointer',inside)}
+    if(inside!==c.inside){c.inside=inside;c.ignoring=null;send(c,'pointer',inside)}
     ignore(c,!(inside||c.dragging||c.rendererActive));
   }
 }
@@ -290,7 +291,7 @@ function applyFullscreen() {
   for(const c of islands.values()) {
     if(!alive(c))continue;
     const isGameOrFs = c.fullscreen || (settings.gameModeQuiet !== false && c.isGame);
-    const hide = settings.hideFullscreen !== false && isGameOrFs && !c.force && Date.now() > c.forceUntil;
+    const hide = settings.hideFullscreen !== false && isGameOrFs;
     if(hide){
       if(c.win.isVisible()){
         c.win.hide();
@@ -335,7 +336,8 @@ let connectionBusy=false;
 ipcMain.handle('connectivity-command',async(e,request)=>{
  if(!fromIsland(e))return {ok:false,error:'Unauthorized window'};
  if(connectionBusy)return {ok:false,error:'A connection request is already running.'};
- if(!request||!['wifi','bluetooth'].includes(request.kind)||!['scan','power','connect','disconnect','pair'].includes(request.action))return {ok:false,error:'Invalid request'};
+ if(!request||!['wifi','bluetooth'].includes(request.kind)||!['scan','power','connect','disconnect','pair','settings'].includes(request.action))return {ok:false,error:'Invalid request'};
+ if(request.action==='settings'){await shell.openExternal(request.kind==='bluetooth'?'ms-settings:bluetooth':'ms-settings:network-wifi');return {ok:true,openedSettings:true};}
  const safe={kind:request.kind,action:request.action,on:request.on===true,id:typeof request.id==='string'?request.id.slice(0,2048):'',password:typeof request.password==='string'?request.password.slice(0,256):''};
  connectionBusy=true;
  return new Promise(resolve=>{
@@ -345,7 +347,7 @@ ipcMain.handle('connectivity-command',async(e,request)=>{
   const timeout=setTimeout(()=>{child.kill();finish({ok:false,error:'Windows took too long. Refresh and try again.'})},45000);
   child.stdout.setEncoding('utf8');child.stdout.on('data',d=>{out+=d;if(out.length>1000000)child.kill()});
   child.on('error',()=>finish({ok:false,error:'Connection service unavailable'}));
-  child.on('exit',()=>{try{finish(JSON.parse(out.trim()))}catch{finish({ok:false,error:'Windows did not return a connection result.'})}});
+  child.on('close',()=>{try{finish(JSON.parse(out.trim()))}catch{finish({ok:false,error:'Windows did not return a connection result.'})}});
   child.stdin.on('error',()=>{});child.stdin.end(JSON.stringify(safe)+'\n');
  });
 });
@@ -434,10 +436,10 @@ ipcMain.handle('check-for-updates', async e => {
 ipcMain.handle('app-version', e => fromUi(e) ? app.getVersion() : null);
 ipcMain.on('restart-app-update', e => {
   if(!fromUi(e))return;
-  if (autoUpdater && githubUpdatesEnabled()) autoUpdater.quitAndInstall();
+  if (autoUpdater && githubUpdatesEnabled() && updateState.status==='downloaded') autoUpdater.quitAndInstall();
 });
 
-function saveTimer(){fs.writeFileSync(file('timer.json'),JSON.stringify(timer));broadcast('timer-state',timer)}
+function saveTimer(){try{writeJson(file('timer.json'),timer);}catch(error){storageError(error);}broadcast('timer-state',timer)}
 ipcMain.on('timer-command',(e,cmd)=>{
   if(!fromIsland(e))return;
   if(!cmd||typeof cmd!=='object')return;
@@ -459,21 +461,21 @@ function tickTimer(){
   if(settings.quiet && settings.quietUntil>0 && Date.now()>=settings.quietUntil)updateSettings({quiet:false,quietUntil:0});
   if(timer.status==='running'&&Date.now()>=timer.endAt){timer={...timer,status:'done',remaining:0,endAt:0};saveTimer()}
 }
+let activityMonitor;
 function pollCodexActivity() {
-  const codexHome = path.isAbsolute(process.env.CODEX_HOME || '') ? process.env.CODEX_HOME : path.join(os.homedir(), '.codex');
-  const codexSessions = fs.existsSync(path.join(codexHome, 'sessions')) ? path.join(codexHome, 'sessions') : codexHome;
-  const next = codexActivity(codexSessions);
-  if (next.active !== codexState.active || next.status !== codexState.status || next.detail !== codexState.detail) {
-    codexState = next;
-    broadcast('codex-activity', next);
+  if(!activityMonitor) {
+    const codexHome=path.isAbsolute(process.env.CODEX_HOME||'')?process.env.CODEX_HOME:path.join(os.homedir(),'.codex');
+    const geminiHome=path.isAbsolute(process.env.GEMINI_HOME||'')?process.env.GEMINI_HOME:path.join(os.homedir(),'.gemini');
+    activityMonitor=createActivityMonitor({codex:path.join(codexHome,'sessions'),antigravity:path.join(geminiHome,'antigravity','conversations')}, state=>{
+      for(const [name,next] of Object.entries(state)) {
+        const previous=name==='codex'?codexState:antigravityState;
+        if(JSON.stringify(next)===JSON.stringify(previous))continue;
+        if(name==='codex')codexState=next;else antigravityState=next;
+        broadcast(name+'-activity',next);
+      }
+    },()=>log('Activity monitor restarted after failure or timeout'));
   }
-  const geminiHome = path.isAbsolute(process.env.GEMINI_HOME || '') ? process.env.GEMINI_HOME : path.join(os.homedir(), '.gemini');
-  const antigravitySessions = fs.existsSync(path.join(geminiHome, 'antigravity', 'conversations')) ? path.join(geminiHome, 'antigravity', 'conversations') : path.join(geminiHome, 'conversations');
-  const antigravityNext = antigravityActivity(antigravitySessions);
-  if (antigravityNext.active !== antigravityState.active || antigravityNext.status !== antigravityState.status || antigravityNext.detail !== antigravityState.detail) {
-    antigravityState = antigravityNext;
-    broadcast('antigravity-activity', antigravityNext);
-  }
+  activityMonitor.poll();
 }
 function startMedia(){
   if(quitting)return;
@@ -594,7 +596,7 @@ else {
   app.whenReady().then(()=>{
     log('app.whenReady fired');
     const s = readJson(file('settings.json'));
-    if (s && typeof s === 'object') settings = { ...defaults, ...s };
+    if (s && typeof s === 'object') updateSettings(s,false);
     settings.quiet=false;settings.quietUntil=0;settings.menuQuiet=false;settings.smartQuietPrompt=false;
     if (settings.staticExp === 'greet') settings.staticExp = 'normal';
     if (settings.eyeMode === 'static' && settings.staticExp === 'lol') settings.eyeMode = 'auto';
@@ -606,15 +608,22 @@ else {
     log('syncDisplays completed, count=' + islands.size);
     createTray();
     log('createTray completed');
-    productivity=installProductivity({icon:path.join(__dirname,'assets','icon.png'),allowIsland:fromIsland,onPaste:()=>{if(ps?.stdin.writable)ps.stdin.write('paste\n');},onEvent:(event)=>{
+    productivity=installProductivity({icon:path.join(__dirname,'assets','icon.png'),allowIsland:fromUi,clipboardEnabled:settings.clipboardEnabled,onStorageError:storageError,onPaste:()=>{if(ps?.stdin.writable)ps.stdin.write('paste\n');},onEvent:(event)=>{
       if(event.reminder)broadcast('productivity-event',{kind:'reminder',text:event.reminder});
       else if(event.downloads)broadcast('productivity-event',{kind:'downloads',downloads:event.downloads});
     }});
-    installPersonalFeatures({app,ipcMain,net,Notification,fromUi,broadcast:(channel,data)=>{broadcast(channel,data);if(settingsWin&&!settingsWin.isDestroyed())settingsWin.webContents.send(channel,data);},icon:path.join(__dirname,'assets','icon.png')});
+    installPersonalFeatures({app,ipcMain,net,Notification,fromUi,onStorageError:storageError,broadcast:(channel,data)=>{broadcast(channel,data);if(settingsWin&&!settingsWin.isDestroyed())settingsWin.webContents.send(channel,data);},icon:path.join(__dirname,'assets','icon.png')});
     initUpdater();
     startMedia();
     log('startMedia completed');
     pollCodexActivity();
+    powerMonitor?.on('resume',()=>{
+      refreshDisplays();
+      for(const c of islands.values()){c.dodging=false;c.dragging=false;c.ignoring=null;send(c,'reset-dodge');}
+      applyFullscreen();pollPointer();pollCodexActivity();
+    });
+    let expectedTick=Date.now()+1000,lastStall=0;
+    setInterval(()=>{const now=Date.now(),delay=now-expectedTick;expectedTick=now+1000;if(delay>250&&now-lastStall>30000){lastStall=now;log('Main loop delayed '+delay+' ms');}},1000);
     tickTimer();
     screen.on('display-added',refreshDisplays);screen.on('display-removed',refreshDisplays);screen.on('display-metrics-changed',refreshDisplays);
     setInterval(refreshDisplays,5000);
@@ -625,6 +634,6 @@ else {
     }, 350);
   });
 }
-app.on('before-quit',()=>{quitting=true;if(ps)ps.kill()});
+app.on('before-quit',()=>{quitting=true;activityMonitor?.close();flushSettings();if(ps)ps.kill()});
 app.on('window-all-closed',()=>{if(quitting)app.quit()});
 process.on('uncaughtException',err=>log(err.stack||err.message));

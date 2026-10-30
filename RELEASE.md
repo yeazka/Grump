@@ -11,7 +11,7 @@ The current local repository has no Git remote. Its 28 older commits include SF 
 5. Build the installer with `npm run build:setup`. This command creates the installer, its `.blockmap`, and `latest.yml` in `dist/setup`. It never uploads them.
 6. Create a public GitHub Release tagged `vX.Y.Z`, matching `package.json`, and attach all three files from that same build. Publish the release; a draft is not visible to the updater. Give users the versioned `Grump-Setup-X.Y.Z.exe` installer.
 
-The website checks the latest public Release through the GitHub API, selects its versioned `Grump-Setup-X.Y.Z.exe` asset, and links directly to that asset. While there is no public Release, the download button stays disabled. The current prepared installer is `dist/setup/Grump-Setup-1.0.7.exe`; it is only on this PC until uploaded. The website itself does not host the EXE.
+The website checks the latest public Release through the GitHub API, selects its versioned `Grump-Setup-X.Y.Z.exe` asset, and links directly to that asset. While there is no public Release, the download button stays disabled. The current prepared installer is `dist/setup/Grump-Setup-1.0.8.exe`; it is only on this PC until uploaded. The website itself does not host the EXE.
 
 The installer is currently unsigned. Windows may warn users until you obtain a code-signing certificate and build a signed release. Keep signing keys and passwords outside the repository.
 
@@ -25,4 +25,11 @@ For every later release, increment `version` in `package.json` and `package-lock
 
 ## Release gates
 
-Run `npm test`, `npm run audit:git`, and the package audit. Inspect the source export and release assets. The source audit checks selected secret patterns and current candidate files; it does not rewrite old history. The package audit checks `app.asar` and unpacked files. Runtime preferences remain in AppData and are not packaged.
+Run `npm test`, `node tools/audit-git.cjs --history`, and the package audit. Inspect the source export and release assets. The source audit checks selected secret patterns and current candidate files; it does not rewrite old history. The package audit checks `app.asar` and unpacked files. Runtime preferences remain in AppData and are not packaged.
+
+
+## Build identity and verification
+
+Each build writes `release-manifest.json` next to its outputs, containing SHA-256 hashes of the packaged archive, executable, and current-version artifacts. Older installers may remain in the directory; distribute only the version and hashes listed in the current manifest. Do not overwrite an already published version with different bytes.
+
+Before publication, test an N-to-N+1 upgrade on a separate Windows device/VM. Preserve notes, tasks, birthday, timer and preferences across the upgrade. Also test a failed download and normal quit/install. A successful local build or unit test does not establish this end-to-end guarantee. GitHub publication and certificate provisioning remain separate release gates.

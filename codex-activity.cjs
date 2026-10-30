@@ -28,7 +28,7 @@ function eventState(line) {
     if (item.type === 'reasoning' || item.type === 'custom_tool_call_output') return { status: 'Thinking', detail: 'Planning next step' };
     if (item.type === 'message' && item.role === 'assistant') return { status: 'Replying', detail: 'Writing answer' };
     if (item.type === 'custom_tool_call') {
-      const input = String(item.input || '');
+      const input = String(item.name||'')+' '+String(item.input || '');
       const status = /\bapply_patch\b/.test(input) ? 'Coding'
         : /\b(npm test|pytest|vitest|jest|cargo test)\b/i.test(input) ? 'Testing'
         : /\b(npm run (dist|build)|electron-builder|cargo build)\b/i.test(input) ? 'Building'
@@ -53,8 +53,9 @@ function latestTaskState(file) {
   let size;
   try { size = fs.statSync(file).size; } catch { return null; }
   let end = size, suffix = '', latest = null;
-  while (end > 0) {
-    const start = Math.max(0, end - 128 * 1024);
+  const floor=Math.max(0,size-4*1024*1024);
+  while (end > floor) {
+    const start = Math.max(floor, end - 128 * 1024);
     const lines = (readRange(file, start, end - start) + suffix).split(/\r?\n/);
     suffix = start > 0 ? lines.shift() : '';
     for (let i = lines.length - 1; i >= 0; i--) {
@@ -86,6 +87,7 @@ function cachedTaskState(file) {
     cache.set(file, { size, state, partial });
     return state;
   }
+  if(cache.size>=256)cache.delete(cache.keys().next().value);
   const state = latestTaskState(file);
   cache.set(file, { size, state, partial: '' });
   return state;

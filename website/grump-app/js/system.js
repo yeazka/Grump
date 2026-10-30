@@ -5,18 +5,7 @@ function addGoldBurst(eyes) {
   const burst = document.createElement('span');
   burst.className = 'gold-burst';
   burst.setAttribute('aria-hidden', 'true');
-  for (let side = 0; side < 2; side++) {
-    for (let n = 0; n < 8; n++) {
-      const spark = document.createElement('b');
-      const angle = (-150 + n * 43) * Math.PI / 180;
-      const distance = 12 + (n % 3) * 4;
-      spark.style.setProperty('--origin-x', side ? '72%' : '28%');
-      spark.style.setProperty('--burst-x', `${Math.round(Math.cos(angle) * distance)}px`);
-      spark.style.setProperty('--burst-y', `${Math.round(Math.sin(angle) * distance * .65)}px`);
-      spark.style.animationDelay = `${-(side * .7 + n * .018)}s`;
-      burst.append(spark);
-    }
-  }
+  for (let n = 0; n < 16; n++) burst.append(document.createElement('b'));
   eyes.append(burst);
 }
 addGoldBurst(document.getElementById('eyes'));
@@ -133,12 +122,6 @@ function renderHome() {
   setText('h-time', `${pad(d.getHours())}:${pad(d.getMinutes())}`);
   setText('h-date', d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }));
 
-  const qBtn = $('#h-quiet-btn');
-  if (qBtn) {
-    const isQuiet = !!S.settings.quiet;
-    qBtn.classList.toggle('active', isQuiet);
-    qBtn.title = isQuiet ? 'Quiet mode active (Click to turn off)' : 'Turn on quiet mode';
-  }
 }
 renderers.push(renderHome);
 
@@ -338,6 +321,14 @@ function updateEyeLook(dx, dy, rawX, rawY) {
     if (minX > maxAllowedX) minX = maxAllowedX = clamp((minX + maxAllowedX) / 2, -maxX, maxX);
   }
   const lookX = clamp(lx * sensitivity, minX, maxAllowedX);
+  if (isAngry && variant === 'gold-matrix') {
+    const horizontal = clamp(dx / 70, -1, 1);
+    const vertical = clamp(dy / 28, -1, 1);
+    eyesEl.style.setProperty('--gold-lean', `${(horizontal * 14).toFixed(2)}deg`);
+    eyesEl.style.setProperty('--gold-tip-shift', `${(horizontal * 14).toFixed(2)}%`);
+    eyesEl.style.setProperty('--gold-flex-x', (1 - Math.abs(horizontal) * .19).toFixed(3));
+    eyesEl.style.setProperty('--gold-flex-y', (1.15 + Math.max(0, vertical) * .20).toFixed(3));
+  }
   // At the extreme side, pull the pair toward the vertical center of the
   // rounded end rather than clipping the outer eye against its curved rim.
   const sideRatio = Math.min(1, Math.abs(lookX) / Math.max(maxX, 1));
@@ -389,7 +380,7 @@ function updateEyeLook(dx, dy, rawX, rawY) {
   }
 
   if (isAngry && variant === 'berserk' && curKey === 'idle') {
-    spawnBerserkSparks();
+    ensureBerserkSparks();
   }
 
   // Selama di dalam radius -> selalu marah nonstop; begitu keluar radius -> langsung ekspresi flirty (wink)!
@@ -637,7 +628,7 @@ if (bridge.onTestHeadset) {
   bridge.onTestHeadset((name) => triggerHeadsetAnim({ name: name || "Azka's Buds2" }));
 }
 
-/* ---------- Preferences / Settings IPC Listeners on Notch ---------- */
+/* ---------- Preferences / Settings IPC Listeners on Dynamic Island ---------- */
 if (bridge.onTestAngry) {
   bridge.onTestAngry(() => {
     collapse();
@@ -745,7 +736,7 @@ function initIosSliders() {
           activeSlider = null;
           slider.classList.remove('dragging');
           bridge.setDragActive?.(false);
-          bridge.setMouseActive?.(false);
+          bridge.setMouseActive?.(inside || S.expanded || S.focusLock);
         }
         window.removeEventListener('pointermove', onPointerMove);
         window.removeEventListener('pointerup', onPointerUp);
@@ -789,20 +780,22 @@ bridge.onConnectivity?.(state=>{
 
 
 /* ---------- Berserk Dark Void Sparks Engine ---------- */
-function spawnBerserkSparks() {
+function ensureBerserkSparks() {
   const container = $('#berserk-container');
-  if (!container || !S.inAngryRadius) return;
-  if (Math.random() > 0.45) return;
-  const spark = document.createElement('div');
-  spark.className = 'berserk-spark';
-  const islandW = island.clientWidth || 128;
-  const islandH = island.clientHeight || 32;
-  spark.style.left = (Math.random() * islandW) + 'px';
-  spark.style.top = (Math.random() * islandH) + 'px';
-  spark.style.setProperty('--bs-x', `${(Math.random() * 44 - 22).toFixed(1)}px`);
-  spark.style.setProperty('--bs-y', `${(Math.random() * 44 - 22).toFixed(1)}px`);
-  container.appendChild(spark);
-  setTimeout(() => spark.remove(), 380);
+  if (!container || container.childElementCount) return;
+  const fragment = document.createDocumentFragment();
+  for (let i = 0; i < 16; i++) {
+    const angle = i * Math.PI * 2 / 16;
+    const spark = document.createElement('i');
+    spark.className = 'berserk-spark';
+    spark.style.left = `calc(50% + ${(Math.cos(angle) * 19).toFixed(1)}px)`;
+    spark.style.top = `calc(50% + ${(Math.sin(angle) * 9).toFixed(1)}px)`;
+    spark.style.setProperty('--bs-x', `${(Math.cos(angle) * 17).toFixed(1)}px`);
+    spark.style.setProperty('--bs-y', `${(Math.sin(angle) * 13).toFixed(1)}px`);
+    spark.style.animationDelay = `${(-i * .073).toFixed(3)}s`;
+    fragment.appendChild(spark);
+  }
+  container.appendChild(fragment);
 }
 
 /* ---------- 30s Idle Info (Weather & Clock) Engine ---------- */

@@ -19,7 +19,7 @@ test('actual main handlers isolate displays, restore Stash, and synchronize time
  const filename='C:\\Users\\sample\\photo.png';
  const stat=p=>{if(p!==filename)throw Error('missing');return {isFile:()=>true,isDirectory:()=>false,size:12}};
  const fakefs={readFileSync:p=>{if(p.endsWith('timer.json'))return JSON.stringify({status:'idle',duration:480000,remaining:480000,endAt:0});throw Error('missing')},writeFileSync(){},appendFileSync:(_p,s)=>logs.push(s),existsSync:()=>true,statSync:stat,promises:{stat:async p=>stat(p)}};
- const box=vm.createContext({require:n=>n==='electron'?electron:n==='fs'?fakefs:n==='child_process'?{spawn:()=>child}:n==='electron-updater'?{}:n.startsWith('./')?require(path.join(root,n)):require(n),__dirname:root,process:{on(){},env:{},argv:[]},setInterval(){},setTimeout(fn,ms){if(ms===500)recoveryTimer=fn},Date:class extends Date{static now(){return now}},console});
+ const box=vm.createContext({require:n=>n==='electron'?electron:n==='fs'?fakefs:n==='child_process'?{spawn:()=>child}:n==='electron-updater'?{}:n==='./activity-monitor.cjs'?{createActivityMonitor:()=>({poll(){},close(){}})}:n==='./json-store.cjs'?{...require(path.join(root,n)),readJson:p=>{try{return JSON.parse(fakefs.readFileSync(p))}catch{return null}},writeJson:()=>{}}:n.startsWith('./')?require(path.join(root,n)):require(n),__dirname:root,process:{on(){},env:{},argv:[]},clearTimeout(){},setInterval(){},setTimeout(fn,ms){if(ms===500)recoveryTimer=fn},Date:class extends Date{static now(){return now}},console});
  vm.runInContext(fs.readFileSync(path.join(root,'main.js'),'utf8'),box);
  const run=s=>vm.runInContext(s,box);
  await new Promise(r=>setImmediate(r));await new Promise(r=>setImmediate(r));
@@ -45,7 +45,8 @@ test('actual main handlers isolate displays, restore Stash, and synchronize time
   run('pollPointer()');assert.equal(run('islands.get(2).inside'),true);assert.equal(run('islands.get(2).win.ignore'),false);
   run('islands.get(2).rect={left:-9999,top:-9999,width:0,height:0}');
   run('pollPointer()');assert.equal(run('islands.get(2).inside'),true);assert.equal(run('islands.get(2).win.ignore'),false);
- child.stdout.emit('data',JSON.stringify({fullscreen:true,isGame:true,tuckApp:false,monitorX:-640,monitorY:512})+'\n');
+ run('islands.get(2).force=true;islands.get(2).forceUntil=Date.now()+60000');
+ child.stdout.emit('data',JSON.stringify({fullscreen:true,isGame:false,tuckApp:false,monitorX:-640,monitorY:512})+'\n');
  assert.equal(run('islands.get(2).win.isVisible()'),false);assert.equal(run('islands.get(1).win.isVisible()'),true);
  child.stdout.emit('data',JSON.stringify({fullscreen:false,isGame:false,tuckApp:true,monitorX:-640,monitorY:512})+'\n');
  assert.equal(run('islands.get(2).win.isVisible()'),true);assert.equal(run('islands.get(2).tuck'),true);assert.equal(run('islands.get(1).tuck'),false);

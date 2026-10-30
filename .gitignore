@@ -69,3 +69,12 @@ $RECYCLE.BIN/
 *.njsproj
 *.sln
 *.sw?
+
+# Atomic user-data backups
+*.json.bak
+*.json.tmp
+
+# Cloudflare local state and secrets
+.wrangler/
+.dev.vars
+.dev.vars.*

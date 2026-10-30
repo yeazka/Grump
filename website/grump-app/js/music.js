@@ -204,6 +204,19 @@ function getLiveLyricsContext() {
   return { prev: '', cur: S.media.title || 'Playing', next: S.media.artist || '', hasLyrics: false };
 }
 
+let lastLyCurText = '';
+function updateMusicLyricsUI() {
+  const ctx = getLiveLyricsContext();
+  setText('nusa-ly-prev', ctx.prev || '');
+  if (lastLyCurText !== ctx.cur) {
+    lastLyCurText = ctx.cur;
+    setText('nusa-ly-text', ctx.cur || '—');
+  }
+  setText('nusa-ly-next', ctx.next || '');
+  const bullet = document.querySelector('#nusa-ly-cur .nusa-note-bullet');
+  if (bullet) bullet.style.display = ctx.hasLyrics ? 'inline' : 'none';
+}
+
 /* ---------- Render ---------- */
 function renderMusic() {
   const m = S.media;
@@ -332,11 +345,8 @@ $('#m-bar').addEventListener('click', (e) => {
 const LH = 36;               // tinggi satu baris lirik
 let lyIdx = -2;
 function parseLRC(txt) {
-  if (txt && typeof txt === 'object') {
-    txt = txt.synced || txt.plain || '';
-  }
   const out = [];
-  for (const raw of String(txt || '').split(/\r?\n/)) {
+  for (const raw of String(txt).split(/\r?\n/)) {
     const stamps = [...raw.matchAll(/\[(\d+):(\d+(?:\.\d+)?)\]/g)];
     if (!stamps.length) continue;
     const text = raw.replace(/\[[^\]]*\]/g, '').trim();
@@ -366,9 +376,6 @@ async function loadLyrics() {
   let txt = null;
   try { txt = await bridge.getLyrics({ title: m.title, artist: m.artist, dur: m.dur }); } catch {}
   if (S.lyricsFor !== key) return;
-  if (txt && typeof txt === 'object') {
-    txt = txt.synced || txt.plain || '';
-  }
   S.lyrics = txt ? parseLRC(txt) : null;
   S.lyricsState = 'done';
   renderLyricsList();

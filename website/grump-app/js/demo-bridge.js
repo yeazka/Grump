@@ -20,7 +20,7 @@
     chatgpt: [],
     fgApp: [],
     drop: [],
-    connectivity: []
+    connectivity: [], addon: [], productivity: []
   };
 
   const on = (list) => (fn) => { if (typeof fn === 'function') list.push(fn); };
@@ -64,11 +64,11 @@
       dur: 256,
       app: 'Spotify.exe',
       lyrics: [
-        '[00:00.00] I can\'t be your love',
-        '[00:03.20] Maybe no one will notice if I disappear into the dark night',
-        '[00:07.00] Look at the stars',
-        '[00:10.20] By your side, I will be your seasons forever',
-        '[00:14.00] Warmth will always return'
+        '[00:00.00] Stay close',
+        '[00:03.20] Let the city lights guide us home tonight',
+        '[00:07.00] We are glowing',
+        '[00:10.20] Every little moment feels brighter when we are together',
+        '[00:14.00] Just you and me'
       ].join('\n')
     },
     {
@@ -77,12 +77,11 @@
       dur: 243,
       app: 'Spotify.exe',
       lyrics: [
-        '[00:00.00] Waiting in a car',
-        '[00:04.00] Waiting for a ride in the dark',
-        '[00:08.00] The night city grows',
-        '[00:12.00] Look and see her eyes, they glow',
-        '[00:16.00] Waiting in a car',
-        '[00:20.00] Waiting for a ride in the dark'
+        '[00:00.00] After dark',
+        '[00:04.00] The lights are dancing across the city',
+        '[00:08.00] We keep moving',
+        '[00:12.00] Take the long way home and watch the stars come out',
+        '[00:16.00] After dark'
       ].join('\n')
     }
   ];
@@ -114,6 +113,8 @@
     rightEyeSize: 1,
     quiet: false
   };
+  const demoAddons = {selected:['todo','notes'],city:'Jakarta',waterMinutes:60,waterEnabled:false,prayerEnabled:false,prayer:null,waterNextAt:0};
+  const demoProductivity = {tasks:[{id:'demo-task-1',text:'Plan the next big idea',done:false},{id:'demo-task-2',text:'Take a well-earned break',done:true}],notes:[{id:'demo-note-1',text:'Little ideas\nMake space for the good ones.',at:Date.now()}]};
 
   let timerState = {
     status: 'idle',
@@ -202,7 +203,7 @@
     },
     getLyrics() {
       const tr = TRACKS[trackIdx] || TRACKS[0];
-      return Promise.resolve({ synced: tr.lyrics, plain: '' });
+      return Promise.resolve(tr.lyrics);
     },
     onSysState: on(cbs.sysState),
     sysCmd(cmd, val) {
@@ -210,6 +211,22 @@
       if (cmd === 'bright') emit(cbs.sysState, { brightness: val });
     },
     onSettings: on(cbs.settings),
+    onAddonState: on(cbs.addon),
+    onProductivityState: on(cbs.productivity),
+    addonState: () => Promise.resolve({...demoAddons}),
+    productivityState: () => Promise.resolve(demoProductivity),
+    async productivitySave(type,payload) {
+      const id = () => 'demo-'+Date.now()+'-'+Math.random().toString(36).slice(2,7);
+      if(type==='task' && payload?.text)demoProductivity.tasks.unshift({id:id(),text:payload.text,done:false});
+      else if(type==='task-toggle'){const task=demoProductivity.tasks.find(x=>x.id===payload);if(!task)return false;task.done=!task.done;}
+      else if(type==='delete-task')demoProductivity.tasks=demoProductivity.tasks.filter(x=>x.id!==payload);
+      else if(type==='clear-tasks')demoProductivity.tasks=[];
+      else if(type==='note' && payload?.text)demoProductivity.notes.unshift({id:id(),text:payload.text,at:Date.now()});
+      else if(type==='update-note'){const note=demoProductivity.notes.find(x=>x.id===payload?.id);if(!note)return false;note.text=payload.text;note.at=Date.now();}
+      else if(type==='delete-note')demoProductivity.notes=demoProductivity.notes.filter(x=>x.id!==payload);
+      else return false;
+      emit(cbs.productivity,demoProductivity);return true;
+    },
     setSetting(k, v) {
       demoSettings[k] = v;
       emit(cbs.settings, demoSettings);
@@ -276,7 +293,7 @@
     connectionCommand(req) {
       const state = req.kind === 'wifi' ? wifiState : btState;
       if (req.action === 'power') state.on = !!req.on;
-      else if (req.action === 'disconnect') state.items.forEach(i => i.connected = false);
+      else if (req.action === 'disconnect') state.items.forEach(i => { if (i.id === req.id) i.connected = false; });
       else if (req.action === 'connect' || req.action === 'pair') {
         state.items.forEach(i => { if (i.id === req.id) { i.connected = true; i.paired = true; } else if (req.kind === 'wifi') i.connected = false; });
       }
@@ -387,6 +404,7 @@
   }
 
   window.addEventListener('message', (ev) => {
+    if(ev.source!==window.parent||ev.origin!==window.location.origin)return;
     const d = ev.data;
     if (!d || d.type !== 'grump-demo') return;
     const isl = window.__island;
@@ -394,7 +412,7 @@
     if (!isl) return;
 
     if (d.action === 'scale') {
-      const s = Number(d.scale) || 1;
+      const s = Math.max(.4,Math.min(2,Number(d.scale)||1));
       document.body.style.zoom = Math.abs(s - 1) > 0.02 ? String(s) : '';
       return;
     }
@@ -403,6 +421,12 @@
       demoSettings.dockMode = d.dockMode === 'island' ? 'island' : 'anchored';
       emit(cbs.settings, demoSettings);
       isl.layout();
+      return;
+    }
+
+    if (d.action === 'ai-phase') {
+      emit(cbs.fgApp, { app: 'codex', title: 'Grump', isGame: false });
+      emit(cbs.codex, { active: true, status: d.status, detail: d.detail });
       return;
     }
 
@@ -556,6 +580,13 @@
         isl.go('timer');
         break;
 
+      case 'todo':
+      case 'notes':
+        stopMusic();
+        isl.S.focusLock = true;
+        isl.go(mode);
+        break;
+
       case 'stash':
         stopMusic();
         isl.S.focusLock = true;
@@ -571,8 +602,8 @@
       case 'ai-work':
         stopMusic();
         isl.collapse();
-        emit(cbs.fgApp, { app: 'antigravity', title: 'Coding - Grump Notch', isGame: false });
-        emit(cbs.antigravity, { active: true, status: 'Coding', detail: 'renderer/style.css · 148 lines' });
+        emit(cbs.fgApp, { app: 'codex', title: 'Grump', isGame: false });
+        emit(cbs.codex, { active: true, status: 'Reading', detail: 'Read app-sidebar.tsx · 237 lines' });
         break;
 
       case 'headphones':

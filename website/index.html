@@ -373,7 +373,7 @@
       height: 100%;
       object-fit: cover;
       z-index: 0;
-      filter: hue-rotate(145deg) saturate(1.42) brightness(1.28);
+      filter: hue-rotate(145deg) saturate(1.42) brightness(0.7);
     }
 
     .warm-ambient-glow {
@@ -952,6 +952,26 @@
       z-index: 1;
     }
 
+    .ai-demo-window { position: absolute; top: 48px; left: 34px; width: 760px; height: 465px; z-index: 2; background: #17191d; border: 1px solid #4a4c50; border-radius: 12px; box-shadow: 0 22px 55px #0009; color: #e7e7e8; overflow: hidden; pointer-events: none; font: 13px/1.5 Inter, sans-serif; }
+    .ai-demo-window[hidden] { display: none; }
+    .ai-demo-top { height: 39px; display:flex; align-items:center; gap:8px; padding:0 16px; background:#222429; border-bottom:1px solid #34363a; color:#bcbec3; }
+    .ai-demo-dots { color:#8b8d91; letter-spacing:3px; margin-right:12px; }
+    .ai-demo-tag { margin-left:12px; color:#b3b5ba; font-size:10px; }
+    .ai-demo-layout { display:grid; grid-template-columns:155px 1fr; height:calc(100% - 39px); }
+    .ai-demo-sidebar { padding:20px 16px; background:#1c1e22; color:#999ca3; border-right:1px solid #34363a; }
+    .ai-demo-sidebar strong { display:block; color:#e5e5e6; margin-bottom:20px; font-size:13px; }
+    .ai-demo-sidebar span { display:block; padding:8px 0; }
+    .ai-demo-main { padding:35px 36px; max-width:500px; }
+    .ai-demo-request { padding:12px 15px; background:#292b30; border-radius:12px; color:#ddd; }
+    .ai-demo-answer { margin-top:26px; color:#c0c2c6; }
+    .ai-demo-answer strong { display:block; color:#f0f0f0; margin-bottom:12px; }
+    .ai-demo-activity { margin-top:18px; padding:12px 14px; border-left:2px solid #f4a927; background:#242529; color:#e8e1d3; }
+    .ai-demo-activity small { display:block; margin-top:4px; color:#aaa; }
+    .ai-demo-log { margin: 12px 0 0; height: 98px; overflow: hidden; border-radius: 8px; background: #111317; color: #aaaeb6; padding: 10px 12px; font: 11px/1.6 ui-monospace, Consolas, monospace; white-space: pre; }
+    .ai-demo-log-line { display: block; }
+    .ai-demo-log-line:last-child { color: #f4c16d; }
+    @media (max-width:640px) { .ai-demo-window { left:20px; width:680px; } .ai-demo-sidebar { display:none; } .ai-demo-layout { display:block; } .ai-demo-main { padding:30px 25px; width:390px; } }
+
     .grump-iframe {
       position: absolute;
       top: 0;
@@ -1133,7 +1153,7 @@
       }
     }
 
-    /* Testimonials Section - Pure Black, Grand Layout, No Card Container Box */
+    /* Creator notes Section - Pure Black, Grand Layout, No Card Container Box */
     .testimonials-section {
       position: relative;
       z-index: 10;
@@ -1449,7 +1469,7 @@
     }
 
 
-    /* Testimonials & Feedback Architectural Stage Layout */
+    /* Creator notes & Feedback Architectural Stage Layout */
     .testimonial-wrap {
       max-width: 1280px;
       margin: 0 auto;
@@ -1511,6 +1531,17 @@
       line-height: 1.5;
       max-width: 680px;
     }
+    .spec-stage { max-width:1140px; margin:0 auto; padding:20px 0 40px; }
+    .spec-content { justify-content:flex-start; }
+    .spec-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:28px; margin-top:32px; }
+    .spec-column { border-top:1px solid rgba(255,255,255,.18); padding-top:18px; }
+    .spec-column h4 { margin:0 0 18px; font-size:1.05rem; color:#fbbf24; }
+    .spec-column dl { margin:0; }
+    .spec-row { display:grid; grid-template-columns:85px 1fr; gap:12px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.08); font-size:.92rem; line-height:1.45; }
+    .spec-row dt { color:#a89f91; }
+    .spec-row dd { margin:0; color:#f4f0ea; }
+    .spec-note { color:#a89f91; font-size:.82rem; line-height:1.55; margin:22px 0 0; }
+    @media(max-width:640px) { .spec-grid { grid-template-columns:1fr; gap:26px; } .spec-row { grid-template-columns:75px 1fr; } }
 
     /* Category Selector */
     .fb-types {
@@ -1732,7 +1763,7 @@
         <nav class="main-nav" aria-label="Main navigation">
           <a href="#overview" class="nav-link" data-i18n="nav-overview">Overview</a>
           <a href="#features" class="nav-link" data-i18n="nav-features">Features</a>
-          <a href="#testimonials" class="nav-link" data-i18n="nav-testimonials">Testimonials</a>
+          <a href="#testimonials" class="nav-link" data-i18n="nav-testimonials">Creator notes</a>
         </nav>
 
         <div class="lang-switch" id="lang-switch" data-lang="en" role="group" aria-label="Language">
@@ -1760,7 +1791,7 @@
   <main id="main-content">
 
     <section id="overview" class="hero-section" aria-labelledby="hero-heading">
-      <video
+<video
         id="hero-video"
         autoplay
         loop
@@ -1791,15 +1822,15 @@
           <a
             class="liquid-glass-btn liquid-glass-primary"
             id="btn-dl-setup"
-            href="https://github.com/yeazka/Grump/releases"
+            aria-disabled="true"
             target="_blank"
             rel="noopener noreferrer"
-            title="Download Grump Setup from GitHub"
+            title="Checking installer availability"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.951-1.801"/>
             </svg>
-            <span data-i18n="btn-dl-setup">Download Setup</span>
+            <span data-i18n="btn-dl-setup">Checking installer…</span>
           </a>
 
           <!-- 2. Microsoft Store install (White Button) -->
@@ -1835,7 +1866,7 @@
         </div>
 
         <div class="hero-downloads-text" aria-label="Download statistics">
-          <span class="stats-text" data-i18n="hero-downloads">Windows installer will be hosted on GitHub Releases</span>
+          <span class="stats-text" data-i18n="hero-downloads">Download count unavailable</span>
         </div>
       </div>
     </section>
@@ -1846,16 +1877,12 @@
         <!-- Left Column: Interactive Testing Controls (Antislop Audited: Segmented Switch + Balanced 3x3 & 2x4 Liquid Glass Grids) -->
         <div class="testing-panel">
           <div class="testing-header">
-            <div class="testing-badge" aria-hidden="true">
-              <span class="testing-badge-dot"></span>
-              <span data-i18n="demo-tag">1:1 Interactive Demo</span>
-            </div>
             <h2 id="demo-heading" data-i18n="demo-title">Move your cursor near Grump and see what happens.</h2>
           </div>
 
           <!-- Bab 1: Notch Position -->
           <div class="panel-group-header">
-            <span class="panel-group-label" data-i18n="label-dock">Notch Position (Anchored / Floating)</span>
+            <span class="panel-group-label" data-i18n="label-dock">Notch Position</span>
           </div>
           <div class="dock-choices" role="group" aria-label="Notch dock mode">
             <button type="button" class="dock-choice-card" id="btn-dock-anchored" aria-pressed="true" onclick="setDockMode('anchored')">
@@ -1894,8 +1921,8 @@
             <button type="button" class="try-btn state-btn" id="btn-mode-timer" data-mode="timer" aria-pressed="false" onclick="setDemoMode('timer')" data-i18n="state-timer">Focus Timer</button>
             <button type="button" class="try-btn state-btn" id="btn-mode-dashboard" data-mode="dashboard" aria-pressed="false" onclick="setDemoMode('dashboard')" data-i18n="state-dashboard">Control Hub</button>
             <button type="button" class="try-btn state-btn" id="btn-mode-ai-work" data-mode="ai-work" aria-pressed="false" onclick="setDemoMode('ai-work')" data-i18n="state-ai-work">AI Activity</button>
-            <button type="button" class="try-btn state-btn" id="btn-mode-headphones" data-mode="headphones" aria-pressed="false" onclick="setDemoMode('headphones')" data-i18n="state-headphones">Headphones</button>
-            <button type="button" class="try-btn state-btn" id="btn-mode-charging" data-mode="charging" aria-pressed="false" onclick="setDemoMode('charging')" data-i18n="state-charging">Charging</button>
+            <button type="button" class="try-btn state-btn" id="btn-mode-todo" data-mode="todo" aria-pressed="false" onclick="setDemoMode('todo')" data-i18n="state-todo">To-do list</button>
+            <button type="button" class="try-btn state-btn" id="btn-mode-notes" data-mode="notes" aria-pressed="false" onclick="setDemoMode('notes')" data-i18n="state-notes">Notes</button>
           </div>
 
           <!-- Bab 3: Eye Shapes & Angry FX -->
@@ -1957,6 +1984,19 @@
                 <span class="cam" aria-hidden="true"></span>
                 <div class="screen" id="laptop-screen">
                   <div class="screen-vignette" aria-hidden="true"></div>
+                  <div class="ai-demo-window" id="ai-demo-window" hidden aria-label="Simulated Codex activity">
+                    <div class="ai-demo-top"><span class="ai-demo-dots">● ● ●</span><strong>Codex</strong><span> / Grump</span><span class="ai-demo-tag" data-i18n="ai-demo-label">SIMULATED DEMO</span></div>
+                    <div class="ai-demo-layout">
+                      <aside class="ai-demo-sidebar"><strong>Codex</strong><span>Grump</span><span>Recent activity</span></aside>
+                      <div class="ai-demo-main">
+                        <div class="ai-demo-request" data-i18n="ai-demo-request">Make the Grump interface feel smoother.</div>
+                        <div class="ai-demo-answer"><strong>Codex</strong><span data-i18n="ai-demo-answer">I'll inspect the project and make the changes.</span>
+                          <div class="ai-demo-activity"><span id="ai-demo-status">Reading</span><small id="ai-demo-detail">Read app-sidebar.tsx · 237 lines</small></div>
+                          <div class="ai-demo-log" id="ai-demo-log" aria-hidden="true"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   <iframe
                     id="grump-demo-frame"
                     src="grump-app/"
@@ -1975,10 +2015,40 @@
     </section>
 
 
-    <!-- Testimonials & Feedback Section -->
+    <!-- Creator notes & Feedback Section -->
     <section id="testimonials" class="testimonials-section" aria-labelledby="testimonials-heading">
       <div class="wrap testimonial-wrap">
           
+          <section class="spec-stage" id="specifications" aria-labelledby="spec-title">
+            <div class="testi-layout">
+              <div class="testi-left-col"><span id="testimonials-heading" class="testi-vertical-label" data-i18n="spec-label">SYSTEM REQUIREMENTS</span><div class="testi-progress-track"><div class="fb-progress-fill" aria-hidden="true"></div></div></div>
+              <div class="testi-main-col spec-content">
+                <h3 class="fb-hero-title" id="spec-title" data-i18n="spec-title">Ready to run Grump?</h3>
+                <p class="fb-hero-sub" data-i18n="spec-sub">Check what your Windows PC needs.</p>
+                <div class="spec-grid">
+                  <div class="spec-column"><h4 data-i18n="spec-min">Minimum</h4><dl>
+                    <div class="spec-row"><dt data-i18n="spec-os">System</dt><dd>Windows 10/11 · 64-bit x64</dd></div>
+                    <div class="spec-row"><dt>CPU</dt><dd data-i18n="spec-min-cpu">Dual-core</dd></div>
+                    <div class="spec-row"><dt>RAM</dt><dd>4 GB</dd></div>
+                    <div class="spec-row"><dt data-i18n="spec-storage">Storage</dt><dd data-i18n="spec-space">1 GB free</dd></div>
+                    <div class="spec-row"><dt>GPU</dt><dd data-i18n="spec-min-gpu">Hardware acceleration</dd></div>
+                  </dl></div>
+                  <div class="spec-column"><h4 data-i18n="spec-rec">Recommended</h4><dl>
+                    <div class="spec-row"><dt data-i18n="spec-os">System</dt><dd>Windows 11 · 64-bit x64</dd></div>
+                    <div class="spec-row"><dt>CPU</dt><dd data-i18n="spec-rec-cpu">Quad-core or better</dd></div>
+                    <div class="spec-row"><dt>RAM</dt><dd data-i18n="spec-rec-ram">8 GB or more</dd></div>
+                    <div class="spec-row"><dt data-i18n="spec-storage">Storage</dt><dd data-i18n="spec-space">1 GB free</dd></div>
+                    <div class="spec-row"><dt>GPU</dt><dd data-i18n="spec-rec-gpu">Hardware acceleration and up-to-date drivers</dd></div>
+                  </dl></div>
+                </div>
+                <p class="spec-note" data-i18n="spec-note">Preliminary guidance; minimum hardware still needs testing on lower-spec PCs.</p>
+              </div>
+            </div>
+          </section>
+
+
+          <div class="stage-divider" aria-hidden="true"></div>
+
           <!-- Left Column: Creator Notes Stage (Azka) -->
           <div class="testimonial-card-container" id="testimonial-container">
             <div class="oversized-number" id="testi-big-num" aria-hidden="true">01</div>
@@ -1986,7 +2056,7 @@
             <div class="testi-layout">
               <!-- Left column: vertical title & vertical progress bar -->
               <div class="testi-left-col">
-                <span class="testi-vertical-label" data-i18n="testi-section-label">CREATOR'S NOTE</span>
+                <span id="testimonials-heading" class="testi-vertical-label" data-i18n="testi-section-label">CREATOR'S NOTE</span>
                 <div class="testi-progress-track">
                   <div class="testi-progress-fill" id="testi-progress-bar" style="height: 33.33%;"></div>
                 </div>
@@ -2005,7 +2075,7 @@
                 <!-- Big Typography Quote -->
                 <div class="testi-quote-wrap">
                   <blockquote id="testi-quote" class="testi-quote-text">
-                    &ldquo;I built Grump because desktop notches shouldn't be boring. Handcrafted every pixel, shader, and laser at night. Hope you all love using it!&rdquo;
+                    &ldquo;I built Grump because desktop notches shouldn't be boring. Built its expressions, music controls, and little reactions at night. Hope you all love using it!&rdquo;
                   </blockquote>
                 </div>
 
@@ -2059,7 +2129,7 @@
             <div class="testi-layout">
               <!-- Left column: vertical title & vertical track -->
               <div class="testi-left-col">
-                <span class="testi-vertical-label" data-i18n="fb-tag">FEEDBACK &amp; IDEAS</span>
+                <span id="testimonials-heading" class="testi-vertical-label" data-i18n="fb-tag">FEEDBACK &amp; IDEAS</span>
                 <div class="testi-progress-track">
                   <div class="fb-progress-fill" aria-hidden="true"></div>
                 </div>
@@ -2067,18 +2137,10 @@
 
               <!-- Main column: content and form -->
               <div class="testi-main-col">
-                <!-- Direct Channel Badge -->
-                <div class="testi-company-row">
-                  <span class="testi-company-badge">
-                    <span class="testi-badge-dot" aria-hidden="true"></span>
-                    <span data-i18n="fb-badge">DIRECT TO CREATOR</span>
-                  </span>
-                </div>
-
                 <!-- Big Typography Title & Subtitle -->
                 <div class="fb-hero-wrap">
                   <h3 class="fb-hero-title" data-i18n="fb-title">Got an idea or found a bug? Send it over.</h3>
-                  <p class="fb-hero-sub" data-i18n="fb-sub">No tickets or corporate bureaucracy. Handcrafted by Azka, shaped by you.</p>
+                  <p class="fb-hero-sub" data-i18n="fb-sub">Your ideas and feedback mean a lot to me. They help make Grump better.</p>
                 </div>
 
                 <!-- Feedback Form -->
@@ -2128,7 +2190,7 @@
                       <div class="testi-author-line" aria-hidden="true"></div>
                       <div>
                         <span class="fb-dest-title" data-i18n="fb-note">Delivered directly to the creator</span>
-                        <p class="fb-dest-sub" data-i18n="fb-dest-sub">Feedback channel coming soon</p>
+                        <p class="fb-dest-sub" data-i18n="fb-dest-sub">Sent to the Grump feedback channel</p>
                       </div>
                     </div>
 
@@ -2153,6 +2215,7 @@
               </div>
             </div>
           </div>
+
 
           <!-- Bottom subtle ticker marquee -->
         <div class="testi-ticker" aria-hidden="true">
@@ -2195,29 +2258,28 @@
         "btn-download": "Download for Windows",
         "btn-support": "Support me",
         "testi-trakteer": "Tip on Trakteer",
-        "nav-testimonials": "Testimonials",
+        "nav-testimonials": "Creator notes",
         "testi-section-label": "CREATOR'S NOTE",
         "btn-dl-setup": "Download Setup",
         "btn-dl-msstore": "Coming soon",
         "fb-tag": "FEEDBACK &amp; IDEAS",
-        "fb-badge": "DIRECT TO CREATOR",
         "fb-title": "Got an idea or found a bug? Send it over.",
-        "fb-sub": "No tickets or corporate bureaucracy. Handcrafted by Azka, shaped by you.",
+        "fb-sub": "Your ideas and feedback mean a lot to me. They help make Grump better.",
         "fb-type-idea": "Idea",
         "fb-type-bug": "Bug",
         "fb-type-cheer": "Cheer",
         "fb-placeholder": "What's on your mind? Share your thoughts, feature ideas, or issues...",
         "fb-contact-placeholder": "Your email or contact handle (optional)",
-        "fb-btn-submit": "Feedback coming soon",
+        "fb-btn-submit": "Send Feedback",
         "fb-note": "Delivered directly to the creator",
-        "fb-dest-sub": "Feedback channel coming soon",
+        "fb-dest-sub": "Sent to the Grump feedback channel",
         "fb-success": "Feedback sent successfully! Thank you for helping shape Grump!",
         "fb-error": "Failed to send feedback. Please check your connection.",
-        "hero-downloads": "Windows installer hosted on GitHub Releases",
-        "demo-tag": "1:1 Interactive Demo",
+        "hero-downloads": "Download count unavailable",
         "demo-title": "Move your cursor near Grump and see what happens.",
         "demo-desc": "Move your cursor near Grump and see what happens.",
-        "label-dock": "Notch Position (Anchored / Floating)",
+        "label-dock": "Notch Position",
+        "spec-label": "SYSTEM REQUIREMENTS", "spec-title": "Ready to run Grump?", "spec-sub": "Check what your Windows PC needs.", "spec-min": "Minimum", "spec-rec": "Recommended", "spec-os": "System", "spec-storage": "Storage", "spec-space": "1 GB free", "spec-min-cpu": "Dual-core", "spec-rec-cpu": "Quad-core or better", "spec-rec-ram": "8 GB or more", "spec-min-gpu": "Hardware acceleration", "spec-rec-gpu": "Hardware acceleration and up-to-date drivers", "spec-note": "Preliminary guidance; minimum hardware still needs testing on lower-spec PCs.",
         "btn-anchored": "Anchored",
         "btn-floating": "Floating",
         "label-states": "Interactive Features",
@@ -2228,8 +2290,13 @@
         "state-timer": "Focus Timer",
         "state-dashboard": "Control Hub",
         "state-ai-work": "AI Activity",
+        "ai-demo-label": "SIMULATED DEMO",
+        "ai-demo-request": "Make the Grump interface feel smoother.",
+        "ai-demo-answer": "I’ll inspect the project and make the changes.",
         "state-headphones": "Headphones",
         "state-charging": "Charging",
+        "state-todo": "To-do list",
+        "state-notes": "Notes",
         "label-eyes": "Eye Shapes &amp; Angry FX",
         "eye-gold": "Grump Gold",
         "eye-laser": "Laser Beam",
@@ -2251,29 +2318,28 @@
         "btn-download": "Download buat Windows",
         "btn-support": "Support me",
         "testi-trakteer": "Traktir Kopi",
-        "nav-testimonials": "Testimoni",
+        "nav-testimonials": "Catatan kreator",
         "testi-section-label": "CATATAN KREATOR",
         "btn-dl-setup": "Download Setup",
         "btn-dl-msstore": "Coming soon",
         "fb-tag": "FEEDBACK &amp; IDE",
-        "fb-badge": "LANGSUNG KE KREATOR",
         "fb-title": "Punya ide atau nemu bug? Kirim langsung ke sini.",
-        "fb-sub": "Tanpa tiket atau birokrasi ribet. Dibaca langsung sama kreator.",
+        "fb-sub": "Saran dan kritikmu sangat berarti buatku. Setiap masukan membantu Grump jadi lebih baik.",
         "fb-type-idea": "Ide",
         "fb-type-bug": "Bug",
         "fb-type-cheer": "Apresiasi",
         "fb-placeholder": "Ada ide baru atau nemu kendala? Tulis unek-unek lu di sini...",
         "fb-contact-placeholder": "Email atau kontak lu (opsional)",
-        "fb-btn-submit": "Feedback segera hadir",
+        "fb-btn-submit": "Kirim Feedback",
         "fb-note": "Terkirim langsung ke kreator",
-        "fb-dest-sub": "Kanal feedback segera hadir",
+        "fb-dest-sub": "Dikirim ke channel feedback Grump",
         "fb-success": "Feedback berhasil terkirim! Makasih banyak udah bantu Grump!",
         "fb-error": "Gagal mengirim feedback. Cek koneksi lu.",
-        "hero-downloads": "Installer Windows tersedia lewat GitHub Releases",
-        "demo-tag": "Demo 1:1 Interaktif",
+        "hero-downloads": "Jumlah unduhan belum tersedia",
         "demo-title": "Arahkan kursor mendekat ke Grump dan lihat apa yang terjadi.",
         "demo-desc": "Arahkan kursor mendekat ke Grump dan lihat apa yang terjadi.",
-        "label-dock": "Notch Position (Anchored / Floating)",
+        "label-dock": "Notch Position",
+        "spec-label": "SPESIFIKASI SISTEM", "spec-title": "Siap menjalankan Grump?", "spec-sub": "Cek kebutuhan untuk PC Windows-mu.", "spec-min": "Minimum", "spec-rec": "Rekomendasi", "spec-os": "Sistem", "spec-storage": "Penyimpanan", "spec-space": "1 GB kosong", "spec-min-cpu": "Dual-core", "spec-rec-cpu": "Quad-core atau lebih", "spec-rec-ram": "8 GB atau lebih", "spec-min-gpu": "Akselerasi grafis", "spec-rec-gpu": "Akselerasi grafis dan driver terbaru", "spec-note": "Panduan sementara; spesifikasi minimum masih perlu diuji pada PC dengan spesifikasi lebih rendah.",
         "btn-anchored": "Anchored",
         "btn-floating": "Floating",
         "label-states": "Interactive Features",
@@ -2284,8 +2350,13 @@
         "state-timer": "Focus Timer",
         "state-dashboard": "Control Hub",
         "state-ai-work": "AI Activity",
+        "ai-demo-label": "SIMULASI DEMO",
+        "ai-demo-request": "Buat tampilan Grump terasa lebih smooth.",
+        "ai-demo-answer": "Aku akan memeriksa proyek dan membuat perubahannya.",
         "state-headphones": "Headphones",
         "state-charging": "Charging",
+        "state-todo": "To-do list",
+        "state-notes": "Notes",
         "label-eyes": "Eye Shapes &amp; Angry FX",
         "eye-gold": "Grump Gold",
         "eye-laser": "Laser Beam",
@@ -2310,9 +2381,9 @@
         music: "Full media player with reactive WebGL shader background, album art color extraction, and interactive playback controls.",
         timer: "iOS Liquid Glass focus timer: drag the ruler ticks left or right inside the island, or press Pause / Start Timer.",
         dashboard: "Quick control center with interactive iOS Liquid Glass Brightness and Volume sliders, Wi-Fi and Bluetooth popovers, and Quiet Mode.",
-        "ai-work": "Real-time AI activity monitor for Antigravity, Claude, Codex, and ChatGPT with an animated 9-pixel status matrix.",
-        headphones: "AirPods and Bluetooth audio connection toast with spatial wave animation and battery status.",
-        charging: "Battery charging, unplugged, and low-battery surge notifications.",
+        "ai-work": "Simulated preview: see how Grump reflects AI activity as it changes in Codex.",
+        todo: "Add tasks, check them off, and see your progress right inside Grump.",
+        notes: "Write a title and a note, then open it again whenever you need it.",
         eye: "Previewing Grump's eye expression and VFX on the screen. Move your cursor near the notch to interact."
       },
       id: {
@@ -2324,9 +2395,9 @@
         music: "Pemutar musik lengkap dengan background WebGL shader reaktif, ekstraksi warna cover lagu, dan kontrol penuh.",
         timer: "Focus Timer bergaya iOS Liquid Glass: geser penggaris menit di dalam pulau ke kiri atau kanan, lalu klik Start/Pause Timer.",
         dashboard: "Pusat kontrol cepat dengan slider Brightness dan Volume iOS Liquid Glass yang bisa digeser, Wi-Fi/Bluetooth, dan Quiet Mode.",
-        "ai-work": "Indikator aktivitas AI real-time buat Antigravity, Claude, Codex, dan ChatGPT dengan animasi matriks 9-piksel.",
-        headphones: "Animasi notifikasi saat TWS atau AirPods tersambung lengkap dengan efek gelombang suara.",
-        charging: "Animasi surge pengisian daya baterai saat charger dicolok atau dicabut.",
+        "ai-work": "Simulasi: lihat bagaimana Grump mengikuti perubahan aktivitas AI di Codex.",
+        todo: "Tambah tugas, centang yang selesai, dan lihat progres langsung di Grump.",
+        notes: "Tulis judul dan isi catatan, lalu buka lagi kapan pun dibutuhkan.",
         eye: "Menampilkan bentukan mata dan efek marah Grump di layar kanan. Deketin kursor lu ke notch buat nyobain."
       }
     };
@@ -2371,7 +2442,7 @@
     function sendToGrump(payload) {
       const frame = document.getElementById('grump-demo-frame');
       if (frame && frame.contentWindow) {
-        frame.contentWindow.postMessage({ type: 'grump-demo', ...payload }, '*');
+        frame.contentWindow.postMessage({ type: 'grump-demo', ...payload }, window.location.origin);
       }
     }
 
@@ -2389,15 +2460,15 @@
       const button = document.getElementById('btn-dl-setup');
       try {
         const res = await fetch('https://api.github.com/repos/yeazka/Grump/releases/latest', {
-          headers: { Accept: 'application/vnd.github+json' }
+          headers: { Accept: 'application/vnd.github+json' },signal:AbortSignal.timeout(8000)
         });
-        if (!res.ok) return;
+        if (!res.ok) throw new Error('No public installer available');
         const release = await res.json();
         const asset = (release.assets || []).find(item =>
           /^Grump-Setup-\d+\.\d+\.\d+\.exe$/i.test(item.name || '') &&
           /^https:\/\/github\.com\//i.test(item.browser_download_url || '')
         );
-        if (!asset) return;
+        if (!asset) throw new Error('Installer asset missing');
         button.href = asset.browser_download_url;
         button.removeAttribute('aria-disabled');
         button.title = `Grump ${release.tag_name || ''} · Windows installer`;
@@ -2410,16 +2481,52 @@
         translations.en['btn-dl-setup'] = 'Download Setup';
         translations.id['btn-dl-setup'] = 'Download Setup';
 
-        translations.en['hero-downloads'] = `${Number(asset.download_count || 0).toLocaleString('en-US')} setup downloads · GitHub Releases`;
-        translations.id['hero-downloads'] = `${Number(asset.download_count || 0).toLocaleString('id-ID')} unduhan setup · GitHub Releases`;
         button.querySelector('[data-i18n="btn-dl-setup"]').textContent = translations[currentLang]['btn-dl-setup'];
         
         document.querySelector('[data-i18n="hero-downloads"]').textContent = translations[currentLang]['hero-downloads'];
       } catch (err) {
+        button.removeAttribute('href');button.setAttribute('aria-disabled','true');
+        translations.en['btn-dl-setup']='Coming soon';translations.id['btn-dl-setup']='Segera tersedia';
+        button.querySelector('[data-i18n="btn-dl-setup"]').textContent=translations[currentLang]['btn-dl-setup'];
+        button.title=currentLang==='id'?'Installer publik belum tersedia':'Public installer is not available yet';
         console.warn('Installer release unavailable:', err);
       }
     }
     resolveInstaller();
+
+    async function refreshDownloadCount() {
+      try {
+        let total = 0;
+        let page = 1;
+        let releases;
+        do {
+          const response = await fetch(`https://api.github.com/repos/yeazka/Grump/releases?per_page=100&page=${page}`, {
+            headers: { Accept: 'application/vnd.github+json' },
+            cache: 'no-store',signal:AbortSignal.timeout(8000)
+          });
+          if (!response.ok) throw new Error(`GitHub API returned ${response.status}`);
+          releases = await response.json();
+          if (!Array.isArray(releases)) throw new Error('Unexpected releases response');
+          for (const release of releases) {
+            for (const asset of release.assets || []) {
+              if (/^Grump-Setup-\d+\.\d+\.\d+\.exe$/i.test(asset.name || '') && Number.isSafeInteger(asset.download_count) && asset.download_count >= 0) {
+                total += asset.download_count;
+              }
+            }
+          }
+          page++;
+        } while (releases.length === 100);
+        translations.en['hero-downloads'] = `${total.toLocaleString('en-US')} downloads`;
+        translations.id['hero-downloads'] = `${total.toLocaleString('id-ID')} unduhan`;
+      } catch (err) {
+        translations.en['hero-downloads'] = 'Download count unavailable';
+        translations.id['hero-downloads'] = 'Jumlah unduhan belum tersedia';
+        console.warn('Download count unavailable:', err);
+      }
+      document.querySelector('[data-i18n="hero-downloads"]').textContent = translations[currentLang]['hero-downloads'];
+    }
+    refreshDownloadCount();
+    setInterval(()=>{if(!document.hidden)refreshDownloadCount();},60000);
 
     function setDockMode(dockMode) {
       document.getElementById('btn-dock-anchored').setAttribute('aria-pressed', String(dockMode === 'anchored'));
@@ -2428,7 +2535,72 @@
       updateCaption(dockMode);
     }
 
+    const aiDemoPhases = [
+      { status: 'Reading', detail: 'Read app-sidebar.tsx · 237 lines', lines: [
+        '$ rg "animation|transition" src/',
+        'src/app-sidebar.tsx: transition',
+        '$ read src/app-sidebar.tsx',
+        'Read 237 lines'
+      ] },
+      { status: 'Computing', detail: 'Planning interface changes', lines: [
+        '$ inspect animation timing',
+        'Checking transitions and states...',
+        'Finding layout update points...',
+        'Preparing a smaller change'
+      ] },
+      { status: 'Coding', detail: 'Edit grump.css · 42 lines', lines: [
+        '$ edit src/grump.css',
+        '+ transition: transform 420ms ease-in-out;',
+        '+ will-change: transform;',
+        'Updated 42 lines'
+      ] },
+      { status: 'Testing', detail: 'Check animations and layout', lines: [
+        '$ npm run test',
+        'Checking transition states...',
+        'Checking responsive layout...',
+        'Tests passed'
+      ] }
+    ];
+    let aiDemoTimer = null;
+    let aiDemoLogTimer = null;
+    function stopAiDemo() {
+      clearInterval(aiDemoTimer);
+      clearInterval(aiDemoLogTimer);
+      aiDemoTimer = null;
+      aiDemoLogTimer = null;
+      document.getElementById('ai-demo-window').hidden = true;
+    }
+    function startAiDemo() {
+      const windowEl = document.getElementById('ai-demo-window');
+      const logEl = document.getElementById('ai-demo-log');
+      windowEl.hidden = false;
+      let index = 0;
+      const showPhase = () => {
+        clearInterval(aiDemoLogTimer);
+        const phase = aiDemoPhases[index];
+        document.getElementById('ai-demo-status').textContent = phase.status;
+        document.getElementById('ai-demo-detail').textContent = phase.detail;
+        sendToGrump({ action: 'ai-phase', status: phase.status, detail: phase.detail });
+        logEl.replaceChildren();
+        let lineIndex = 0;
+        const showLine = () => {
+          if (lineIndex >= phase.lines.length) { clearInterval(aiDemoLogTimer); return; }
+          const line = document.createElement('span');
+          line.className = 'ai-demo-log-line';
+          line.textContent = phase.lines[lineIndex++];
+          logEl.appendChild(line);
+          logEl.scrollTop = logEl.scrollHeight;
+        };
+        showLine();
+        aiDemoLogTimer = setInterval(showLine, 850);
+        index = (index + 1) % aiDemoPhases.length;
+      };
+      showPhase();
+      aiDemoTimer = setInterval(showPhase, 4000);
+    }
+
     function setDemoMode(mode) {
+      stopAiDemo();
       document.querySelectorAll('.state-btn').forEach(btn => {
         btn.setAttribute('aria-pressed', String(btn.dataset.mode === mode));
       });
@@ -2436,10 +2608,12 @@
         btn.setAttribute('aria-pressed', 'false');
       });
       sendToGrump({ mode });
+      if (mode === 'ai-work') startAiDemo();
       updateCaption(mode);
     }
 
     function setAngryVariant(variant) {
+      stopAiDemo();
       document.querySelectorAll('.state-btn').forEach(btn => {
         btn.setAttribute('aria-pressed', 'false');
       });
@@ -2459,6 +2633,7 @@
     }
 
     function setEyeShape(shape) {
+      stopAiDemo();
       document.querySelectorAll('.state-btn').forEach(btn => {
         btn.setAttribute('aria-pressed', 'false');
       });
@@ -2469,11 +2644,11 @@
       updateCaption('eye');
     }
 
-    /* Testimonials Interactive State Engine */
+    /* Creator notes Interactive State Engine */
     const testimonialsData = [
       {
-        quote: "I built Grump because desktop notches shouldn't be boring. Handcrafted every pixel, shader, and laser at night. Hope you all love using it!",
-        quote_id: "Gue bikin Grump karena notch di desktop harusnya gak ngebosenin. Dikerjain santai tiap malam dari pixel, shader, sampai lasernya. Semoga kalian suka dan betah pakenya!",
+        quote: "I built Grump because desktop notches shouldn't be boring. Built its expressions, music controls, and little reactions at night. Hope you all love using it!",
+        quote_id: "Gue bikin Grump karena notch di desktop harusnya gak ngebosenin. Dikerjain tiap malam, dari ekspresi sampai kontrol musiknya. Semoga kalian suka dan betah pakenya!",
         author: "Azka",
         role: "Creator of Grump",
         role_id: "Kreator Grump",
@@ -2481,8 +2656,8 @@
         company_id: "Kreator"
       },
       {
-        quote: "Grump is intentionally moody: it judges your music, tracks your cursor, and shoots lasers if annoyed. Hope you enjoy every little mood.",
-        quote_id: "Grump ini sengaja gue bikin moody: suka ngelirik kursor, nge-judge selera musik, dan nembak laser kalau diusilin. Semoga kalian suka sama tiap mood-nya.",
+        quote: "Grump is intentionally moody: it follows your cursor and throws a pixel-powered tantrum when annoyed. Hope you enjoy every little mood.",
+        quote_id: "Grump ini sengaja gue bikin moody: suka ngelirik kursor dan ngamuk pakai animasi pixel kalau diusilin. Semoga kalian suka sama tiap mood-nya.",
         author: "Azka",
         role: "Creator of Grump",
         role_id: "Kreator Grump",
@@ -2570,10 +2745,8 @@
       btn.classList.add('active');
     }
 
-      // Feedback endpoint configuration
-      // Option A (Recommended for production): Deploy website/feedback-worker to Cloudflare Workers and put the URL here.
-      // Option B (Quick testing): Put a Discord Webhook URL directly here (https://discord.com/api/webhooks/...).
-      const FEEDBACK_ENDPOINT = "";
+      // Public Worker endpoint; the Discord webhook stays in the Worker secret.
+      const FEEDBACK_ENDPOINT = "https://grump-feedback.azkaatsmara456.workers.dev/feedback";
 
       async function handleFeedbackSubmit(e) {
         e.preventDefault();
@@ -2596,7 +2769,7 @@
             errBanner.style.display = 'block';
             setTimeout(() => { errBanner.style.display = 'none'; }, 6000);
           }
-          console.info("[Grump Feedback] Endpoint is not set yet. Set FEEDBACK_ENDPOINT in index.html with your Cloudflare Worker or Discord Webhook URL.");
+          console.info("[Grump Feedback] Worker endpoint is not configured yet.");
           return;
         }
 
@@ -2605,38 +2778,7 @@
         const prevText = btnText ? btnText.textContent : '';
         if (btnText) btnText.textContent = (currentLang === 'id' ? 'Mengirim...' : 'Sending...');
 
-        // Detect if endpoint is a direct Discord Webhook or Cloudflare Worker proxy
-        const isDiscordDirect = FEEDBACK_ENDPOINT.includes('discord.com/api/webhooks');
-        let payload;
-
-        if (isDiscordDirect) {
-          const categoryMeta = {
-            idea: { label: 'Idea / Suggestion', color: 16751360 }, // Amber #ff9d00
-            bug: { label: 'Bug Report', color: 15682628 },        // Red #ef4444
-            cheer: { label: 'Cheer / Feedback', color: 15485337 }  // Pink #ec4899
-          };
-          const cat = categoryMeta[type] || categoryMeta.idea;
-          payload = {
-            username: "Grump Feedback",
-            avatar_url: "https://raw.githubusercontent.com/yeazka/Grump/main/assets/icon.png",
-            embeds: [
-              {
-                title: cat.label,
-                description: text,
-                color: cat.color,
-                fields: [
-                  { name: "Category", value: type.toUpperCase(), inline: true },
-                  { name: "Contact", value: contact || "Anonymous", inline: true }
-                ],
-                footer: { text: "Grump Website Feedback" },
-                timestamp: new Date().toISOString()
-              }
-            ]
-          };
-        } else {
-          // Cloudflare Worker format (website/feedback-worker/worker.js)
-          payload = { type, text, contact };
-        }
+        const payload = { type, text, contact };
 
         try {
           const res = await fetch(FEEDBACK_ENDPOINT, {

@@ -45,6 +45,7 @@ try {
   $connected=@([Windows.Networking.Connectivity.NetworkInformation]::GetConnectionProfiles()|Where-Object {$_.IsWlanConnectionProfile -and $_.GetNetworkConnectivityLevel().ToString() -ne 'None'}|ForEach-Object {$_.WlanConnectionProfileDetails.GetConnectedSsid()})
   $items=@($networks|Where-Object {$_.Ssid}|Sort-Object SignalBars -Descending|Group-Object Ssid|ForEach-Object {$n=$_.Group[0];@{id=$n.Ssid;name=$n.Ssid;connected=($connected -contains $n.Ssid);secured=($n.SecuritySettings.NetworkAuthenticationType.ToString() -ne 'Open80211');signal=[int]$n.SignalBars}})
  } elseif($on){
+  if($request.action -eq 'disconnect'){throw 'Disconnect unavailable. Use Windows Bluetooth settings.'}
   $props=[string[]]@('System.Devices.Aep.IsConnected','System.Devices.Aep.DeviceAddress')
   $selector=[Windows.Devices.Bluetooth.BluetoothDevice]::GetDeviceSelectorFromPairingState($true)
   $devices=Wait-Result ([Windows.Devices.Enumeration.DeviceInformation]::FindAllAsync($selector,$props,[Windows.Devices.Enumeration.DeviceInformationKind]::AssociationEndpoint)) ([Windows.Devices.Enumeration.DeviceInformationCollection])
@@ -94,5 +95,5 @@ public class GrumpBluetooth {
    @{id=$device.Id;name=$device.Name;paired=$device.Pairing.IsPaired;connected=$connected}
   })
  }
- @{ok=$true;on=$on;items=@($items);message=$message}|ConvertTo-Json -Depth 8 -Compress
+ @{ok=$true;on=$on;canDisconnect=($request.kind -eq 'wifi');items=@($items);message=$message}|ConvertTo-Json -Depth 8 -Compress
 }catch{@{ok=$false;error=$_.Exception.Message}|ConvertTo-Json -Compress}

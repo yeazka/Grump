@@ -96,7 +96,7 @@
           <label class="toggle-row"><span>Pengingat sholat</span><input type="checkbox" data-addon-feature="prayer" role="switch"></label>
           <label class="toggle-row"><span>Pengingat minum</span><input type="checkbox" data-addon-feature="water" role="switch"></label>
         </div>
-        <div class="row"><label for="weather-city">Weather city</label><select id="weather-city" aria-label="Weather city"><option value="jakarta">Jakarta</option><option value="bandung">Bandung</option><option value="surabaya">Surabaya</option><option value="yogyakarta">Yogyakarta</option><option value="semarang">Semarang</option><option value="medan">Medan</option><option value="makassar">Makassar</option><option value="denpasar">Denpasar</option><option value="palembang">Palembang</option><option value="balikpapan">Balikpapan</option></select></div>
+        <div class="row preference-select-row"><label for="weather-city">Weather city</label><select id="weather-city" aria-label="Weather city"><option value="jakarta">Jakarta</option><option value="bandung">Bandung</option><option value="surabaya">Surabaya</option><option value="yogyakarta">Yogyakarta</option><option value="semarang">Semarang</option><option value="medan">Medan</option><option value="makassar">Makassar</option><option value="denpasar">Denpasar</option><option value="palembang">Palembang</option><option value="balikpapan">Balikpapan</option></select></div>
         <p>Weather data: MET Norway. Updated about every 10 minutes when enabled.</p>
       </section>
       <section aria-labelledby="temper-title">
@@ -107,7 +107,7 @@
         <input class="full-range" id="sensitivity-slider" type="range" min="0.4" max="2" step="0.1" value="1">
         <label class="toggle-row"><span>Hide in fullscreen<small>Only on displays currently running fullscreen.</small></span><input id="fullscreen-switch" type="checkbox" role="switch"></label>
         <label class="toggle-row"><span>Cursor hug<small>After five quiet minutes, Grump visits the cursor.</small></span><input id="cursor-hug-switch" type="checkbox" role="switch"></label>
-        <div class="row"><label for="birthday-input">Birthday mode</label><input id="birthday-input" type="date" aria-label="Birthday date"></div>
+        <div class="row preference-select-row"><label for="birthday-month">Birthday mode</label><div class="birthday-picker"><select id="birthday-month" aria-label="Birthday month"><option value="">Month</option></select><select id="birthday-year" aria-label="Birthday year"><option value="">Year (optional)</option></select><select id="birthday-day" aria-label="Birthday day" disabled><option value="">Day</option></select><button type="button" id="birthday-clear" aria-label="Clear birthday" title="Clear birthday">×</button></div></div>
       </section>
 
       <section aria-labelledby="updates-title">

@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const asar = require('@electron/asar');
-const forbidden = /(^|\/)(?:\.env(?:\.[^/]*)?|\.npmrc|\.yarnrc|credentials[^/]*\.json|service-account[^/]*\.json|secrets[^/]*\.json|settings\.json|timer\.json|[^/]*\.(?:pem|key|cert|cer|pfx|p12|log)|SFPro[^/]*\.ttf)(?:$|\/)|(^|\/)(?:\.git|\.21st|backup-[^/]*|userData|Local Storage|Session Storage)(?:\/|$)/i;
-const secret = /gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}|AKIA[A-Z0-9]{16}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|sk-proj-[A-Za-z0-9_-]{30,}/;
+const forbidden = /(^|\/)(?:\.env(?:\.[^/]*)?|\.dev\.vars(?:\.[^/]*)?|\.npmrc|\.yarnrc|credentials[^/]*\.json|service-account[^/]*\.json|secrets[^/]*\.json|(?:settings|timer|productivity|personal-features)\.json(?:\.(?:bak|tmp))?|[^/]*\.(?:pem|key|cert|cer|pfx|p12|log)|SFPro[^/]*\.ttf)(?:$|\/)|(^|\/)(?:\.git|\.21st|\.wrangler|backup-[^/]*|userData|Local Storage|Session Storage)(?:\/|$)/i;
+const secret=require('./secret-pattern.cjs');
 function walk(dir) {return fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(path.join(dir,e.name)):[path.join(dir,e.name)]);}
 function audit(dir) {
   const archive=path.join(dir,'resources','app.asar');

@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-
-<meta name="color-scheme" content="dark"><title>Grump</title>
+<title>Grump</title>
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="island-controls.css">
 </head>
@@ -56,6 +55,7 @@
   <svg id="island-notch-svg" class="island-notch-svg" aria-hidden="true">
     <path id="notch-fill" d="" fill="#000000"/>
     <path id="notch-stroke" d="" fill="none" stroke="rgba(255, 255, 255, 0.18)" stroke-width="1.2"/>
+    <path id="notch-ring" d="" pathLength="100" fill="none" stroke="rgba(255,255,255,.95)" stroke-width="1.8" stroke-linecap="round"/>
     <path id="notch-angry" d="" fill="none" stroke="#ff0000" stroke-width="1.6" opacity="0"/>
   </svg>
 
@@ -170,33 +170,14 @@
     </div>
   </section>
 
-  <!-- QUIET PROMPT (Pertanyaan saat kerja / nonton film: Aku masuk quiet mode ya?) -->
-  <section class="view" id="v-prompt">
-    <div class="pr-mascot">
-      <div class="pr-eyes"><i></i><i></i></div>
-    </div>
-    <div class="pr-text">Aku masuk quiet mode ya?</div>
-    <div class="pr-actions">
-      <button class="pr-btn yes" data-act="prompt-yes" title="Ya (masuk Quiet Mode)" aria-label="Ya">
-        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5L19.5 6.5"/></svg>
-      </button>
-      <button class="pr-btn no" data-act="prompt-no" title="Tidak (tetap normal)" aria-label="Tidak">
-        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
-      </button>
-    </div>
-  </section>
-
   <!-- HOME -->
   <section class="view" id="v-home">
     <div class="h-header-split">
       <!-- Left side: Quick actions + Clock + Date -->
       <div class="h-clock-side">
         <div class="h-actions-row">
-          <button class="h-icon-btn" data-act="bluetoothsettings" title="Bluetooth settings" aria-label="Bluetooth settings"><span data-ico="bluetooth"></span></button>
           <button class="h-icon-btn" data-act="wifisettings" title="Wi-Fi settings" aria-label="Wi-Fi settings"><span data-ico="wifi"></span></button>
-          <button class="h-icon-btn h-quiet-btn" data-act="togglequiet" id="h-quiet-btn" title="Toggle Quiet Mode" aria-label="Toggle Quiet Mode">
-            <span data-ico="moon"></span>
-          </button>
+          <button class="h-icon-btn" data-act="bluetoothsettings" title="Bluetooth settings" aria-label="Bluetooth settings"><span data-ico="bluetooth"></span></button>
           <button class="h-icon-btn h-gear-btn" data-act="settings" title="Preferences" aria-label="Preferences">
             <span data-ico="gear"></span>
           </button>
@@ -241,12 +222,7 @@
     </div>
   </section>
 
-  <section id="v-connectivity" class="connection-popover" role="dialog" aria-label="Connections" hidden>
-    <div class="connection-head"><button data-act="connectionback" aria-label="Back to dashboard"><span data-ico="back"></span></button><strong id="connection-title">Bluetooth</strong><button id="connection-refresh" title="Refresh" aria-label="Refresh"><span data-ico="reset"></span></button><button id="connection-power" role="switch" aria-checked="false" aria-label="Bluetooth power"><i></i></button></div>
-    <div id="connection-message" role="status"></div>
-    <div id="connection-list"></div>
-    <form id="connection-password" hidden><input type="password" id="connection-secret" autocomplete="off" placeholder="Network password" aria-label="Network password"><button type="submit">Join</button><button type="button" id="connection-cancel" aria-label="Cancel"><span data-ico="close"></span></button></form>
-  </section>
+
   <!-- MUSIC -->
   <section class="view" id="v-music">
     <!-- Music background shader canvas -->
@@ -318,7 +294,22 @@
     <div class="stash-list" id="s-list"></div>
   </section>
 
+  <section class="view grump-panel" id="v-addons">
+    <div class="addon-head"><span>Add features</span></div>
+    <div id="addon-picker" class="addon-picker"></div>
+  </section>
+  <section class="view grump-panel" id="v-todo"><div class="todo-head"><span class="todo-heading"><span data-ico="check" aria-hidden="true"></span>To-do list</span><div class="todo-head-actions"><div class="todo-totals" aria-label="Task totals"><span id="todo-open-count" title="Open tasks"></span><span id="todo-done-count" title="Completed tasks"></span></div><button type="button" class="todo-clear" data-act="todoclear" aria-label="Clear all tasks" title="Clear all tasks" hidden><span data-ico="trash" aria-hidden="true"></span><span class="todo-clear-label">Clear</span></button></div></div><div class="addon-body" id="addon-todo-body"></div></section>
+  <section class="view grump-panel" id="v-notes"><div class="addon-head"><span>Notes</span></div><div class="addon-body" id="addon-notes-body"></div></section>
+  <section class="view grump-panel" id="v-prayer"><div class="addon-head"><span>Sholat</span></div><div class="addon-body" id="addon-prayer-body"></div></section>
+  <section class="view grump-panel" id="v-water"><div class="addon-head"><span>Minum</span></div><div class="addon-body" id="addon-water-body"></div></section>
+
   </div>
+  <section id="v-connectivity" class="connection-popover" role="dialog" aria-label="Connections" hidden>
+    <div class="connection-head"><button data-act="connectionback" aria-label="Back to dashboard"><span data-ico="back"></span></button><strong id="connection-title">Bluetooth</strong><button id="connection-refresh" title="Refresh" aria-label="Refresh"><span data-ico="reset"></span></button><button id="connection-power" role="switch" aria-checked="false" aria-label="Bluetooth power"><i></i></button></div>
+    <div id="connection-message" role="status"></div>
+    <div id="connection-list"></div>
+    <form id="connection-password" hidden><input type="password" id="connection-secret" autocomplete="off" placeholder="Network password" aria-label="Network password"><button type="submit">Join</button><button type="button" id="connection-cancel" aria-label="Cancel"><span data-ico="close"></span></button></form>
+  </section>
   <div id="grump-feeding" aria-hidden="true"><div class="feeding-eyes"><i></i><i></i></div><div class="feeding-mouth"><i></i></div><span>Drop it. I'll keep it.</span></div>
   <!-- PAGER -->
   <div id="pager">
@@ -332,6 +323,7 @@
 <script src="js/shader-bg.js"></script>
 <script src="js/music.js"></script>
 <script src="js/shelf.js"></script>
+<script src="js/addons.js"></script>
 <script src="js/system.js"></script>
 <script src="js/features.js"></script>
 <script src="js/timer-ruler.js"></script>

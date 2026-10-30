@@ -44,7 +44,7 @@ function antigravityActivity(root, now = Date.now()) {
       }
       // Intermediate planner steps are marked DONE before the full task ends.
       // Keep the indicator through short gaps between Antigravity steps.
-      if (step && now - modified < 15_000) {
+      if (step && now - modified < 3000) {
         return step.step_type === 14
           ? { active: true, status: 'Thinking', detail: 'Reading request' }
           : stepDetail(step);
