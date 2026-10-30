@@ -1822,15 +1822,15 @@
           <a
             class="liquid-glass-btn liquid-glass-primary"
             id="btn-dl-setup"
-            aria-disabled="true"
+            href="https://github.com/yeazka/Grump/releases/download/v1.0.8/Grump-Setup-1.0.8.exe"
             target="_blank"
             rel="noopener noreferrer"
-            title="Checking installer availability"
+            title="Download Grump Setup for Windows"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.951-1.801"/>
             </svg>
-            <span data-i18n="btn-dl-setup">Checking installer…</span>
+            <span data-i18n="btn-dl-setup">Download Setup</span>
           </a>
 
           <!-- 2. Microsoft Store install (White Button) -->
@@ -2485,10 +2485,7 @@
         
         document.querySelector('[data-i18n="hero-downloads"]').textContent = translations[currentLang]['hero-downloads'];
       } catch (err) {
-        button.removeAttribute('href');button.setAttribute('aria-disabled','true');
-        translations.en['btn-dl-setup']='Coming soon';translations.id['btn-dl-setup']='Segera tersedia';
-        button.querySelector('[data-i18n="btn-dl-setup"]').textContent=translations[currentLang]['btn-dl-setup'];
-        button.title=currentLang==='id'?'Installer publik belum tersedia':'Public installer is not available yet';
+        // Keep the verified release link when GitHub API is rate-limited.
         console.warn('Installer release unavailable:', err);
       }
     }

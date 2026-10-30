@@ -14,5 +14,5 @@ test('website inline scripts parse and static local assets exist',()=>{
   assert.ok(fs.existsSync(path.join(root,url)),url);
  }
  const download=html.match(/<a\s[^>]*id="btn-dl-setup"[\s\S]*?>/)?.[0];
- assert.ok(download);assert.ok(download.includes('aria-disabled="true"'));assert.equal(download.includes('href='),false);
+ assert.ok(download);assert.ok(download.includes('releases/download/v1.0.8/Grump-Setup-1.0.8.exe'));assert.equal(download.includes('aria-disabled="true"'),false);
 });
