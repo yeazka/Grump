@@ -19,7 +19,7 @@ for (const [tab, sectionIds] of [
   }
   settingsContent.insertBefore(pane, featuresPane);
 }
-const defaults = { offsetX: 0, theme: 'default', eyeMode: 'auto', staticExp: 'normal', angryVariant: 'gold-matrix', dockMode: 'island', islandWidth:128, islandHeight:32, islandTransparency:0, weatherEnabled:false, weatherCity:'jakarta' };
+const defaults = { offsetX: 0, theme: 'default', eyeMode: 'auto', staticExp: 'normal', angryVariant: 'gold-matrix', dockMode: 'island', islandWidth:128, islandHeight:32, islandTransparency:0, weatherEnabled:true, weatherCity:'jakarta' };
 let settings = { ...defaults, angryRadius:145, sensitivity:1, quiet:false, menuMusic:true, menuTimer:true, menuStash:true, menuQuiet:false, batteryToast:true, headsetToast:true, hideFullscreen:true, smartQuietPrompt:false, gameModeQuiet:true, dockMode:'island' };
 let addonSettings={selected:[]};
 function updateAddonSettings(){document.querySelectorAll('[data-addon-feature]').forEach(input=>{input.checked=addonSettings.selected?.includes(input.dataset.addonFeature)||false;});}

@@ -11,7 +11,7 @@ The current local repository has no Git remote. Its 28 older commits include SF 
 5. Build the installer with `npm run build:setup`. This command creates the installer, its `.blockmap`, and `latest.yml` in `dist/setup`. It never uploads them.
 6. Create a public GitHub Release tagged `vX.Y.Z`, matching `package.json`, and attach all three files from that same build. Publish the release; a draft is not visible to the updater. Give users the versioned `Grump-Setup-X.Y.Z.exe` installer.
 
-The website checks the latest public Release through the GitHub API, selects its versioned `Grump-Setup-X.Y.Z.exe` asset, and links directly to that asset. While there is no public Release, the download button stays disabled. The current prepared installer is `dist/setup/Grump-Setup-1.0.8.exe`; it is only on this PC until uploaded. The website itself does not host the EXE.
+The website checks the latest public Release through the GitHub API, selects its versioned `Grump-Setup-X.Y.Z.exe` asset, and links directly to that asset. While there is no public Release, the download button stays disabled. The current prepared installer is `dist/setup/Grump-Setup-1.0.9.exe`; it is only on this PC until uploaded. The website itself does not host the EXE.
 
 The installer is currently unsigned. Windows may warn users until you obtain a code-signing certificate and build a signed release. Keep signing keys and passwords outside the repository.
 

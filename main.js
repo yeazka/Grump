@@ -30,7 +30,7 @@ const defaults = {
   angryRadius:145, sensitivity:1, quiet:false, quietUntil:0, menuMusic:true, menuTimer:true,
   menuQuiet:false, batteryToast:true, headsetToast:true, gameModeQuiet:true, smartQuietPrompt:false,
   islandWidth:128, islandHeight:32, islandTransparency:0, dockMode:'island', menuStash:true, birthday:'', clipboardEnabled:false, cursorHug:true,
-  weatherEnabled:false, weatherCity:'jakarta'
+  weatherEnabled:true, weatherCity:'jakarta'
 };
 let settings = {...defaults};
 let weather;
