@@ -6,6 +6,8 @@ on:
     paths:
       - "website/**"
       - ".github/workflows/deploy-pages.yml"
+  schedule:
+    - cron: '*/15 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -37,6 +39,11 @@ jobs:
           cp -R website/assets website/grump-app public-site/
           if [ -d website/public ]; then cp -R website/public/. public-site/; fi
           touch public-site/.nojekyll
+
+      - name: Fetch verified download count
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node tools/write-download-stats.cjs public-site/download-stats.json
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
