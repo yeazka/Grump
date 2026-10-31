@@ -373,7 +373,7 @@
       height: 100%;
       object-fit: cover;
       z-index: 0;
-      filter: hue-rotate(145deg) saturate(1.42) brightness(0.7);
+      filter: hue-rotate(145deg) saturate(1.42) brightness(0.9);
     }
 
     .warm-ambient-glow {
@@ -381,7 +381,7 @@
       inset: 0;
       z-index: 1;
       background:
-        radial-gradient(circle at 50% 36%, rgba(11, 7, 4, 0.12) 0%, rgba(11, 7, 4, 0.48) 72%, #0b0704 100%),
+        radial-gradient(circle at 50% 36%, rgba(11, 7, 4, 0.08) 0%, rgba(11, 7, 4, 0.32) 72%, #0b0704 100%),
         radial-gradient(circle at 50% 30%, rgba(245, 158, 11, 0.35) 0%, transparent 62%);
       pointer-events: none;
     }
@@ -1095,11 +1095,24 @@
 
       .header-right {
         gap: 8px;
+        min-width: 0;
+        flex: 1;
+      }
+
+      .main-nav {
+        min-width: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+
+      .main-nav::-webkit-scrollbar {
+        display: none;
       }
 
       .nav-link {
         padding: 0 8px;
         font-size: 13px;
+        white-space: nowrap;
       }
 
       .github-link span {
@@ -1531,7 +1544,7 @@
       line-height: 1.5;
       max-width: 680px;
     }
-    .spec-stage { max-width:1140px; margin:0 auto; padding:20px 0 40px; }
+    .spec-stage { max-width:1140px; margin:0 auto; padding:20px 0 40px; scroll-margin-top: 90px; }
     .spec-content { justify-content:flex-start; }
     .spec-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:28px; margin-top:32px; }
     .spec-column { border-top:1px solid rgba(255,255,255,.18); padding-top:18px; }
@@ -1763,6 +1776,7 @@
         <nav class="main-nav" aria-label="Main navigation">
           <a href="#overview" class="nav-link" data-i18n="nav-overview">Overview</a>
           <a href="#features" class="nav-link" data-i18n="nav-features">Features</a>
+          <a href="#specifications" class="nav-link" data-i18n="nav-specifications">Specification</a>
           <a href="#testimonials" class="nav-link" data-i18n="nav-testimonials">Creator notes</a>
         </nav>
 
@@ -2253,6 +2267,7 @@
         "page-title": "Grump Notch: Your Desktop Just Got Angrier",
         "nav-overview": "Overview",
         "nav-features": "Features",
+        "nav-specifications": "Specification",
         "hero-title": "<span class=\"hero-line\">Your desktop is boring af,</span><span class=\"hero-line\">so we made it <span class=\"hero-title-accent\">angrier.</span></span>",
         "hero-subtext": "The moody Notch for Windows. It judges your Spotify taste, controls your PC, and shoots lasers at your cursor when you annoy it.",
         "btn-download": "Download for Windows",
@@ -2313,6 +2328,7 @@
         "page-title": "Grump Notch: Desktop Lu Jadi Lebih Galak",
         "nav-overview": "Ringkasan",
         "nav-features": "Fitur",
+        "nav-specifications": "Spesifikasi",
         "hero-title": "<span class=\"hero-line\">Desktop lu ngebosenin bgt,</span><span class=\"hero-line\">makanya kita bikin lebih <span class=\"hero-title-accent\">galak.</span></span>",
         "hero-subtext": "Notch moody buat Windows. Nge-judge selera Spotify lu, kontrol PC lu, dan nembak laser ke kursor kalo lu usilin.",
         "btn-download": "Download buat Windows",
