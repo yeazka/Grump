@@ -1178,6 +1178,7 @@
     }
 
     .testimonial-card-container {
+      scroll-margin-top: 90px;
       position: relative;
       max-width: 1140px;
       margin: 0 auto;
@@ -2030,12 +2031,12 @@
 
 
     <!-- Creator notes & Feedback Section -->
-    <section id="testimonials" class="testimonials-section" aria-labelledby="testimonials-heading">
+    <section class="testimonials-section" aria-labelledby="testimonials-heading">
       <div class="wrap testimonial-wrap">
           
           <section class="spec-stage" id="specifications" aria-labelledby="spec-title">
             <div class="testi-layout">
-              <div class="testi-left-col"><span id="testimonials-heading" class="testi-vertical-label" data-i18n="spec-label">SYSTEM REQUIREMENTS</span><div class="testi-progress-track"><div class="fb-progress-fill" aria-hidden="true"></div></div></div>
+              <div class="testi-left-col"><span class="testi-vertical-label" data-i18n="spec-label">SYSTEM REQUIREMENTS</span><div class="testi-progress-track"><div class="fb-progress-fill" aria-hidden="true"></div></div></div>
               <div class="testi-main-col spec-content">
                 <h3 class="fb-hero-title" id="spec-title" data-i18n="spec-title">Ready to run Grump?</h3>
                 <p class="fb-hero-sub" data-i18n="spec-sub">Check what your Windows PC needs.</p>
@@ -2064,7 +2065,7 @@
           <div class="stage-divider" aria-hidden="true"></div>
 
           <!-- Left Column: Creator Notes Stage (Azka) -->
-          <div class="testimonial-card-container" id="testimonial-container">
+          <div class="testimonial-card-container" id="testimonials">
             <div class="oversized-number" id="testi-big-num" aria-hidden="true">01</div>
 
             <div class="testi-layout">
@@ -2143,7 +2144,7 @@
             <div class="testi-layout">
               <!-- Left column: vertical title & vertical track -->
               <div class="testi-left-col">
-                <span id="testimonials-heading" class="testi-vertical-label" data-i18n="fb-tag">FEEDBACK &amp; IDEAS</span>
+                <span class="testi-vertical-label" data-i18n="fb-tag">FEEDBACK &amp; IDEAS</span>
                 <div class="testi-progress-track">
                   <div class="fb-progress-fill" aria-hidden="true"></div>
                 </div>
@@ -2836,7 +2837,7 @@
         });
       }
 
-      attachParallax('testimonial-container', 'testi-big-num');
+      attachParallax('testimonials', 'testi-big-num');
     }
 
     function checkHeaderScroll() {
