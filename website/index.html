@@ -1184,24 +1184,11 @@
       position: absolute;
       inset: 0;
       background: url('assets/grump-logo.jpg') center 20% / min(74vw, 880px) auto no-repeat;
-      opacity: 0.13;
-      filter: saturate(1.2) contrast(1.08);
-      mask-image: radial-gradient(ellipse 56% 42% at 50% 26%, #000 0%, rgba(0, 0, 0, 0.72) 42%, transparent 78%);
-      -webkit-mask-image: radial-gradient(ellipse 56% 42% at 50% 26%, #000 0%, rgba(0, 0, 0, 0.72) 42%, transparent 78%);
-      pointer-events: none;
-    }
-
-    .whats-new-section::after {
-      content: '';
-      position: absolute;
-      right: -110px;
-      top: 50%;
-      width: 360px;
-      height: 360px;
-      transform: translateY(-50%);
-      border: 1px solid rgba(251, 191, 36, 0.16);
-      border-radius: 50%;
-      box-shadow: 0 0 90px rgba(245, 158, 11, 0.12), inset 0 0 90px rgba(245, 158, 11, 0.06);
+      opacity: 0.16;
+      filter: saturate(1.35) contrast(1.65) brightness(1.08);
+      mix-blend-mode: screen;
+      mask-image: radial-gradient(ellipse 46% 30% at 50% 25%, #000 0%, rgba(0, 0, 0, 0.88) 38%, transparent 74%);
+      -webkit-mask-image: radial-gradient(ellipse 46% 30% at 50% 25%, #000 0%, rgba(0, 0, 0, 0.88) 38%, transparent 74%);
       pointer-events: none;
     }
 
@@ -1347,9 +1334,8 @@
       .whats-new-section::before {
         background-position: center 12%;
         background-size: 140vw auto;
-        opacity: 0.1;
+        opacity: 0.12;
       }
-      .whats-new-section::after { opacity: 0.55; }
     }
 
     /* Creator notes Section - Pure Black, Grand Layout, No Card Container Box */
