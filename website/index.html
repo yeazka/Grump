@@ -1179,6 +1179,18 @@
       border-top: 1px solid var(--line);
     }
 
+    .whats-new-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url('assets/grump-logo.jpg') center 20% / min(74vw, 880px) auto no-repeat;
+      opacity: 0.13;
+      filter: saturate(1.2) contrast(1.08);
+      mask-image: radial-gradient(ellipse 56% 42% at 50% 26%, #000 0%, rgba(0, 0, 0, 0.72) 42%, transparent 78%);
+      -webkit-mask-image: radial-gradient(ellipse 56% 42% at 50% 26%, #000 0%, rgba(0, 0, 0, 0.72) 42%, transparent 78%);
+      pointer-events: none;
+    }
+
     .whats-new-section::after {
       content: '';
       position: absolute;
@@ -1332,6 +1344,11 @@
       .whats-new-inner { grid-template-columns: 1fr; gap: 48px; }
       .release-schedule { padding-left: 22px; }
       .release-list { grid-template-columns: 1fr; margin-top: 4px; }
+      .whats-new-section::before {
+        background-position: center 12%;
+        background-size: 140vw auto;
+        opacity: 0.1;
+      }
       .whats-new-section::after { opacity: 0.55; }
     }
 
