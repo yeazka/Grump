@@ -1272,15 +1272,9 @@
     }
 
     .release-countdown {
-      display: inline-flex;
-      align-items: center;
-      min-height: 26px;
-      margin-top: 12px;
-      padding: 5px 10px;
-      border: 1px solid rgba(251, 191, 36, 0.2);
-      border-radius: 999px;
-      background: rgba(245, 158, 11, 0.07);
-      color: #d8d0c8;
+      display: block;
+      margin-top: 14px;
+      color: var(--amber-bright);
       font: 700 0.72rem/1 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       letter-spacing: 0.08em;
       font-variant-numeric: tabular-nums;
@@ -1293,10 +1287,51 @@
       font-size: 0.8rem;
     }
 
+    .release-list {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: clamp(40px, 7vw, 96px);
+      margin: 32px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .release-item {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 14px;
+      padding: 26px 0 28px;
+      border-top: 1px solid rgba(255, 235, 200, 0.14);
+    }
+
+    .release-index {
+      padding-top: 3px;
+      color: var(--amber-bright);
+      font: 700 0.72rem/1 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      letter-spacing: 0.08em;
+    }
+
+    .release-item h3 {
+      margin: 0 0 8px;
+      color: #fff;
+      font-size: clamp(1rem, 1.6vw, 1.18rem);
+      line-height: 1.3;
+      letter-spacing: -0.025em;
+    }
+
+    .release-item p {
+      margin: 0;
+      color: #a99f96;
+      font-size: 0.9rem;
+      line-height: 1.65;
+    }
+
     @media (max-width: 760px) {
       .whats-new-section { padding: 82px 0; }
       .whats-new-inner { grid-template-columns: 1fr; gap: 48px; }
       .release-schedule { padding-left: 22px; }
+      .release-list { grid-template-columns: 1fr; margin-top: 4px; }
       .whats-new-section::after { opacity: 0.55; }
     }
 
@@ -2239,8 +2274,8 @@
       <div class="wrap whats-new-inner">
         <div>
           <span class="whats-new-kicker" data-i18n="whats-new-kicker">What's new</span>
-          <h2 class="whats-new-title" id="whats-new-title" data-i18n="whats-new-title">Coming soon.</h2>
-          <p class="whats-new-copy" data-i18n="whats-new-copy">The latest Grump update lands tonight. Full release notes will appear here when it goes live.</p>
+          <h2 class="whats-new-title" id="whats-new-title" data-i18n="whats-new-title">The next Grump update.</h2>
+          <p class="whats-new-copy" data-i18n="whats-new-copy">New reminders, smarter reactions, sharper visuals, and a quieter footprint. Shipping tonight.</p>
         </div>
         <time class="release-schedule" datetime="2026-11-01T20:00:00+07:00">
           <span class="release-schedule-label" data-i18n="release-schedule-label">Release time</span>
@@ -2249,6 +2284,16 @@
           <span class="release-countdown" id="release-countdown" role="timer" aria-live="off">00h 00m 00s</span>
           <span class="release-zone-note" id="release-zone-note">Shown in your local time · 8:00 PM WIB</span>
         </time>
+        <ol class="release-list">
+          <li class="release-item"><span class="release-index">01</span><div><h3 data-i18n="release-1-title">Scheduled task reminders</h3><p data-i18n="release-1-copy">Tasks can now carry a date and time, persist across restarts, and surface a dismissible alert when they are due.</p></div></li>
+          <li class="release-item"><span class="release-index">02</span><div><h3 data-i18n="release-2-title">Smarter prayer times</h3><p data-i18n="release-2-copy">Automatic location with provider fallback, next-prayer countdown, a clearer schedule, and silent animated notices.</p></div></li>
+          <li class="release-item"><span class="release-index">03</span><div><h3 data-i18n="release-3-title">Hydration reminders</h3><p data-i18n="release-3-copy">A new 45-minute default reminder, animated water-cup popup, and rotating hydration facts.</p></div></li>
+          <li class="release-item"><span class="release-index">04</span><div><h3 data-i18n="release-4-title">Dragon and GPT Pixel Eyes</h3><p data-i18n="release-4-copy">Two new angry reactions: synchronized V-shaped Dragon Eyes and animated GPT pixels with glowing pupils and particles.</p></div></li>
+          <li class="release-item"><span class="release-index">05</span><div><h3 data-i18n="release-5-title">Lyrics that fail less</h3><p data-i18n="release-5-copy">When synced lyrics are unavailable, Grump falls back to plain lyrics. The compact music beam now fills the notch cleanly.</p></div></li>
+          <li class="release-item"><span class="release-index">06</span><div><h3 data-i18n="release-6-title">Better displays and browser tuck</h3><p data-i18n="release-6-copy">Per-display targeting, centered tuck detection, and vertical-tab awareness for Edge, Chrome, and Brave.</p></div></li>
+          <li class="release-item"><span class="release-index">07</span><div><h3 data-i18n="release-7-title">Creative app awareness</h3><p data-i18n="release-7-copy">Grump shrinks its height and hitbox around creative apps, keeps out of the way, and stays visible during Alt+Tab.</p></div></li>
+          <li class="release-item"><span class="release-index">08</span><div><h3 data-i18n="release-8-title">Performance and polish</h3><p data-i18n="release-8-copy">Optional Windows APIs load on demand, paused music stops its shader, idle retention is reduced, and theme outlines behave consistently.</p></div></li>
+        </ol>
       </div>
     </section>
 
@@ -2440,12 +2485,6 @@
                         </svg>
                         <span id="fb-btn-text" data-i18n="fb-btn-submit">Send Feedback</span>
                       </button>
-                      <a class="fb-support-btn" href="https://trakteer.id/sewelaspixel/tip" target="_blank" rel="noopener noreferrer" title="Support Grump on Trakteer">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                        </svg>
-                        <span data-i18n="btn-support">Support me</span>
-                      </a>
                       <a class="fb-support-btn" href="https://github.com/sponsors/yeazka" target="_blank" rel="noopener noreferrer" title="Support Grump on GitHub Sponsors">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                           <path d="M12 .7C5.7.7.6 5.8.6 12.1c0 5 3.3 9.2 7.8 10.7.6.1.8-.3.8-.6v-2.2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0C17.9 5.3 19 5.6 19 5.6c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .4.2.7.8.6a11.5 11.5 0 0 0 7.8-10.7C23.4 5.8 18.3.7 12 .7Z"/>
@@ -2525,9 +2564,25 @@
         "btn-github-sponsors": "GitHub Sponsors",
         "btn-discord": "Join Discord",
         "whats-new-kicker": "What's new",
-        "whats-new-title": "Coming soon.",
-        "whats-new-copy": "The latest Grump update lands tonight. Full release notes will appear here when it goes live.",
+        "whats-new-title": "The next Grump update.",
+        "whats-new-copy": "New reminders, smarter reactions, sharper visuals, and a quieter footprint. Shipping tonight.",
         "release-schedule-label": "Release time",
+        "release-1-title": "Scheduled task reminders",
+        "release-1-copy": "Tasks can now carry a date and time, persist across restarts, and surface a dismissible alert when they are due.",
+        "release-2-title": "Smarter prayer times",
+        "release-2-copy": "Automatic location with provider fallback, next-prayer countdown, a clearer schedule, and silent animated notices.",
+        "release-3-title": "Hydration reminders",
+        "release-3-copy": "A new 45-minute default reminder, animated water-cup popup, and rotating hydration facts.",
+        "release-4-title": "Dragon and GPT Pixel Eyes",
+        "release-4-copy": "Two new angry reactions: synchronized V-shaped Dragon Eyes and animated GPT pixels with glowing pupils and particles.",
+        "release-5-title": "Lyrics that fail less",
+        "release-5-copy": "When synced lyrics are unavailable, Grump falls back to plain lyrics. The compact music beam now fills the notch cleanly.",
+        "release-6-title": "Better displays and browser tuck",
+        "release-6-copy": "Per-display targeting, centered tuck detection, and vertical-tab awareness for Edge, Chrome, and Brave.",
+        "release-7-title": "Creative app awareness",
+        "release-7-copy": "Grump shrinks its height and hitbox around creative apps, keeps out of the way, and stays visible during Alt+Tab.",
+        "release-8-title": "Performance and polish",
+        "release-8-copy": "Optional Windows APIs load on demand, paused music stops its shader, idle retention is reduced, and theme outlines behave consistently.",
         "testi-trakteer": "Tip on Trakteer",
         "nav-testimonials": "Creator notes",
         "testi-section-label": "CREATOR'S NOTE",
@@ -2593,9 +2648,25 @@
         "btn-github-sponsors": "GitHub Sponsors",
         "btn-discord": "Join Discord",
         "whats-new-kicker": "Yang baru",
-        "whats-new-title": "Segera hadir.",
-        "whats-new-copy": "Update Grump terbaru rilis malam ini. Catatan lengkapnya bakal muncul di sini begitu update-nya resmi tersedia.",
+        "whats-new-title": "Update Grump berikutnya.",
+        "whats-new-copy": "Reminder baru, reaksi lebih pintar, visual lebih tajam, dan penggunaan resource yang lebih tenang. Rilis malam ini.",
         "release-schedule-label": "Waktu rilis",
+        "release-1-title": "Pengingat tugas terjadwal",
+        "release-1-copy": "To-do sekarang bisa diberi tanggal dan jam, tetap tersimpan setelah restart, lalu memunculkan alert saat waktunya tiba.",
+        "release-2-title": "Jadwal sholat yang lebih pintar",
+        "release-2-copy": "Lokasi otomatis dengan sumber cadangan, countdown sholat berikutnya, jadwal lebih jelas, dan notifikasi animatif tanpa suara.",
+        "release-3-title": "Pengingat minum",
+        "release-3-copy": "Interval default baru 45 menit, mini-popup gelas air animatif, dan fakta hidrasi yang berganti.",
+        "release-4-title": "Dragon dan GPT Pixel Eyes",
+        "release-4-copy": "Dua reaksi marah baru: Dragon Eyes berbentuk V dengan kedipan serempak serta pixel GPT dengan pupil menyala dan partikel.",
+        "release-5-title": "Lirik yang lebih tahan gagal",
+        "release-5-copy": "Saat lirik sinkron tidak tersedia, Grump beralih ke lirik biasa. Beam musik compact sekarang memenuhi notch dengan rapi.",
+        "release-6-title": "Display dan browser tuck yang lebih baik",
+        "release-6-copy": "Pemilihan display, deteksi tuck yang kembali ke tengah, serta dukungan vertical tabs di Edge, Chrome, dan Brave.",
+        "release-7-title": "Peka terhadap aplikasi kreatif",
+        "release-7-copy": "Grump mengecilkan tinggi dan hitbox saat aplikasi kreatif aktif, tidak menghalangi kerja, dan tetap terlihat ketika Alt+Tab.",
+        "release-8-title": "Performa dan polesan",
+        "release-8-copy": "Windows API opsional dimuat saat dibutuhkan, shader musik berhenti ketika pause, retensi idle dikurangi, dan outline tema dibuat konsisten.",
         "testi-trakteer": "Traktir Kopi",
         "nav-testimonials": "Catatan kreator",
         "testi-section-label": "CATATAN KREATOR",
