@@ -34,6 +34,7 @@ jobs:
         run: |
           mkdir -p public-site
           cp website/index.html public-site/
+          cp website/privacy.html public-site/
           cp -R website/assets website/grump-app public-site/
           if [ -d website/public ]; then cp -R website/public/. public-site/; fi
           touch public-site/.nojekyll
