@@ -1271,6 +1271,21 @@
       font-weight: 700;
     }
 
+    .release-countdown {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      margin-top: 12px;
+      padding: 5px 10px;
+      border: 1px solid rgba(251, 191, 36, 0.2);
+      border-radius: 999px;
+      background: rgba(245, 158, 11, 0.07);
+      color: #d8d0c8;
+      font: 700 0.72rem/1 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      letter-spacing: 0.08em;
+      font-variant-numeric: tabular-nums;
+    }
+
     .release-zone-note {
       display: block;
       margin-top: 8px;
@@ -2217,6 +2232,7 @@
           <span class="release-schedule-label" data-i18n="release-schedule-label">Release time</span>
           <span class="release-local-time" id="release-local-time">8:00 PM</span>
           <span class="release-local-date" id="release-local-date">Sunday, November 1, 2026</span>
+          <span class="release-countdown" id="release-countdown" role="timer" aria-live="off">00h 00m 00s</span>
           <span class="release-zone-note" id="release-zone-note">Shown in your local time · 8:00 PM WIB</span>
         </time>
       </div>
@@ -2639,6 +2655,8 @@
 
     let currentLang = 'en';
     let currentCaptionKey = 'weather';
+    const releaseAt = new Date('2026-11-01T20:00:00+07:00');
+    let releaseCountdownTimer = null;
 
     function updateCaption(key) {
       if (key) currentCaptionKey = key;
@@ -2649,7 +2667,6 @@
     }
 
     function updateReleaseSchedule() {
-      const releaseAt = new Date('2026-11-01T20:00:00+07:00');
       const locale = currentLang === 'id' ? 'id-ID' : 'en-US';
       const timeEl = document.getElementById('release-local-time');
       const dateEl = document.getElementById('release-local-date');
@@ -2679,6 +2696,33 @@
       }
     }
 
+    function updateReleaseCountdown() {
+      const countdownEl = document.getElementById('release-countdown');
+      if (!countdownEl) return;
+
+      const remaining = releaseAt.getTime() - Date.now();
+      if (remaining <= 0) {
+        countdownEl.textContent = currentLang === 'id' ? 'UPDATE SUDAH RILIS' : 'UPDATE IS LIVE';
+        if (releaseCountdownTimer) {
+          clearInterval(releaseCountdownTimer);
+          releaseCountdownTimer = null;
+        }
+        return;
+      }
+
+      const totalSeconds = Math.floor(remaining / 1000);
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      const parts = [];
+      if (days > 0) parts.push(`${days}d`);
+      parts.push(`${String(hours).padStart(2, '0')}h`);
+      parts.push(`${String(minutes).padStart(2, '0')}m`);
+      parts.push(`${String(seconds).padStart(2, '0')}s`);
+      countdownEl.textContent = parts.join(' ');
+    }
+
     function setLang(lang) {
       currentLang = lang;
       document.documentElement.lang = lang;
@@ -2702,6 +2746,7 @@
       if (btnEn) btnEn.setAttribute('aria-pressed', String(lang === 'en'));
       if (btnId) btnId.setAttribute('aria-pressed', String(lang === 'id'));
       updateReleaseSchedule();
+      updateReleaseCountdown();
       updateCaption();
       renderTestimonial(activeTestiIndex);
     }
@@ -3100,6 +3145,7 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       setLang('en');
+      releaseCountdownTimer = setInterval(updateReleaseCountdown, 1000);
       initTestiParallax();
       checkHeaderScroll();
       resetTestiTimer();
