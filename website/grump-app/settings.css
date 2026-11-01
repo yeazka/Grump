@@ -304,6 +304,23 @@ h1 {
 }
 .display-selection-note.is-warning { color: #ffad3f; }
 
+body.demo-display-only { padding: 0; }
+body.demo-display-only .window {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  border-radius: 18px;
+}
+body.demo-display-only .settings-nav,
+body.demo-display-only .titlebar,
+body.demo-display-only .settings-footer { display: none; }
+body.demo-display-only .content {
+  grid-column: 1;
+  grid-row: 1;
+  padding: 24px;
+}
+body.demo-display-only .tab-pane:not(#tab-display) { display: none !important; }
+body.demo-display-only #tab-display { display: block !important; }
+
 section {
   background: #232326;
   border: 1px solid rgba(255, 255, 255, 0.06);

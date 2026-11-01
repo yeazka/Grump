@@ -422,9 +422,7 @@
     emit(cbs.media, { ...mediaState });
   }
 
-  window.addEventListener('message', (ev) => {
-    if(ev.source!==window.parent||ev.origin!==window.location.origin)return;
-    const d = ev.data;
+  function applyDemoMessage(d) {
     if (!d || d.type !== 'grump-demo') return;
     const isl = window.__island;
     const islandEl = document.getElementById('island');
@@ -605,17 +603,29 @@
       case 'water':
         stopMusic();
         isl.S.focusLock = true;
+        isl.S.expanded = false;
+        isl.S.view = mode;
         isl.go(mode);
         break;
 
       case 'prayer-alert':
         stopMusic();
+        document.querySelectorAll('.view.mini-popup').forEach(view=>view.classList.remove('on','sliding'));
+        isl.S.miniPopup = null;
+        isl.S.ring = null;
+        isl.S.focusLock = false;
+        isl.S.expanded = false;
         isl.collapse();
         emit(cbs.addonAlert,{kind:'prayer',title:'Waktu Maghrib',body:'Yogyakarta · 17:47'});
         break;
 
       case 'water-alert':
         stopMusic();
+        document.querySelectorAll('.view.mini-popup').forEach(view=>view.classList.remove('on','sliding'));
+        isl.S.miniPopup = null;
+        isl.S.ring = null;
+        isl.S.focusLock = false;
+        isl.S.expanded = false;
         isl.collapse();
         emit(cbs.addonAlert,{kind:'water',title:'WATER BEFORE U CRASH.',body:'1 glass (~200 ml) · every 45 min'});
         break;
@@ -651,5 +661,10 @@
         emit(cbs.testCharge, 'charging');
         break;
     }
+  }
+  window.__grumpDemoControl = applyDemoMessage;
+  window.addEventListener('message', (ev) => {
+    if(ev.source!==window.parent||ev.origin!==window.location.origin)return;
+    applyDemoMessage(ev.data);
   });
 })();

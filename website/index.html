@@ -990,7 +990,7 @@
       top: 72px;
       height: calc(100% - 72px);
     }
-    .grump-settings-iframe { position:absolute; inset:28px 38px 18px; width:calc(100% - 76px); height:calc(100% - 46px); border:0; border-radius:18px; background:#111216; z-index:11; box-shadow:0 20px 48px rgba(0,0,0,.55); }
+    .grump-settings-iframe { position:absolute; top:28px; bottom:18px; left:38px; width:min(650px, calc(100% - 76px)); height:calc(100% - 46px); border:0; border-radius:18px; background:#111216; z-index:11; box-shadow:0 20px 48px rgba(0,0,0,.55); }
     .grump-settings-iframe[hidden] { display:none; }
 
     /* Footer */
@@ -2272,13 +2272,13 @@
                   </div>
                   <iframe
                     id="grump-demo-frame"
-                    src="grump-app/"
+                    src="grump-app/?v=110-demo-fix2"
                     width="640"
                     height="420"
                     class="grump-iframe"
                     title="Grump 1:1 Interactive Notch Preview"
                   ></iframe>
-                  <iframe id="grump-settings-frame" src="grump-app/settings.html" class="grump-settings-iframe" title="Grump Display Selection Preview" hidden></iframe>
+                  <iframe id="grump-settings-frame" src="grump-app/settings.html?v=110-demo-fix2" class="grump-settings-iframe" title="Grump Display Selection Preview" hidden></iframe>
                 </div>
               </div>
             </div>
@@ -2879,10 +2879,16 @@
       } catch {}
     }
 
+    let grumpDemoReady = false;
+    let currentDemoMode = 'weather';
+    let grumpConnectTimer = 0;
+
     function sendToGrump(payload) {
       const frame = document.getElementById('grump-demo-frame');
-      if (frame && frame.contentWindow) {
-        frame.contentWindow.postMessage({ type: 'grump-demo', ...payload }, window.location.origin);
+      if (grumpDemoReady && frame && frame.contentWindow) {
+        const message = { type: 'grump-demo', ...payload };
+        if (typeof frame.contentWindow.__grumpDemoControl === 'function') frame.contentWindow.__grumpDemoControl(message);
+        else frame.contentWindow.postMessage(message, window.location.origin);
       }
     }
 
@@ -2894,7 +2900,30 @@
     }
     window.addEventListener('resize', fitLaptopScale);
     window.addEventListener('DOMContentLoaded', fitLaptopScale);
-    document.getElementById('grump-demo-frame').addEventListener('load', fitLaptopScale);
+    const grumpDemoFrame = document.getElementById('grump-demo-frame');
+    const connectGrumpDemo = () => {
+      clearTimeout(grumpConnectTimer);
+      if (!grumpDemoFrame.contentWindow?.__island) {
+        grumpConnectTimer = setTimeout(connectGrumpDemo, 100);
+        return false;
+      }
+      grumpDemoReady = true;
+      fitLaptopScale();
+      sendToGrump({ mode: currentDemoMode });
+      return true;
+    };
+    grumpDemoFrame.addEventListener('load', () => {
+      grumpDemoReady = false;
+      requestAnimationFrame(connectGrumpDemo);
+      setTimeout(connectGrumpDemo, 120);
+    });
+    window.addEventListener('message', event => {
+      if (event.origin !== window.location.origin || event.source !== grumpDemoFrame.contentWindow || event.data?.type !== 'grump-demo-ready') return;
+      grumpDemoReady = true;
+      fitLaptopScale();
+      sendToGrump({ mode: currentDemoMode });
+    });
+    setTimeout(connectGrumpDemo, 0);
 
     async function resolveInstaller() {
       const button = document.getElementById('btn-dl-setup');
@@ -3026,6 +3055,8 @@
 
     function setDemoMode(mode) {
       stopAiDemo();
+      currentDemoMode = mode;
+      if (!grumpDemoReady) connectGrumpDemo();
       document.querySelectorAll('.state-btn').forEach(btn => {
         btn.setAttribute('aria-pressed', String(btn.dataset.mode === mode));
       });

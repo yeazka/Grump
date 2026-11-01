@@ -1083,4 +1083,7 @@ setInterval(() => { for (const f of ticks) f(); }, 200);
 window.addEventListener("resize",()=>{lastRectSig="";reportRect();});
 
 // Public demo control surface. The desktop build does not expose this object.
-if (bridge.mock) window.__island = { S, go, collapse, layout };
+if (bridge.mock) {
+  window.__island = { S, go, collapse, layout };
+  window.parent.postMessage({ type: 'grump-demo-ready' }, window.location.origin);
+}

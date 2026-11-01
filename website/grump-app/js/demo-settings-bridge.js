@@ -2,6 +2,7 @@
 (function(){
   document.documentElement.style.background='#050506';
   document.body.style.background='#050506';
+  document.body.classList.add('demo-display-only');
   const listeners={settings:[],addons:[],updates:[]};
   const settings={offsetX:0,theme:'default',eyeMode:'auto',staticExp:'normal',angryVariant:'gold-matrix',angryRadius:145,sensitivity:2,dockMode:'anchored',islandWidth:128,islandHeight:32,islandTransparency:0,weatherEnabled:true,weatherCity:'jakarta',displayTargets:['id:1'],language:'en',autoStart:true,hideFullscreen:true,menuMusic:true,menuTimer:true,menuStash:true,batteryToast:true,headsetToast:true,gameModeQuiet:true};
   const addons={selected:['todo','notes','prayer','water'],waterEnabled:true,prayerEnabled:true};
