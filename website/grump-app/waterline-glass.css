@@ -1,0 +1,765 @@
+/* Waterline transparent neutral glass (Pure crystal clear glass, no blue tint) */
+:root {
+  --waterline-tint: rgba(255, 255, 255, 0.08);
+  --waterline-rim: rgba(255, 255, 255, 0.42);
+  --waterline-blur: blur(24px) saturate(140%) brightness(1.10);
+  --waterline-shadow: inset 0 1px 1px var(--waterline-rim), inset 0 0 0 1px rgba(255, 255, 255, .18), 0 12px 32px -12px rgba(0, 0, 0, .55), 0 2px 6px rgba(0, 0, 0, .18);
+  --liquid-shadow: var(--waterline-shadow);
+  --liquid-shadow-hover: inset 0 1px 1.5px rgba(255, 255, 255, .55), inset 0 0 0 1px rgba(255, 255, 255, .28), 0 12px 32px -10px rgba(0, 0, 0, .65), 0 2px 8px rgba(0, 0, 0, .22);
+}
+
+#island {
+  --control-glass: var(--waterline-tint);
+  --control-edge: rgba(255, 255, 255, .20);
+  --control-shadow: var(--waterline-shadow);
+}
+#island button:not(:where(#pager button, #v-todo button, button[data-act="lyrics"], button:has([data-ico="close"]))) {
+  background: var(--waterline-tint);
+  border-color: var(--control-edge);
+  box-shadow: var(--waterline-shadow);
+  -webkit-backdrop-filter: var(--waterline-blur);
+  backdrop-filter: var(--waterline-blur);
+}
+#island button:not(:where(#pager button, #v-todo button, button[data-act="lyrics"], button:has([data-ico="close"]))):hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: var(--liquid-shadow-hover);
+}
+#island :is(.round, .pill, .ctl, .chips button)::before {
+  background: radial-gradient(120% 90% at 30% 0%, rgba(255,255,255,.35), transparent 58%);
+}
+#island .ctl.play,
+#island #timer-toggle,
+#island #v-timer #timer-reset {
+  background: radial-gradient(120% 140% at 30% 0%, rgba(255,255,255,.38), transparent 55%), var(--waterline-tint);
+  border: 1px solid var(--control-edge);
+  box-shadow: var(--waterline-shadow);
+  -webkit-backdrop-filter: var(--waterline-blur);
+  backdrop-filter: var(--waterline-blur);
+}
+
+/* Pager: clean floating dots without container box, lowered down to prevent any overlap */
+#dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 3px !important;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  pointer-events: auto;
+  z-index: 25;
+}
+
+#dots i {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, .32);
+  cursor: pointer;
+  transition: width .28s cubic-bezier(.3, 1.3, .5, 1), background .2s, box-shadow .2s;
+}
+
+#dots i:hover {
+  background: rgba(255, 255, 255, .55);
+}
+
+#dots i.on {
+  width: 14px;
+  height: 5px;
+  border-radius: 3px;
+  background: #ffffff;
+  box-shadow: 0 0 6px rgba(255, 255, 255, .75);
+}
+
+#island :where(.glass-preset:not(.active), .glass-btn, .addon-manage, .addon-glass, .addon-tab, .addon-pick, .addon-toggle, .prayer-time.next) {
+  background: var(--waterline-tint);
+  border-color: var(--control-edge);
+  box-shadow: var(--waterline-shadow);
+  -webkit-backdrop-filter: var(--waterline-blur);
+  backdrop-filter: var(--waterline-blur);
+}
+#island .prayer-time.next {
+  background: radial-gradient(120% 140% at 30% 0%, rgba(255,255,255,.28), transparent 55%), rgba(255, 255, 255, .15);
+}
+#island #v-connectivity.connection-popover {
+  background: rgba(20, 20, 24, .75);
+  border-color: var(--control-edge);
+  box-shadow: var(--waterline-shadow);
+  -webkit-backdrop-filter: var(--waterline-blur);
+  backdrop-filter: var(--waterline-blur);
+}
+#island #v-connectivity .connection-device:not([data-connected="1"]) {
+  background: var(--waterline-tint);
+  border-color: var(--control-edge);
+  box-shadow: var(--waterline-shadow);
+}
+
+/* Mini Popups: Pure Transparent Neutral Glass ("Bening bukan biru") */
+#island[data-theme="full-glass"],
+#island[data-key="timerpreview"],
+#island[data-key="prayernotice"],
+#island[data-key="waternotice"],
+#island[data-key="tasknotice"] {
+  background: rgba(18, 18, 22, 0.44) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(150%) brightness(1.12) !important;
+  backdrop-filter: blur(28px) saturate(150%) brightness(1.12) !important;
+  box-shadow: inset 0 1px 1.5px rgba(255, 255, 255, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.22), 0 14px 34px -10px rgba(0, 0, 0, 0.60) !important;
+}
+
+#island[data-theme="outline-glass"] {
+  box-shadow: var(--waterline-shadow);
+}
+
+/* Feature-colored glass keeps each reminder identifiable at a glance. */
+#island[data-key="prayernotice"] {
+  background: linear-gradient(145deg, var(--prayer-notice-a, rgba(76,29,149,.82)), var(--prayer-notice-b, rgba(30,27,75,.76))) !important;
+  box-shadow: inset 0 1px 1.5px rgba(255,255,255,.38), inset 0 0 0 1px var(--prayer-notice-edge, rgba(196,181,253,.78)), 0 14px 34px -10px rgba(0,0,0,.48) !important;
+}
+
+#island[data-key="waternotice"] {
+  background: linear-gradient(145deg, rgba(8,61,91,.94), rgba(3,29,48,.92)) !important;
+  box-shadow: inset 0 1px 1.5px rgba(255,255,255,.28), inset 0 0 0 1px rgba(125,211,252,.52), 0 14px 34px -10px rgba(0,0,0,.58) !important;
+}
+
+#v-prayernotice .prayer-popup-beam {
+  background: radial-gradient(ellipse 110% 120% at 50% 100%, var(--prayer-notice-beam, rgba(167,139,250,.62)) 0%, transparent 78%) !important;
+}
+
+#v-waternotice .water-popup-beam {
+  background: radial-gradient(ellipse 110% 120% at 50% 100%, rgba(56,189,248,.42) 0%, rgba(3,105,161,.2) 46%, transparent 80%) !important;
+}
+
+#v-waternotice .water-notice-bubbles{position:absolute;inset:4px 16px 3px 54px;overflow:hidden;pointer-events:none;z-index:1;opacity:.72}
+#v-waternotice .water-notice-bubbles i{position:absolute;bottom:-8px;width:5px;height:5px;border:1px solid rgba(186,230,253,.72);border-radius:50%;box-shadow:inset 0 0 3px rgba(224,242,254,.42);animation:waterNoticeBubble 3.2s ease-in infinite}
+#v-waternotice .water-notice-bubbles i:nth-child(1){left:8%;animation-delay:-.3s}
+#v-waternotice .water-notice-bubbles i:nth-child(2){left:24%;width:3px;height:3px;animation-delay:-1.8s;animation-duration:2.7s}
+#v-waternotice .water-notice-bubbles i:nth-child(3){left:44%;width:7px;height:7px;animation-delay:-2.5s;animation-duration:3.8s}
+#v-waternotice .water-notice-bubbles i:nth-child(4){left:63%;width:4px;height:4px;animation-delay:-1.1s;animation-duration:3s}
+#v-waternotice .water-notice-bubbles i:nth-child(5){left:79%;width:6px;height:6px;animation-delay:-2.1s;animation-duration:3.5s}
+#v-waternotice .water-notice-bubbles i:nth-child(6){left:92%;width:3px;height:3px;animation-delay:-.7s;animation-duration:2.5s}
+@keyframes waterNoticeBubble{0%{transform:translate3d(0,7px,0) scale(.65);opacity:0}18%{opacity:.7}75%{opacity:.45}100%{transform:translate3d(5px,-58px,0) scale(1.12);opacity:0}}
+#v-waternotice .water-notice-2d,#v-waternotice .water-notice-copy{position:relative;z-index:2}
+#v-waternotice{justify-content:flex-start!important;padding-left:14px!important;padding-right:20px!important;gap:12px!important}
+#v-waternotice .water-notice-2d{flex:0 0 40px}
+#v-waternotice .water-notice-copy{flex:1 1 auto;width:0;min-width:0;margin-left:0;padding-left:2px;align-items:flex-end;overflow:hidden}
+#v-waternotice .water-notice-copy strong{display:block;width:100%;max-width:100%;font-size:15px;line-height:1.08;letter-spacing:-.025em;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:clip}
+#v-waternotice .water-notice-copy span{display:block;width:100%;max-width:100%;text-align:right;overflow:hidden;text-overflow:ellipsis}
+#v-waternotice .w-angry-face{transform-origin:24px 32px;animation:waterAngryFace 1.8s ease-in-out infinite}
+@keyframes waterAngryFace{0%,100%{transform:translateY(0)}45%{transform:translateY(.6px)}55%{transform:translateY(-.4px)}}
+@media (prefers-reduced-motion:reduce){#v-waternotice .water-notice-bubbles i,#v-waternotice .w-angry-face{animation:none!important}}
+
+/* Neutral Clear Frosted Glass Alert Outlines (Replaces neon blue glow) */
+#island[data-key="prayernotice"]::before,
+#island[data-key="waternotice"]::before,
+#island[data-key="tasknotice"]::before {
+  animation: clearGlassAlertOutline 1.2s ease-in-out infinite !important;
+}
+
+@keyframes clearGlassAlertOutline {
+  0%, 100% {
+    box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.45), inset 0 0 10px rgba(255, 255, 255, 0.10);
+  }
+  50% {
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.88), inset 0 0 18px rgba(255, 255, 255, 0.28);
+  }
+}
+
+/* Neutral Frosted Glass Icons for Alerts */
+.prayer-notice-icon,
+.task-notice-icon {
+  background: rgba(255, 255, 255, 0.14) !important;
+  border: 1px solid rgba(255, 255, 255, 0.30) !important;
+  color: #ffffff !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.45), 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  backdrop-filter: blur(16px) !important;
+}
+
+.prayer-notice-icon svg,
+.task-notice-icon svg {
+  color: #ffffff !important;
+}
+
+#island :is(#v-timerpreview, #v-prayernotice, #v-waternotice, #v-tasknotice) { background: transparent; }
+#island .mini-popup-actions button {
+  background: radial-gradient(120% 140% at 30% 0%, rgba(255,255,255,.38), transparent 55%), var(--waterline-tint);
+  border-color: var(--control-edge);
+  box-shadow: var(--waterline-shadow);
+  -webkit-backdrop-filter: var(--waterline-blur);
+  backdrop-filter: var(--waterline-blur);
+}
+
+.window :where(.choice:not([aria-pressed="true"]), .dock-choice:not([aria-pressed="true"]), .segments, .close, #weather-city, input[type="date"], .preference-select-row select, .birthday-picker button, #btn-check-updates) {
+  background: var(--waterline-tint);
+  border-color: var(--control-edge, rgba(255,255,255,.2));
+  box-shadow: var(--waterline-shadow);
+  -webkit-backdrop-filter: var(--waterline-blur);
+  backdrop-filter: var(--waterline-blur);
+}
+.window :is(.choice, .dock-choice):hover:not([aria-pressed="true"]) {
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: var(--liquid-shadow-hover);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #island button { transition-duration: .08s; }
+}
+
+
+/* Menu Timer: Full solid black without any transparency ("menu timer full black no transparansi") */
+#island[data-key="timer"],
+#island:has(#v-timer.on),
+#island[data-key="timer"][data-expanded="1"],
+#island[data-theme="full-glass"][data-key="timer"],
+#island[data-theme="outline-glass"][data-key="timer"] {
+  background: #000000 !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12), 0 16px 38px rgba(0, 0, 0, 0.75) !important;
+}
+
+#island[data-key="timer"]::before,
+#island[data-key="timer"]::after,
+#island:has(#v-timer.on)::before,
+#island:has(#v-timer.on)::after {
+  display: none !important;
+}
+
+#island[data-key="timer"] #notch-fill,
+#island:has(#v-timer.on) #notch-fill {
+  fill: #000000 !important;
+  opacity: 1 !important;
+}
+
+#v-timer,
+#v-timer.grump-panel {
+  background: #000000 !important;
+  opacity: 1 !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+#v-timer .timer-inner-beam {
+  display: none !important;
+}
+
+/* Timer Popup: Vibrant Orange Glowing Outline Beam & Inner Beam ("beam warna orange") */
+#island[data-key="timerpreview"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 6;
+  animation: timerAlertOrangeOutline 1.1s ease-in-out infinite !important;
+}
+
+@keyframes timerAlertOrangeOutline {
+  0%, 100% {
+    box-shadow: inset 0 0 0 1.5px rgba(255, 150, 55, 0.65), inset 0 0 10px rgba(255, 130, 20, 0.18) !important;
+  }
+  50% {
+    box-shadow: inset 0 0 0 2px rgba(255, 195, 110, 0.98), inset 0 0 20px rgba(255, 150, 55, 0.45) !important;
+  }
+}
+
+#v-timerpreview .timer-popup-beam {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 55%;
+  border-radius: 0 0 30px 30px;
+  background: radial-gradient(ellipse 110% 120% at 50% 100%, rgba(255, 150, 55, .78) 0%, rgba(255, 120, 20, .32) 45%, transparent 80%) !important;
+  filter: blur(8px);
+  opacity: .88;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.timer-notice-icon {
+  background: rgba(255, 150, 55, 0.22) !important;
+  border: 1px solid rgba(255, 190, 110, 0.45) !important;
+  color: #ff9637 !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.45), 0 4px 14px rgba(255, 150, 55, 0.25) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  backdrop-filter: blur(16px) !important;
+}
+
+.timer-notice-icon:hover {
+  background: rgba(255, 150, 55, 0.42) !important;
+  color: #ffffff !important;
+}
+
+.timer-notice-icon svg {
+  color: #ff9637 !important;
+}
+
+.timer-notice-icon:hover svg {
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
+   To-Do List — Clean Minimal AIComposer Style (Max 4 Buttons, No AI Logos)
+   ========================================================================== */
+#v-todo.aic-todo-root {
+  --card-bg: rgba(24, 24, 28, 0.78);
+  --card-border: rgba(255, 255, 255, 0.09);
+  --card-focus-border: rgba(255, 255, 255, 0.18);
+  --card-shadow: 0 14px 28px -12px rgba(0, 0, 0, 0.48), 0 1px 0 0 rgba(255, 255, 255, 0.07) inset;
+
+  --pill-bg: #26262c;
+  --pill-hover-bg: #2d2d34;
+  --pill-border: rgba(255, 255, 255, 0.095);
+  --pill-hover-border: rgba(255, 255, 255, 0.16);
+  --pill-inset: 0 1px 0 0 rgba(255, 255, 255, 0.05) inset;
+
+  --popover-bg-start: #2b2b33;
+  --popover-bg-end: #1f1f25;
+  --popover-border: rgba(255, 255, 255, 0.14);
+  --popover-shadow: 0 18px 40px -8px rgba(0, 0, 0, 0.72), 0 1px 0 0 rgba(255, 255, 255, 0.09) inset;
+  --model-row-hover: rgba(18, 18, 24, 0.72);
+
+  --text-primary: #f4f4f6;
+  --text-secondary: #8e8d95;
+  --text-muted: #6e6d76;
+  --placeholder-color: #8c8b93;
+  --icon-primary: #e4e4e8;
+
+  --submit-bg: #222227;
+  --submit-border: rgba(255, 255, 255, 0.08);
+  --submit-color: #7c7b84;
+  --submit-ready-bg: #2d2d35;
+  --submit-ready-border: rgba(255, 255, 255, 0.18);
+  --submit-ready-color: #f4f4f6;
+
+  --accent-check: #34d399;
+
+  padding: 10px 22px 18px !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  color: var(--text-primary);
+}
+
+#v-todo.aic-todo-root .todo-head {
+  height: 22px;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+#v-todo.aic-todo-root .todo-heading {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+#v-todo.aic-todo-root .todo-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+#v-todo.aic-todo-root .todo-totals {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+#v-todo.aic-todo-root .todo-totals span::before {
+  width: 6px;
+  height: 6px;
+}
+
+#v-todo.aic-todo-root #todo-done-count::before {
+  border-color: #34d399;
+  background: #34d399;
+  box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.12);
+}
+
+/* Pill Controls (.aic-pill-control) */
+#v-todo.aic-todo-root .aic-pill-control {
+  height: 22px;
+  border-radius: 9999px;
+  background: var(--pill-bg);
+  border: 1px solid var(--pill-border);
+  box-shadow: var(--pill-inset);
+  color: var(--text-primary);
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition:
+    width 0.26s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.12s ease;
+}
+
+#v-todo.aic-todo-root .aic-pill-control:hover {
+  background: var(--pill-hover-bg);
+  border-color: var(--pill-hover-border);
+}
+
+#v-todo.aic-todo-root .aic-pill-control:active {
+  transform: scale(0.97);
+}
+
+#v-todo.aic-todo-root .todo-clear {
+  height: 21px;
+  padding: 0 8px;
+  font-size: 9.5px;
+  font-weight: 500;
+  gap: 4px;
+}
+
+#v-todo.aic-todo-root .todo-clear[hidden] {
+  display: none !important;
+}
+
+#v-todo.aic-todo-root .todo-clear:hover,
+#v-todo.aic-todo-root .todo-clear[data-confirm="1"] {
+  background: rgba(239, 68, 68, 0.22);
+  border-color: rgba(239, 68, 68, 0.48);
+  color: #fca5a5;
+}
+
+#v-todo.aic-todo-root .addon-body {
+  height: 141px;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Single-Row Compact Composer Card (#addon-task-form.aic-composer-card) */
+#v-todo.aic-todo-root #addon-task-form.aic-composer-card {
+  position: relative;
+  width: 100%;
+  height: 34px !important;
+  min-height: 34px !important;
+  margin: 0 !important;
+  padding: 0 6px 0 11px;
+  border-radius: 13px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow);
+  display: flex;
+  align-items: center;
+  transition: background-color 0.25s ease, border-color 0.2s ease, box-shadow 0.25s ease;
+  z-index: 12;
+}
+
+#v-todo.aic-todo-root #addon-task-form.aic-composer-card:focus-within {
+  border-color: var(--card-focus-border);
+}
+
+#v-todo.aic-todo-root .aic-prompt-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 100% !important;
+  width: 100%;
+}
+
+#v-todo.aic-todo-root #addon-task-form .aic-prompt-input {
+  flex: 1;
+  min-width: 0;
+  height: 22px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  border-radius: 0 !important;
+  padding: 0 2px !important;
+  color: var(--text-primary) !important;
+  font-family: inherit;
+  font-size: 11.5px !important;
+  font-weight: 400;
+  letter-spacing: -0.011em;
+}
+
+#v-todo.aic-todo-root #addon-task-form .aic-prompt-input::placeholder {
+  color: var(--placeholder-color) !important;
+  opacity: 1;
+}
+
+/* 1. "+ Remind" Expanding Pill Button (.aic-add-files-btn) */
+#v-todo.aic-todo-root .aic-add-files-btn {
+  width: 23px;
+  height: 23px;
+  padding: 0 5px;
+  justify-content: flex-start;
+  color: var(--icon-primary);
+  flex-shrink: 0;
+}
+
+#v-todo.aic-todo-root .aic-plus-ico {
+  flex-shrink: 0;
+}
+
+#v-todo.aic-todo-root .aic-add-files-btn:hover,
+#v-todo.aic-todo-root #addon-task-form.has-schedule .aic-add-files-btn {
+  width: 74px;
+  padding: 0 8px 0 6px;
+}
+
+#v-todo.aic-todo-root #addon-task-form.has-schedule .aic-add-files-btn {
+  color: #ffc06a;
+  border-color: rgba(255, 192, 106, 0.38);
+  background: rgba(255, 192, 106, 0.14);
+}
+
+#v-todo.aic-todo-root .aic-add-files-label {
+  opacity: 0;
+  transform: translateX(-5px);
+  white-space: nowrap;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: -0.011em;
+  margin-left: 4.5px;
+  transition:
+    opacity 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+#v-todo.aic-todo-root .aic-add-files-btn:hover .aic-add-files-label,
+#v-todo.aic-todo-root #addon-task-form.has-schedule .aic-add-files-btn .aic-add-files-label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* 2. Submit Up-Arrow Button (.aic-submit-btn) */
+#v-todo.aic-todo-root .aic-submit-btn {
+  width: 23px;
+  height: 23px;
+  border-radius: 9999px;
+  background: var(--submit-bg);
+  border: 1px solid var(--submit-border);
+  color: var(--submit-color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.18s ease;
+}
+
+#v-todo.aic-todo-root .aic-submit-btn:hover,
+#v-todo.aic-todo-root .aic-submit-btn.ready {
+  background: var(--submit-ready-bg);
+  border-color: var(--submit-ready-border);
+  color: var(--submit-ready-color);
+}
+
+#v-todo.aic-todo-root .aic-submit-btn:active {
+  transform: scale(0.94);
+}
+
+/* Reminder Schedule Popover (.aic-glass-popover) */
+#v-todo.aic-todo-root .aic-glass-popover {
+  background: linear-gradient(160deg, var(--popover-bg-start) 0%, var(--popover-bg-end) 100%);
+  border: 1px solid var(--popover-border);
+  box-shadow: var(--popover-shadow);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+#v-todo.aic-todo-root .todo-schedule.aic-glass-popover {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 5px);
+  padding: 5px 7px;
+  border-radius: 12px;
+  display: flex;
+  gap: 6px;
+  z-index: 42;
+}
+
+#v-todo.aic-todo-root .todo-schedule[hidden] {
+  display: none !important;
+}
+
+#v-todo.aic-todo-root .todo-schedule input {
+  flex: 1;
+  min-width: 0;
+  height: 23px !important;
+  border-radius: 8px !important;
+  background: var(--pill-bg) !important;
+  border: 1px solid var(--pill-border) !important;
+  color: var(--text-primary) !important;
+  font-size: 10.5px !important;
+  padding: 0 7px !important;
+  color-scheme: dark;
+}
+
+/* Task Rows Styled as .aic-model-row */
+#v-todo.aic-todo-root .todo-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-right: 2px;
+}
+
+#v-todo.aic-todo-root .todo-row.aic-model-row {
+  height: 27px;
+  min-height: 27px;
+  padding: 0 8px 0 8px;
+  border-radius: 10px;
+  background: rgba(24, 24, 28, 0.54);
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary);
+  transition: background-color 0.14s ease, border-color 0.14s ease;
+}
+
+#v-todo.aic-todo-root .todo-row.aic-model-row:hover {
+  background: var(--model-row-hover);
+  border-color: rgba(255, 255, 255, 0.13);
+}
+
+#v-todo.aic-todo-root .todo-row.aic-model-row.is-done {
+  opacity: 0.62;
+}
+
+#v-todo.aic-todo-root .todo-row input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 15px;
+  height: 15px;
+  min-width: 15px;
+  border: 1.5px solid rgba(255, 255, 255, 0.32);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  margin: 0;
+}
+
+#v-todo.aic-todo-root .todo-row input[type="checkbox"]:hover {
+  border-color: rgba(255, 255, 255, 0.55);
+}
+
+#v-todo.aic-todo-root .todo-row input[type="checkbox"]:checked {
+  background: #34d399;
+  border-color: #34d399;
+  box-shadow: 0 0 9px rgba(52, 211, 153, 0.32);
+}
+
+#v-todo.aic-todo-root .todo-row input[type="checkbox"]:checked::after {
+  content: none;
+}
+
+#v-todo.aic-todo-root .todo-text {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: -0.011em;
+  color: var(--text-primary);
+  transition: color 0.2s ease, text-decoration-color 0.2s ease, opacity 0.2s ease;
+}
+
+#v-todo.aic-todo-root .todo-row.is-done .todo-text {
+  text-decoration: line-through;
+  text-decoration-color: rgba(255, 255, 255, 0.42);
+  color: #8e8d95;
+}
+
+#v-todo.aic-todo-root .todo-row.is-animating-row {
+  z-index: 10;
+  position: relative;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+#v-todo.aic-todo-root .todo-due {
+  padding: 1px 6px;
+  border-radius: 9999px;
+  background: rgba(255, 192, 106, 0.14);
+  border: 1px solid rgba(255, 192, 106, 0.3);
+  color: #ffc06a;
+  font-size: 9px;
+  font-weight: 500;
+}
+
+#v-todo.aic-todo-root .todo-del-btn {
+  width: 17px;
+  height: 17px;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--text-secondary);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+#v-todo.aic-todo-root .todo-row:hover .todo-del-btn,
+#v-todo.aic-todo-root .todo-row:focus-within .todo-del-btn {
+  opacity: 1;
+}
+
+#v-todo.aic-todo-root .todo-del-btn:hover {
+  color: #f87171;
+}
+
+/* Minimal Progress Footer */
+#v-todo.aic-todo-root .todo-progress {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-top: 2px;
+}
+
+#v-todo.aic-todo-root .todo-progress-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+#v-todo.aic-todo-root .todo-progress-track {
+  width: 100%;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+#v-todo.aic-todo-root .todo-progress-track i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #22c55e 0%, #6ee7b7 100%);
+  transition: width 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}

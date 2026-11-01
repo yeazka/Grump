@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; font-src 'self' data:; style-src 'self' 'unsafe-inline'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Preferences</title>
 <link rel="stylesheet" href="settings.css">
@@ -17,6 +18,7 @@
     <button class="settings-tab active" data-tab="appearances" role="tab" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M7 11h10M9 15h6"/></svg><span>Appearance</span></button>
     <button class="settings-tab" data-tab="expression" role="tab" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 10h.01M16 10h.01M8 15c2.4 2 5.6 2 8 0"/></svg><span>Expression</span></button>
     <button class="settings-tab" data-tab="position" role="tab" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M12 7v10M7 12h10"/></svg><span>Position</span></button>
+    <button class="settings-tab" data-tab="display" role="tab" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5" width="13" height="10" rx="2"/><rect x="14.5" y="8" width="7" height="8" rx="1.5"/><path d="M9 15v3M6 18h6"/></svg><span>Display</span></button>
     <div class="sidebar-divider"></div>
     <button class="settings-tab" data-tab="features" role="tab" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM4 10h16M9 10v9"/></svg><span>Features</span></button>
     <button class="settings-tab" data-tab="updates" role="tab" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 1-2.3-5.7M20 4v6h-6"/></svg><span>Updates</span></button>
@@ -24,6 +26,60 @@
   <div class="content">
     <!-- SUB-MENU 1: APPEARANCES -->
     <div class="tab-pane active" id="tab-appearances">
+      <section aria-labelledby="lang-title" class="lang-section">
+        <div class="lang-header-row">
+          <div class="lang-copy">
+            <h2 id="lang-title">Language</h2>
+            <p id="lang-desc">Choose display language for all menus and pop-ups.</p>
+          </div>
+          <div class="lang-dropdown" id="languages">
+            <button type="button" class="lang-dropdown-trigger" id="lang-dropdown-trigger" aria-haspopup="listbox" aria-expanded="false">
+              <span class="lang-trigger-flag" id="lang-trigger-flag" aria-hidden="true"></span>
+              <span class="lang-trigger-label" id="lang-trigger-label">English</span>
+              <svg class="lang-trigger-chevron" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <div class="lang-dropdown-menu" id="lang-dropdown-menu" role="listbox" aria-labelledby="lang-title" hidden>
+              <button type="button" class="lang-option" role="option" data-lang="en" aria-selected="true" aria-pressed="true">
+                <span class="lang-opt-left">
+                  <svg class="lang-flag-svg" viewBox="0 0 24 16" aria-hidden="true">
+                    <rect width="24" height="16" rx="2.5" fill="#ffffff"/>
+                    <path d="M0 0h24v2.3H0zm0 4.6h24v2.3H0zm0 4.6h24v2.3H0zm0 4.5h24V16H0z" fill="#dc2626"/>
+                    <rect width="11" height="9.2" rx="1.5" fill="#1d4ed8"/>
+                    <circle cx="2.8" cy="2.6" r="0.8" fill="#ffffff"/>
+                    <circle cx="5.5" cy="2.6" r="0.8" fill="#ffffff"/>
+                    <circle cx="8.2" cy="2.6" r="0.8" fill="#ffffff"/>
+                    <circle cx="4.1" cy="4.6" r="0.8" fill="#ffffff"/>
+                    <circle cx="6.8" cy="4.6" r="0.8" fill="#ffffff"/>
+                    <circle cx="2.8" cy="6.6" r="0.8" fill="#ffffff"/>
+                    <circle cx="5.5" cy="6.6" r="0.8" fill="#ffffff"/>
+                    <circle cx="8.2" cy="6.6" r="0.8" fill="#ffffff"/>
+                    <rect x="0.5" y="0.5" width="23" height="15" rx="2" fill="none" stroke="rgba(255,255,255,0.22)"/>
+                  </svg>
+                  <span class="lang-opt-name">English</span>
+                </span>
+                <svg class="lang-opt-check" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M3.2 8.5L6.5 11.8L13 4.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <button type="button" class="lang-option" role="option" data-lang="id" aria-selected="false" aria-pressed="false">
+                <span class="lang-opt-left">
+                  <svg class="lang-flag-svg" viewBox="0 0 24 16" aria-hidden="true">
+                    <rect width="24" height="8" fill="#ef4444"/>
+                    <rect y="8" width="24" height="8" fill="#ffffff"/>
+                    <rect x="0.5" y="0.5" width="23" height="15" rx="2" fill="none" stroke="rgba(255,255,255,0.25)"/>
+                  </svg>
+                  <span class="lang-opt-name">Indonesia</span>
+                </span>
+                <svg class="lang-opt-check" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M3.2 8.5L6.5 11.8L13 4.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
       <section aria-labelledby="dock-title">
         <h2 id="dock-title">Placement Style</h2>
         <div class="choices dock-choices" id="dock-modes">
@@ -65,20 +121,28 @@
         <div class="choices expressions" id="expressions"></div>
       </section>
       <section aria-labelledby="angry-title">
-        <h2 id="angry-title">Angry reaction</h2>
+        <h2 id="angry-title">Grump Reaction</h2>
         <p>Motion style when cursor gets close to the island.</p>
         <div class="choices" id="angry"></div>
       </section>
       <section aria-labelledby="position-title">
         <div class="row"><h2 id="position-title">Position</h2><output id="pos-badge" for="pos-slider">0 px</output></div>
         <div class="row slider-row"><span aria-hidden="true">L</span><input id="pos-slider" type="range" min="-500" max="500" step="5" value="0" aria-label="Horizontal position"><span aria-hidden="true">R</span><button id="btn-center" class="text-button">Center</button></div>
-        <p class="monitor-note">Grump appears on each connected display.</p>
         <div class="row"><label for="width-slider">Eyes width</label><output id="width-value">128 px</output></div>
         <input class="full-range" id="width-slider" type="range" min="96" max="260" step="2" value="128">
         <div class="row"><label for="height-slider">Eyes height</label><output id="height-value">32 px</output></div>
         <input class="full-range" id="height-slider" type="range" min="30" max="80" step="2" value="32">
-        <div class="row"><label for="transparency-slider">Transparency</label><output id="transparency-value" for="transparency-slider">0%</output></div>
-        <input class="full-range" id="transparency-slider" type="range" min="0" max="70" step="5" value="0" aria-label="Island transparency">
+        <div class="row"><label for="transparency-slider">Transparency<small class="control-hint">Notch surface only</small></label><output id="transparency-value" for="transparency-slider">0%</output></div>
+        <input class="full-range transparency-range" id="transparency-slider" type="range" min="0" max="70" step="5" value="0" aria-label="Notch surface transparency">
+      </section>
+    </div>
+
+    <div class="tab-pane" id="tab-display" role="tabpanel">
+      <section aria-labelledby="display-title">
+        <h2 id="display-title">Active displays</h2>
+        <p>Choose one or more monitors for Grump.</p>
+        <div class="display-card-grid" id="display-options" role="group" aria-labelledby="display-title"></div>
+        <p class="display-selection-note" id="display-selection-note" role="status">At least one monitor must stay active.</p>
       </section>
     </div>
 
@@ -86,11 +150,20 @@
     <div class="tab-pane" id="tab-features">
       <section aria-labelledby="menu-title">
         <h2 id="menu-title">Your Grump</h2>
-        <p>Select features and notices. Home and Settings are always available.</p>
-        <div id="menu-options"></div>
-        <div class="row"><label for="weather-city">Weather city</label><select id="weather-city" aria-label="Weather city"><option value="jakarta">Jakarta</option><option value="bandung">Bandung</option><option value="surabaya">Surabaya</option><option value="yogyakarta">Yogyakarta</option><option value="semarang">Semarang</option><option value="medan">Medan</option><option value="makassar">Makassar</option><option value="denpasar">Denpasar</option><option value="palembang">Palembang</option><option value="balikpapan">Balikpapan</option></select></div>
+        <p>Choose what Grump shows. Home and Settings stay available.</p>
+        <div class="feature-widget-grid" id="menu-options"></div>
+        <div class="addon-preferences" aria-label="Optional popup features">
+          <h3>Popup features</h3>
+          <div class="feature-widget-grid">
+            <label class="feature-widget"><span>To-do<small>Tasks and reminders</small></span><input type="checkbox" data-addon-feature="todo" role="switch"></label>
+            <label class="feature-widget"><span>Notes<small>Quick notes</small></span><input type="checkbox" data-addon-feature="notes" role="switch"></label>
+            <label class="feature-widget"><span>Prayer<small>Schedule and alerts</small></span><input type="checkbox" data-addon-feature="prayer" role="switch"></label>
+            <label class="feature-widget"><span>Water<small>Drink reminders</small></span><input type="checkbox" data-addon-feature="water" role="switch"></label>
+
+          </div>
+        </div>
+        <div class="row preference-select-row"><label for="weather-city">Weather city</label><select id="weather-city" aria-label="Weather city"><option value="jakarta">Jakarta</option><option value="bandung">Bandung</option><option value="surabaya">Surabaya</option><option value="yogyakarta">Yogyakarta</option><option value="semarang">Semarang</option><option value="medan">Medan</option><option value="makassar">Makassar</option><option value="denpasar">Denpasar</option><option value="palembang">Palembang</option><option value="balikpapan">Balikpapan</option></select></div>
         <p>Weather data: MET Norway. Updated about every 10 minutes when enabled.</p>
-        <div style="display:flex; justify-content:flex-end; margin-top:8px;"><button id="btn-test-prompt" class="text-button" style="font-size:12px; opacity:0.85;">Test quiet mode prompt ❓</button></div>
       </section>
       <section aria-labelledby="temper-title">
         <h2 id="temper-title">Temperament</h2>
@@ -98,18 +171,16 @@
         <input class="full-range" id="radius-slider" type="range" min="30" max="300" step="5" value="145">
         <div class="row"><label for="sensitivity-slider">Sensitivity</label><output id="sensitivity-value" for="sensitivity-slider">1.0×</output></div>
         <input class="full-range" id="sensitivity-slider" type="range" min="0.4" max="2" step="0.1" value="1">
-        <label class="toggle-row"><span>Quiet mode<small>Temporarily pause reactions and notices.</small></span><input id="quiet-switch" type="checkbox" role="switch"></label>
         <label class="toggle-row"><span>Hide in fullscreen<small>Only on displays currently running fullscreen.</small></span><input id="fullscreen-switch" type="checkbox" role="switch"></label>
-        <label class="toggle-row"><span>Cursor hug<small>After five quiet minutes, Grump visits the cursor.</small></span><input id="cursor-hug-switch" type="checkbox" role="switch"></label>
-        <div class="row"><label for="birthday-input">Birthday mode</label><input id="birthday-input" type="date" aria-label="Birthday date"></div>
+        <div class="row preference-select-row"><label for="birthday-month">Birthday mode</label><div class="birthday-picker"><select id="birthday-month" aria-label="Birthday month"><option value="">Month</option></select><select id="birthday-year" aria-label="Birthday year"><option value="">Year (optional)</option></select><select id="birthday-day" aria-label="Birthday day" disabled><option value="">Day</option></select><button type="button" id="birthday-clear" aria-label="Clear birthday" title="Clear birthday">×</button></div></div>
       </section>
 
       <section aria-labelledby="updates-title">
         <h2 id="updates-title">Software Updates</h2>
         <p>Keep Grump up to date with new features, animations, and improvements.</p>
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-top:12px; padding:10px 14px; background:rgba(255,255,255,0.04); border-radius:10px; border:1px solid rgba(255,255,255,0.08);">
-          <span id="update-status-txt" style="font-size:13px; color:rgba(255,255,255,0.75);">Version 1.0.0</span>
-          <button id="btn-check-updates" class="text-button" style="padding:6px 14px; background:rgba(255,255,255,0.08); border-radius:8px; border:1px solid rgba(255,255,255,0.14); color:#fff; cursor:pointer; font-size:12px; font-weight:600;">Check for updates</button>
+        <div class="updates-status-box">
+          <span id="update-status-txt">Checking version...</span>
+          <button id="btn-check-updates" class="check-updates-btn">Check for updates</button>
         </div>
       </section>
     </div>
@@ -127,6 +198,7 @@
     </footer>
   </div>
 </main>
+<script src="js/demo-settings-bridge.js"></script>
 <script src="js/settings.js"></script>
 </body>
 </html>

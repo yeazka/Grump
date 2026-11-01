@@ -1,22 +1,36 @@
 'use strict';
 let timerState = {status:'idle',duration:900000,remaining:900000,endAt:0};
+let timerStateReady=false;
 let lastDownloadNotice='';
 let lastActiveDownload='';
 let lastDownloadPulse=0;
 bridge.onProductivityEvent?.((event)=>{
-  if(event?.kind==='reminder' && event.text)notice('bell',`Task: ${event.text}`,5000);
+  if(event?.kind==='reminder' && event.text)notice('bell',`${isId()?'Tugas':'Task'}: ${event.text}`,5000);
+  if(event?.kind==='task-due' && event.text){setText('task-notice-title',event.text);showMiniPopup('tasknotice',10000);}
   if(event?.kind==='downloads'){
     const active=(event.downloads||[]).find(d=>d.status==='active');
     if(active && (active.name!==lastActiveDownload || Date.now()-lastDownloadPulse>10000)){
       lastActiveDownload=active.name;lastDownloadPulse=Date.now();
-      notice('bell',`Downloading: ${active.name} · ${(active.bytes/1048576).toFixed(1)} MB`,3000);
+      notice('bell',`${isId()?'Mengunduh':'Downloading'}: ${active.name} · ${(active.bytes/1048576).toFixed(1)} MB`,3000);
     }
     const done=(event.downloads||[]).find(d=>d.status==='done');
-    if(done && done.id!==lastDownloadNotice){lastDownloadNotice=done.id;notice('bell',`Downloaded: ${done.name}`,3500);}
+    if(done && done.id!==lastDownloadNotice){lastDownloadNotice=done.id;notice('bell',`${isId()?'Terunduh':'Downloaded'}: ${done.name}`,3500);}
   }
 });
 let timerSeconds = 900;
 function timerLeft(){return timerState.status==='running'?Math.max(0,timerState.endAt-Date.now()):timerState.remaining}
+function renderTimerPreview(){
+  if(curKey!=='timerpreview')return;
+  const total=Math.ceil(timerLeft()/1000);
+  setText('preview-time',total>=3600?`${pad(Math.floor(total/3600))}:${pad(Math.floor(total%3600/60))}:${pad(total%60)}`:`${pad(Math.floor(total/60))}:${pad(total%60)}`);
+  const paused=timerState.status==='paused';
+  const button=$('#preview-pause');
+  if(button){
+    button.setAttribute('aria-label',paused?'Resume timer':'Pause timer');
+    button.innerHTML=icoOf(paused?'play':'pause');
+  }
+  setText('timer-notice-detail', paused ? (isId() ? 'Timer dijeda' : 'Timer paused') : (isId() ? 'Timer berjalan' : 'Timer running'));
+}
 function renderFeatures(){
   for(const b of document.querySelectorAll('[data-menu]')) {
     const key={music:'menuMusic',timer:'menuTimer',stash:'menuStash'}[b.dataset.menu];
@@ -41,7 +55,7 @@ function renderFeatures(){
   const toggleBtn = $('#timer-toggle');
   if (toggleBtn) {
     toggleBtn.dataset.status = timerState.status;
-    const txt = { idle: 'Start Timer', running: 'Pause', paused: 'Resume', done: 'Start Timer' }[timerState.status];
+    const txt = (isId() ? { idle: 'Mulai Timer', running: 'Jeda', paused: 'Lanjutkan', done: 'Mulai Timer' } : { idle: 'Start Timer', running: 'Pause', paused: 'Resume', done: 'Start Timer' })[timerState.status];
     setText('timer-toggle-text', txt);
     const ico = isRunning ? 'pause' : 'play';
     const icoEl = $('#timer-toggle-ico');
@@ -90,7 +104,7 @@ function renderFeatures(){
   island.dataset.quiet=quiet?'1':'0';
 }
 renderers.push(renderFeatures);
-ticks.push(()=>{if(['home','timer','idle','compact'].includes(curKey) || timerState.status==='running')renderFeatures()});
+ticks.push(()=>{if(['home','timer','idle','compact'].includes(curKey) || timerState.status==='running')renderFeatures();renderTimerPreview()});
 acts.openmenu=el=>go(el.dataset.menu);
 acts.timerpreset=el=>bridge.timerCommand?.({action:'set',seconds:Number(el.dataset.seconds)});
 acts.timerless=()=>bridge.timerCommand?.({action:'set',seconds:Math.max(60,timerSeconds-60)});
@@ -100,10 +114,15 @@ acts.timertoggle=()=>{
   bridge.timerCommand?.({action,seconds:timerSeconds});
 };
 acts.timerreset=()=>bridge.timerCommand?.({action:'reset'});
+acts.previewpause=()=>bridge.timerCommand?.({action:timerState.status==='paused'?'resume':'pause'});
+acts.previewstop=()=>{bridge.timerCommand?.({action:'reset'});dismissMiniPopup();};
 bridge.onTimer?.(state=>{
   const changed=state.status!==timerState.status;
+  const started=timerStateReady&&state.status==='running'&&['idle','done'].includes(timerState.status);
+  timerStateReady=true;
   timerState=state;
   if(state.status==='idle')timerSeconds=Math.round(state.duration/1000);
+  if(['idle','done'].includes(state.status)&&S.miniPopup?.kind==='timerpreview')dismissMiniPopup();
   if(state.status==='done' && changed && S.settings.menuTimer!==false){
     S.charge=null;S.headset=null;
     island.classList.add('timer-panic');
@@ -113,12 +132,19 @@ bridge.onTimer?.(state=>{
     if(!S.settings.quiet)playChargeChime('low');
   }
   renderFeatures();
+  if(started)showMiniPopup('timerpreview',6000);
+  renderTimerPreview();
   if (changed && typeof layout === 'function') layout();
 });
 
 let currentFgApp = '';
 let currentFgTitle = '';
 let currentFgIsGame = false;
+
+function isCreativeEditingApp(app) {
+  const process = String(app || '').toLowerCase().replace(/\.exe$/, '');
+  return /^(photoshop|illustrator|afterfx|premiere|adobe premiere pro|lightroom|lightroomclassic|indesign|audition|animate|blender|resolve|davinci resolve|capcut|filmora|vegas|vegaspro|shotcut|kdenlive|krita|gimp|inkscape|affinityphoto2|affinitydesigner2|affinitypublisher2|clipstudiopaint|paintdotnet)$/.test(process);
+}
 let codexAnswering = { active: false, status: '', detail: '' };
 let antigravityAnswering = { active: false, status: '', detail: '' };
 let claudeAnswering = { active: false, status: '', detail: '' };
@@ -176,6 +202,9 @@ bridge.onFgApp?.((data) => {
   const title=String(data?.title||'');
   currentFgTitle = title;
   currentFgIsGame = !!data?.isGame;
+  S.spotifyApp = currentFgApp === 'spotify';
+  if (!S.spotifyApp && typeof resetSpotifyDodge === 'function') resetSpotifyDodge();
+  if (typeof setCreativeAppState === 'function') setCreativeAppState(isCreativeEditingApp(currentFgApp));
   refreshAiWorkActivity();
   const blender=currentFgApp==='blender' && /render|frame/i.test(title);
   const photoshop=currentFgApp==='photoshop' && /export|saving|save progress/i.test(title);

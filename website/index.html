@@ -854,6 +854,8 @@
       background: #ef4444;
       box-shadow: 0 0 8px #ef4444;
     }
+    .eye-fx-dragon i { width:17px; height:11px; border-radius:68% 18% 62% 30%; background:radial-gradient(ellipse at 64% 52%,#030604 0 18%,#d9ff5c 21% 31%,#54c96f 50%,#16351f 78%); box-shadow:0 0 8px rgba(126,255,117,.4); transform:skewY(-14deg) rotate(-5deg); }
+    .eye-fx-dragon i:last-child { transform:scaleX(-1) skewY(-14deg) rotate(-5deg); }
 
     /* FX 3: Sakura Pink */
     .eye-fx-pink i {
@@ -984,6 +986,12 @@
       color-scheme: dark;
       z-index: 10;
     }
+    .screen.demo-reminder .grump-iframe {
+      top: 72px;
+      height: calc(100% - 72px);
+    }
+    .grump-settings-iframe { position:absolute; inset:28px 38px 18px; width:calc(100% - 76px); height:calc(100% - 46px); border:0; border-radius:18px; background:#111216; z-index:11; box-shadow:0 20px 48px rgba(0,0,0,.55); }
+    .grump-settings-iframe[hidden] { display:none; }
 
     /* Footer */
     .site-footer {
@@ -2060,7 +2068,7 @@
         </h1>
 
         <p class="hero-lead" data-i18n="hero-subtext">
-          The moody Notch for Windows. It judges your Spotify taste, controls your PC, and shoots lasers at your cursor when you annoy it.
+          The moody Notch for Windows. It judges your Spotify taste, controls your PC, and gets dramatically angry when you annoy it.
         </p>
 
         <div class="hero-cta-row">
@@ -2183,6 +2191,11 @@
             <button type="button" class="try-btn state-btn" id="btn-mode-ai-work" data-mode="ai-work" aria-pressed="false" onclick="setDemoMode('ai-work')" data-i18n="state-ai-work">AI Activity</button>
             <button type="button" class="try-btn state-btn" id="btn-mode-todo" data-mode="todo" aria-pressed="false" onclick="setDemoMode('todo')" data-i18n="state-todo">To-do list</button>
             <button type="button" class="try-btn state-btn" id="btn-mode-notes" data-mode="notes" aria-pressed="false" onclick="setDemoMode('notes')" data-i18n="state-notes">Notes</button>
+            <button type="button" class="try-btn state-btn" id="btn-mode-prayer" data-mode="prayer" aria-pressed="false" onclick="setDemoMode('prayer')" data-i18n="state-prayer">Prayer Times</button>
+            <button type="button" class="try-btn state-btn" id="btn-mode-water" data-mode="water" aria-pressed="false" onclick="setDemoMode('water')" data-i18n="state-water">Drink Water</button>
+            <button type="button" class="try-btn state-btn" id="btn-mode-prayer-alert" data-mode="prayer-alert" aria-pressed="false" onclick="setDemoMode('prayer-alert')" data-i18n="state-prayer-alert">Prayer Reminder</button>
+            <button type="button" class="try-btn state-btn" id="btn-mode-water-alert" data-mode="water-alert" aria-pressed="false" onclick="setDemoMode('water-alert')" data-i18n="state-water-alert">Water Reminder</button>
+            <button type="button" class="try-btn state-btn" id="btn-mode-display" data-mode="display" aria-pressed="false" onclick="setDemoMode('display')" data-i18n="state-display">Display Selection</button>
           </div>
 
           <!-- Bab 3: Eye Shapes & Angry FX -->
@@ -2195,9 +2208,9 @@
               <span data-i18n="eye-gold">Grump Gold</span>
             </button>
 
-            <button type="button" class="try-btn eye-btn" id="btn-eye-laser" aria-pressed="false" onclick="setAngryVariant('laser')">
-              <span class="eye-chip eye-fx-laser" aria-hidden="true"><i></i><i></i></span>
-              <span data-i18n="eye-laser">Laser Beam</span>
+            <button type="button" class="try-btn eye-btn" id="btn-eye-dragon" aria-pressed="false" onclick="setAngryVariant('dragon')">
+              <span class="eye-chip eye-fx-dragon" aria-hidden="true"><i></i><i></i></span>
+              <span data-i18n="eye-dragon">Dragon Eyes</span>
             </button>
 
             <button type="button" class="try-btn eye-btn" id="btn-eye-pink" aria-pressed="false" onclick="setAngryVariant('pink')">
@@ -2265,6 +2278,7 @@
                     class="grump-iframe"
                     title="Grump 1:1 Interactive Notch Preview"
                   ></iframe>
+                  <iframe id="grump-settings-frame" src="grump-app/settings.html" class="grump-settings-iframe" title="Grump Display Selection Preview" hidden></iframe>
                 </div>
               </div>
             </div>
@@ -2562,7 +2576,7 @@
         "nav-whats-new": "What's new",
         "nav-specifications": "Specification",
         "hero-title": "<span class=\"hero-line\">Your desktop is boring af,</span><span class=\"hero-line\">so we made it <span class=\"hero-title-accent\">angrier.</span></span>",
-        "hero-subtext": "The moody Notch for Windows. It judges your Spotify taste, controls your PC, and shoots lasers at your cursor when you annoy it.",
+        "hero-subtext": "The moody Notch for Windows. It judges your Spotify taste, controls your PC, and gets dramatically angry when you annoy it.",
         "btn-download": "Download for Windows",
         "btn-support": "Support me",
         "btn-github-sponsors": "GitHub Sponsors",
@@ -2627,9 +2641,14 @@
         "state-charging": "Charging",
         "state-todo": "To-do list",
         "state-notes": "Notes",
+        "state-prayer": "Prayer Times",
+        "state-water": "Drink Water",
+        "state-prayer-alert": "Prayer Reminder",
+        "state-water-alert": "Water Reminder",
+        "state-display": "Display Selection",
         "label-eyes": "Eye Shapes &amp; Angry FX",
         "eye-gold": "Grump Gold",
-        "eye-laser": "Laser Beam",
+        "eye-dragon": "Dragon Eyes",
         "eye-pink": "Sakura Pink",
         "eye-berserk": "Berserk Void",
         "eye-normal": "Normal Eyes",
@@ -2646,7 +2665,7 @@
         "nav-whats-new": "Yang baru",
         "nav-specifications": "Spesifikasi",
         "hero-title": "<span class=\"hero-line\">Desktop lu ngebosenin bgt,</span><span class=\"hero-line\">makanya kita bikin lebih <span class=\"hero-title-accent\">galak.</span></span>",
-        "hero-subtext": "Notch moody buat Windows. Nge-judge selera Spotify lu, kontrol PC lu, dan nembak laser ke kursor kalo lu usilin.",
+        "hero-subtext": "Notch moody buat Windows. Nge-judge selera Spotify lu, kontrol PC lu, dan bakal marah brutal kalau lu usilin.",
         "btn-download": "Download buat Windows",
         "btn-support": "Support me",
         "btn-github-sponsors": "GitHub Sponsors",
@@ -2711,9 +2730,14 @@
         "state-charging": "Charging",
         "state-todo": "To-do list",
         "state-notes": "Notes",
+        "state-prayer": "Jadwal Sholat",
+        "state-water": "Pengingat Minum",
+        "state-prayer-alert": "Notifikasi Sholat",
+        "state-water-alert": "Notifikasi Minum",
+        "state-display": "Pilihan Monitor",
         "label-eyes": "Eye Shapes &amp; Angry FX",
         "eye-gold": "Grump Gold",
-        "eye-laser": "Laser Beam",
+        "eye-dragon": "Dragon Eyes",
         "eye-pink": "Sakura Pink",
         "eye-berserk": "Berserk Void",
         "eye-normal": "Normal Eyes",
@@ -2738,6 +2762,11 @@
         "ai-work": "Simulated preview: see how Grump reflects AI activity as it changes in Codex.",
         todo: "Add tasks, check them off, and see your progress right inside Grump.",
         notes: "Write a title and a note, then open it again whenever you need it.",
+        prayer: "Live prayer schedule using the same location-aware layout and next-prayer state as Grump 1.1.0.",
+        water: "The real hydration panel with reminder interval, next reminder, daily target, and Grump's animated water character.",
+        "prayer-alert": "Silent prayer notification preview, colored to match the active prayer period.",
+        "water-alert": "Sassy hydration popup with the same bubbles, angry cup, timing, and liquid-glass treatment as the app.",
+        display: "Choose one or both monitors in the real Grump Display preferences UI.",
         eye: "Previewing Grump's eye expression and VFX on the screen. Move your cursor near the notch to interact."
       },
       id: {
@@ -2752,6 +2781,11 @@
         "ai-work": "Simulasi: lihat bagaimana Grump mengikuti perubahan aktivitas AI di Codex.",
         todo: "Tambah tugas, centang yang selesai, dan lihat progres langsung di Grump.",
         notes: "Tulis judul dan isi catatan, lalu buka lagi kapan pun dibutuhkan.",
+        prayer: "Jadwal sholat live dengan deteksi lokasi dan penanda waktu berikutnya yang sama seperti Grump 1.1.0.",
+        water: "Panel hidrasi asli dengan interval, jadwal berikutnya, target harian, dan karakter gelas air Grump.",
+        "prayer-alert": "Preview notifikasi sholat senyap dengan warna yang mengikuti waktu sholat aktif.",
+        "water-alert": "Popup minum sassy dengan bubble, gelas marah, timing, dan liquid glass yang sama seperti aplikasi.",
+        display: "Pilih satu atau dua monitor lewat UI Display Preferences Grump yang asli.",
         eye: "Menampilkan bentukan mata dan efek marah Grump di layar kanan. Deketin kursor lu ke notch buat nyobain."
       }
     };
@@ -2916,6 +2950,10 @@
     setInterval(()=>{if(!document.hidden)refreshDownloadCount();},60*1000);
 
     function setDockMode(dockMode) {
+      stopAiDemo();
+      document.getElementById('laptop-screen').classList.remove('demo-reminder');
+      document.getElementById('grump-settings-frame').hidden = true;
+      document.getElementById('grump-demo-frame').hidden = false;
       document.getElementById('btn-dock-anchored').setAttribute('aria-pressed', String(dockMode === 'anchored'));
       document.getElementById('btn-dock-island').setAttribute('aria-pressed', String(dockMode === 'island'));
       sendToGrump({ action: 'dock', dockMode });
@@ -2994,13 +3032,23 @@
       document.querySelectorAll('.eye-btn').forEach(btn => {
         btn.setAttribute('aria-pressed', 'false');
       });
-      sendToGrump({ mode });
+      const settingsFrame = document.getElementById('grump-settings-frame');
+      const grumpFrame = document.getElementById('grump-demo-frame');
+      const laptopScreen = document.getElementById('laptop-screen');
+      const isDisplay = mode === 'display';
+      if (laptopScreen) laptopScreen.classList.toggle('demo-reminder', mode === 'prayer-alert' || mode === 'water-alert');
+      if (settingsFrame) settingsFrame.hidden = !isDisplay;
+      if (grumpFrame) grumpFrame.hidden = isDisplay;
+      if (!isDisplay) sendToGrump({ mode });
       if (mode === 'ai-work') startAiDemo();
       updateCaption(mode);
     }
 
     function setAngryVariant(variant) {
       stopAiDemo();
+      document.getElementById('laptop-screen').classList.remove('demo-reminder');
+      document.getElementById('grump-settings-frame').hidden = true;
+      document.getElementById('grump-demo-frame').hidden = false;
       document.querySelectorAll('.state-btn').forEach(btn => {
         btn.setAttribute('aria-pressed', 'false');
       });
@@ -3009,7 +3057,7 @@
       });
       const idMap = {
         'gold-matrix': 'btn-eye-gold',
-        'laser': 'btn-eye-laser',
+        'dragon': 'btn-eye-dragon',
         'pink': 'btn-eye-pink',
         'berserk': 'btn-eye-berserk'
       };
@@ -3021,6 +3069,9 @@
 
     function setEyeShape(shape) {
       stopAiDemo();
+      document.getElementById('laptop-screen').classList.remove('demo-reminder');
+      document.getElementById('grump-settings-frame').hidden = true;
+      document.getElementById('grump-demo-frame').hidden = false;
       document.querySelectorAll('.state-btn').forEach(btn => {
         btn.setAttribute('aria-pressed', 'false');
       });

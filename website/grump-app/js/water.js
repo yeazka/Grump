@@ -46,10 +46,16 @@ holds.edec = () => { S.water.remind.every = clamp(S.water.remind.every - 15, 15,
 
 function triggerWaterReminder() {
   const w = S.water;
+  const copies = isId()
+    ? ['MINUM SEKARANG!', 'HAUS KOK BANDEL.', 'TEGUK. JANGAN NGEYEL.', 'MINUM SEBELUM TUMBANG.']
+    : ['DRINK NOW!', 'HYDRATE, DRY HUMAN.', "SIP. DON'T ARGUE.", 'WATER BEFORE U CRASH.'];
+  let copy = copies[Math.floor(Math.random() * copies.length)];
+  if (copy === S.lastWaterCopy) copy = copies[(copies.indexOf(copy) + 1) % copies.length];
+  S.lastWaterCopy = copy;
   ringStart({
     kind: 'water',
     icon: 'drop',
-    title: 'Drink water now! or you die',
+    title: copy,
     sub: `${waterToday()} / ${w.goal} ml · Stay hydrated`,
     btn: `Drink (+${w.bottle}ml)`,
     stopLabel: 'Later',
@@ -58,8 +64,6 @@ function triggerWaterReminder() {
     onBtn: () => addWater(w.bottle),
   });
 }
-acts.testwater = triggerWaterReminder;
-if (bridge.onTestWater) bridge.onTestWater(triggerWaterReminder);
 
 ticks.push(() => {
   const w = S.water, r = w.remind;

@@ -8,12 +8,39 @@ function addGoldBurst(eyes) {
   for (let n = 0; n < 16; n++) burst.append(document.createElement('b'));
   eyes.append(burst);
 }
+function applyIslandLanguage() {
+  const id = isId();
+  document.documentElement.lang = id ? 'id' : 'en';
+  const setNodeText = (sel, val) => { const el = $(sel); if (el) el.textContent = val; };
+  setNodeText('#birthday-celebration strong', id ? 'Selamat ulang tahun!' : 'Happy birthday!');
+  setNodeText('#slider-brightness .slider-label', id ? 'Kecerahan' : 'Brightness');
+  setNodeText('#slider-volume .slider-label', 'Volume');
+  setNodeText('#v-stash .stash-title', id ? 'Simpan File' : 'Stash');
+  setNodeText('#v-stash .stash-sub', id ? 'Tarik file ke sini • Keluarkan kapan saja' : 'Drop files here • Drag out anytime');
+  setNodeText('#s-clear', id ? 'Hapus semua' : 'Clear all');
+  setNodeText('#v-addons .addon-head span', id ? 'Tambah fitur' : 'Add features');
+  setNodeText('#v-todo .todo-heading-text', id ? 'Daftar Tugas' : 'To-do list');
+  const notesHead = $('#v-notes .addon-head > span');
+  if (notesHead) notesHead.textContent = id ? 'Catatan' : 'Notes';
+  const noteNew = $('#v-notes .note-new');
+  if (noteNew) { noteNew.innerHTML = `<span data-ico="plus" aria-hidden="true"></span>${id ? 'Catatan baru' : 'New note'}`; setIco(noteNew); }
+  setNodeText('#prayer-head-title', id ? 'Jadwal Sholat' : 'Prayer Times');
+  setNodeText('#v-water .addon-head span', id ? 'Pengingat Minum' : 'Drink Water');
+  setNodeText('#v-tasknotice .task-notice-copy span', id ? 'Pengingat tugas' : 'To-do reminder');
+  const connSec = $('#connection-secret');
+  if (connSec) connSec.placeholder = id ? 'Kata sandi jaringan' : 'Network password';
+  setNodeText('#connection-password button[type="submit"]', id ? 'Gabung' : 'Join');
+  if (typeof syncConnectivityButtons === 'function') syncConnectivityButtons();
+  if (typeof renderConnection === 'function' && !$('#v-connectivity')?.hidden) renderConnection();
+  if (typeof addonRenderKey !== 'undefined') addonRenderKey = '';
+  renderAll();
+}
 addGoldBurst(document.getElementById('eyes'));
 bridge.onSettings((s) => {
   const previousExp = S.settings.staticExp;
   const previousMode = S.settings.eyeMode;
   S.settings = { ...S.settings, ...s };
-  island.style.opacity = String(1 - Math.max(0, Math.min(70, Number(S.settings.islandTransparency) || 0)) / 100);
+  applyIslandTransparency(); applyIslandLanguage();
   updateIdleInfoDisplay();
   if (s.theme) island.dataset.theme = s.theme;
   if (s.angryVariant) island.dataset.angryVariant = s.angryVariant;
@@ -51,6 +78,12 @@ S.inAngryRadius = false;
 let autoExpIdx = 0;
 // Saat kursor jauh, mata tidak marah (normal, senang, flirty wink, ketawa, sedih)
 const AUTO_EXPS = ['normal', 'happy', 'flirty', 'laugh', 'normal', 'sad', 'lol'];
+for(const eye of $$('#eyes > i')){
+  const grid=document.createElement('span');grid.className='gpt-eye-grid';grid.dataset.motion='scan';
+  for(let n=0;n<9;n++)grid.append(document.createElement('b'));
+  eye.append(grid);
+}
+const GPT_EYE_MOTIONS=['scan','line-h','rubik','line-v','random','orbit'];
 let lastCursorMoveAt = Date.now();
 let prevDx = 0, lastDir = 0, shakeFlips = 0, shakeResetT = 0;
 let tempExpT = null;
@@ -120,8 +153,8 @@ acts.cycleyes = () => {
 function renderHome() {
   const d = new Date();
   setText('h-time', `${pad(d.getHours())}:${pad(d.getMinutes())}`);
-  setText('h-date', d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }));
-
+  setText('h-date', d.toLocaleDateString(isId() ? 'id-ID' : 'en-US', { weekday: 'long', month: 'short', day: 'numeric' }));
+  if (typeof syncSliderMarkers === 'function') syncSliderMarkers();
 }
 renderers.push(renderHome);
 
@@ -134,8 +167,19 @@ function renderIdle() {
   el.dataset.mode = eyes ? 'eyes' : 'clock';
   const exp = eyes ? currentEyeExp(idleFor) : 'normal';
   el.dataset.exp = exp;
+  if(exp==='angry' && S.settings.angryVariant==='gpt-pixels'){
+    const phase=Math.floor(Date.now()/2400)%GPT_EYE_MOTIONS.length;
+    $$('#eyes > i .gpt-eye-grid').forEach((grid,index)=>{
+      const motion=GPT_EYE_MOTIONS[(phase+index*2)%GPT_EYE_MOTIONS.length];
+      if(grid.dataset.motion!==motion)grid.dataset.motion=motion;
+    });
+  }
   el.classList.toggle('sleep', exp === 'sleep');
-  island.dataset.angry = (curKey === 'idle' && eyes && exp === 'angry') ? '1' : '0';
+  const angry = (curKey === 'idle' && eyes && exp === 'angry') ? '1' : '0';
+  if (island.dataset.angry !== angry) {
+    island.dataset.angry = angry;
+    paintIsland();
+  }
   checkSakuraAnimation();
 
   if (typeof isTimerActive === 'function' && isTimerActive()) {
@@ -147,7 +191,10 @@ function renderIdle() {
 renderers.push(renderIdle);
 ticks.push(() => {
   if (curKey === 'idle') renderIdle();
-  else { island.dataset.angry = '0'; if (curKey === 'home') renderHome(); }
+  else {
+    if (island.dataset.angry !== '0') { island.dataset.angry = '0'; paintIsland(); }
+    if (curKey === 'home') renderHome();
+  }
   checkSakuraAnimation();
 });
 
@@ -231,9 +278,31 @@ setTimeout(advanceAutoExpression, 4500);
 
 // Mata mengikuti kursor secara real-time di seluruh layar
 let lastDx = 0, lastDy = 100;
+const CREATIVE_WARNINGS = ["DON'T TOUCH ME!", 'JUST GET UR WORK DONE!'];
+let creativeWarningCycle = 0;
+
+function setCreativeProximity(active) {
+  const next = !!active;
+  if (S.creativeNear === next) return;
+  S.creativeNear = next;
+  if (next) S.idleInfoActive = false;
+  island.dataset.creativeWarning = next ? '1' : '0';
+  const warning = $('#creative-warning');
+  if (warning) {
+    warning.textContent = next ? CREATIVE_WARNINGS[creativeWarningCycle++ % CREATIVE_WARNINGS.length] : '';
+  }
+  layout();
+}
+
+function setCreativeAppState(active) {
+  S.creativeApp = !!active;
+  if (!S.creativeApp) setCreativeProximity(false);
+}
+
 function updateEyeLook(dx, dy, rawX, rawY) {
   if (S.settings.quiet || S.gameMode) {
     S.inAngryRadius = false;
+    setCreativeProximity(false);
     $('#eyes').style.setProperty('--look-x','0px'); $('#eyes').style.setProperty('--look-y','0px');
     $('#eyes').style.setProperty('--eye-scale','1');
     return;
@@ -256,6 +325,7 @@ function updateEyeLook(dx, dy, rawX, rawY) {
   const edgeDist = Math.hypot(Math.max(0, Math.abs(dx) - 62), Math.max(0, Math.abs(dy) - 18));
   const wasAngry = S.inAngryRadius;
   S.inAngryRadius = edgeDist < (Number(S.settings.angryRadius) || 145);
+  setCreativeProximity(S.creativeApp && S.inAngryRadius && curKey === 'idle' && !S.expanded);
 
   if (S.inAngryRadius) {
     tempExp = null;
@@ -292,8 +362,10 @@ function updateEyeLook(dx, dy, rawX, rawY) {
   eyesEl.style.setProperty('--left-eye-size', (isAngry && lx < 0 ? edgeEyeSize : 1).toFixed(3));
   eyesEl.style.setProperty('--right-eye-size', (isAngry && lx > 0 ? edgeEyeSize : 1).toFixed(3));
   const goldEyes = isAngry && variant === 'gold-matrix';
-  const eyePairWidth = isAngry ? (goldEyes ? 35 : 28) - (goldEyes ? 13 : 10.5) * (1 - edgeEyeSize) : 25;
-  const eyeHeight = isAngry ? (goldEyes ? 18 : 15) : 12;
+  const dragonEyes = isAngry && variant === 'dragon';
+  const pixelEyes=isAngry&&variant==='gpt-pixels';
+  const eyePairWidth = isAngry ? (dragonEyes ? 53 : pixelEyes ? 36 : goldEyes ? 35 : 28) - (dragonEyes ? 23 : pixelEyes ? 14 : goldEyes ? 13 : 10.5) * (1 - edgeEyeSize) : 25;
+  const eyeHeight = isAngry ? (dragonEyes ? 17 : goldEyes ? 18 : pixelEyes ? 14 : 15) : 12;
   const maxY = Math.max(0, islandHeight / 2 - eyeHeight * sc / 2 - 3);
   const edgeMargin = isAngry ? 3 : 8;
   const maxX = Math.max(0, islandWidth / 2 - eyePairWidth * sc / 2 - edgeMargin);
@@ -379,10 +451,6 @@ function updateEyeLook(dx, dy, rawX, rawY) {
     }
   }
 
-  if (isAngry && variant === 'berserk' && curKey === 'idle') {
-    ensureBerserkSparks();
-  }
-
   // Selama di dalam radius -> selalu marah nonstop; begitu keluar radius -> langsung ekspresi flirty (wink)!
   if (S.inAngryRadius !== wasAngry) {
     if (wasAngry && !S.inAngryRadius) {
@@ -425,7 +493,6 @@ enterHooks.peekaboo = () => updateEyeLook(lastDx, lastDy);
 
 /* ---------- Baterai & Animasi Cas / Unplugged (Putih) / Low Battery (Merah) ---------- */
 let batRef = null;
-let testBatStep = 0;
 
 function playChargeChime(state) {
   if (S.settings.quiet || S.settings._primary === false) return;
@@ -472,7 +539,7 @@ function triggerChargeAnim(mode = 'charging', pct = null, ms = 2200) {
   const fill = $('#ch-fill');
   el.dataset.state = state;
   island.dataset.chstate = state;
-  setText('ch-label', state === 'charging' ? 'Charging' : (state === 'low' ? 'Low Battery' : 'Unplugged'));
+  setText('ch-label', state === 'charging' ? (isId() ? 'Mengisi Daya' : 'Charging') : (state === 'low' ? (isId() ? 'Baterai Lemah' : 'Low Battery') : (isId() ? 'Daya Dicabut' : 'Unplugged')));
   setText('ch-pct', `${pct}%`);
 
   // Animasi sepersekian detik: reset bar & wave lalu surge!
@@ -503,24 +570,6 @@ function triggerChargeAnim(mode = 'charging', pct = null, ms = 2200) {
   }, ms);
 }
 
-acts.testcharge = () => {
-  const realPct = batRef ? Math.round(batRef.level * 100) : 88;
-  const modes = ['charging', 'unplugged', 'low'];
-  const m = modes[testBatStep % modes.length];
-  testBatStep++;
-  triggerChargeAnim(m, m === 'low' ? Math.min(realPct, 15) : realPct, 2300);
-};
-if (bridge.onTestCharge) {
-  bridge.onTestCharge((mode) => {
-    if (mode && typeof mode === 'string') {
-      const realPct = batRef ? Math.round(batRef.level * 100) : 88;
-      triggerChargeAnim(mode, mode === 'low' ? Math.min(realPct, 15) : realPct, 2400);
-    } else {
-      acts.testcharge();
-    }
-  });
-}
-
 if (navigator.getBattery) {
   navigator.getBattery().then((b) => {
     batRef = b;
@@ -548,7 +597,10 @@ if (navigator.getBattery) {
 }
 /* ---------- Jaringan ---------- */
 window.addEventListener('offline', () => notice('wifioff', 'Offline', 3200));
-window.addEventListener('online', () => notice('wifi', 'Online', 2400));
+window.addEventListener('online', () => { const isEth = window.__lastConnectivityState?.wifi?.ethernet === true; notice(isEth ? 'ethernet' : 'wifi', isEth ? (isId() ? 'Online (LAN)' : 'Online (Ethernet)') : 'Online', 2400); });
+bridge.onCapsLock?.((on) => {
+  if (on && !S.expanded && !S.gameMode) notice('caps', 'Caps Lock On', 1700);
+});
 
 /* ---------- Bluetooth Headset Connected (Animasi ala AirPods) ---------- */
 function playHeadsetChime() {
@@ -590,7 +642,7 @@ function triggerHeadsetAnim(info, ms = 3600) {
   if (S.settings.headsetToast === false || S.settings.quiet) return;
   const name = (info && info.name) ? info.name : 'Audio device';
   setText('hs-name', name);
-  setText('hs-status-text', info?.transport === 'bluetooth' ? 'Bluetooth connected' : 'Wired connected');
+  setText('hs-status-text', info?.transport === 'bluetooth' ? (isId() ? 'Bluetooth tersambung' : 'Bluetooth connected') : (isId() ? 'Kabel tersambung' : 'Wired connected'));
   const el = $('#v-headset');
   if (el) {
     el.dataset.transport = info?.transport === 'bluetooth' ? 'bluetooth' : 'wired';
@@ -616,7 +668,6 @@ function triggerHeadsetAnim(info, ms = 3600) {
   }, ms);
 }
 
-acts.testheadset = () => triggerHeadsetAnim({ name: "Azka's Buds2" });
 if (bridge.onHeadset) {
   bridge.onHeadset((info) => {
     if (info && info.connected) {
@@ -624,38 +675,45 @@ if (bridge.onHeadset) {
     }
   });
 }
-if (bridge.onTestHeadset) {
-  bridge.onTestHeadset((name) => triggerHeadsetAnim({ name: name || "Azka's Buds2" }));
-}
-
-/* ---------- Preferences / Settings IPC Listeners on Dynamic Island ---------- */
-if (bridge.onTestAngry) {
-  bridge.onTestAngry(() => {
-    collapse();
-    S.activityAt = Date.now() - 6000;
-    setTempExp('angry', 3800);
-    island.dataset.angry = '1';
-    setTimeout(() => {
-      if (!S.inAngryRadius) island.dataset.angry = '0';
-    }, 3800);
-  });
-}
-
-/* ---------- iOS Liquid Glass Sliders (Volume & Brightness) ---------- */
+/* ---------- Grump Glass Controls — Calibrated Markers (Volume & Brightness) ---------- */
 const sysState = { volume: 50, brightness: 50 };
+const systemSliderSnapPoints = [20, 40, 60, 80, 100];
+const systemSliderSnapRadius = 5;
 let activeSlider = null;
 let sendBriThrottled = null;
+
+function softSnapSystemSlider(next) {
+  const nearest = systemSliderSnapPoints.reduce((best, point) => Math.abs(point - next) < Math.abs(best - next) ? point : best);
+  const distance = Math.abs(nearest - next);
+  if (distance >= systemSliderSnapRadius) return next;
+  const influence = 1 - distance / systemSliderSnapRadius;
+  return next + (nearest - next) * influence * 0.82;
+}
+
+function syncSliderMarkers() {
+  document.querySelectorAll('.slider.ios-slider, .ios-slider, .dashboard-glass-slider').forEach(slider => {
+    const markers = slider.querySelector('.markers');
+    if (!markers) return;
+    const w = slider.clientWidth || slider.getBoundingClientRect().width || 320;
+    markers.querySelectorAll('.marker').forEach((m) => {
+      const val = Number(m.dataset.value);
+      if (Number.isFinite(val)) {
+        m.style.left = `${w * 0.8 * (val / 100)}px`;
+      }
+    });
+  });
+}
 
 function updateSliderUI(kind, val) {
   val = Math.max(0, Math.min(100, Math.round(val)));
   sysState[kind] = val;
-  const slider = $(`#slider-${kind}`);
-  const fill = $(`#fill-${kind}`);
-  const txt = $(`#val-${kind}`);
-  const icoWrap = $(`#ico-${kind}`);
+  const el = document.querySelector(`#slider-${kind}`);
+  const fill = el?.querySelector('.fill') || document.querySelector(`#fill-${kind}`);
+  const txt = el?.querySelector('.slider-val') || document.querySelector(`#val-${kind}`);
+  const icoWrap = el?.querySelector('.slider-icon') || document.querySelector(`#ico-${kind}`);
   if (fill) fill.style.width = `${val}%`;
-  if (txt) txt.textContent = `${val}%`;
-  if (slider) slider.setAttribute('aria-valuenow', val);
+  if (txt) txt.textContent = el?.classList.contains('dashboard-glass-slider') ? `${val}` : `${val}%`;
+  if (el) el.setAttribute('aria-valuenow', val);
 
   if (kind === 'volume') {
     let ico = 'volume';
@@ -688,71 +746,111 @@ if (bridge.onSysState) {
   });
 }
 
-function handleSliderEvent(e, el, isEnd = false) {
-  const rect = el.getBoundingClientRect();
-  const clientX = e.clientX ?? (e.touches && e.touches[0] ? e.touches[0].clientX : rect.left);
-  const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-  const val = Math.round(ratio * 100);
-  const kind = el.dataset.slider;
-  updateSliderUI(kind, val);
-
-  if (kind === 'volume') {
-    bridge.setVolume?.(val);
-  } else if (kind === 'brightness') {
-    clearTimeout(sendBriThrottled);
-    if (isEnd) {
-      bridge.setBrightness?.(val);
-    } else {
-      sendBriThrottled = setTimeout(() => {
-        bridge.setBrightness?.(val);
-      }, 35);
-    }
-  }
-}
-
 function initIosSliders() {
-  const sliders = document.querySelectorAll('.ios-slider');
+  const sliders = document.querySelectorAll('.slider.ios-slider, .ios-slider, .dashboard-glass-slider');
   sliders.forEach((slider) => {
-    const kind = slider.dataset.slider;
-    updateSliderUI(kind, sysState[kind] || 50);
+    const kind = slider.dataset.slider || slider.dataset.key;
+    const markers = slider.querySelector('.markers');
+
+    function layoutMarkers() {
+      if (!markers) return;
+      const w = slider.clientWidth || slider.getBoundingClientRect().width || 320;
+      markers.querySelectorAll('.marker').forEach((m) => {
+        const val = Number(m.dataset.value);
+        if (Number.isFinite(val)) {
+          m.style.left = `${w * 0.8 * (val / 100)}px`;
+        }
+      });
+      updateSliderUI(kind, sysState[kind] ?? 50);
+    }
+
+    if (window.ResizeObserver) {
+      new ResizeObserver(layoutMarkers).observe(slider);
+    }
+    requestAnimationFrame(layoutMarkers);
+
+    // Marker click support (instant calibrated snap)
+    markers?.querySelectorAll('.marker').forEach((m) => {
+      m.style.pointerEvents = 'auto';
+      m.style.cursor = 'pointer';
+      m.addEventListener('pointerdown', (ev) => {
+        ev.stopPropagation();
+        const targetVal = Number(m.dataset.value);
+        if (Number.isFinite(targetVal)) {
+          updateSliderUI(kind, targetVal);
+          if (kind === 'volume') bridge.setVolume?.(targetVal);
+          else bridge.setBrightness?.(targetVal);
+        }
+      });
+    });
+
+    let drag = null;
 
     slider.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 && e.pointerType === 'mouse') return;
       e.preventDefault();
       activeSlider = kind;
+      drag = { x: e.clientX, value: sysState[kind] ?? 50 };
+      slider.setPointerCapture(e.pointerId);
       slider.classList.add('dragging');
       bridge.setDragActive?.(true);
       bridge.setMouseActive?.(true);
-      handleSliderEvent(e, slider);
+    });
 
-      const onPointerMove = (ev) => {
-        if (activeSlider === kind) {
-          handleSliderEvent(ev, slider);
-        }
-      };
+    slider.addEventListener('pointermove', (e) => {
+      if (!drag || !slider.hasPointerCapture(e.pointerId)) return;
+      const width = slider.getBoundingClientRect().width || slider.clientWidth || 320;
+      const delta = (e.clientX - drag.x) / (width * 0.8) * 100;
+      const next = Math.max(0, Math.min(100, Math.round(softSnapSystemSlider(drag.value + delta))));
+      updateSliderUI(kind, next);
 
-      const onPointerUp = (ev) => {
-        if (activeSlider === kind) {
-          handleSliderEvent(ev, slider, true);
-          activeSlider = null;
-          slider.classList.remove('dragging');
-          bridge.setDragActive?.(false);
-          bridge.setMouseActive?.(inside || S.expanded || S.focusLock);
-        }
-        window.removeEventListener('pointermove', onPointerMove);
-        window.removeEventListener('pointerup', onPointerUp);
-        window.removeEventListener('pointercancel', onPointerUp);
-      };
+      if (kind === 'volume') {
+        bridge.setVolume?.(next);
+      } else if (kind === 'brightness') {
+        clearTimeout(sendBriThrottled);
+        sendBriThrottled = setTimeout(() => {
+          bridge.setBrightness?.(next);
+        }, 35);
+      }
+    });
 
-      window.addEventListener('pointermove', onPointerMove);
-      window.addEventListener('pointerup', onPointerUp);
-      window.addEventListener('pointercancel', onPointerUp);
+    const endDrag = () => {
+      if (!drag) return;
+      const finalVal = sysState[kind] ?? 50;
+      if (kind === 'brightness') {
+        clearTimeout(sendBriThrottled);
+        bridge.setBrightness?.(finalVal);
+      } else if (kind === 'volume') {
+        bridge.setVolume?.(finalVal);
+      }
+      drag = null;
+      activeSlider = null;
+      slider.classList.remove('dragging');
+      bridge.setDragActive?.(false);
+      bridge.setMouseActive?.(inside || S.expanded || S.focusLock);
+    };
+
+    for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture']) {
+      slider.addEventListener(ev, endDrag);
+    }
+
+    // Keyboard support (ArrowRight, ArrowUp, ArrowLeft, ArrowDown, Home, End)
+    slider.addEventListener('keydown', (e) => {
+      if (['ArrowRight', 'ArrowUp', 'ArrowLeft', 'ArrowDown', 'Home', 'End'].includes(e.key)) {
+        e.preventDefault();
+        const cur = sysState[kind] ?? 50;
+        const next = e.key === 'Home' ? 0 : e.key === 'End' ? 100 : Math.max(0, Math.min(100, cur + (['ArrowRight', 'ArrowUp'].includes(e.key) ? 2 : -2)));
+        updateSliderUI(kind, next);
+        if (kind === 'volume') bridge.setVolume?.(next);
+        else bridge.setBrightness?.(next);
+      }
     });
 
     // Mouse wheel (scroll up = +5%, scroll down = -5%)
     slider.addEventListener('wheel', (e) => {
       e.preventDefault();
       const step = e.deltaY < 0 ? 5 : -5;
-      const cur = sysState[kind] || 50;
+      const cur = sysState[kind] ?? 50;
       const next = Math.max(0, Math.min(100, cur + step));
       updateSliderUI(kind, next);
       if (kind === 'volume') bridge.setVolume?.(next);
@@ -761,42 +859,54 @@ function initIosSliders() {
   });
 }
 
-// Inisialisasi slider saat boot
 initIosSliders();
 
 acts.bluetoothsettings=()=>bridge.openConnectivity?.("bluetooth");
 acts.wifisettings=()=>bridge.openConnectivity?.("wifi");
 
-bridge.onConnectivity?.(state=>{
+function syncConnectivityButtons(state = window.__lastConnectivityState) {
+  if (!state) return;
+  window.__lastConnectivityState = state;
+  const id = isId();
+  for (const kind of ['wifi', 'bluetooth']) {
+    const button = document.querySelector('[data-act="' + kind + 'settings"]');
+    if (!button) continue;
+    const info = state[kind] || {};
+    const names = Array.isArray(info.names) ? info.names.join(', ') : (typeof info.names === 'string' ? info.names : '');
+    if (kind === 'wifi') {
+      const isEth = info.ethernet === true;
+      const ethNames = Array.isArray(info.ethernetNames) && info.ethernetNames.length ? info.ethernetNames.join(', ') : 'LAN';
+      const icoSpan = button.querySelector('[data-ico]');
+      const targetIco = isEth ? 'ethernet' : 'wifi';
+      if (icoSpan && icoSpan.dataset.ico !== targetIco) {
+        icoSpan.dataset.ico = targetIco;
+        icoSpan.innerHTML = icoOf(targetIco);
+      }
+      button.dataset.radioOn = (info.on === true || isEth) ? '1' : '0';
+      button.dataset.ethernet = isEth ? '1' : '0';
+      if (isEth) {
+        button.title = (id ? `Tersambung LAN (${ethNames})` : `Ethernet connected (${ethNames})`) + (names ? ` · Wi-Fi: ${names}` : '');
+      } else {
+        button.title = 'Wi-Fi: ' + (info.on === null ? (id ? 'Status tidak tersedia' : 'Status unavailable') : info.on ? (names || (id ? 'Aktif · belum tersambung' : 'On · not connected')) : (id ? 'Mati' : 'Off'));
+      }
+    } else {
+      button.dataset.radioOn = info.on === true ? '1' : '0';
+      button.title = 'Bluetooth: ' + (info.on === null ? (id ? 'Status tidak tersedia' : 'Status unavailable') : info.on ? (names || (id ? 'Aktif · belum tersambung' : 'On · not connected')) : (id ? 'Mati' : 'Off'));
+    }
+    button.setAttribute('aria-label', button.title);
+  }
+}
+bridge.onConnectivity?.(state=>{ syncConnectivityButtons(state); if(typeof renderConnection==='function' && !$('#v-connectivity')?.hidden) renderConnection(); if(false)
  for(const kind of ['wifi','bluetooth']){
   const button=document.querySelector('[data-act="'+kind+'settings"]');if(!button)continue;
   const info=state[kind]||{},name=kind==='wifi'?'Wi-Fi':'Bluetooth';
   button.dataset.radioOn=info.on===true?'1':'0';
   const names=Array.isArray(info.names)?info.names.join(', '):(typeof info.names==='string'?info.names:'');
   button.title=name+': '+(info.on===null?'Status unavailable':info.on?(names||'On · not connected'):'Off');
-  button.setAttribute('aria-label',button.title);
+   button.setAttribute('aria-label',button.title);
  }
 });
 
-
-/* ---------- Berserk Dark Void Sparks Engine ---------- */
-function ensureBerserkSparks() {
-  const container = $('#berserk-container');
-  if (!container || container.childElementCount) return;
-  const fragment = document.createDocumentFragment();
-  for (let i = 0; i < 16; i++) {
-    const angle = i * Math.PI * 2 / 16;
-    const spark = document.createElement('i');
-    spark.className = 'berserk-spark';
-    spark.style.left = `calc(50% + ${(Math.cos(angle) * 19).toFixed(1)}px)`;
-    spark.style.top = `calc(50% + ${(Math.sin(angle) * 9).toFixed(1)}px)`;
-    spark.style.setProperty('--bs-x', `${(Math.cos(angle) * 17).toFixed(1)}px`);
-    spark.style.setProperty('--bs-y', `${(Math.sin(angle) * 13).toFixed(1)}px`);
-    spark.style.animationDelay = `${(-i * .073).toFixed(3)}s`;
-    fragment.appendChild(spark);
-  }
-  container.appendChild(fragment);
-}
 
 /* ---------- 30s Idle Info (Weather & Clock) Engine ---------- */
 let weatherState = { available: false };
@@ -835,7 +945,7 @@ function syncIdleInfoEyes() {
 
 // Siklus setiap 30 detik: aktif selama 10 detik dengan animasi ease-in
 setInterval(() => {
-  if (curKey !== 'idle' || S.expanded || (S.settings && S.settings.quiet) || S.gameMode) {
+  if (curKey !== 'idle' || S.expanded || S.creativeNear || (S.settings && S.settings.quiet) || S.gameMode) {
     if (S.idleInfoActive) {
       S.idleInfoActive = false;
       layout();

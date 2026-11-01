@@ -24,6 +24,7 @@ const ST = 'fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap=
 const ICONS = {
   play:  svg('<path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" fill="currentColor"/>'),
   pause: svg('<rect x="6" y="5" width="4.2" height="14" rx="1.3" fill="currentColor"/><rect x="13.8" y="5" width="4.2" height="14" rx="1.3" fill="currentColor"/>'),
+  stop: svg('<rect x="5" y="5" width="14" height="14" rx="3" fill="currentColor"/>'),
   next:  svg('<path d="M4.5 6.2v11.6a.8.8 0 0 0 1.25.66l8.3-5.8a.8.8 0 0 0 0-1.32l-8.3-5.8a.8.8 0 0 0-1.25.66z" fill="currentColor"/><rect x="15.5" y="5.2" width="3.4" height="13.6" rx="1.3" fill="currentColor"/>'),
   prev:  svg('<path d="M19.5 6.2v11.6a.8.8 0 0 1-1.25.66l-8.3-5.8a.8.8 0 0 1 0-1.32l8.3-5.8a.8.8 0 0 1 1.25.66z" fill="currentColor"/><rect x="5.1" y="5.2" width="3.4" height="13.6" rx="1.3" fill="currentColor"/>'),
   chat:  svg('<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 10h.01M15 10h.01M9 14h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'),
@@ -39,6 +40,7 @@ const ICONS = {
   note:  svg('<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>', ST),
   bell:  svg('<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>', ST),
   moon:  svg('<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>', ST),
+  location: svg('<path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/>', ST),
   quiet: svg('<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>', ST),
   timer: svg('<circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 1.5M9.5 2.5h5M12 2.5v3.5"/>', ST),
   focus: svg('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".6" fill="currentColor"/>', ST),
@@ -53,6 +55,7 @@ const ICONS = {
   bolt:  svg('<path d="M13 2L4.5 13.5H12L11 22l8.5-11.5H12z"/>', ST),
   wifi:  svg('<path d="M3 9.5a14 14 0 0 1 18 0M6.5 13a9 9 0 0 1 11 0M10 16.5a4 4 0 0 1 4 0M12 20h.01"/>', ST),
   wifioff: svg('<path d="M3 9.5a14 14 0 0 1 4-2.3M17 7.2a14 14 0 0 1 4 2.3M6.5 13a9 9 0 0 1 3-1.8M14.5 11.2A9 9 0 0 1 17.5 13M12 20h.01M3 3l18 18"/>', ST),
+  ethernet: svg('<rect x="3" y="3" width="6" height="5" rx="1"/><rect x="9" y="16" width="6" height="5" rx="1"/><rect x="15" y="3" width="6" height="5" rx="1"/><path d="M6 8v3a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V8M12 12v4"/>', ST),
   tray:  svg('<path d="M3 13l3-8h12l3 8v6H3z"/><path d="M3 13h5l1 2h6l1-2h5"/>', ST),
   spotify: svg('<circle cx="12" cy="12" r="10" fill="#1ed760"/><path d="M7 9.3c3.4-.6 6.9-.4 9.9 1.2M7.8 12.2c2.8-.5 5.8-.3 8.3 1M8.6 15.1c2.3-.4 4.8-.2 6.9.8" stroke="#121212" stroke-width="1.85" stroke-linecap="round" fill="none"/>'),
   youtube: svg('<rect x="2.5" y="5.5" width="19" height="13" rx="3.8" fill="#ff0000"/><polygon points="10,8.8 15.5,12 10,15.2" fill="#ffffff"/>'),
@@ -107,10 +110,19 @@ class Spring {
 const EXP_SIZE = [392, 196, 40];
 const SIZES = {
   idle: [124, 36, 18], minimal: [150, 6, 3], tuck: [56, 22, 11], peekaboo: [56, 22, 11], quiettuck: [68, 7, 3.5], tuckhide: [38, 19, 14], compact: [312, 36, 18], work: [128, 32, 16], notice: [300, 40, 20], prompt: [320, 42, 21], charge: [296, 44, 22], headset: [312, 44, 22],
-  home: EXP_SIZE, music: EXP_SIZE, lyrics: EXP_SIZE, timer: EXP_SIZE, stash: EXP_SIZE, addons: EXP_SIZE, todo: EXP_SIZE, notes: EXP_SIZE, prayer: EXP_SIZE, water: EXP_SIZE, connectivity: EXP_SIZE,
+  home: EXP_SIZE, music: EXP_SIZE, lyrics: EXP_SIZE, timer: EXP_SIZE, stash: EXP_SIZE, addons: EXP_SIZE, todo: EXP_SIZE, notes: EXP_SIZE, prayer: EXP_SIZE, water: EXP_SIZE, connectivity: EXP_SIZE, timerpreview:[300,66,30], prayernotice:[300,66,30], waternotice:[300,66,30], tasknotice:[300,66,30],
 };
 const PAGE_OF = { home: 'home', music: 'music', lyrics: 'music', timer:'timer', stash:'stash', addons:'addons', todo:'todo', notes:'notes', prayer:'prayer', water:'water' };
 const island = $('#island');
+function applyIslandTransparency() {
+  const transparency = Math.max(0, Math.min(70, Number(S.settings?.islandTransparency) || 0));
+  island.style.opacity = '1';
+  island.style.setProperty('--island-surface-alpha', String(1 - transparency / 100));
+}
+function islandSurfaceColor(red = 0, green = 0, blue = 0, baseAlpha = 1) {
+  const alpha = Math.max(0, Math.min(1, Number(island.style.getPropertyValue('--island-surface-alpha')) || 1));
+  return `rgba(${red}, ${green}, ${blue}, ${(baseAlpha * alpha).toFixed(3)})`;
+}
 const WIN_W = 440;
 const sw = new Spring(124, 400, 26), sh = new Spring(36, 320, 18), sr = new Spring(18, 540, 36);
 let lyricWidthTween = null;
@@ -146,6 +158,7 @@ function buildNotchPaths(w, h, rOut, rBot) {
 }
 
 let isTuckDodging = false;
+let isSpotifyDodging = false;
 let targetDodgeW = 56, targetDodgeH = 22, targetDodgeR = 11;
 
 function reportRect() {
@@ -154,14 +167,15 @@ function reportRect() {
     if (sig !== lastRectSig) { lastRectSig = sig; bridge.rect({ left: -9999, top: -9999, width: 0, height: 0 }); }
     return;
   }
-  const isAnchored = (S.settings && S.settings.dockMode === 'anchored') || curKey === 'tuck' || curKey === 'peekaboo' || curKey === 'quiettuck';
+  const isAnchored = ((S.settings && S.settings.dockMode === 'anchored') && curKey !== 'timerpreview' && curKey !== 'prayernotice' && curKey !== 'waternotice' && curKey !== 'tasknotice') || curKey === 'tuck' || curKey === 'peekaboo' || curKey === 'quiettuck';
   const isTop = isAnchored;
   const rw = (curKey === 'tuck' || curKey === 'peekaboo') ? Math.round(sw.t) : (curKey === 'quiettuck' ? 68 : Math.round(sw.t));
   const rh = island.dataset.connectivityOpen === '1' ? Math.max(Math.round(sh.t), 238) : ((curKey === 'tuck' || curKey === 'peekaboo') ? Math.round(sh.t) : (curKey === 'quiettuck' ? 7 : Math.round(sh.t)));
+  const tight = S.creativeNear === true || isSpotifyDodging;
   const rl = Math.round((window.innerWidth - rw) / 2);
   const rt = isTop ? 0 : 10;
-  const sig = `${rl},${rt},${rw},${rh}`;
-  if (sig !== lastRectSig) { lastRectSig = sig; bridge.rect({ left: rl, top: rt, width: rw, height: rh }); }
+  const sig = `${rl},${rt},${rw},${rh},${tight ? 1 : 0}`;
+  if (sig !== lastRectSig) { lastRectSig = sig; bridge.rect({ left: rl, top: rt, width: rw, height: rh, tight }); }
 }
 function paintIsland() {
   const w = sw.x;
@@ -169,7 +183,7 @@ function paintIsland() {
   island.style.width = w.toFixed(2) + 'px';
   island.style.height = h.toFixed(2) + 'px';
   const r = Math.max(0, sr.x).toFixed(2) + 'px';
-  const isAnchored = (S.settings && S.settings.dockMode === 'anchored') || curKey === 'tuck' || curKey === 'peekaboo' || curKey === 'quiettuck';
+  const isAnchored = ((S.settings && S.settings.dockMode === 'anchored') && curKey !== 'timerpreview' && curKey !== 'prayernotice' && curKey !== 'waternotice' && curKey !== 'tasknotice') || curKey === 'tuck' || curKey === 'peekaboo' || curKey === 'quiettuck';
   
   const svg = $('#island-notch-svg');
   if (isAnchored) {
@@ -198,11 +212,12 @@ function paintIsland() {
 
       const isAngry = island.dataset.angry === '1';
       const isQuiet = S.settings && !!S.settings.quiet;
+      const isCaps = curKey === 'notice' && island.dataset.caps === '1';
       const theme = island.dataset.theme || 'default';
       const angryVar = (S.settings && S.settings.angryVariant) || island.dataset.angryVariant || 'pink';
       island.dataset.angryVariant = angryVar;
       if (angryEl) {
-        angryEl.style.opacity = (isAngry && !isQuiet) ? '1' : '0';
+        angryEl.style.opacity = (isAngry && !isQuiet && angryVar !== 'dragon') ? '1' : '0';
         if (angryVar === 'pink') {
           angryEl.setAttribute('stroke', '#ff2d85');
           angryEl.setAttribute('stroke-width', '2.2');
@@ -223,6 +238,10 @@ function paintIsland() {
           angryEl.setAttribute('stroke', '#ff8517');
           angryEl.setAttribute('stroke-width', '2');
           angryEl.style.filter = 'drop-shadow(0 0 5px rgba(255, 128, 12, .78))';
+        } else if (angryVar === 'gpt-pixels') {
+          angryEl.setAttribute('stroke', 'url(#gpt-notch-gradient)');
+          angryEl.setAttribute('stroke-width', '1.35');
+          angryEl.style.filter = 'drop-shadow(0 0 3px rgba(117,205,255,.85)) drop-shadow(0 0 8px rgba(163,112,255,.62))';
         } else if (angryVar === 'cyber-violet' || angryVar === 'cyber-amber') {
           const violet = angryVar === 'cyber-violet';
           angryEl.setAttribute('stroke', violet ? '#8b5cff' : '#ff9d00');
@@ -235,27 +254,40 @@ function paintIsland() {
         }
       }
       if (strokeEl) {
-        strokeEl.style.opacity = (isAngry && !isQuiet) ? '0' : '1';
-        if (isQuiet) {
+        strokeEl.style.opacity = isCaps || (theme === 'outline-glass' && !isAngry) ? '1' : '0';
+        if (isCaps) {
+          strokeEl.setAttribute('stroke', '#70e69b');
+          strokeEl.setAttribute('stroke-width', '1.6');
+          strokeEl.style.filter = 'drop-shadow(0 0 5px rgba(112,230,155,.75))';
+        } else if (isQuiet) {
           // Quiet mode: golden/amber ambient outline
           strokeEl.setAttribute('stroke', '#eab308');
           strokeEl.setAttribute('stroke-width', '1.6');
+          strokeEl.style.filter = 'none';
         } else if (theme === 'outline-glass') {
           strokeEl.setAttribute('stroke', 'rgba(255, 255, 255, 0.45)');
           strokeEl.setAttribute('stroke-width', '1.6');
+          strokeEl.style.filter = 'none';
         } else {
           strokeEl.setAttribute('stroke', 'rgba(255, 255, 255, 0.18)');
           strokeEl.setAttribute('stroke-width', '1.2');
+          strokeEl.style.filter = 'none';
         }
       }
 
       if (fillEl) {
-        if (theme === 'full-glass') {
-          fillEl.setAttribute('fill', S.expanded ? 'rgba(16, 16, 22, 0.85)' : 'rgba(16, 16, 22, 0.60)');
+        if (S.expanded && curKey === 'prayer') {
+          fillEl.setAttribute('fill', islandSurfaceColor());
+        } else if (S.expanded && (curKey === 'addons' || curKey === 'stash')) {
+          fillEl.setAttribute('fill', islandSurfaceColor(20, 20, 24));
+        } else if (S.expanded && curKey === 'timer') {
+          fillEl.setAttribute('fill', islandSurfaceColor());
+        } else if (theme === 'full-glass') {
+          fillEl.setAttribute('fill', S.expanded ? islandSurfaceColor(16, 16, 22, .85) : islandSurfaceColor(16, 16, 22, .60));
         } else if (S.expanded) {
-          fillEl.setAttribute('fill', 'rgba(16, 16, 20, 0.85)'); // 85% opacity (15% transparency)
+          fillEl.setAttribute('fill', islandSurfaceColor(16, 16, 20, .85));
         } else {
-          fillEl.setAttribute('fill', '#000000');
+          fillEl.setAttribute('fill', islandSurfaceColor());
         }
       }
     }
@@ -297,12 +329,16 @@ function kick() {
 const S = {
   expanded: false, view: 'home', peek: null, ring: null, notice: null, charge: null, headset: null, workActivity: null,
   lastPage: 'home', focusLock: false, activityAt: Date.now(),
-  settings: { mascot: true, minimal: false, autoTuck: true }, addonPages: [],
+  settings: { mascot: true, minimal: false, autoTuck: true, language: 'en' }, addonPages: [], miniPopup:null,
   tuckApp: false,
+  browserVerticalTabs: false,
+  creativeApp: false,
+  creativeNear: false,
   shyTuck: false,
   peekaboo: false,
   dropHot: false,
 };
+const isId = () => S.settings?.language === 'id';
 let curKey = null, peekT = null, noticeT = null, chargeT = null, headsetT = null, peekabooT = null, initialPeekT = null, shyTuckT = null, shyPeekT = null, glassRingT = null;
 const renderers = [];     // fungsi render, dipanggil tiap layout()
 const ticks = [];         // fungsi periodik (200ms)
@@ -322,7 +358,7 @@ function pageList() {
     ...S.addonPages.filter(page => page !== 'todo' && page !== 'notes'),
     S.settings.menuTimer !== false ? 'timer' : null,
     S.settings.menuStash !== false ? 'stash' : null,
-    S.addonPages.length < 4 ? 'addons' : null
+    S.addonPages.length < (typeof ADDONS === 'object' && ADDONS ? Object.keys(ADDONS).length : 5) ? 'addons' : null
   ].filter(Boolean);
 }
 const pageTarget = (p) => p;
@@ -346,7 +382,11 @@ function wantKey() {
   if (S.charge) return 'charge';
   if (S.headset) return 'headset';
   if (S.prompt) return 'prompt';
-  if (S.expanded) return S.view;
+  if (S.miniPopup) return S.miniPopup.kind;
+  if (S.expanded) {
+    if (S.view === 'addons' && !pageList().includes('addons')) S.view = S.addonPages.at(-1) || 'home';
+    return S.view;
+  }
   if (S.notice) return 'notice';
   const musicActive = typeof hasMusic === 'function' && hasMusic();
   if (S.settings && S.settings.quiet && !inside && !musicActive) return 'quiettuck';
@@ -367,14 +407,19 @@ function layout() {
   const k = wantKey();
   const changed = k !== curKey;
   curKey = k;
+  island.dataset.caps = k === 'notice' && $('#v-notice').dataset.caps === '1' ? '1' : '0';
+  applyIslandTransparency();
   renderAll();
   const isTimerOn = (k === 'idle' && isTimerActive());
   const isCompactTimer = (k === 'compact' && isTimerActive());
   const [baseW,baseH]=[clamp(Number(S.settings.islandWidth)||128,96,260),clamp(Number(S.settings.islandHeight)||32,30,80)];
   const isIdleInfo = (k === 'idle' && !isTimerOn && !!S.idleInfoActive);
   const idleW = isIdleInfo ? Math.max(baseW + 90, 222) : baseW;
-  const [w, h, r] = isTimerOn ? [Math.max(184,baseW), Math.max(36,baseH), Math.min(Math.max(36,baseH)/2,24)] : (isCompactTimer ? [SIZES.compact[0]+36, 36, 18] : (k === 'tuck' && isTuckDodging ? [targetDodgeW, targetDodgeH, targetDodgeR] : (k === 'idle' ? [idleW,baseH,Math.min(baseH/2,24)] : (k === 'work' ? [clamp(Number(S.workWidth)||128,128,392),32,16] : SIZES[k]))));
-  const isAnchored = (S.settings && S.settings.dockMode === 'anchored') || k === 'tuck' || k === 'peekaboo' || k === 'quiettuck';
+  const creativeFocus = k === 'idle' && S.creativeNear && !isTimerOn && !isIdleInfo;
+  const idleH = creativeFocus ? Math.max(20, baseH * .7) : baseH;
+  const spotifyCompactWidth = isTimerOn ? Math.max(184,baseW) : (isCompactTimer ? SIZES.compact[0]+36 : SIZES.compact[0]);
+  const [w, h, r] = isSpotifyDodging ? [spotifyCompactWidth, 25, 12.5] : (isTimerOn ? [Math.max(184,baseW), Math.max(36,baseH), Math.min(Math.max(36,baseH)/2,24)] : (isCompactTimer ? [SIZES.compact[0]+36, 36, 18] : (k === 'tuck' && isTuckDodging ? [targetDodgeW, targetDodgeH, targetDodgeR] : (k === 'idle' ? [idleW,idleH,Math.min(idleH/2,24)] : (k === 'work' ? [clamp(Number(S.workWidth)||128,128,392),32,16] : (k === 'notice' && island.dataset.caps === '1' ? [174,40,20] : SIZES[k]))))));
+  const isAnchored = ((S.settings && S.settings.dockMode === 'anchored') && k !== 'timerpreview' && k !== 'prayernotice' && k !== 'waternotice' && k !== 'tasknotice') || k === 'tuck' || k === 'peekaboo' || k === 'quiettuck';
   const dockChanged = (island.dataset.anchored === '1') !== isAnchored;
   const sizeChanged = Math.abs(sw.t - w) > 0.5 || Math.abs(sh.t - h) > 0.5 || Math.abs(sr.t - r) > 0.5;
   if (!changed && !sizeChanged && !dockChanged) { renderPager(); return; }
@@ -414,15 +459,17 @@ function layout() {
   island.dataset.key = k;
   island.dataset.paged = (S.expanded && PAGE_OF[k]) ? '1' : '0';
   island.dataset.expanded = (S.expanded || k === 'ring') ? '1' : '0';
+  if (bridge.setExpanded) bridge.setExpanded(S.expanded);
   island.dataset.idleInfo = isIdleInfo ? '1' : '0';
   if (PAGE_OF[k]) S.lastPage = PAGE_OF[k];
   renderPager();
   if (enterHooks[k]) enterHooks[k]();
   if (k !== 'idle' && k !== 'minimal' && k !== 'tuck' && k !== 'peekaboo' && k !== 'tuckhide') S.activityAt = Date.now();
-  if (bridge.setMouseActive) bridge.setMouseActive(inside || S.expanded || S.dragLock || S.focusLock);
-  bridge.forceShow(!!(S.ring || S.charge || S.headset || S.prompt));
+  if (bridge.setMouseActive) bridge.setMouseActive(inside || S.expanded || S.dragLock || S.focusLock || k==='timerpreview');
+  bridge.forceShow(!!(S.ring || S.charge || S.headset || S.prompt || S.miniPopup));
 }
 function go(view) {
+  if (view === 'addons' && !pageList().includes('addons')) view = S.addonPages.at(-1) || 'home';
   if (isTuckDodging) resetDodgeState();
   if(S.view==='timer' && view!=='timer' && typeof closeCustomTimer==='function')closeCustomTimer();
   const wasExpanded = S.expanded;
@@ -454,13 +501,27 @@ function peek(key, ms) {
 function notice(icon, text, ms = 2800) {
   if (S.ring || (S.settings.quiet && icon !== 'moon' && icon !== 'quiet')) return;
   $('#v-notice').dataset.compact = /^Download(?:ing|ed):/.test(text) ? '1' : '0';
-  const el = $('#n-ico'); el.dataset.ico = icon; el.innerHTML = icoOf(icon);
+  $('#v-notice').dataset.caps = icon === 'caps' ? '1' : '0';
+  const el = $('#n-ico'); el.dataset.ico = icon; el.innerHTML = icon === 'caps' ? '' : icoOf(icon);
   setText('n-text', text);
   S.notice = { icon, text };
   clearTimeout(noticeT);
   noticeT = setTimeout(() => { S.notice = null; layout(); }, ms);
   layout();
   triggerGlassRing();
+}
+let miniPopupTimer=null;
+function showMiniPopup(kind,ms){
+  if(S.ring)return;
+  clearTimeout(miniPopupTimer);
+  S.expanded=false;S.peek=null;S.notice=null;S.miniPopup={kind};
+  layout();
+  miniPopupTimer=setTimeout(()=>dismissMiniPopup(),ms);
+}
+function dismissMiniPopup(){
+  clearTimeout(miniPopupTimer);miniPopupTimer=null;
+  if(!S.miniPopup)return;
+  S.miniPopup=null;layout();
 }
 function openDefault() {
   go('home');
@@ -485,7 +546,7 @@ function renderPager() {
   island.dataset.paged = showPager ? '1' : '0';
   island.dataset.expanded = (S.expanded || curKey === 'ring') ? '1' : '0';
   if (!showPager) return;
-  const names={home:'Dashboard',music:'Music',timer:'Timer',stash:'File Stash',addons:'Add features',todo:'To-do',notes:'Notes',prayer:'Sholat',water:'Minum'};
+  const names=isId()?{home:'Beranda',music:'Musik',timer:'Timer',stash:'Simpan File',addons:'Tambah fitur',todo:'Tugas',notes:'Catatan',prayer:'Sholat',water:'Minum'}:{home:'Dashboard',music:'Music',timer:'Timer',stash:'File Stash',addons:'Add features',todo:'To-do',notes:'Notes',prayer:'Prayer',water:'Water'};
   const html = list.map((p) => `<i role="button" tabindex="0" aria-label="${names[p]}" title="${names[p]}" class="${p === pg ? 'on' : ''}" data-act="goto" data-p="${p}"></i>`).join('');
   setHTML('dots', html);
 }
@@ -616,6 +677,12 @@ island.addEventListener('click', (e) => {
   if (performance.now() < suppressClickUntil) { e.stopPropagation(); e.preventDefault(); return; }
   const btn = e.target.closest('[data-act]');
   if (btn && acts[btn.dataset.act]) { promotePeek(); acts[btn.dataset.act](btn, e); return; }
+  if (S.miniPopup?.kind === 'tasknotice' || S.miniPopup?.kind === 'prayernotice' || S.miniPopup?.kind === 'waternotice' || S.miniPopup?.kind === 'timerpreview') {
+    if (S.miniPopup?.kind === 'timerpreview') go('timer');
+    else if (S.miniPopup?.kind === 'waternotice') go('water');
+    dismissMiniPopup();
+    return;
+  }
   if (S.ring) return;
   if (S.charge) { S.charge = null; clearTimeout(chargeT); openDefault(); return; }
   if (S.headset) { S.headset = null; clearTimeout(headsetT); openDefault(); return; }
@@ -635,7 +702,7 @@ island.addEventListener('pointerdown', (e) => {
     return;
   }
   // Drag-to-slide untuk halaman expanded (primary button saja)
-  if (e.button === 0 && S.expanded && PAGE_OF[curKey] && !isSliding && !e.target.closest('button, [data-act], [data-hold], input, textarea, .s-item, #m-bar, .ios-slider')) {
+  if (e.button === 0 && S.expanded && PAGE_OF[curKey] && !isSliding && !e.target.closest('button, [data-act], [data-hold], input, textarea, .s-item, #m-bar, .ios-slider, .dashboard-glass-slider')) {
     dragState = { id: e.pointerId, startX: e.clientX, startY: e.clientY, dx: 0, active: false, t0: performance.now(), curPage: PAGE_OF[curKey] || 'home' };
   }
 });
@@ -792,7 +859,7 @@ island.addEventListener('wheel', (e) => {
     holds[(w.dataset.wheel === 'h' ? 'h' : 'm') + (up ? 'inc' : 'dec')]();
     return;
   }
-  if (S.expanded && PAGE_OF[curKey] && !e.target.closest('#v-connectivity,#connection-list,#timer-ruler,.addon-body,input,textarea,.ios-slider,#m-bar') && Math.max(Math.abs(e.deltaX),Math.abs(e.deltaY)) > 16) {
+  if (S.expanded && PAGE_OF[curKey] && !e.target.closest('#v-connectivity,#connection-list,#timer-ruler,.addon-body,input,textarea,.ios-slider,.dashboard-glass-slider,#m-bar') && Math.max(Math.abs(e.deltaX),Math.abs(e.deltaY)) > 16) {
     const now = performance.now();
     if (now - lastWheelSlide > 320) {
       lastWheelSlide = now;
@@ -862,7 +929,9 @@ island.addEventListener('pointerleave', (e) => {
 bridge.onPointer(setInside);
 if (bridge.onTuckApp) {
   bridge.onTuckApp((v) => {
-    S.tuckApp = !!v;
+    S.tuckApp = typeof v === 'object' ? !!v.active : !!v;
+    S.browserVerticalTabs = !!(v && typeof v === 'object' && v.verticalTabs);
+    if (S.browserVerticalTabs) resetDodgeState();
     layout();
   });
 }
@@ -882,23 +951,48 @@ function resetDodgeState() {
   kick();
 }
 
-function handleTuckDodge(dx, dy, rawX, rawY) {
-  if (rawX === undefined) rawX = dx + 220;
-  if (rawY === undefined) rawY = dy + 11;
+function resetSpotifyDodge() {
+  if (!isSpotifyDodging) return;
+  isSpotifyDodging = false;
+  island.dataset.spotifyDodging = '0';
+  lastRectSig = '';
+  layout();
+  reportRect();
+  kick();
+}
 
-  if (!S.tuckApp || curKey !== 'tuck' || S.expanded || S.ring || S.charge || S.headset || S.prompt || S.notice) {
+function handleSpotifyDodge(dx, dy) {
+  const eligible = S.spotifyApp && curKey === 'compact' && !S.expanded && !S.ring && !S.charge && !S.headset && !S.prompt && !S.notice;
+  if (!eligible) { resetSpotifyDodge(); return; }
+  const cursorY = dy + 18;
+  const nearSearch = Math.abs(dx) <= 176 && cursorY >= 0 && cursorY <= 82;
+  if (nearSearch) {
+    if (!isSpotifyDodging) {
+      isSpotifyDodging = true;
+      island.dataset.spotifyDodging = '1';
+      clearTimeout(hoverT);
+      lastRectSig = '';
+      layout();
+      reportRect();
+    }
+  } else resetSpotifyDodge();
+}
+
+function handleTuckDodge(dx, dy) {
+  if (!S.tuckApp || S.browserVerticalTabs || curKey !== 'tuck' || S.expanded || S.ring || S.charge || S.headset || S.prompt || S.notice) {
     if (isTuckDodging) {
       resetDodgeState();
     }
     return;
   }
 
-  const distX = Math.abs(rawX - 220);
-  const inDodgeRadius = (distX <= 82) && (rawY >= 0 && rawY <= 72);
+  const cursorY = dy + 11;
+  const distX = Math.abs(dx);
+  const inDodgeRadius = (distX <= 82) && (cursorY >= 0 && cursorY <= 72);
 
   if (inDodgeRadius) {
     const normX = distX / 82;
-    const normY = clamp((rawY - 14) / (72 - 14), 0, 1);
+    const normY = clamp((cursorY - 14) / (72 - 14), 0, 1);
     const t = clamp(Math.hypot(normX * 0.75, normY), 0, 1);
 
     targetDodgeH = 3 + t * 2;
@@ -953,13 +1047,9 @@ if (bridge.onGameMode) {
 }
 
 if (bridge.onCursor) {
-  bridge.onCursor((dx, dy, rawX, rawY) => {
-    handleTuckDodge(dx, dy, rawX, rawY);
-  });
-}
-if (bridge.onTestPeekaboo) {
-  bridge.onTestPeekaboo(() => {
-    triggerPeekaboo(3200, true);
+  bridge.onCursor((dx, dy) => {
+    handleTuckDodge(dx, dy);
+    handleSpotifyDodge(dx, dy);
   });
 }
 if (bridge.onExpandHome) {
@@ -973,7 +1063,7 @@ if (bridge.onExpandHome) {
   });
 }
 if (bridge.onCollapse) {
-  bridge.onCollapse(() => collapse());
+  bridge.onCollapse(() => { S.focusLock = false; collapse(); });
 }
 // Mode browser (uji): hitung sendiri dari posisi mouse
 let mx = -999, my = -999;
@@ -991,3 +1081,6 @@ if (bridge.mock) {
 setInterval(() => { for (const f of ticks) f(); }, 200);
 
 window.addEventListener("resize",()=>{lastRectSig="";reportRect();});
+
+// Public demo control surface. The desktop build does not expose this object.
+if (bridge.mock) window.__island = { S, go, collapse, layout };

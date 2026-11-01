@@ -12,7 +12,7 @@ function renderShelf() {
   if (stashEl) stashEl.classList.toggle('hot', S.dropHot);
   const clearBtn = $('#s-clear');
   if (clearBtn) clearBtn.style.display = S.shelf.length ? '' : 'none';
-  const html = !S.shelf.length ? '<div class="stash-empty"><span class="stash-empty-ico" data-ico="tray"></span><span>Drop files here to stash temporarily</span></div>' :
+  const html = !S.shelf.length ? `<div class="stash-empty"><span class="stash-empty-ico" data-ico="tray"></span><span>${isId() ? 'Tarik file ke sini untuk disimpan sementara' : 'Drop files here to stash temporarily'}</span></div>` :
     S.shelf.map((f) => {
       const thumb = IMG_RE.test(f.name)
         ? `<div class="th" style="background-image:url('${fileUrl(f.path)}')"></div>`
@@ -54,12 +54,12 @@ const hasFiles = (e) => e.dataTransfer && [...(e.dataTransfer.types || [])].incl
 let feedingLeaveTimer;
 function finishFeeding(){
   clearTimeout(feedingLeaveTimer);S.dropHot=false;S.dragLock=false;
-  island.classList.remove('mouth-open');bridge.setDragActive?.(false);renderShelf();
+  island.classList.remove('mouth-open', 'magnetic-pull');bridge.setDragActive?.(false);renderShelf();
 }
 function startFeeding(){
   clearTimeout(feedingLeaveTimer);
   if(!S.dropHot){S.dragLock=true;bridge.setDragActive?.(true);if(curKey!=='stash')go('stash');}
-  S.dropHot=true;island.classList.add('mouth-open');renderShelf();
+  S.dropHot=true;island.classList.add('mouth-open', 'magnetic-pull');renderShelf();
 }
 document.addEventListener('dragenter', (e) => {
   if (!hasFiles(e)) return;

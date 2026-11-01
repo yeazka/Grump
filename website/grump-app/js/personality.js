@@ -96,14 +96,16 @@ bridge.onCpuLoad?.((load) => {
   } else cpuBusySince = 0;
 });
 
-bridge.onHug?.((active) => {
-  island.classList.toggle('cursor-hug', !!active);
-  if (active) setTempExp('happy', 8000);
-});
-
+let birthdayNextAt = 0, birthdayUntil = 0, birthdayWasToday = false;
 function updateBirthdayMode() {
-  const birthday = S.settings.birthday;
   const today = new Date();
-  island.classList.toggle('birthday', /^\d{2}-\d{2}$/.test(birthday || '') && birthday === `${pad(today.getMonth()+1)}-${pad(today.getDate())}`);
+  const birthday = S.settings.birthday;
+  const isBirthday = /^(?:\d{4}-)?\d{2}-\d{2}$/.test(birthday || '') && birthday.slice(-5) === `${pad(today.getMonth()+1)}-${pad(today.getDate())}`;
+  const now = Date.now();
+  if (!isBirthday) { birthdayNextAt = 0; birthdayUntil = 0; birthdayWasToday = false; island.classList.remove('birthday'); return; }
+  if (!birthdayWasToday) { birthdayWasToday = true; birthdayNextAt = now; }
+  if (now >= birthdayNextAt) { birthdayUntil = now + 7000; birthdayNextAt = now + 30 * 60 * 1000; }
+  island.classList.toggle('birthday', now < birthdayUntil);
 }
 renderers.push(updateBirthdayMode);
+ticks.push(updateBirthdayMode);

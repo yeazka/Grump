@@ -140,7 +140,7 @@ function setArt(url) {
 
 const trackKey = (m) => (m ? `${m.title}|${m.artist}` : '');
 bridge.onMedia((d) => {
-  if (!d || !d.active) { S.media = null; setArt(null); S.lyrics = null; updateMediaAppUI(); layout(); return; }
+  if (!d || !d.active) { S.media = null; setArt(null); S.lyrics = null; S.plainLyrics = null; updateMediaAppUI(); layout(); return; }
   const prev = S.media;
   const changed = !prev || trackKey(prev) !== trackKey(d);
 
@@ -172,7 +172,7 @@ bridge.onMedia((d) => {
   }
   clearTimeout(pausedT);
   if (changed) {
-    S.lyrics = null; S.lyricsFor = null;
+    S.lyrics = null; S.plainLyrics = null; S.lyricsFor = null;
     loadLyrics();
   } else if (!S.lyricsFor) {
     loadLyrics();
@@ -182,7 +182,7 @@ bridge.onMedia((d) => {
 });
 
 function getLiveLyricsContext() {
-  if (!S.media) return { prev: '', cur: 'No music playing', next: '', hasLyrics: false };
+  if (!S.media) return { prev: '', cur: isId() ? 'Tidak ada musik diputar' : 'No music playing', next: '', hasLyrics: false };
   if (S.lyrics && S.lyrics.length) {
     const pos = curPos();
     const effPos = pos + AUDIO_OFFSET;
@@ -199,7 +199,7 @@ function getLiveLyricsContext() {
     }
   }
   if (S.lyricsState === 'loading') {
-    return { prev: '', cur: 'Loading lyrics...', next: '', hasLyrics: false };
+    return { prev: '', cur: isId() ? 'Memuat lirik...' : 'Loading lyrics...', next: '', hasLyrics: false };
   }
   return { prev: '', cur: S.media.title || 'Playing', next: S.media.artist || '', hasLyrics: false };
 }
@@ -222,8 +222,8 @@ function renderMusic() {
   const m = S.media;
   document.querySelectorAll('#v-music .ctl, #v-music [data-act="lyrics"]').forEach(b => b.disabled = !m);
   if (!m) {
-    setText('m-title','No music playing');
-    setText('m-artist','Open Spotify or another player');
+    setText('m-title', isId() ? 'Tidak ada musik diputar' : 'No music playing');
+    setText('m-artist', isId() ? 'Buka Spotify atau pemutar lain' : 'Open Spotify or another player');
     setText('m-cur','0:00');
     setText('m-rem','-0:00');
     return;
@@ -278,11 +278,12 @@ enterHooks.music = () => {
   if (window.musicShader) {
     const info = detectMediaApp(S.media);
     window.musicShader.setApp(info.type, true);
-    window.musicShader.start();
+    if (isPlaying()) window.musicShader.start();
+    else window.musicShader.stop();
   }
 };
 ticks.push(() => {
-  if (curKey !== 'music' && window.musicShader) {
+  if ((curKey !== 'music' || !isPlaying()) && window.musicShader) {
     window.musicShader.stop();
   }
 });
@@ -356,8 +357,12 @@ function parseLRC(txt) {
 }
 function renderLyricsList() {
   const list = $('#ly-list');
-  if (S.lyricsState === 'loading') list.innerHTML = '<div class="ly msg">Memuat lirik…</div>';
-  else if (!S.lyrics || !S.lyrics.length) list.innerHTML = '<div class="ly msg">Tidak ada lirik</div>';
+  const win = list.parentElement;
+  const plain = !S.lyrics?.length && S.plainLyrics?.length;
+  win.classList.toggle('plain', !!plain);
+  if (S.lyricsState === 'loading') list.innerHTML = `<div class="ly msg">${isId() ? 'Memuat lirik…' : 'Loading lyrics…'}</div>`;
+  else if (plain) list.innerHTML = `<div class="ly-plain-label">${isId() ? 'Belum tersinkron' : 'Not synced'}</div>` + S.plainLyrics.map(line => `<div class="ly plain-line">${esc(line)}</div>`).join('');
+  else if (!S.lyrics || !S.lyrics.length) list.innerHTML = `<div class="ly msg">${isId() ? 'Tidak ada lirik' : 'No lyrics available'}</div>`;
   else list.innerHTML = S.lyrics.map((l, i) => {
     const tx = l.text || '';
     return `<div class="ly" data-i="${i}">${esc(tx || '♪')}</div>`;
@@ -365,6 +370,7 @@ function renderLyricsList() {
   list.style.transform = 'translateY(0)';
   lyIdx = -2;
   if (S.lyrics && S.lyrics.length) paintLyrics(curPos(), true);
+  else if (plain) win.scrollTop = 0;
   else list.style.transform = `translateY(${LY_CENTER - LH / 2}px)`;
 }
 const LY_CENTER = 65;
@@ -372,11 +378,12 @@ async function loadLyrics() {
   const m = S.media; if (!m) return;
   const key = trackKey(m);
   if (S.lyricsFor === key) { renderLyricsList(); return; }
-  S.lyricsFor = key; S.lyrics = null; S.lyricsState = 'loading'; renderLyricsList();
+  S.lyricsFor = key; S.lyrics = null; S.plainLyrics = null; S.lyricsState = 'loading'; renderLyricsList();
   let txt = null;
   try { txt = await bridge.getLyrics({ title: m.title, artist: m.artist, dur: m.dur }); } catch {}
   if (S.lyricsFor !== key) return;
-  S.lyrics = txt ? parseLRC(txt) : null;
+  S.lyrics = typeof txt === 'string' ? parseLRC(txt) : null;
+  S.plainLyrics = txt?.plainLyrics ? String(txt.plainLyrics).split(/\r?\n/).map(line => line.trim()).filter(Boolean) : null;
   S.lyricsState = 'done';
   renderLyricsList();
 }

@@ -2,9 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob: file:; font-src 'self' data:; style-src 'self' 'unsafe-inline'">
 <title>Grump</title>
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="island-controls.css">
+<link rel="stylesheet" href="waterline-glass.css">
+<link rel="stylesheet" href="dashboard-glass.css">
 </head>
 <body>
 <!-- SVG Filter untuk Efek Liquid Glass (Refraksi / Distorsi Kaca Cair) -->
@@ -53,17 +56,15 @@
 <div id="island" data-key="idle" data-theme="default" data-angry-variant="gold-matrix" data-dock="island">
   <!-- Seamless Vector Notch Silhouette for Anchored Mode -->
   <svg id="island-notch-svg" class="island-notch-svg" aria-hidden="true">
+    <defs><linearGradient id="gpt-notch-gradient" x1="0%" y1="0%" x2="100%" y2="35%"><stop offset="0%" stop-color="#a879ff"/><stop offset="48%" stop-color="#e1d6ff"/><stop offset="100%" stop-color="#62cfff"/></linearGradient></defs>
     <path id="notch-fill" d="" fill="#000000"/>
-    <path id="notch-stroke" d="" fill="none" stroke="rgba(255, 255, 255, 0.18)" stroke-width="1.2"/>
+    <path id="notch-stroke" d="" fill="none" stroke="rgba(255, 255, 255, 0.45)" stroke-width="1.6" opacity="0"/>
     <path id="notch-ring" d="" pathLength="100" fill="none" stroke="rgba(255,255,255,.95)" stroke-width="1.8" stroke-linecap="round"/>
     <path id="notch-angry" d="" fill="none" stroke="#ff0000" stroke-width="1.6" opacity="0"/>
   </svg>
 
   <!-- Sakura Flower Petal Particles Container for Pink Angry Mode -->
   <div id="sakura-container" class="sakura-container" aria-hidden="true"></div>
-  <!-- Berserk Lightning & Void Sparks Container -->
-  <div id="berserk-container" class="berserk-container" aria-hidden="true"></div>
-
   <div id="island-content-clip">
 
   <!-- IDLE: jam / mata / countdown timer aktif -->
@@ -83,7 +84,9 @@
       <span id="idle-weather-text">29°C</span>
     </div>
     <span id="i-clock">00:00</span>
-    <div id="eyes"><i><span class="cyber-grid"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></span></i><i><span class="cyber-grid"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></span></i></div>
+    <div id="eyes"><i><span class="cyber-grid"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></span></i><i><span class="cyber-grid"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></span></i><span class="dragon-vapor" aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b></span></div>
+    <span id="creative-warning" aria-live="polite"></span>
+    <div id="birthday-celebration" aria-label="Happy birthday!"><span class="birthday-confetti" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><strong>Happy birthday!</strong></div>
     <div id="idle-time" class="idle-side-info right" aria-hidden="true">
       <span id="idle-time-text">00:00</span>
     </div>
@@ -129,6 +132,108 @@
   <!-- NOTICE -->
   <section class="view" id="v-notice">
     <span class="n-ico" id="n-ico" data-ico="bell"></span><span id="n-text">—</span>
+  </section>
+
+  <section class="view mini-popup" id="v-timerpreview" role="status" aria-live="polite" aria-label="Timer running">
+    <div class="m-inner-beam timer-popup-beam" aria-hidden="true"></div>
+    <div class="mini-popup-actions">
+      <button data-act="previewpause" id="preview-pause" class="timer-notice-icon prayer-notice-icon" aria-label="Pause timer" title="Pause / resume timer"><span data-ico="pause"></span></button>
+      <button data-act="previewstop" class="timer-notice-icon prayer-notice-icon timer-stop-btn" aria-label="Stop timer" title="Stop timer"><span data-ico="close"></span></button>
+    </div>
+    <div class="prayer-notice-copy timer-notice-copy">
+      <strong id="preview-time">00:30</strong>
+      <span id="timer-notice-detail">Timer running</span>
+    </div>
+  </section>
+  <section class="view mini-popup" id="v-prayernotice" role="status" aria-live="polite">
+    <div class="m-inner-beam prayer-popup-beam" aria-hidden="true"></div>
+    <span class="prayer-notice-icon prayer-notice-2d" aria-hidden="true">
+      <svg viewBox="0 0 48 48" class="prayer-mini-svg">
+        <defs>
+          <linearGradient id="pSkyMini" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0f172a"/>
+            <stop offset="100%" stop-color="#1e3a8a"/>
+          </linearGradient>
+          <linearGradient id="pMoonMini" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#fef08a"/>
+            <stop offset="100%" stop-color="#f59e0b"/>
+          </linearGradient>
+          <linearGradient id="pDomeMini" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#38bdf8"/>
+            <stop offset="100%" stop-color="#0284c7"/>
+          </linearGradient>
+          <clipPath id="pCircleClip"><circle cx="24" cy="24" r="21"/></clipPath>
+        </defs>
+        <g clip-path="url(#pCircleClip)">
+          <circle cx="24" cy="24" r="21" fill="url(#pSkyMini)"/>
+          <circle class="p-star s1" cx="13" cy="14" r="1.2" fill="#fef08a"/>
+          <circle class="p-star s2" cx="35" cy="12" r="1" fill="#bae6fd"/>
+          <circle class="p-star s3" cx="24" cy="9" r="1.3" fill="#fef08a"/>
+          <g class="p-moon-float">
+            <path d="M29 11 A7.5 7.5 0 1 0 36 21 A6 6 0 1 1 29 11 Z" fill="url(#pMoonMini)"/>
+          </g>
+          <path class="p-cloud-drift" d="M8 23 Q11 20 14 22 Q17 20 19 23 Z" fill="rgba(186,230,253,0.28)"/>
+          <!-- 2D Mosque Silhouette & Glowing Dome -->
+          <rect x="11" y="25" width="3.2" height="17" rx="1" fill="#1e293b"/>
+          <path d="M10.5 25 L12.6 20.5 L14.7 25 Z" fill="#38bdf8"/>
+          <path d="M15 36 C15 27.5 33 27.5 33 36 Z" fill="url(#pDomeMini)"/>
+          <line x1="24" y1="24.5" x2="24" y2="28" stroke="#fef08a" stroke-width="1.3" stroke-linecap="round"/>
+          <rect x="13" y="35.5" width="22" height="10" fill="#0f172a"/>
+          <rect x="19" y="37.5" width="2.6" height="5" rx="1.3" fill="#fef08a" opacity="0.85"/>
+          <rect x="23" y="37" width="3" height="5.5" rx="1.5" fill="#fef08a"/>
+          <rect x="27.4" y="37.5" width="2.6" height="5" rx="1.3" fill="#fef08a" opacity="0.85"/>
+        </g>
+      </svg>
+    </span>
+    <div class="prayer-notice-copy"><strong id="prayer-notice-title">Prayer Time</strong><span id="prayer-notice-detail"></span></div>
+  </section>
+  <section class="view mini-popup" id="v-waternotice" role="status" aria-live="polite">
+    <div class="m-inner-beam water-popup-beam" aria-hidden="true"></div>
+    <div class="water-notice-bubbles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <span class="prayer-notice-icon water-notice-2d" aria-hidden="true">
+      <svg viewBox="0 0 48 48" class="water-mini-svg">
+        <defs>
+          <linearGradient id="wSkyMini" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#082f49"/>
+            <stop offset="100%" stop-color="#0369a1"/>
+          </linearGradient>
+          <linearGradient id="wLiqMini" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#38bdf8"/>
+            <stop offset="100%" stop-color="#0284c7"/>
+          </linearGradient>
+          <clipPath id="wMiniCupClip">
+            <path d="M14 14 H34 L31.5 39 A4.5 4.5 0 0 1 27 43 H21 A4.5 4.5 0 0 1 16.5 39 Z"/>
+          </clipPath>
+        </defs>
+        <circle cx="24" cy="24" r="21" fill="url(#wSkyMini)"/>
+        <path d="M27 16 L30 7 L35 6" fill="none" stroke="#fb7185" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <g clip-path="url(#wMiniCupClip)">
+          <rect x="12" y="13" width="24" height="31" fill="rgba(224,242,254,0.18)"/>
+          <path class="w-wave-back" d="M6 22 Q15 19 24 22 T42 22 V44 H6 Z" fill="#7dd3fc" opacity="0.65"/>
+          <path class="w-wave-front" d="M4 24 Q14 27 24 24 T44 24 V44 H4 Z" fill="url(#wLiqMini)"/>
+          <rect class="w-ice-group" x="17" y="21" width="5.5" height="5.5" rx="1.5" transform="rotate(-10 19.5 23.5)" fill="rgba(255,255,255,0.45)"/>
+          <circle class="w-bub b1" cx="19" cy="38" r="1.1" fill="rgba(255,255,255,0.65)"/>
+          <circle class="w-bub b2" cx="29" cy="40" r="1" fill="rgba(255,255,255,0.55)"/>
+          <g class="w-eye">
+            <circle cx="20" cy="31.5" r="1.5" fill="#082f49"/>
+            <circle cx="19.5" cy="31" r="0.55" fill="#fff"/>
+            <circle cx="28" cy="31.5" r="1.5" fill="#082f49"/>
+            <circle cx="27.5" cy="31" r="0.55" fill="#fff"/>
+          </g>
+          <g class="w-angry-face">
+            <path d="M17.4 28.5 L21.6 30" fill="none" stroke="#082f49" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M26.4 30 L30.6 28.5" fill="none" stroke="#082f49" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M21.5 35.5 Q24 32.6 26.5 35.5" fill="none" stroke="#082f49" stroke-width="1.35" stroke-linecap="round"/>
+          </g>
+        </g>
+        <path d="M14 14 H34 L31.5 39 A4.5 4.5 0 0 1 27 43 H21 A4.5 4.5 0 0 1 16.5 39 Z" fill="none" stroke="rgba(186,230,253,0.8)" stroke-width="1.3" stroke-linejoin="round"/>
+        <path class="w-drop-float" d="M9.5 18 C9.5 18 12 21 12 22.8 A2.5 2.5 0 0 1 7 22.8 C7 21 9.5 18 9.5 18 Z" fill="#38bdf8"/>
+      </svg>
+    </span>
+    <div class="prayer-notice-copy water-notice-copy"><strong id="water-notice-title">Time to Hydrate</strong><span id="water-notice-detail">Drink 1 glass (~200 ml) · Every 45 min</span></div>
+  </section>
+  <section class="view mini-popup" id="v-tasknotice" role="status" aria-live="polite">
+    <span class="task-notice-icon" data-ico="check" aria-hidden="true"></span><div class="task-notice-copy"><span>To-do reminder</span><strong id="task-notice-title"></strong></div>
   </section>
 
   <!-- CHARGE (Animasi Cas ala iPhone) -->
@@ -188,36 +293,24 @@
 
     </div>
     <div class="h-sliders" id="h-sliders" aria-label="Quick Controls">
-      <!-- Brightness Slider (iOS Liquid Glass Capsule - Top) -->
-      <div class="ios-slider" id="slider-brightness" data-slider="brightness" role="slider" aria-label="Brightness" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
-        <div class="slider-track">
-          <div class="slider-fill" id="fill-brightness" style="width: 50%;">
-            <div class="slider-sheen"></div>
-          </div>
+      <!-- Brightness Slider (Grump Glass Control - Calibrated Markers) -->
+      <div class="slider dashboard-glass-slider" id="slider-brightness" data-slider="brightness" data-key="brightness" role="slider" tabindex="0" aria-label="Brightness" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+        <div class="dashboard-glass-layer"><canvas aria-hidden="true"></canvas></div>
+        <div class="dashboard-glass-fill fill" id="fill-brightness"><i class="line"></i></div>
+        <div class="dashboard-glass-markers markers">
+          <i class="marker" data-value="20" title="20%"></i><i class="marker" data-value="40" title="40%"></i><i class="marker" data-value="60" title="60%"></i><i class="marker" data-value="80" title="80%"></i><i class="marker last" data-value="100" title="100%"></i>
         </div>
-        <div class="slider-content">
-          <div class="slider-lead">
-            <div class="slider-icon" id="ico-brightness"><span data-ico="brightness"></span></div>
-            <span class="slider-label">Brightness</span>
-          </div>
-          <span class="slider-val" id="val-brightness">50%</span>
-        </div>
+        <div class="dashboard-glass-labels labels slider-content"><span class="slider-label">Brightness</span><b class="value slider-val" id="val-brightness">50</b></div>
       </div>
 
-      <!-- Volume Slider (iOS Liquid Glass Capsule - Bottom) -->
-      <div class="ios-slider" id="slider-volume" data-slider="volume" role="slider" aria-label="Volume" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
-        <div class="slider-track">
-          <div class="slider-fill" id="fill-volume" style="width: 50%;">
-            <div class="slider-sheen"></div>
-          </div>
+      <!-- Volume Slider (Grump Glass Control - Calibrated Markers) -->
+      <div class="slider dashboard-glass-slider" id="slider-volume" data-slider="volume" data-key="volume" role="slider" tabindex="0" aria-label="Volume" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+        <div class="dashboard-glass-layer"><canvas aria-hidden="true"></canvas></div>
+        <div class="dashboard-glass-fill fill" id="fill-volume"><i class="line"></i></div>
+        <div class="dashboard-glass-markers markers">
+          <i class="marker" data-value="20" title="20%"></i><i class="marker" data-value="40" title="40%"></i><i class="marker" data-value="60" title="60%"></i><i class="marker" data-value="80" title="80%"></i><i class="marker last" data-value="100" title="100%"></i>
         </div>
-        <div class="slider-content">
-          <div class="slider-lead">
-            <div class="slider-icon" id="ico-volume"><span data-ico="volume"></span></div>
-            <span class="slider-label">Volume</span>
-          </div>
-          <span class="slider-val" id="val-volume">50%</span>
-        </div>
+        <div class="dashboard-glass-labels labels slider-content"><span class="slider-label">Volume</span><b class="value slider-val" id="val-volume">50</b></div>
       </div>
     </div>
   </section>
@@ -298,10 +391,10 @@
     <div class="addon-head"><span>Add features</span></div>
     <div id="addon-picker" class="addon-picker"></div>
   </section>
-  <section class="view grump-panel" id="v-todo"><div class="todo-head"><span class="todo-heading"><span data-ico="check" aria-hidden="true"></span>To-do list</span><div class="todo-head-actions"><div class="todo-totals" aria-label="Task totals"><span id="todo-open-count" title="Open tasks"></span><span id="todo-done-count" title="Completed tasks"></span></div><button type="button" class="todo-clear" data-act="todoclear" aria-label="Clear all tasks" title="Clear all tasks" hidden><span data-ico="trash" aria-hidden="true"></span><span class="todo-clear-label">Clear</span></button></div></div><div class="addon-body" id="addon-todo-body"></div></section>
-  <section class="view grump-panel" id="v-notes"><div class="addon-head"><span>Notes</span></div><div class="addon-body" id="addon-notes-body"></div></section>
-  <section class="view grump-panel" id="v-prayer"><div class="addon-head"><span>Sholat</span></div><div class="addon-body" id="addon-prayer-body"></div></section>
-  <section class="view grump-panel" id="v-water"><div class="addon-head"><span>Minum</span></div><div class="addon-body" id="addon-water-body"></div></section>
+  <section class="view grump-panel aic-todo-root" id="v-todo" data-theme="dark"><div class="todo-head"><span class="todo-heading"><span class="todo-heading-text">To-do list</span></span><div class="todo-head-actions"><div class="todo-totals" aria-label="Task totals"><span id="todo-open-count" title="Open tasks"></span><span id="todo-done-count" title="Completed tasks"></span></div><button type="button" class="todo-clear aic-pill-control" data-act="todoclear" aria-label="Clear all tasks" title="Clear all tasks" hidden><span data-ico="trash" aria-hidden="true"></span><span class="todo-clear-label">Clear</span></button></div></div><div class="addon-body" id="addon-todo-body"></div></section>
+  <section class="view grump-panel" id="v-notes"><div class="addon-head"><span>Notes</span><button class="note-new" data-act="notenew"><span data-ico="plus" aria-hidden="true"></span>New note</button></div><div class="addon-body" id="addon-notes-body"></div></section>
+  <section class="view grump-panel" id="v-prayer"><div class="addon-head"><span id="prayer-head-title">Prayer Times</span><span class="prayer-meta" id="prayer-city-badge"></span></div><div class="addon-body" id="addon-prayer-body"></div></section>
+  <section class="view grump-panel" id="v-water"><div class="addon-head"><span>Drink Water</span></div><div class="addon-body" id="addon-water-body"></div></section>
 
   </div>
   <section id="v-connectivity" class="connection-popover" role="dialog" aria-label="Connections" hidden>
@@ -310,11 +403,11 @@
     <div id="connection-list"></div>
     <form id="connection-password" hidden><input type="password" id="connection-secret" autocomplete="off" placeholder="Network password" aria-label="Network password"><button type="submit">Join</button><button type="button" id="connection-cancel" aria-label="Cancel"><span data-ico="close"></span></button></form>
   </section>
-  <div id="grump-feeding" aria-hidden="true"><div class="feeding-eyes"><i></i><i></i></div><div class="feeding-mouth"><i></i></div><span>Drop it. I'll keep it.</span></div>
+  <div id="grump-feeding" class="magnetic-field-layer" aria-hidden="true"></div>
   <!-- PAGER -->
   <div id="pager">
-    <button class="pg l" data-act="pgprev"><span data-ico="back"></span></button>
-    <button class="pg r" data-act="pgnext"><span data-ico="right"></span></button>
+    <button class="pg l" data-act="pgprev" aria-label="Previous page"><span data-ico="back"></span></button>
+    <button class="pg r" data-act="pgnext" aria-label="Next page"><span data-ico="right"></span></button>
     <div id="dots"></div>
   </div>
 </div>
@@ -329,6 +422,7 @@
 <script src="js/timer-ruler.js"></script>
 <script src="js/connectivity.js"></script>
 <script src="js/personality.js"></script>
+<script src="js/dashboard-glass.js"></script>
 <script src="js/boot.js"></script>
 </body>
 </html>

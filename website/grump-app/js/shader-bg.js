@@ -331,6 +331,7 @@ void main() {
   let lastNow = null;
   let activeApp = 'spotify';
   let isRunning = false;
+  let releaseTimer = null;
 
   let currentColors = SPOTIFY_COLORS.map(c => [...c]);
   let targetColors = SPOTIFY_COLORS;
@@ -387,13 +388,12 @@ void main() {
     gl.uniform4f(uni.transform, UNIFORMS.seed, UNIFORMS.rotate, UNIFORMS.drift, UNIFORMS.oklab);
     gl.uniform4f(uni.cursor, 0, UNIFORMS.cursorEffect, UNIFORMS.cursorStrength, UNIFORMS.cursorRadius);
 
-    resize();
     attachListeners();
     return true;
   }
 
   function resize() {
-    if (!canvas || !gl) return;
+    if (!canvas || !gl || !isRunning) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const w = Math.max(1, Math.round(canvas.clientWidth * dpr)) || 392 * dpr;
     const h = Math.max(1, Math.round(canvas.clientHeight * dpr)) || 196 * dpr;
@@ -475,9 +475,12 @@ void main() {
   }
 
   function start() {
+    clearTimeout(releaseTimer);
+    releaseTimer = null;
     if (!gl && !initGL()) return;
     if (isRunning) return;
     isRunning = true;
+    resize();
     lastNow = performance.now();
     raf = requestAnimationFrame(render);
     if (canvas) canvas.style.opacity = '0.72';
@@ -492,6 +495,15 @@ void main() {
     }
     lastNow = null;
     if (canvas) canvas.style.opacity = '0';
+    clearTimeout(releaseTimer);
+    releaseTimer = setTimeout(() => {
+      releaseTimer = null;
+      if (!isRunning && canvas && gl) {
+        canvas.width = 1;
+        canvas.height = 1;
+        gl.viewport(0, 0, 1, 1);
+      }
+    }, 20000);
   }
 
   window.musicShader = {

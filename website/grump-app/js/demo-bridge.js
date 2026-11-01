@@ -20,7 +20,7 @@
     chatgpt: [],
     fgApp: [],
     drop: [],
-    connectivity: [], addon: [], productivity: []
+    connectivity: [], addon: [], addonAlert: [], productivity: [], productivityEvent: [], capsLock: [], cpuLoad: []
   };
 
   const on = (list) => (fn) => { if (typeof fn === 'function') list.push(fn); };
@@ -113,7 +113,11 @@
     rightEyeSize: 1,
     quiet: false
   };
-  const demoAddons = {selected:['todo','notes'],city:'Jakarta',waterMinutes:60,waterEnabled:false,prayerEnabled:false,prayer:null,waterNextAt:0};
+  const demoAddons = {
+    selected:['todo','notes','prayer','water'],city:'Yogyakarta',locationMode:'auto',locationSource:'IPWho',
+    waterMinutes:45,waterEnabled:true,waterNextAt:Date.now()+31*60000,prayerEnabled:true,prayerStatus:'ready',
+    prayer:{date:new Date().toISOString().slice(0,10),city:'Yogyakarta',timezone:'Asia/Jakarta',times:{Fajr:'04:07',Dhuhr:'11:42',Asr:'14:52',Maghrib:'17:47',Isha:'18:59'},nextFajr:'04:07'}
+  };
   const demoProductivity = {tasks:[{id:'demo-task-1',text:'Plan the next big idea',done:false},{id:'demo-task-2',text:'Take a well-earned break',done:true}],notes:[{id:'demo-note-1',text:'Little ideas\nMake space for the good ones.',at:Date.now()}]};
 
   let timerState = {
@@ -212,8 +216,18 @@
     },
     onSettings: on(cbs.settings),
     onAddonState: on(cbs.addon),
+    onAddonAlert: on(cbs.addonAlert),
     onProductivityState: on(cbs.productivity),
+    onProductivityEvent: on(cbs.productivityEvent),
     addonState: () => Promise.resolve({...demoAddons}),
+    async addonCommand(command,value) {
+      if(command==='select'&&!demoAddons.selected.includes(value))demoAddons.selected.push(value);
+      if(command==='remove')demoAddons.selected=demoAddons.selected.filter(id=>id!==value);
+      if(command==='water-enabled')demoAddons.waterEnabled=!!value;
+      if(command==='water-interval')demoAddons.waterMinutes=Number(value)||45;
+      emit(cbs.addon,{...demoAddons});
+      return {...demoAddons};
+    },
     productivityState: () => Promise.resolve(demoProductivity),
     async productivitySave(type,payload) {
       const id = () => 'demo-'+Date.now()+'-'+Math.random().toString(36).slice(2,7);
@@ -290,6 +304,11 @@
     onFgApp: on(cbs.fgApp),
     onDrop: on(cbs.drop),
     onConnectivity: on(cbs.connectivity),
+    onCapsLock: on(cbs.capsLock),
+    onCpuLoad: on(cbs.cpuLoad),
+    onCollapse() {}, onExpandHome() {}, onGameMode() {}, onResetDodge() {},
+    setExpanded() {}, lyricViewport() {}, setVolume(v){emit(cbs.sysState,{volume:v})}, setBrightness(v){emit(cbs.sysState,{brightness:v})},
+    openConnectivity(kind){return this.connectionCommand({kind,action:'list'})},
     connectionCommand(req) {
       const state = req.kind === 'wifi' ? wifiState : btState;
       if (req.action === 'power') state.on = !!req.on;
@@ -582,9 +601,23 @@
 
       case 'todo':
       case 'notes':
+      case 'prayer':
+      case 'water':
         stopMusic();
         isl.S.focusLock = true;
         isl.go(mode);
+        break;
+
+      case 'prayer-alert':
+        stopMusic();
+        isl.collapse();
+        emit(cbs.addonAlert,{kind:'prayer',title:'Waktu Maghrib',body:'Yogyakarta · 17:47'});
+        break;
+
+      case 'water-alert':
+        stopMusic();
+        isl.collapse();
+        emit(cbs.addonAlert,{kind:'water',title:'WATER BEFORE U CRASH.',body:'1 glass (~200 ml) · every 45 min'});
         break;
 
       case 'stash':
