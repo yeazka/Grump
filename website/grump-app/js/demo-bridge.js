@@ -610,8 +610,8 @@
 
       case 'prayer-alert':
         stopMusic();
+        isl.dismissMiniPopup?.();
         document.querySelectorAll('.view.mini-popup').forEach(view=>view.classList.remove('on','sliding'));
-        isl.S.miniPopup = null;
         isl.S.ring = null;
         isl.S.focusLock = false;
         isl.S.expanded = false;
@@ -621,8 +621,8 @@
 
       case 'water-alert':
         stopMusic();
+        isl.dismissMiniPopup?.();
         document.querySelectorAll('.view.mini-popup').forEach(view=>view.classList.remove('on','sliding'));
-        isl.S.miniPopup = null;
         isl.S.ring = null;
         isl.S.focusLock = false;
         isl.S.expanded = false;

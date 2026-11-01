@@ -541,7 +541,7 @@ let slideTimeout = null;
 function renderPager() {
   const pg = PAGE_OF[curKey] || S.view || 'home';
   const list = pageList();
-  const showPager = !!pg && S.expanded && list.length > 1;
+  const showPager = !bridge.mock && !!pg && S.expanded && list.length > 1;
   $('#pager').classList.toggle('on', showPager);
   island.dataset.paged = showPager ? '1' : '0';
   island.dataset.expanded = (S.expanded || curKey === 'ring') ? '1' : '0';
@@ -632,6 +632,7 @@ function slideToView(nextView, d) {
 }
 
 function pageStep(d) {
+  if (bridge.mock) return;
   const list = pageList();
   if (list.length <= 1) return;
   const i = list.indexOf(PAGE_OF[curKey] || 'home');
@@ -702,7 +703,7 @@ island.addEventListener('pointerdown', (e) => {
     return;
   }
   // Drag-to-slide untuk halaman expanded (primary button saja)
-  if (e.button === 0 && S.expanded && PAGE_OF[curKey] && !isSliding && !e.target.closest('button, [data-act], [data-hold], input, textarea, .s-item, #m-bar, .ios-slider, .dashboard-glass-slider')) {
+  if (!bridge.mock && e.button === 0 && S.expanded && PAGE_OF[curKey] && !isSliding && !e.target.closest('button, [data-act], [data-hold], input, textarea, .s-item, #m-bar, .ios-slider, .dashboard-glass-slider')) {
     dragState = { id: e.pointerId, startX: e.clientX, startY: e.clientY, dx: 0, active: false, t0: performance.now(), curPage: PAGE_OF[curKey] || 'home' };
   }
 });
@@ -859,7 +860,7 @@ island.addEventListener('wheel', (e) => {
     holds[(w.dataset.wheel === 'h' ? 'h' : 'm') + (up ? 'inc' : 'dec')]();
     return;
   }
-  if (S.expanded && PAGE_OF[curKey] && !e.target.closest('#v-connectivity,#connection-list,#timer-ruler,.addon-body,input,textarea,.ios-slider,.dashboard-glass-slider,#m-bar') && Math.max(Math.abs(e.deltaX),Math.abs(e.deltaY)) > 16) {
+  if (!bridge.mock && S.expanded && PAGE_OF[curKey] && !e.target.closest('#v-connectivity,#connection-list,#timer-ruler,.addon-body,input,textarea,.ios-slider,.dashboard-glass-slider,#m-bar') && Math.max(Math.abs(e.deltaX),Math.abs(e.deltaY)) > 16) {
     const now = performance.now();
     if (now - lastWheelSlide > 320) {
       lastWheelSlide = now;
@@ -869,7 +870,7 @@ island.addEventListener('wheel', (e) => {
   }
 }, { passive: false });
 document.addEventListener('keydown', (e) => {
-  if (!S.expanded || !PAGE_OF[curKey] || S.focusLock) return;
+  if (bridge.mock || !S.expanded || !PAGE_OF[curKey] || S.focusLock) return;
   if (e.key === 'ArrowLeft') { e.preventDefault(); pageStep(-1); }
   else if (e.key === 'ArrowRight') { e.preventDefault(); pageStep(1); }
 });
@@ -1084,6 +1085,6 @@ window.addEventListener("resize",()=>{lastRectSig="";reportRect();});
 
 // Public demo control surface. The desktop build does not expose this object.
 if (bridge.mock) {
-  window.__island = { S, go, collapse, layout };
+  window.__island = { S, go, collapse, layout, dismissMiniPopup };
   window.parent.postMessage({ type: 'grump-demo-ready' }, window.location.origin);
 }
