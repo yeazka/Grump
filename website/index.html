@@ -2757,6 +2757,8 @@
 
     let currentLang = 'en';
     let currentCaptionKey = 'weather';
+    const LANGUAGE_STORAGE_KEY = 'grump-language';
+    const LOCALE_ENDPOINT = 'https://grump-feedback.azkaatsmara456.workers.dev/locale';
     const releaseAt = new Date('2026-11-01T20:00:00+07:00');
     let releaseCountdownTimer = null;
 
@@ -2825,8 +2827,12 @@
       countdownEl.textContent = parts.join(' ');
     }
 
-    function setLang(lang) {
+    function setLang(lang, persist = true) {
+      if (lang !== 'en' && lang !== 'id') return;
       currentLang = lang;
+      if (persist) {
+        try { localStorage.setItem(LANGUAGE_STORAGE_KEY, lang); } catch {}
+      }
       document.documentElement.lang = lang;
       const dict = translations[lang];
       if (dict && dict["page-title"]) {
@@ -2851,6 +2857,32 @@
       updateReleaseCountdown();
       updateCaption();
       renderTestimonial(activeTestiIndex);
+    }
+
+    async function initLanguage() {
+      let savedLanguage = null;
+      try { savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY); } catch {}
+      if (savedLanguage === 'en' || savedLanguage === 'id') {
+        setLang(savedLanguage, false);
+        return;
+      }
+
+      const browserLanguage = String(navigator.language || '').toLowerCase().startsWith('id') ? 'id' : 'en';
+      setLang(browserLanguage, false);
+
+      try {
+        const response = await fetch(LOCALE_ENDPOINT, {
+          cache: 'default',
+          signal: AbortSignal.timeout(4000)
+        });
+        if (!response.ok) return;
+        const result = await response.json();
+        let manualLanguage = null;
+        try { manualLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY); } catch {}
+        if (!manualLanguage && (result.language === 'en' || result.language === 'id')) {
+          setLang(result.language, false);
+        }
+      } catch {}
     }
 
     function sendToGrump(payload) {
@@ -3246,7 +3278,7 @@
     window.addEventListener('scroll', checkHeaderScroll, { passive: true });
 
     window.addEventListener('DOMContentLoaded', () => {
-      setLang('en');
+      initLanguage();
       releaseCountdownTimer = setInterval(updateReleaseCountdown, 1000);
       initTestiParallax();
       checkHeaderScroll();

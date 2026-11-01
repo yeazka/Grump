@@ -2,7 +2,12 @@ const LABELS={idea:['Idea / Suggestion',16751360],bug:['Bug Report',15682628],ch
 const json=(body,status=200,origin='')=>new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store',...(origin?{'Access-Control-Allow-Origin':origin,'Vary':'Origin'}:{})}});
 export default {
   async fetch(request,env){
-    if(new URL(request.url).pathname==='/downloads'&&request.method==='GET'){
+    const requestUrl=new URL(request.url);
+    if(requestUrl.pathname==='/locale'&&request.method==='GET'){
+      const country=String(request.cf?.country||request.headers.get('CF-IPCountry')||'').toUpperCase();
+      return new Response(JSON.stringify({language:country==='ID'?'id':'en',country:country||null}),{headers:{'Content-Type':'application/json; charset=utf-8','Access-Control-Allow-Origin':'*','Cache-Control':'private, max-age=3600'}});
+    }
+    if(requestUrl.pathname==='/downloads'&&request.method==='GET'){
       try{const response=await env.FEEDBACK_LIMITER.getByName('public-download-stats-v1').fetch('https://internal/downloads');
         return new Response(response.body,{status:response.status,headers:{'Content-Type':'application/json','Access-Control-Allow-Origin':'*','Cache-Control':'no-store'}});
       }catch{return json({error:'Statistics temporarily unavailable'},503,'*');}
@@ -10,7 +15,7 @@ export default {
     const origin=request.headers.get('Origin')||'';
     const allowed=String(env.ALLOWED_ORIGIN||'').split(',').map(value=>value.trim()).filter(Boolean);
     if(!origin||!allowed.includes(origin))return json({error:'Forbidden'},403);
-    const url=new URL(request.url);
+    const url=requestUrl;
     if(url.pathname!=='/feedback')return json({error:'Not found'},404,origin);
     if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Methods':'POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type','Access-Control-Max-Age':'600','Vary':'Origin'}});
     if(request.method!=='POST')return json({error:'Method not allowed'},405,origin);
