@@ -524,6 +524,10 @@
     }
 
     const mode = d.mode;
+    if (isl.S.miniPopup) {
+      isl.dismissMiniPopup?.();
+      document.querySelectorAll('.view.mini-popup').forEach(view=>view.classList.remove('on','sliding'));
+    }
     clearDemoActivities();
 
     switch (mode) {

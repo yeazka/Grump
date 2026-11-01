@@ -676,6 +676,11 @@ function promotePeek() {
 }
 island.addEventListener('click', (e) => {
   if (performance.now() < suppressClickUntil) { e.stopPropagation(); e.preventDefault(); return; }
+  if (bridge.mock && (S.miniPopup?.kind === 'prayernotice' || S.miniPopup?.kind === 'waternotice')) {
+    e.stopPropagation();
+    e.preventDefault();
+    return;
+  }
   const btn = e.target.closest('[data-act]');
   if (btn && acts[btn.dataset.act]) { promotePeek(); acts[btn.dataset.act](btn, e); return; }
   if (S.miniPopup?.kind === 'tasknotice' || S.miniPopup?.kind === 'prayernotice' || S.miniPopup?.kind === 'waternotice' || S.miniPopup?.kind === 'timerpreview') {
