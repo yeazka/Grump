@@ -2280,12 +2280,12 @@
           <h2 class="whats-new-title" id="whats-new-title" data-i18n="whats-new-title">The next Grump update.</h2>
           <p class="whats-new-copy" data-i18n="whats-new-copy">New reminders, smarter reactions, sharper visuals, and a quieter footprint. Shipping tonight.</p>
         </div>
-        <time class="release-schedule" datetime="2026-11-01T20:00:00+07:00">
+        <time class="release-schedule" datetime="2026-11-01T20:30:00+07:00">
           <span class="release-schedule-label" data-i18n="release-schedule-label">Release time</span>
-          <span class="release-local-time" id="release-local-time">8:00 PM</span>
+          <span class="release-local-time" id="release-local-time">8:30 PM</span>
           <span class="release-local-date" id="release-local-date">Sunday, November 1, 2026</span>
           <span class="release-countdown" id="release-countdown" role="timer" aria-live="off">00h 00m 00s</span>
-          <span class="release-zone-note" id="release-zone-note">Shown in your local time · 8:00 PM WIB</span>
+          <span class="release-zone-note" id="release-zone-note">Shown in your local time · 8:30 PM WIB</span>
         </time>
         <ol class="release-list">
           <li class="release-item"><span class="release-index">01</span><div><h3 data-i18n="release-1-title">Task Reminders</h3><p data-i18n="release-1-copy">You can now set a date and time for each to-do. Your tasks stay saved even after closing Grump or restarting your PC, and you'll get a notification when they're due.</p></div></li>
@@ -2759,7 +2759,7 @@
     let currentCaptionKey = 'weather';
     const LANGUAGE_STORAGE_KEY = 'grump-language';
     const LOCALE_ENDPOINT = 'https://grump-feedback.azkaatsmara456.workers.dev/locale';
-    const releaseAt = new Date('2026-11-01T20:00:00+07:00');
+    const releaseAt = new Date('2026-11-01T20:30:00+07:00');
     let releaseCountdownTimer = null;
 
     function updateCaption(key) {
@@ -2795,8 +2795,8 @@
           .formatToParts(releaseAt)
           .find(part => part.type === 'timeZoneName')?.value;
         zoneEl.textContent = currentLang === 'id'
-          ? `Waktu setempatmu${zoneName ? ` · ${zoneName}` : ''} · patokan 20.00 WIB`
-          : `Your local time${zoneName ? ` · ${zoneName}` : ''} · 8:00 PM WIB reference`;
+          ? `Waktu setempatmu${zoneName ? ` · ${zoneName}` : ''} · patokan 20.30 WIB`
+          : `Your local time${zoneName ? ` · ${zoneName}` : ''} · 8:30 PM WIB reference`;
       }
     }
 
