@@ -2128,7 +2128,7 @@
           <a
             class="liquid-glass-btn liquid-glass-primary"
             id="btn-dl-setup"
-            href="https://github.com/yeazka/Grump/releases/download/v1.1.0/Grump-Setup-1.1.0.exe"
+            href="https://github.com/yeazka/Grump/releases/download/v1.1.2/Grump-Setup-1.1.2.exe"
             target="_blank"
             rel="noopener noreferrer"
             title="Download Grump Setup for Windows"
@@ -2352,9 +2352,9 @@
         </div>
         <time class="release-schedule" datetime="2026-11-01T20:30:00+07:00">
           <span class="release-schedule-label" data-i18n="release-schedule-label">Latest release</span>
-          <span class="release-local-time" id="release-local-time">v1.1.0</span>
+          <span class="release-local-time" id="release-local-time">v1.1.2</span>
           <span class="release-local-date" id="release-local-date">Available now</span>
-          <a class="release-countdown" id="release-countdown" href="https://github.com/yeazka/Grump/releases/download/v1.1.0/Grump-Setup-1.1.0.exe">Download v1.1.0</a>
+          <a class="release-countdown" id="release-countdown" href="https://github.com/yeazka/Grump/releases/download/v1.1.2/Grump-Setup-1.1.2.exe">Download v1.1.2</a>
           <span class="release-zone-note" id="release-zone-note">Windows 10 &amp; 11 · Setup installer</span>
         </time>
         <ol class="release-list">
@@ -2868,7 +2868,7 @@
       const timeEl = document.getElementById('release-local-time');
       const dateEl = document.getElementById('release-local-date');
       const zoneEl = document.getElementById('release-zone-note');
-      if (timeEl) timeEl.textContent = 'v1.1.0';
+      if (timeEl) timeEl.textContent = 'v1.1.2';
       if (dateEl) dateEl.textContent = currentLang === 'id' ? 'Tersedia sekarang' : 'Available now';
       if (zoneEl) zoneEl.textContent = currentLang === 'id'
         ? 'Windows 10 & 11 · Installer Setup'
@@ -2879,7 +2879,7 @@
       const countdownEl = document.getElementById('release-countdown');
       if (!countdownEl) return;
 
-      countdownEl.textContent = 'Download v1.1.0';
+      countdownEl.textContent = 'Download v1.1.2';
     }
 
     function setLang(lang, persist = true) {
