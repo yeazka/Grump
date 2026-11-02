@@ -2102,6 +2102,19 @@
             <span data-i18n="btn-dl-msstore">Coming soon</span>
           </a>
 
+          <a
+            class="liquid-glass-btn btn-linux-beta"
+            id="btn-dl-linux"
+            aria-disabled="true"
+            title="Linux x64 beta"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="16" rx="3"/>
+              <path d="m7 9 3 3-3 3M12.5 15H17"/>
+            </svg>
+            <span data-i18n="btn-dl-linux">Linux Beta</span>
+          </a>
+
           <!-- 3. Support on Trakteer -->
           <a
             class="liquid-glass-btn btn-trakteer"
@@ -2608,6 +2621,7 @@
         "testi-section-label": "CREATOR'S NOTE",
         "btn-dl-setup": "Download Setup",
         "btn-dl-msstore": "Coming soon",
+        "btn-dl-linux": "Linux Beta",
         "fb-tag": "FEEDBACK &amp; IDEAS",
         "fb-title": "Got an idea or found a bug? Send it over.",
         "fb-sub": "Your ideas and feedback mean a lot to me. They help make Grump better.",
@@ -2697,6 +2711,7 @@
         "testi-section-label": "CATATAN KREATOR",
         "btn-dl-setup": "Download Setup",
         "btn-dl-msstore": "Coming soon",
+        "btn-dl-linux": "Linux Beta",
         "fb-tag": "FEEDBACK &amp; IDE",
         "fb-title": "Punya ide atau nemu bug? Kirim langsung ke sini.",
         "fb-sub": "Saran dan kritikmu sangat berarti buatku. Setiap masukan membantu Grump jadi lebih baik.",
@@ -2961,6 +2976,33 @@
       }
     }
     resolveInstaller();
+
+    async function resolveLinuxBeta() {
+      const button = document.getElementById('btn-dl-linux');
+      try {
+        const res = await fetch('https://api.github.com/repos/yeazka/Grump/releases?per_page=20', {
+          headers: { Accept: 'application/vnd.github+json' }, signal: AbortSignal.timeout(8000)
+        });
+        if (!res.ok) throw new Error('Linux beta release unavailable');
+        const releases = await res.json();
+        const release = releases.find(item => item.prerelease && (item.assets || []).some(asset =>
+          /^Grump-\d+\.\d+\.\d+-beta\.\d+-x86_64\.AppImage$/i.test(asset.name || '')
+        ));
+        const asset = release?.assets.find(item =>
+          /^Grump-\d+\.\d+\.\d+-beta\.\d+-x86_64\.AppImage$/i.test(item.name || '') &&
+          /^https:\/\/github\.com\//i.test(item.browser_download_url || '')
+        );
+        if (!asset) throw new Error('Linux AppImage asset missing');
+        button.href = asset.browser_download_url;
+        button.target = '_blank';
+        button.rel = 'noopener noreferrer';
+        button.removeAttribute('aria-disabled');
+        button.title = `Grump ${release.tag_name || ''} · Linux x64 beta AppImage`;
+      } catch (err) {
+        console.warn('Linux beta unavailable:', err);
+      }
+    }
+    resolveLinuxBeta();
 
     async function refreshDownloadCount() {
       try {
