@@ -510,6 +510,13 @@
     .hero-cta-row .liquid-glass-btn {
       min-width: 200px;
     }
+    .hero-cta-row .platform-logo {
+      width: 22px;
+      height: 22px;
+      flex: 0 0 22px;
+      display: block;
+      object-fit: contain;
+    }
 
     /* Downloads text only - zero container box */
     .hero-downloads-text {
@@ -1952,17 +1959,22 @@
             rel="noopener noreferrer"
             title="Get Grump Notch from Microsoft Store"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M19.5 7.5h-3.75v-1.5A3.75 3.75 0 0 0 12 2.25a3.75 3.75 0 0 0-3.75 3.75v1.5H4.5A2.25 2.25 0 0 0 2.25 9.75v9.75A2.25 2.25 0 0 0 4.5 21.75h15a2.25 2.25 0 0 0 2.25-2.25V9.75A2.25 2.25 0 0 0 19.5 7.5zm-9.75-1.5a2.25 2.25 0 0 1 4.5 0v1.5h-4.5v-1.5zm10.5 13.5a.75.75 0 0 1-.75.75H4.5a.75.75 0 0 1-.75-.75V9.75a.75.75 0 0 1 .75-.75h15a.75.75 0 0 1 .75.75v9.75z"/>
-              <rect x="7" y="11.5" width="4.2" height="4.2" fill="#f25022"/>
-              <rect x="12.8" y="11.5" width="4.2" height="4.2" fill="#7fba00"/>
-              <rect x="7" y="16.5" width="4.2" height="4.2" fill="#00a4ef"/>
-              <rect x="12.8" y="16.5" width="4.2" height="4.2" fill="#ffb900"/>
-            </svg>
+            <img class="platform-logo" src="assets/microsoft-store.svg" alt="" width="22" height="22">
             <span data-i18n="btn-dl-msstore">Microsoft Store</span>
           </a>
 
-          <!-- 3. Support on Trakteer -->
+          <!-- 3. Linux beta -->
+          <a
+            class="liquid-glass-btn btn-linux-beta"
+            id="btn-dl-linux"
+            aria-disabled="true"
+            title="Linux x64 beta"
+          >
+            <img class="platform-logo" src="assets/linux.svg" alt="" width="22" height="22">
+            <span data-i18n="btn-dl-linux">Linux Beta</span>
+          </a>
+
+          <!-- 4. Support on Trakteer -->
           <a
             class="liquid-glass-btn btn-trakteer"
             id="btn-trakteer"
@@ -2375,6 +2387,7 @@
         "testi-section-label": "CREATOR'S NOTE",
         "btn-dl-setup": "Download Setup",
         "btn-dl-msstore": "Microsoft Store",
+        "btn-dl-linux": "Linux Beta",
         "fb-tag": "FEEDBACK &amp; IDEAS",
         "fb-title": "Got an idea or found a bug? Send it over.",
         "fb-sub": "Your ideas and feedback mean a lot to me. They help make Grump better.",
@@ -2449,6 +2462,7 @@
         "testi-section-label": "CATATAN KREATOR",
         "btn-dl-setup": "Download Setup",
         "btn-dl-msstore": "Microsoft Store",
+        "btn-dl-linux": "Linux Beta",
         "fb-tag": "FEEDBACK &amp; IDE",
         "fb-title": "Punya ide atau nemu bug? Kirim langsung ke sini.",
         "fb-sub": "Saran dan kritikmu sangat berarti buatku. Setiap masukan membantu Grump jadi lebih baik.",
@@ -2616,6 +2630,33 @@
       }
     }
     resolveInstaller();
+
+    async function resolveLinuxBeta() {
+      const button = document.getElementById('btn-dl-linux');
+      try {
+        const res = await fetch('https://api.github.com/repos/yeazka/Grump/releases?per_page=20', {
+          headers: { Accept: 'application/vnd.github+json' }, signal: AbortSignal.timeout(8000)
+        });
+        if (!res.ok) throw new Error('Linux beta release unavailable');
+        const releases = await res.json();
+        const release = releases.find(item => item.prerelease && (item.assets || []).some(asset =>
+          /^Grump-\d+\.\d+\.\d+-beta\.\d+-x86_64\.AppImage$/i.test(asset.name || '')
+        ));
+        const asset = release?.assets.find(item =>
+          /^Grump-\d+\.\d+\.\d+-beta\.\d+-x86_64\.AppImage$/i.test(item.name || '') &&
+          /^https:\/\/github\.com\//i.test(item.browser_download_url || '')
+        );
+        if (!asset) throw new Error('Linux AppImage asset missing');
+        button.href = asset.browser_download_url;
+        button.target = '_blank';
+        button.rel = 'noopener noreferrer';
+        button.removeAttribute('aria-disabled');
+        button.title = `Grump ${release.tag_name || ''} · Linux x64 beta AppImage`;
+      } catch (err) {
+        console.warn('Linux beta unavailable:', err);
+      }
+    }
+    resolveLinuxBeta();
 
     async function refreshDownloadCount() {
       try {
