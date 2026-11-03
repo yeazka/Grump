@@ -2859,6 +2859,7 @@ button:disabled { opacity:.35; cursor:default; }
 /* ---------- Pager ---------- */
 #pager { position: absolute; inset: 0; pointer-events: none; opacity: 0; visibility: hidden; z-index: 25; transition: opacity .14s ease-out, visibility 0s .14s; }
 #pager.on { opacity: 1; visibility: visible; transition-delay: 0s; }
+html[data-website-demo="1"] #pager { display: none !important; }
 .pg { position: absolute; top: 50%; width: 22px; height: 44px; margin-top: -22px; display: grid; place-items: center; color: #5a5a5f; pointer-events: auto; transition: color .15s, transform .15s; }
 .pg.l { left: 3px; } .pg.r { right: 3px; }
 .pg [data-ico] { width: 14px; height: 14px; }

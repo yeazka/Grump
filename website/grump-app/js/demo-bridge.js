@@ -1,6 +1,8 @@
 'use strict';
 // Bridges the Grump renderer to simulated OS events and parent preview controls.
 (function () {
+  window.__GRUMP_WEBSITE_DEMO__ = true;
+  document.documentElement.dataset.websiteDemo = '1';
   const cbs = {
     settings: [],
     cursor: [],
@@ -373,6 +375,7 @@
   function clearDemoActivities() {
     const isl = window.__island;
     if (!isl) return;
+    isl.resetDemoTransition?.();
     isl.dismissMiniPopup?.();
     const islandEl = document.getElementById('island');
     if (islandEl) islandEl.classList.remove('mouth-open');

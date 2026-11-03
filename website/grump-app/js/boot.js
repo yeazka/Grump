@@ -1,7 +1,7 @@
 'use strict';
 /* ===== START ===== */
 // Website demo adapter. The desktop renderer keeps these bindings private.
-window.__island = { S, layout, go, collapse, dismissMiniPopup };
+window.__island = { S, layout, go, collapse, dismissMiniPopup, resetDemoTransition };
 layout();
 sw.x = sw.t; sh.x = sh.t; sr.x = sr.t; paintIsland(); reportRect(true);
 

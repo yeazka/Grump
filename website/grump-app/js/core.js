@@ -583,6 +583,11 @@ let isSliding = false;
 let slideTimeout = null;
 
 function renderPager() {
+  if (window.__GRUMP_WEBSITE_DEMO__) {
+    $('#pager').classList.remove('on');
+    island.dataset.paged = '0';
+    return;
+  }
   const pg = PAGE_OF[curKey] || S.view || 'home';
   const list = pageList();
   const showPager = !!pg && S.expanded && list.length > 1;
@@ -673,6 +678,23 @@ function slideToView(nextView, d) {
     isSliding = false;
     layout();
   }, 350);
+}
+
+function resetDemoTransition() {
+  clearTimeout(slideTimeout);
+  slideTimeout = null;
+  isSliding = false;
+  curKey = '';
+  island.classList.remove('paged-sliding');
+  $$('.view').forEach((view) => {
+    view.classList.remove('sliding', 'on');
+    view.style.transition = '';
+    view.style.transform = '';
+    view.style.opacity = '';
+    view.style.visibility = '';
+  });
+  island.dataset.key = '';
+  $('#pager').classList.remove('on');
 }
 
 function pageStep(d) {
@@ -906,7 +928,7 @@ island.addEventListener('wheel', (e) => {
     holds[(w.dataset.wheel === 'h' ? 'h' : 'm') + (up ? 'inc' : 'dec')]();
     return;
   }
-  if (S.expanded && PAGE_OF[curKey] && !e.target.closest('#v-connectivity,#connection-list,#timer-ruler,.addon-body,input,textarea,.ios-slider,.dashboard-glass-slider,#m-bar') && Math.max(Math.abs(e.deltaX),Math.abs(e.deltaY)) > 16) {
+  if (!window.__GRUMP_WEBSITE_DEMO__ && S.expanded && PAGE_OF[curKey] && !e.target.closest('#v-connectivity,#connection-list,#timer-ruler,.addon-body,input,textarea,.ios-slider,.dashboard-glass-slider,#m-bar') && Math.max(Math.abs(e.deltaX),Math.abs(e.deltaY)) > 16) {
     const now = performance.now();
     if (now - lastWheelSlide > 320) {
       lastWheelSlide = now;
@@ -916,6 +938,7 @@ island.addEventListener('wheel', (e) => {
   }
 }, { passive: false });
 document.addEventListener('keydown', (e) => {
+  if (window.__GRUMP_WEBSITE_DEMO__) return;
   if (!S.expanded || !PAGE_OF[curKey] || S.focusLock) return;
   if (e.key === 'ArrowLeft') { e.preventDefault(); pageStep(-1); }
   else if (e.key === 'ArrowRight') { e.preventDefault(); pageStep(1); }
