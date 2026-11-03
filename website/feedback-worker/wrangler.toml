@@ -17,3 +17,4 @@ ALLOWED_ORIGIN = "https://yeazka.github.io,http://localhost:3000"
 # Secret configuration:
 # 2. Add your private Discord Webhook URL as a Cloudflare Worker secret:
 #    npx wrangler secret put DISCORD_WEBHOOK_URL
+#    npx wrangler secret put DIAGNOSTICS_WEBHOOK_URL

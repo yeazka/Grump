@@ -292,26 +292,57 @@
     }
     .github-link[aria-disabled="true"] { opacity: .5; pointer-events: none; }
 
-    .header-support-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      min-height: 40px;
-      padding: 0 14px;
-      border: 1px solid rgba(251, 191, 36, 0.34);
-      border-radius: 999px;
-      background: rgba(251, 191, 36, 0.09);
-      color: #fcd34d;
-      font-size: 13px;
-      font-weight: 700;
-      transition: background .2s ease, border-color .2s ease, transform .2s ease;
+    /* v1.1.3 release notes */
+    .release-section {
+      position: relative;
+      overflow: hidden;
+      padding: 112px 0;
+      border-top: 1px solid rgba(255,255,255,.07);
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      background: #090807;
+      isolation: isolate;
     }
-
-    .header-support-link:hover {
-      background: rgba(251, 191, 36, 0.17);
-      border-color: rgba(251, 191, 36, 0.58);
-      transform: translateY(-1px);
+    .release-section::before {
+      content: "";
+      position: absolute;
+      inset: -12%;
+      z-index: -2;
+      background:
+        linear-gradient(90deg, #090807 0%, rgba(9,8,7,.65) 35%, rgba(9,8,7,.42) 50%, rgba(9,8,7,.65) 65%, #090807 100%),
+        linear-gradient(180deg, #090807 0%, transparent 24%, transparent 76%, #090807 100%),
+        url('assets/grump-logo.jpg') 50% 48% / min(760px, 70vw) auto no-repeat;
+      opacity: .32;
+      filter: saturate(.92) contrast(1.08);
+      -webkit-mask-image: radial-gradient(ellipse 54% 68% at 50% 50%, #000 0%, rgba(0,0,0,.75) 48%, transparent 78%);
+      mask-image: radial-gradient(ellipse 54% 68% at 50% 50%, #000 0%, rgba(0,0,0,.75) 48%, transparent 78%);
+    }
+    .release-section::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: radial-gradient(circle at 50% 45%, rgba(245,158,11,.08), transparent 48%);
+      pointer-events: none;
+    }
+    .release-inner { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
+    .release-head { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 32px; margin-bottom: 58px; }
+    .release-kicker { color: var(--amber-bright); font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+    .release-title { margin: 12px 0 14px; max-width: 760px; font-size: clamp(38px, 6vw, 76px); line-height: .98; letter-spacing: -.05em; }
+    .release-sub { max-width: 670px; color: var(--muted); font-size: 17px; line-height: 1.65; }
+    .release-version { align-self: start; padding: 10px 16px; border: 1px solid rgba(251,191,36,.36); border-radius: 999px; color: #ffd979; background: rgba(245,158,11,.09); font-size: 13px; font-weight: 800; letter-spacing: .08em; }
+    .release-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); border-top: 1px solid rgba(255,255,255,.12); }
+    .release-item { display: grid; grid-template-columns: 46px 1fr; gap: 15px; padding: 28px 26px 29px 0; border-bottom: 1px solid rgba(255,255,255,.1); }
+    .release-item:nth-child(odd) { padding-right: 40px; }
+    .release-item:nth-child(even) { padding-left: 40px; border-left: 1px solid rgba(255,255,255,.1); }
+    .release-number { padding-top: 3px; color: #f5a524; font: 700 12px/1 var(--mono, ui-monospace, monospace); letter-spacing: .08em; }
+    .release-item h3 { margin: 0 0 8px; font-size: 18px; letter-spacing: -.02em; }
+    .release-item p { margin: 0; color: #aaa39d; font-size: 14px; line-height: 1.55; }
+    @media (max-width: 760px) {
+      .release-section { padding: 82px 0; }
+      .release-head { grid-template-columns: 1fr; margin-bottom: 42px; }
+      .release-version { justify-self: start; }
+      .release-grid { grid-template-columns: 1fr; }
+      .release-item, .release-item:nth-child(odd), .release-item:nth-child(even) { padding: 24px 0; border-left: 0; }
     }
 
     /* Liquid Glass Buttons */
@@ -469,33 +500,15 @@
 
     .hero-cta-row {
       margin-top: 34px;
-      width: min(100%, 1050px);
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      display: flex;
+      flex-wrap: wrap;
       align-items: center;
       justify-content: center;
       gap: 14px;
     }
 
     .hero-cta-row .liquid-glass-btn {
-      width: 100%;
-      min-width: 0;
-      min-height: 64px;
-      padding-inline: 20px;
-    }
-
-    .hero-support-copy {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 2px;
-      line-height: 1.05;
-    }
-
-    .hero-support-copy small {
-      color: rgba(255,255,255,.65);
-      font-size: 10.5px;
-      font-weight: 600;
+      min-width: 200px;
     }
 
     /* Downloads text only - zero container box */
@@ -894,8 +907,6 @@
       background: #ef4444;
       box-shadow: 0 0 8px #ef4444;
     }
-    .eye-fx-dragon i { width:17px; height:11px; border-radius:68% 18% 62% 30%; background:radial-gradient(ellipse at 64% 52%,#030604 0 18%,#d9ff5c 21% 31%,#54c96f 50%,#16351f 78%); box-shadow:0 0 8px rgba(126,255,117,.4); transform:skewY(-14deg) rotate(-5deg); }
-    .eye-fx-dragon i:last-child { transform:scaleX(-1) skewY(-14deg) rotate(-5deg); }
 
     /* FX 3: Sakura Pink */
     .eye-fx-pink i {
@@ -1026,12 +1037,6 @@
       color-scheme: dark;
       z-index: 10;
     }
-    .screen.demo-reminder .grump-iframe {
-      top: 44px;
-      height: calc(100% - 44px);
-    }
-    .grump-settings-iframe { position:absolute; top:28px; bottom:18px; left:38px; width:min(650px, calc(100% - 76px)); height:calc(100% - 46px); border:0; border-radius:18px; background:#111216; z-index:11; box-shadow:0 20px 48px rgba(0,0,0,.55); }
-    .grump-settings-iframe[hidden] { display:none; }
 
     /* Footer */
     .site-footer {
@@ -1109,8 +1114,6 @@
 
     /* Responsive Breakpoints */
     @media (max-width: 1024px) {
-      .hero-cta-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-
       .interactive-split {
         grid-template-columns: 1fr;
         gap: 32px;
@@ -1165,12 +1168,9 @@
         white-space: nowrap;
       }
 
-      .github-link span,
-      .header-support-link span {
+      .github-link span {
         display: none;
       }
-
-      .header-support-link { width: 40px; padding: 0; }
 
       .hero-section {
         padding: 96px 14px 68px;
@@ -1182,7 +1182,7 @@
 
       .hero-cta-row {
         width: 100%;
-        grid-template-columns: 1fr;
+        flex-direction: column;
       }
 
       .hero-cta-row .liquid-glass-btn {
@@ -1216,179 +1216,6 @@
         @media (prefers-reduced-motion: reduce) {
       .testi-ticker-track {
         animation: none !important;
-      }
-    }
-
-    /* What's new: release notice before the detailed requirements */
-    .whats-new-section {
-      position: relative;
-      z-index: 10;
-      padding: 110px 0;
-      scroll-margin-top: 84px;
-      overflow: hidden;
-      background:
-        radial-gradient(circle at 78% 50%, rgba(245, 158, 11, 0.16), transparent 34%),
-        #0b0704;
-      border-top: 1px solid var(--line);
-    }
-
-    .whats-new-section::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: url('assets/grump-logo.jpg') center 20% / min(74vw, 880px) auto no-repeat;
-      opacity: 0.16;
-      filter: saturate(1.35) contrast(1.65) brightness(1.08);
-      mix-blend-mode: screen;
-      mask-image: radial-gradient(ellipse 46% 30% at 50% 25%, #000 0%, rgba(0, 0, 0, 0.88) 38%, transparent 74%);
-      -webkit-mask-image: radial-gradient(ellipse 46% 30% at 50% 25%, #000 0%, rgba(0, 0, 0, 0.88) 38%, transparent 74%);
-      pointer-events: none;
-    }
-
-    .whats-new-inner {
-      position: relative;
-      z-index: 1;
-      display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
-      align-items: end;
-      gap: clamp(48px, 8vw, 120px);
-    }
-
-    .whats-new-kicker {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      color: var(--amber-bright);
-      font: 700 0.76rem/1 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-    }
-
-    .whats-new-kicker::before {
-      content: '';
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--amber-bright);
-      box-shadow: 0 0 12px rgba(251, 191, 36, 0.9);
-    }
-
-    .whats-new-title {
-      margin: 24px 0 18px;
-      max-width: 720px;
-      font-size: clamp(3.2rem, 8vw, 7.2rem);
-      font-weight: 800;
-      line-height: 0.92;
-      letter-spacing: -0.065em;
-    }
-
-    .whats-new-copy {
-      max-width: 570px;
-      margin: 0;
-      color: #c9c1b9;
-      font-size: clamp(1rem, 1.5vw, 1.18rem);
-      line-height: 1.65;
-    }
-
-    .release-schedule {
-      padding: 8px 0 10px clamp(0px, 4vw, 48px);
-      border-left: 1px solid rgba(251, 191, 36, 0.28);
-    }
-
-    .release-schedule-label {
-      display: block;
-      margin-bottom: 14px;
-      color: #91877d;
-      font-size: 0.76rem;
-      font-weight: 800;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-    }
-
-    .release-local-time {
-      display: block;
-      color: #fff;
-      font-size: clamp(2.2rem, 5vw, 4.3rem);
-      font-weight: 800;
-      line-height: 1;
-      letter-spacing: -0.055em;
-      text-shadow: 0 0 36px rgba(245, 158, 11, 0.28);
-    }
-
-    .release-local-date {
-      display: block;
-      margin-top: 13px;
-      color: var(--amber-bright);
-      font-size: 0.96rem;
-      font-weight: 700;
-    }
-
-    .release-countdown {
-      display: block;
-      margin-top: 14px;
-      color: var(--amber-bright);
-      text-decoration: none;
-      font: 700 0.72rem/1 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      letter-spacing: 0.08em;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .release-zone-note {
-      display: block;
-      margin-top: 8px;
-      color: #91877d;
-      font-size: 0.8rem;
-    }
-
-    .release-list {
-      grid-column: 1 / -1;
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      column-gap: clamp(40px, 7vw, 96px);
-      margin: 32px 0 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .release-item {
-      display: grid;
-      grid-template-columns: 34px minmax(0, 1fr);
-      gap: 14px;
-      padding: 26px 0 28px;
-      border-top: 1px solid rgba(255, 235, 200, 0.14);
-    }
-
-    .release-index {
-      padding-top: 3px;
-      color: var(--amber-bright);
-      font: 700 0.72rem/1 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      letter-spacing: 0.08em;
-    }
-
-    .release-item h3 {
-      margin: 0 0 8px;
-      color: #fff;
-      font-size: clamp(1rem, 1.6vw, 1.18rem);
-      line-height: 1.3;
-      letter-spacing: -0.025em;
-    }
-
-    .release-item p {
-      margin: 0;
-      color: #a99f96;
-      font-size: 0.9rem;
-      line-height: 1.65;
-    }
-
-    @media (max-width: 760px) {
-      .whats-new-section { padding: 82px 0; }
-      .whats-new-inner { grid-template-columns: 1fr; gap: 48px; }
-      .release-schedule { padding-left: 22px; }
-      .release-list { grid-template-columns: 1fr; margin-top: 4px; }
-      .whats-new-section::before {
-        background-position: center 12%;
-        background-size: 140vw auto;
-        opacity: 0.12;
       }
     }
 
@@ -1931,7 +1758,6 @@
 
     .fb-action-buttons {
       display: flex;
-      flex-wrap: wrap;
       align-items: center;
       gap: 12px;
     }
@@ -1958,21 +1784,6 @@
       transform: translateY(-2px);
       background: rgba(255, 255, 255, 0.14);
       border-color: rgba(255, 255, 255, 0.4);
-    }
-
-    .fb-discord-btn {
-      border-color: rgba(88, 101, 242, 0.46);
-      background: rgba(88, 101, 242, 0.13);
-    }
-
-    .fb-discord-btn svg {
-      color: #8b96ff;
-      filter: drop-shadow(0 0 8px rgba(88, 101, 242, 0.5));
-    }
-
-    .fb-discord-btn:hover {
-      background: rgba(88, 101, 242, 0.24);
-      border-color: rgba(139, 150, 255, 0.72);
     }
 
     .fb-error-banner {
@@ -2071,13 +1882,6 @@
           <button type="button" id="lang-id" class="lang-btn" aria-pressed="false" onclick="setLang('id')">ID</button>
         </div>
 
-        <a class="header-support-link" href="https://trakteer.id/sewelaspixel/tip" target="_blank" rel="noopener noreferrer" title="Support Grump on Trakteer">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-          </svg>
-          <span data-i18n="btn-support">Support me</span>
-        </a>
-
         <a
           class="github-link"
           data-github-link
@@ -2120,7 +1924,7 @@
         </h1>
 
         <p class="hero-lead" data-i18n="hero-subtext">
-          The moody Notch for Windows. It judges your Spotify taste, controls your PC, and gets dramatically angry when you annoy it.
+          The moody Notch for Windows. It judges your Spotify taste, controls your PC, and shoots lasers at your cursor when you annoy it.
         </p>
 
         <div class="hero-cta-row">
@@ -2128,7 +1932,7 @@
           <a
             class="liquid-glass-btn liquid-glass-primary"
             id="btn-dl-setup"
-            href="https://github.com/yeazka/Grump/releases/download/v1.1.2/Grump-Setup-1.1.2.exe"
+            href="https://github.com/yeazka/Grump/releases/download/v1.0.9/Grump-Setup-1.0.9.exe"
             target="_blank"
             rel="noopener noreferrer"
             title="Download Grump Setup for Windows"
@@ -2143,48 +1947,34 @@
           <a
             class="liquid-glass-btn btn-msstore-white"
             id="btn-dl-msstore"
-            aria-disabled="true"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <rect x="2" y="2" width="9.25" height="9.25" fill="#f25022"/>
-              <rect x="12.75" y="2" width="9.25" height="9.25" fill="#7fba00"/>
-              <rect x="2" y="12.75" width="9.25" height="9.25" fill="#00a4ef"/>
-              <rect x="12.75" y="12.75" width="9.25" height="9.25" fill="#ffb900"/>
-            </svg>
-            <span data-i18n="btn-dl-msstore">Coming soon</span>
-          </a>
-
-          <a
-            class="liquid-glass-btn btn-linux-beta"
-            id="btn-dl-linux"
-            aria-disabled="true"
-            title="Linux x64 beta"
-          >
-            <svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true">
-              <circle cx="16" cy="16" r="16" fill="#050505"/>
-              <g fill="#fff"><circle cx="10.5" cy="12" r="5"/><circle cx="21.5" cy="12" r="5"/></g>
-              <circle cx="13" cy="12" r="1.6" fill="#050505"/><circle cx="19" cy="12" r="1.6" fill="#050505"/>
-              <path fill="#f90" d="M10 18h12l-6 10z"/>
-            </svg>
-            <span data-i18n="btn-dl-linux">Linux Beta</span>
-          </a>
-
-          <!-- Global support through GitHub Sponsors -->
-          <a
-            class="liquid-glass-btn btn-trakteer"
-            id="btn-github-sponsors"
-            href="https://github.com/sponsors/yeazka"
+            href="https://apps.microsoft.com/detail/9P2ZNJ7V6LWC"
             target="_blank"
             rel="noopener noreferrer"
-            title="Support Grump on GitHub Sponsors"
+            title="Get Grump Notch from Microsoft Store"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M12 .7C5.7.7.6 5.8.6 12.1c0 5 3.3 9.2 7.8 10.7.6.1.8-.3.8-.6v-2.2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0C17.9 5.3 19 5.6 19 5.6c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .4.2.7.8.6a11.5 11.5 0 0 0 7.8-10.7C23.4 5.8 18.3.7 12 .7Z"/>
+              <path d="M19.5 7.5h-3.75v-1.5A3.75 3.75 0 0 0 12 2.25a3.75 3.75 0 0 0-3.75 3.75v1.5H4.5A2.25 2.25 0 0 0 2.25 9.75v9.75A2.25 2.25 0 0 0 4.5 21.75h15a2.25 2.25 0 0 0 2.25-2.25V9.75A2.25 2.25 0 0 0 19.5 7.5zm-9.75-1.5a2.25 2.25 0 0 1 4.5 0v1.5h-4.5v-1.5zm10.5 13.5a.75.75 0 0 1-.75.75H4.5a.75.75 0 0 1-.75-.75V9.75a.75.75 0 0 1 .75-.75h15a.75.75 0 0 1 .75.75v9.75z"/>
+              <rect x="7" y="11.5" width="4.2" height="4.2" fill="#f25022"/>
+              <rect x="12.8" y="11.5" width="4.2" height="4.2" fill="#7fba00"/>
+              <rect x="7" y="16.5" width="4.2" height="4.2" fill="#00a4ef"/>
+              <rect x="12.8" y="16.5" width="4.2" height="4.2" fill="#ffb900"/>
             </svg>
-            <span class="hero-support-copy">
-              <span data-i18n="btn-github-sponsors">Support me</span>
-              <small data-i18n="support-global">Global support</small>
-            </span>
+            <span data-i18n="btn-dl-msstore">Microsoft Store</span>
+          </a>
+
+          <!-- 3. Support on Trakteer -->
+          <a
+            class="liquid-glass-btn btn-trakteer"
+            id="btn-trakteer"
+            href="https://trakteer.id/sewelaspixel/tip"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Support on Trakteer"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#fbbf24" aria-hidden="true">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+            <span data-i18n="btn-support">Support me</span>
           </a>
         </div>
 
@@ -2237,70 +2027,19 @@
             <span class="panel-group-label" data-i18n="label-states">Interactive Features</span>
           </div>
           <div class="state-grid" role="group" aria-label="Preview the notch">
-            <button type="button" class="try-btn state-btn" id="btn-mode-weather" data-mode="weather" aria-pressed="true" onclick="setDemoMode('weather')" data-i18n="state-weather">Weather &amp; Clock</button>
-            <button type="button" class="try-btn state-btn" id="btn-mode-closed" data-mode="closed" aria-pressed="false" onclick="setDemoMode('closed')" data-i18n="state-closed">Auto-Dodge</button>
+            <button type="button" class="try-btn state-btn" id="btn-mode-glance" data-mode="glance" aria-pressed="true" onclick="setDemoMode('glance')" data-i18n="state-glance">Glance Rotation</button>
+            <button type="button" class="try-btn state-btn" id="btn-mode-whatsapp" data-mode="whatsapp" aria-pressed="false" onclick="setDemoMode('whatsapp')" data-i18n="state-whatsapp">WhatsApp Notice</button>
             <button type="button" class="try-btn state-btn" id="btn-mode-compact-music" data-mode="compact-music" aria-pressed="false" onclick="setDemoMode('compact-music')" data-i18n="state-compact-music">Compact Lyric</button>
             <button type="button" class="try-btn state-btn" id="btn-mode-music" data-mode="music" aria-pressed="false" onclick="setDemoMode('music')" data-i18n="state-music">Music Player</button>
             <button type="button" class="try-btn state-btn" id="btn-mode-timer" data-mode="timer" aria-pressed="false" onclick="setDemoMode('timer')" data-i18n="state-timer">Focus Timer</button>
-            <button type="button" class="try-btn state-btn" id="btn-mode-dashboard" data-mode="dashboard" aria-pressed="false" onclick="setDemoMode('dashboard')" data-i18n="state-dashboard">Control Hub</button>
-            <button type="button" class="try-btn state-btn" id="btn-mode-ai-work" data-mode="ai-work" aria-pressed="false" onclick="setDemoMode('ai-work')" data-i18n="state-ai-work">AI Activity</button>
-            <button type="button" class="try-btn state-btn" id="btn-mode-todo" data-mode="todo" aria-pressed="false" onclick="setDemoMode('todo')" data-i18n="state-todo">To-do list</button>
-            <button type="button" class="try-btn state-btn" id="btn-mode-notes" data-mode="notes" aria-pressed="false" onclick="setDemoMode('notes')" data-i18n="state-notes">Notes</button>
-            <button type="button" class="try-btn state-btn" id="btn-mode-prayer" data-mode="prayer" aria-pressed="false" onclick="setDemoMode('prayer')" data-i18n="state-prayer">Prayer Times</button>
-            <button type="button" class="try-btn state-btn" id="btn-mode-water" data-mode="water" aria-pressed="false" onclick="setDemoMode('water')" data-i18n="state-water">Drink Water</button>
-            <button type="button" class="try-btn state-btn" id="btn-mode-prayer-alert" data-mode="prayer-alert" aria-pressed="false" onclick="setDemoMode('prayer-alert')" data-i18n="state-prayer-alert">Prayer Reminder</button>
-            <button type="button" class="try-btn state-btn" id="btn-mode-water-alert" data-mode="water-alert" aria-pressed="false" onclick="setDemoMode('water-alert')" data-i18n="state-water-alert">Water Reminder</button>
-            <button type="button" class="try-btn state-btn" id="btn-mode-display" data-mode="display" aria-pressed="false" onclick="setDemoMode('display')" data-i18n="state-display">Display Selection</button>
-          </div>
-
-          <!-- Bab 3: Eye Shapes & Angry FX -->
-          <div class="panel-group-header">
-            <span class="panel-group-label" data-i18n="label-eyes">Eye Shapes &amp; Angry FX</span>
-          </div>
-          <div class="eye-grid" role="group" aria-label="Eye shapes and visual effects">
-            <button type="button" class="try-btn eye-btn" id="btn-eye-gold" aria-pressed="false" onclick="setAngryVariant('gold-matrix')">
-              <span class="eye-chip eye-fx-gold" aria-hidden="true"><i></i><i></i></span>
-              <span data-i18n="eye-gold">Grump Gold</span>
-            </button>
-
-            <button type="button" class="try-btn eye-btn" id="btn-eye-dragon" aria-pressed="false" onclick="setAngryVariant('dragon')">
-              <span class="eye-chip eye-fx-dragon" aria-hidden="true"><i></i><i></i></span>
-              <span data-i18n="eye-dragon">Dragon Eyes</span>
-            </button>
-
-            <button type="button" class="try-btn eye-btn" id="btn-eye-pink" aria-pressed="false" onclick="setAngryVariant('pink')">
-              <span class="eye-chip eye-fx-pink" aria-hidden="true"><i></i><i></i></span>
-              <span data-i18n="eye-pink">Sakura Pink</span>
-            </button>
-
-            <button type="button" class="try-btn eye-btn" id="btn-eye-berserk" aria-pressed="false" onclick="setAngryVariant('berserk')">
-              <span class="eye-chip eye-fx-berserk" aria-hidden="true"><i></i><i></i></span>
-              <span data-i18n="eye-berserk">Berserk Void</span>
-            </button>
-
-            <button type="button" class="try-btn eye-btn" id="btn-shape-normal" aria-pressed="false" onclick="setEyeShape('normal')">
-              <span class="eye-chip eye-shape-normal" aria-hidden="true"><i></i><i></i></span>
-              <span data-i18n="eye-normal">Normal Eyes</span>
-            </button>
-
-            <button type="button" class="try-btn eye-btn" id="btn-shape-happy" aria-pressed="false" onclick="setEyeShape('happy')">
-              <span class="eye-chip eye-shape-happy" aria-hidden="true"><i></i><i></i></span>
-              <span data-i18n="eye-happy">Happy Arc</span>
-            </button>
-
-            <button type="button" class="try-btn eye-btn" id="btn-shape-flirty" aria-pressed="false" onclick="setEyeShape('flirty')">
-              <span class="eye-chip eye-shape-flirty" aria-hidden="true"><i></i><i></i></span>
-              <span data-i18n="eye-flirty">Flirty Wink</span>
-            </button>
-
-            <button type="button" class="try-btn eye-btn" id="btn-shape-sleep" aria-pressed="false" onclick="setEyeShape('sleep')">
-              <span class="eye-chip eye-shape-sleep" aria-hidden="true"><i></i><i></i></span>
-              <span data-i18n="eye-sleepy">Sleepy</span>
-            </button>
+            <button type="button" class="try-btn state-btn" id="btn-mode-todo" data-mode="todo" aria-pressed="false" onclick="setDemoMode('todo')" data-i18n="state-todo">Task Reminder</button>
+            <button type="button" class="try-btn state-btn" id="btn-mode-prayer" data-mode="prayer" aria-pressed="false" onclick="setDemoMode('prayer')" data-i18n="state-prayer">Prayer Reminder</button>
+            <button type="button" class="try-btn state-btn" id="btn-mode-water" data-mode="water" aria-pressed="false" onclick="setDemoMode('water')" data-i18n="state-water">Hydration Notice</button>
+            <button type="button" class="try-btn state-btn" id="btn-mode-crimson" data-mode="crimson" aria-pressed="false" onclick="setDemoMode('crimson')" data-i18n="state-crimson">Crimson Orbit</button>
           </div>
 
           <p id="demo-mode-caption" class="mode-caption" aria-live="polite">
-            Move your cursor near the notch on the right screen to provoke Grump, or click any feature and eye shape above.
+            Choose a feature above to preview the latest Grump v1.1.3 behavior.
           </p>
         </div>
 
@@ -2327,13 +2066,12 @@
                   </div>
                   <iframe
                     id="grump-demo-frame"
-                    src="grump-app/?v=110-demo-fix4"
+                    src="grump-app/"
                     width="640"
                     height="420"
                     class="grump-iframe"
                     title="Grump 1:1 Interactive Notch Preview"
                   ></iframe>
-                  <iframe id="grump-settings-frame" src="grump-app/settings.html?v=110-demo-fix2" class="grump-settings-iframe" title="Grump Display Selection Preview" hidden></iframe>
                 </div>
               </div>
             </div>
@@ -2343,30 +2081,27 @@
       </div>
     </section>
 
-    <section id="whats-new" class="whats-new-section" aria-labelledby="whats-new-title">
-      <div class="wrap whats-new-inner">
-        <div>
-          <span class="whats-new-kicker" data-i18n="whats-new-kicker">What's new</span>
-          <h2 class="whats-new-title" id="whats-new-title" data-i18n="whats-new-title">Grump 1.1.0 is live.</h2>
-          <p class="whats-new-copy" data-i18n="whats-new-copy">New reminders, smarter reactions, sharper visuals, and a quieter footprint are ready to download.</p>
+
+    <section id="whats-new" class="release-section" aria-labelledby="release-title">
+      <div class="release-inner">
+        <div class="release-head">
+          <div>
+            <span class="release-kicker" data-i18n="release-kicker">LATEST UPDATE</span>
+            <h2 class="release-title" id="release-title" data-i18n="release-title">Grump got sharper.</h2>
+            <p class="release-sub" data-i18n="release-sub">New ways to glance, react, and stay in the loop—without turning your desktop into noise.</p>
+          </div>
+          <span class="release-version">v1.1.3</span>
         </div>
-        <time class="release-schedule" datetime="2026-11-01T20:30:00+07:00">
-          <span class="release-schedule-label" data-i18n="release-schedule-label">Latest release</span>
-          <span class="release-local-time" id="release-local-time">v1.1.2</span>
-          <span class="release-local-date" id="release-local-date">Available now</span>
-          <a class="release-countdown" id="release-countdown" href="https://github.com/yeazka/Grump/releases/download/v1.1.2/Grump-Setup-1.1.2.exe">Download v1.1.2</a>
-          <span class="release-zone-note" id="release-zone-note">Windows 10 &amp; 11 · Setup installer</span>
-        </time>
-        <ol class="release-list">
-          <li class="release-item"><span class="release-index">01</span><div><h3 data-i18n="release-1-title">Task Reminders</h3><p data-i18n="release-1-copy">You can now set a date and time for each to-do. Your tasks stay saved even after closing Grump or restarting your PC, and you'll get a notification when they're due.</p></div></li>
-          <li class="release-item"><span class="release-index">02</span><div><h3 data-i18n="release-2-title">Smarter Prayer Times</h3><p data-i18n="release-2-copy">Prayer times now automatically adjust to your location, with a countdown to the next prayer. Quiet notifications help you stay on track without interrupting your workflow.</p></div></li>
-          <li class="release-item"><span class="release-index">03</span><div><h3 data-i18n="release-3-title">Hydration Reminders</h3><p data-i18n="release-3-copy">Been working for hours and forgot to drink water? Grump's got you. A little animated water reminder pops up every 45 minutes, along with rotating hydration facts.</p></div></li>
-          <li class="release-item"><span class="release-index">04</span><div><h3 data-i18n="release-4-title">New Angry Expressions</h3><p data-i18n="release-4-copy">Meet Dragon Eyes and Pixel Eyes! Two new expressions, each with its own animations and personality. Move your cursor a little too close and see how Grump reacts.</p></div></li>
-          <li class="release-item"><span class="release-index">05</span><div><h3 data-i18n="release-5-title">Better Music &amp; Lyrics</h3><p data-i18n="release-5-copy">No synced lyrics available? Grump now falls back to regular lyrics when available. The music interface also fits more neatly inside the notch.</p></div></li>
-          <li class="release-item"><span class="release-index">06</span><div><h3 data-i18n="release-6-title">Improved Display &amp; Browser Support</h3><p data-i18n="release-6-copy">Better handling for multiple displays and taskbar alignment changes. Browser support has also been improved, including vertical tabs in Edge, Chrome, and Brave.</p></div></li>
-          <li class="release-item"><span class="release-index">07</span><div><h3 data-i18n="release-7-title">Better with Creative Apps</h3><p data-i18n="release-7-copy">Working on a design or editing project? Grump now shrinks automatically when creative apps are active, keeping your workspace clear. You can still find Grump when switching apps with Alt+Tab.</p></div></li>
-          <li class="release-item"><span class="release-index">08</span><div><h3 data-i18n="release-8-title">Performance &amp; UI Improvements</h3><p data-i18n="release-8-copy">A few improvements under the hood to keep things running smoothly. Music visuals now stop when paused, idle resource usage has been reduced, and UI outlines are more consistent across themes.</p></div></li>
-        </ol>
+        <div class="release-grid">
+          <article class="release-item"><span class="release-number">01</span><div><h3 data-i18n="release-1-title">WhatsApp Web notices</h3><p data-i18n="release-1-desc">Opt-in message previews use the active WhatsApp Web tab and keep long text to two lines.</p></div></article>
+          <article class="release-item"><span class="release-number">02</span><div><h3 data-i18n="release-2-title">Glance rotation</h3><p data-i18n="release-2-desc">Cycle clock, weather, battery, and unfinished tasks—with left/right placement you control.</p></div></article>
+          <article class="release-item"><span class="release-number">03</span><div><h3 data-i18n="release-3-title">Crimson Orbit eyes</h3><p data-i18n="release-3-desc">A sharper red eye shape with cursor tracking, rotating detail, and a more aggressive reaction.</p></div></article>
+          <article class="release-item"><span class="release-number">04</span><div><h3 data-i18n="release-4-title">Smarter media behavior</h3><p data-i18n="release-4-desc">Compact lyrics recover more reliably, while Spotify dodge behavior stays out of the search bar.</p></div></article>
+          <article class="release-item"><span class="release-number">05</span><div><h3 data-i18n="release-5-title">Better fullscreen detection</h3><p data-i18n="release-5-desc">Fullscreen apps—including dual-monitor playback—hide Grump on the correct display.</p></div></article>
+          <article class="release-item"><span class="release-number">06</span><div><h3 data-i18n="release-6-title">Honest weather fallback</h3><p data-i18n="release-6-desc">When live weather is unavailable, Grump shows a clear neutral state instead of an empty gap.</p></div></article>
+          <article class="release-item"><span class="release-number">07</span><div><h3 data-i18n="release-7-title">Cleaner diagnostics</h3><p data-i18n="release-7-desc">Crash reports and diagnostics are separated from public feedback, with sharing kept opt-in.</p></div></article>
+          <article class="release-item"><span class="release-number">08</span><div><h3 data-i18n="release-8-title">Smoother updates</h3><p data-i18n="release-8-desc">Setup installs check every 30 minutes, then apply updates and relaunch Grump automatically.</p></div></article>
+        </div>
       </div>
     </section>
 
@@ -2558,17 +2293,11 @@
                         </svg>
                         <span id="fb-btn-text" data-i18n="fb-btn-submit">Send Feedback</span>
                       </button>
-                      <a class="fb-support-btn" href="https://github.com/sponsors/yeazka" target="_blank" rel="noopener noreferrer" title="Support Grump on GitHub Sponsors">
+                      <a class="fb-support-btn" href="https://trakteer.id/sewelaspixel/tip" target="_blank" rel="noopener noreferrer">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                          <path d="M12 .7C5.7.7.6 5.8.6 12.1c0 5 3.3 9.2 7.8 10.7.6.1.8-.3.8-.6v-2.2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0C17.9 5.3 19 5.6 19 5.6c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .4.2.7.8.6a11.5 11.5 0 0 0 7.8-10.7C23.4 5.8 18.3.7 12 .7Z"/>
+                          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                         </svg>
-                        <span data-i18n="btn-github-sponsors">GitHub Sponsors</span>
-                      </a>
-                      <a class="fb-support-btn fb-discord-btn" href="https://discord.gg/a2TGrMqeX9" target="_blank" rel="noopener noreferrer" title="Join the Grump Discord server">
-                        <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                          <path d="M20.32 4.37a19.8 19.8 0 0 0-4.89-1.51c-.21.38-.46.89-.63 1.3a18.3 18.3 0 0 0-5.59 0c-.17-.41-.43-.92-.64-1.3a19.7 19.7 0 0 0-4.9 1.52C.57 9.05-.27 13.61.15 18.1a19.9 19.9 0 0 0 6 3.04c.48-.66.91-1.36 1.28-2.1-.7-.26-1.36-.59-2-.96.17-.12.33-.25.49-.38 3.87 1.8 8.07 1.8 11.89 0 .16.13.32.26.49.38-.64.38-1.31.7-2 .96.37.74.8 1.44 1.28 2.1a19.8 19.8 0 0 0 6-3.04c.5-5.2-.86-9.72-3.26-13.73ZM8.02 15.33c-1.16 0-2.12-1.07-2.12-2.38s.94-2.38 2.12-2.38c1.19 0 2.14 1.08 2.12 2.38 0 1.31-.94 2.38-2.12 2.38Zm7.97 0c-1.16 0-2.12-1.07-2.12-2.38s.94-2.38 2.12-2.38c1.19 0 2.14 1.08 2.12 2.38 0 1.31-.93 2.38-2.12 2.38Z"/>
-                        </svg>
-                        <span data-i18n="btn-discord">Join Discord</span>
+                        <span data-i18n="btn-support">Support me</span>
                       </a>
                     </div>
                   </div>
@@ -2607,12 +2336,6 @@
         <span style="color:var(--muted);font-weight:500">&bull; Windows 10 &amp; 11</span>
       </div>
       <div class="footer-links-row">
-        <a href="https://discord.gg/a2TGrMqeX9" target="_blank" rel="noopener noreferrer" class="footer-link" title="Join the Grump Discord server">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="vertical-align:-2px;margin-right:5px;color:#8b96ff">
-            <path d="M20.32 4.37a19.8 19.8 0 0 0-4.89-1.51c-.21.38-.46.89-.63 1.3a18.3 18.3 0 0 0-5.59 0c-.17-.41-.43-.92-.64-1.3a19.7 19.7 0 0 0-4.9 1.52C.57 9.05-.27 13.61.15 18.1a19.9 19.9 0 0 0 6 3.04c.48-.66.91-1.36 1.28-2.1-.7-.26-1.36-.59-2-.96.17-.12.33-.25.49-.38 3.87 1.8 8.07 1.8 11.89 0 .16.13.32.26.49.38-.64.38-1.31.7-2 .96.37.74.8 1.44 1.28 2.1a19.8 19.8 0 0 0 6-3.04c.5-5.2-.86-9.72-3.26-13.73ZM8.02 15.33c-1.16 0-2.12-1.07-2.12-2.38s.94-2.38 2.12-2.38c1.19 0 2.14 1.08 2.12 2.38 0 1.31-.94 2.38-2.12 2.38Zm7.97 0c-1.16 0-2.12-1.07-2.12-2.38s.94-2.38 2.12-2.38c1.19 0 2.14 1.08 2.12 2.38 0 1.31-.93 2.38-2.12 2.38Z"/>
-          </svg>Discord
-        </a>
-        <span class="footer-sep">&bull;</span>
         <a href="https://trakteer.id/sewelaspixel/tip" target="_blank" rel="noopener noreferrer" class="footer-link">Trakteer</a>
         <span class="footer-sep">&bull;</span>
         <a href="https://github.com/yeazka/Grump" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub</a>
@@ -2632,39 +2355,26 @@
         "nav-features": "Features",
         "nav-whats-new": "What's new",
         "nav-specifications": "Specification",
+        "release-kicker": "LATEST UPDATE",
+        "release-title": "Grump got sharper.",
+        "release-sub": "New ways to glance, react, and stay in the loop—without turning your desktop into noise.",
+        "release-1-title": "WhatsApp Web notices", "release-1-desc": "Opt-in message previews use the active WhatsApp Web tab and keep long text to two lines.",
+        "release-2-title": "Glance rotation", "release-2-desc": "Cycle clock, weather, battery, and unfinished tasks—with left/right placement you control.",
+        "release-3-title": "Crimson Orbit eyes", "release-3-desc": "A sharper red eye shape with cursor tracking, rotating detail, and a more aggressive reaction.",
+        "release-4-title": "Smarter media behavior", "release-4-desc": "Compact lyrics recover more reliably, while Spotify dodge behavior stays out of the search bar.",
+        "release-5-title": "Better fullscreen detection", "release-5-desc": "Fullscreen apps—including dual-monitor playback—hide Grump on the correct display.",
+        "release-6-title": "Honest weather fallback", "release-6-desc": "When live weather is unavailable, Grump shows a clear neutral state instead of an empty gap.",
+        "release-7-title": "Cleaner diagnostics", "release-7-desc": "Crash reports and diagnostics are separated from public feedback, with sharing kept opt-in.",
+        "release-8-title": "Smoother updates", "release-8-desc": "Setup installs check every 30 minutes, then apply updates and relaunch Grump automatically.",
         "hero-title": "<span class=\"hero-line\">Your desktop is boring af,</span><span class=\"hero-line\">so we made it <span class=\"hero-title-accent\">angrier.</span></span>",
-        "hero-subtext": "The moody Notch for Windows. It judges your Spotify taste, controls your PC, and gets dramatically angry when you annoy it.",
+        "hero-subtext": "The moody Notch for Windows. It judges your Spotify taste, controls your PC, and shoots lasers at your cursor when you annoy it.",
         "btn-download": "Download for Windows",
         "btn-support": "Support me",
-        "btn-github-sponsors": "Support me",
-        "support-global": "Global support",
-        "btn-discord": "Join Discord",
-        "whats-new-kicker": "What's new",
-        "whats-new-title": "Grump 1.1.0 is live.",
-        "whats-new-copy": "New reminders, smarter reactions, sharper visuals, and a quieter footprint are ready to download.",
-        "release-schedule-label": "Latest release",
-        "release-1-title": "Task Reminders",
-        "release-1-copy": "You can now set a date and time for each to-do. Your tasks stay saved even after closing Grump or restarting your PC, and you'll get a notification when they're due.",
-        "release-2-title": "Smarter Prayer Times",
-        "release-2-copy": "Prayer times now automatically adjust to your location, with a countdown to the next prayer. Quiet notifications help you stay on track without interrupting your workflow.",
-        "release-3-title": "Hydration Reminders",
-        "release-3-copy": "Been working for hours and forgot to drink water? Grump's got you. A little animated water reminder pops up every 45 minutes, along with rotating hydration facts.",
-        "release-4-title": "New Angry Expressions",
-        "release-4-copy": "Meet Dragon Eyes and Pixel Eyes! Two new expressions, each with its own animations and personality. Move your cursor a little too close and see how Grump reacts.",
-        "release-5-title": "Better Music &amp; Lyrics",
-        "release-5-copy": "No synced lyrics available? Grump now falls back to regular lyrics when available. The music interface also fits more neatly inside the notch.",
-        "release-6-title": "Improved Display &amp; Browser Support",
-        "release-6-copy": "Better handling for multiple displays and taskbar alignment changes. Browser support has also been improved, including vertical tabs in Edge, Chrome, and Brave.",
-        "release-7-title": "Better with Creative Apps",
-        "release-7-copy": "Working on a design or editing project? Grump now shrinks automatically when creative apps are active, keeping your workspace clear. You can still find Grump when switching apps with Alt+Tab.",
-        "release-8-title": "Performance &amp; UI Improvements",
-        "release-8-copy": "A few improvements under the hood to keep things running smoothly. Music visuals now stop when paused, idle resource usage has been reduced, and UI outlines are more consistent across themes.",
         "testi-trakteer": "Tip on Trakteer",
         "nav-testimonials": "Creator notes",
         "testi-section-label": "CREATOR'S NOTE",
         "btn-dl-setup": "Download Setup",
-        "btn-dl-msstore": "Coming soon",
-        "btn-dl-linux": "Linux Beta",
+        "btn-dl-msstore": "Microsoft Store",
         "fb-tag": "FEEDBACK &amp; IDEAS",
         "fb-title": "Got an idea or found a bug? Send it over.",
         "fb-sub": "Your ideas and feedback mean a lot to me. They help make Grump better.",
@@ -2686,28 +2396,24 @@
         "btn-anchored": "Anchored",
         "btn-floating": "Floating",
         "label-states": "Interactive Features",
-        "state-weather": "Weather &amp; Clock",
-        "state-closed": "Auto-Dodge",
+        "state-glance": "Glance Rotation",
+        "state-whatsapp": "WhatsApp Notice",
         "state-compact-music": "Compact Lyric",
         "state-music": "Music Player",
         "state-timer": "Focus Timer",
-        "state-dashboard": "Control Hub",
-        "state-ai-work": "AI Activity",
+        "state-prayer": "Prayer Reminder",
+        "state-water": "Hydration Notice",
+        "state-crimson": "Crimson Orbit",
         "ai-demo-label": "SIMULATED DEMO",
         "ai-demo-request": "Make the Grump interface feel smoother.",
         "ai-demo-answer": "I’ll inspect the project and make the changes.",
         "state-headphones": "Headphones",
         "state-charging": "Charging",
-        "state-todo": "To-do list",
+        "state-todo": "Task Reminder",
         "state-notes": "Notes",
-        "state-prayer": "Prayer Times",
-        "state-water": "Drink Water",
-        "state-prayer-alert": "Prayer Reminder",
-        "state-water-alert": "Water Reminder",
-        "state-display": "Display Selection",
         "label-eyes": "Eye Shapes &amp; Angry FX",
         "eye-gold": "Grump Gold",
-        "eye-dragon": "Dragon Eyes",
+        "eye-laser": "Laser Beam",
         "eye-pink": "Sakura Pink",
         "eye-berserk": "Berserk Void",
         "eye-normal": "Normal Eyes",
@@ -2723,39 +2429,26 @@
         "nav-features": "Fitur",
         "nav-whats-new": "Yang baru",
         "nav-specifications": "Spesifikasi",
+        "release-kicker": "UPDATE TERBARU",
+        "release-title": "Grump makin tajam.",
+        "release-sub": "Cara baru buat melirik, bereaksi, dan kasih info—tanpa bikin desktop lu berisik.",
+        "release-1-title": "Notifikasi WhatsApp Web", "release-1-desc": "Preview pesan bersifat opsional, memakai tab WhatsApp Web yang sudah terbuka, dan dibatasi dua baris.",
+        "release-2-title": "Rotasi info", "release-2-desc": "Putar jam, cuaca, baterai, dan tugas tersisa dengan posisi kiri atau kanan yang bisa lu atur.",
+        "release-3-title": "Mata Crimson Orbit", "release-3-desc": "Bentuk mata merah yang lebih tajam dengan tracking kursor, detail berputar, dan reaksi lebih agresif.",
+        "release-4-title": "Media lebih pintar", "release-4-desc": "Lirik ringkas lebih stabil, sementara mode Spotify tetap menjauh dari area pencarian.",
+        "release-5-title": "Deteksi fullscreen lebih baik", "release-5-desc": "Aplikasi fullscreen, termasuk playback dual-monitor, menyembunyikan Grump di layar yang tepat.",
+        "release-6-title": "Fallback cuaca yang jelas", "release-6-desc": "Saat data cuaca tidak tersedia, Grump menampilkan status netral, bukan ruang kosong.",
+        "release-7-title": "Diagnostik lebih rapi", "release-7-desc": "Laporan crash dan diagnostik dipisahkan dari feedback publik, dengan pengiriman tetap atas izin user.",
+        "release-8-title": "Update lebih mulus", "release-8-desc": "Versi Setup mengecek tiap 30 menit, memasang update, lalu membuka ulang Grump secara otomatis.",
         "hero-title": "<span class=\"hero-line\">Desktop lu ngebosenin bgt,</span><span class=\"hero-line\">makanya kita bikin lebih <span class=\"hero-title-accent\">galak.</span></span>",
-        "hero-subtext": "Notch moody buat Windows. Nge-judge selera Spotify lu, kontrol PC lu, dan bakal marah brutal kalau lu usilin.",
+        "hero-subtext": "Notch moody buat Windows. Nge-judge selera Spotify lu, kontrol PC lu, dan nembak laser ke kursor kalo lu usilin.",
         "btn-download": "Download buat Windows",
         "btn-support": "Support me",
-        "btn-github-sponsors": "Support me",
-        "support-global": "Dukungan global",
-        "btn-discord": "Join Discord",
-        "whats-new-kicker": "Yang baru",
-        "whats-new-title": "Grump 1.1.0 sudah rilis.",
-        "whats-new-copy": "Reminder baru, reaksi lebih pintar, visual lebih tajam, dan penggunaan resource yang lebih ringan sudah siap di-download.",
-        "release-schedule-label": "Rilis terbaru",
-        "release-1-title": "Task Reminder",
-        "release-1-copy": "Sekarang kamu bisa mengatur tanggal dan jam untuk setiap to-do. Semuanya tetap tersimpan meski Grump ditutup atau komputer di-restart. Notifikasi akan muncul saat waktunya tiba.",
-        "release-2-title": "Smart Prayer Schedule",
-        "release-2-copy": "Jadwal salat kini otomatis menyesuaikan lokasimu, lengkap dengan countdown menuju waktu salat berikutnya. Ada juga notifikasi senyap agar kamu tetap ingat tanpa mengganggu aktivitas.",
-        "release-3-title": "Hydration Reminder",
-        "release-3-copy": "Lagi asyik kerja sampai lupa minum? Grump bakal mengingatkanmu setiap 45 menit lewat mini popup dengan animasi gelas air. Ada juga fakta menarik seputar hidrasi yang berganti secara berkala.",
-        "release-4-title": "New Angry Expressions",
-        "release-4-copy": "Grump sekarang punya dua ekspresi baru: Dragon Eyes dan Pixel Eyes! Masing-masing punya karakter dan animasi unik yang bikin reaksi Grump makin hidup. Coba dekatkan cursor dan lihat sendiri!",
-        "release-5-title": "Better Music &amp; Lyrics",
-        "release-5-copy": "Lirik tersinkronisasi tidak tersedia? Grump sekarang otomatis beralih ke lirik biasa jika tersedia. Tampilan musik juga dibuat lebih compact agar tetap rapi di dalam notch.",
-        "release-6-title": "Improved Display &amp; Browser Support",
-        "release-6-copy": "Grump kini lebih baik dalam menangani perpindahan display dan taskbar yang kembali ke tengah. Dukungan browser juga ditingkatkan, termasuk untuk vertical tabs di Edge, Chrome, dan Brave.",
-        "release-7-title": "Creative Apps Friendly",
-        "release-7-copy": "Lagi fokus desain atau editing? Grump otomatis mengecil saat aplikasi kreatif aktif supaya nggak menghalangi workspace. Grump juga tetap bisa ditemukan saat kamu berpindah aplikasi menggunakan Alt+Tab.",
-        "release-8-title": "Performance &amp; UI Improvements",
-        "release-8-copy": "Sejumlah optimasi dilakukan agar Grump lebih ringan dan responsif. Efek visual musik kini berhenti saat di-pause, penggunaan resource saat idle dikurangi, dan tampilan antartema dibuat lebih konsisten.",
         "testi-trakteer": "Traktir Kopi",
         "nav-testimonials": "Catatan kreator",
         "testi-section-label": "CATATAN KREATOR",
         "btn-dl-setup": "Download Setup",
-        "btn-dl-msstore": "Coming soon",
-        "btn-dl-linux": "Linux Beta",
+        "btn-dl-msstore": "Microsoft Store",
         "fb-tag": "FEEDBACK &amp; IDE",
         "fb-title": "Punya ide atau nemu bug? Kirim langsung ke sini.",
         "fb-sub": "Saran dan kritikmu sangat berarti buatku. Setiap masukan membantu Grump jadi lebih baik.",
@@ -2777,28 +2470,24 @@
         "btn-anchored": "Anchored",
         "btn-floating": "Floating",
         "label-states": "Interactive Features",
-        "state-weather": "Weather &amp; Clock",
-        "state-closed": "Auto-Dodge",
+        "state-glance": "Rotasi Info",
+        "state-whatsapp": "Notifikasi WhatsApp",
         "state-compact-music": "Compact Lyric",
         "state-music": "Music Player",
         "state-timer": "Focus Timer",
-        "state-dashboard": "Control Hub",
-        "state-ai-work": "AI Activity",
+        "state-prayer": "Pengingat Sholat",
+        "state-water": "Pengingat Minum",
+        "state-crimson": "Crimson Orbit",
         "ai-demo-label": "SIMULASI DEMO",
         "ai-demo-request": "Buat tampilan Grump terasa lebih smooth.",
         "ai-demo-answer": "Aku akan memeriksa proyek dan membuat perubahannya.",
         "state-headphones": "Headphones",
         "state-charging": "Charging",
-        "state-todo": "To-do list",
+        "state-todo": "Pengingat Tugas",
         "state-notes": "Notes",
-        "state-prayer": "Jadwal Sholat",
-        "state-water": "Pengingat Minum",
-        "state-prayer-alert": "Notifikasi Sholat",
-        "state-water-alert": "Notifikasi Minum",
-        "state-display": "Pilihan Monitor",
         "label-eyes": "Eye Shapes &amp; Angry FX",
         "eye-gold": "Grump Gold",
-        "eye-dragon": "Dragon Eyes",
+        "eye-laser": "Laser Beam",
         "eye-pink": "Sakura Pink",
         "eye-berserk": "Berserk Void",
         "eye-normal": "Normal Eyes",
@@ -2814,47 +2503,33 @@
       en: {
         anchored: "Anchored mode: Grump merges directly into the top bezel of your screen like a native MacBook notch.",
         island: "Floating mode: Grump detaches from the top bezel and floats as a sleek rounded floating notch.",
-        weather: "Expands smoothly to display live local weather (29°C) on the left and time on the right while eyes track your cursor.",
-        closed: "Auto-Dodge mode: move your cursor near the top center of the laptop screen to watch Grump flatten into a 3px line.",
+        glance: "Preview the new glance rotation: clock, weather, battery, and unfinished tasks can take the left or right side.",
+        whatsapp: "A compact two-line WhatsApp Web preview with adaptive width and the same green beam treatment as media.",
         "compact-music": "Compact media bar with live synced lyrics that dynamically morph the island's width to fit every line.",
         music: "Full media player with reactive WebGL shader background, album art color extraction, and interactive playback controls.",
         timer: "iOS Liquid Glass focus timer: drag the ruler ticks left or right inside the island, or press Pause / Start Timer.",
-        dashboard: "Quick control center with interactive iOS Liquid Glass Brightness and Volume sliders, Wi-Fi and Bluetooth popovers, and Quiet Mode.",
-        "ai-work": "Simulated preview: see how Grump reflects AI activity as it changes in Codex.",
-        todo: "Add tasks, check them off, and see your progress right inside Grump.",
-        notes: "Write a title and a note, then open it again whenever you need it.",
-        prayer: "Live prayer schedule using the same location-aware layout and next-prayer state as Grump 1.1.0.",
-        water: "The real hydration panel with reminder interval, next reminder, daily target, and Grump's animated water character.",
-        "prayer-alert": "Silent prayer notification preview, colored to match the active prayer period.",
-        "water-alert": "Sassy hydration popup with the same bubbles, angry cup, timing, and liquid-glass treatment as the app.",
-        display: "Choose one or both monitors in the real Grump Display preferences UI.",
-        eye: "Previewing Grump's eye expression and VFX on the screen. Move your cursor near the notch to interact."
+        todo: "A dated task reminder appears as a focused mini popup without pulling you away from your work.",
+        prayer: "Prayer time appears as a quiet, color-matched mini notification near the top of your display.",
+        water: "Hydration reminders rotate short sassy copy with a compact animated water notice.",
+        crimson: "Crimson Orbit brings sharper red eyes, cursor tracking, and a more aggressive animated reaction."
       },
       id: {
         anchored: "Mode Menempel: Grump nempel menyatu sama bezel atas layar lu persis kayak notch bawaan MacBook.",
         island: "Mode Melayang: Grump lepas dari bezel atas dan melayang jadi kapsul floating notch.",
-        weather: "Melebar mulus nampilin cuaca lokal (29°C) di kiri dan jam di kanan sambil matanya tetep ngelirik kursor lu.",
-        closed: "Mode Auto-Dodge: arahin kursor lu ke tengah atas layar laptop buat liat Grump ngeles jadi garis tipis 3px.",
+        glance: "Preview rotasi info baru: jam, cuaca, baterai, dan tugas tersisa bisa ditempatkan di sisi kiri atau kanan.",
+        whatsapp: "Preview WhatsApp Web dua baris dengan lebar adaptif dan beam hijau yang konsisten dengan media.",
         "compact-music": "Mode musik ringkas dengan lirik tersinkronisasi yang lebarnya ngikutin panjang kalimat lagu secara otomatis.",
         music: "Pemutar musik lengkap dengan background WebGL shader reaktif, ekstraksi warna cover lagu, dan kontrol penuh.",
         timer: "Focus Timer bergaya iOS Liquid Glass: geser penggaris menit di dalam pulau ke kiri atau kanan, lalu klik Start/Pause Timer.",
-        dashboard: "Pusat kontrol cepat dengan slider Brightness dan Volume iOS Liquid Glass yang bisa digeser, Wi-Fi/Bluetooth, dan Quiet Mode.",
-        "ai-work": "Simulasi: lihat bagaimana Grump mengikuti perubahan aktivitas AI di Codex.",
-        todo: "Tambah tugas, centang yang selesai, dan lihat progres langsung di Grump.",
-        notes: "Tulis judul dan isi catatan, lalu buka lagi kapan pun dibutuhkan.",
-        prayer: "Jadwal sholat live dengan deteksi lokasi dan penanda waktu berikutnya yang sama seperti Grump 1.1.0.",
-        water: "Panel hidrasi asli dengan interval, jadwal berikutnya, target harian, dan karakter gelas air Grump.",
-        "prayer-alert": "Preview notifikasi sholat senyap dengan warna yang mengikuti waktu sholat aktif.",
-        "water-alert": "Popup minum sassy dengan bubble, gelas marah, timing, dan liquid glass yang sama seperti aplikasi.",
-        display: "Pilih satu atau dua monitor lewat UI Display Preferences Grump yang asli.",
-        eye: "Menampilkan bentukan mata dan efek marah Grump di layar kanan. Deketin kursor lu ke notch buat nyobain."
+        todo: "Pengingat tugas bertanggal muncul sebagai mini popup tanpa menarik lu keluar dari pekerjaan.",
+        prayer: "Waktu sholat muncul sebagai mini notifikasi senyap dengan warna yang menyesuaikan jadwal.",
+        water: "Pengingat minum memutar copy sassy yang singkat lewat notifikasi air yang compact.",
+        crimson: "Crimson Orbit membawa mata merah yang lebih tajam, tracking kursor, dan reaksi agresif."
       }
     };
 
     let currentLang = 'en';
-    let currentCaptionKey = 'weather';
-    const LANGUAGE_STORAGE_KEY = 'grump-language';
-    const LOCALE_ENDPOINT = 'https://grump-feedback.azkaatsmara456.workers.dev/locale';
+    let currentCaptionKey = 'glance';
 
     function updateCaption(key) {
       if (key) currentCaptionKey = key;
@@ -2864,30 +2539,8 @@
       }
     }
 
-    function updateReleaseSchedule() {
-      const timeEl = document.getElementById('release-local-time');
-      const dateEl = document.getElementById('release-local-date');
-      const zoneEl = document.getElementById('release-zone-note');
-      if (timeEl) timeEl.textContent = 'v1.1.2';
-      if (dateEl) dateEl.textContent = currentLang === 'id' ? 'Tersedia sekarang' : 'Available now';
-      if (zoneEl) zoneEl.textContent = currentLang === 'id'
-        ? 'Windows 10 & 11 · Installer Setup'
-        : 'Windows 10 & 11 · Setup installer';
-    }
-
-    function updateReleaseCountdown() {
-      const countdownEl = document.getElementById('release-countdown');
-      if (!countdownEl) return;
-
-      countdownEl.textContent = 'Download v1.1.2';
-    }
-
-    function setLang(lang, persist = true) {
-      if (lang !== 'en' && lang !== 'id') return;
+    function setLang(lang) {
       currentLang = lang;
-      if (persist) {
-        try { localStorage.setItem(LANGUAGE_STORAGE_KEY, lang); } catch {}
-      }
       document.documentElement.lang = lang;
       const dict = translations[lang];
       if (dict && dict["page-title"]) {
@@ -2908,48 +2561,14 @@
       if (sw) sw.setAttribute('data-lang', lang);
       if (btnEn) btnEn.setAttribute('aria-pressed', String(lang === 'en'));
       if (btnId) btnId.setAttribute('aria-pressed', String(lang === 'id'));
-      updateReleaseSchedule();
-      updateReleaseCountdown();
       updateCaption();
       renderTestimonial(activeTestiIndex);
     }
 
-    async function initLanguage() {
-      let savedLanguage = null;
-      try { savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY); } catch {}
-      if (savedLanguage === 'en' || savedLanguage === 'id') {
-        setLang(savedLanguage, false);
-        return;
-      }
-
-      const browserLanguage = String(navigator.language || '').toLowerCase().startsWith('id') ? 'id' : 'en';
-      setLang(browserLanguage, false);
-
-      try {
-        const response = await fetch(LOCALE_ENDPOINT, {
-          cache: 'default',
-          signal: AbortSignal.timeout(4000)
-        });
-        if (!response.ok) return;
-        const result = await response.json();
-        let manualLanguage = null;
-        try { manualLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY); } catch {}
-        if (!manualLanguage && (result.language === 'en' || result.language === 'id')) {
-          setLang(result.language, false);
-        }
-      } catch {}
-    }
-
-    let grumpDemoReady = false;
-    let currentDemoMode = 'weather';
-    let grumpConnectTimer = 0;
-
     function sendToGrump(payload) {
       const frame = document.getElementById('grump-demo-frame');
-      if (grumpDemoReady && frame && frame.contentWindow) {
-        const message = { type: 'grump-demo', ...payload };
-        if (typeof frame.contentWindow.__grumpDemoControl === 'function') frame.contentWindow.__grumpDemoControl(message);
-        else frame.contentWindow.postMessage(message, window.location.origin);
+      if (frame && frame.contentWindow) {
+        frame.contentWindow.postMessage({ type: 'grump-demo', ...payload }, window.location.origin);
       }
     }
 
@@ -2961,30 +2580,7 @@
     }
     window.addEventListener('resize', fitLaptopScale);
     window.addEventListener('DOMContentLoaded', fitLaptopScale);
-    const grumpDemoFrame = document.getElementById('grump-demo-frame');
-    const connectGrumpDemo = () => {
-      clearTimeout(grumpConnectTimer);
-      if (!grumpDemoFrame.contentWindow?.__island) {
-        grumpConnectTimer = setTimeout(connectGrumpDemo, 100);
-        return false;
-      }
-      grumpDemoReady = true;
-      fitLaptopScale();
-      sendToGrump({ mode: currentDemoMode });
-      return true;
-    };
-    grumpDemoFrame.addEventListener('load', () => {
-      grumpDemoReady = false;
-      requestAnimationFrame(connectGrumpDemo);
-      setTimeout(connectGrumpDemo, 120);
-    });
-    window.addEventListener('message', event => {
-      if (event.origin !== window.location.origin || event.source !== grumpDemoFrame.contentWindow || event.data?.type !== 'grump-demo-ready') return;
-      grumpDemoReady = true;
-      fitLaptopScale();
-      sendToGrump({ mode: currentDemoMode });
-    });
-    setTimeout(connectGrumpDemo, 0);
+    document.getElementById('grump-demo-frame').addEventListener('load', fitLaptopScale);
 
     async function resolveInstaller() {
       const button = document.getElementById('btn-dl-setup');
@@ -3021,33 +2617,6 @@
     }
     resolveInstaller();
 
-    async function resolveLinuxBeta() {
-      const button = document.getElementById('btn-dl-linux');
-      try {
-        const res = await fetch('https://api.github.com/repos/yeazka/Grump/releases?per_page=20', {
-          headers: { Accept: 'application/vnd.github+json' }, signal: AbortSignal.timeout(8000)
-        });
-        if (!res.ok) throw new Error('Linux beta release unavailable');
-        const releases = await res.json();
-        const release = releases.find(item => item.prerelease && (item.assets || []).some(asset =>
-          /^Grump-\d+\.\d+\.\d+-beta\.\d+-x86_64\.AppImage$/i.test(asset.name || '')
-        ));
-        const asset = release?.assets.find(item =>
-          /^Grump-\d+\.\d+\.\d+-beta\.\d+-x86_64\.AppImage$/i.test(item.name || '') &&
-          /^https:\/\/github\.com\//i.test(item.browser_download_url || '')
-        );
-        if (!asset) throw new Error('Linux AppImage asset missing');
-        button.href = asset.browser_download_url;
-        button.target = '_blank';
-        button.rel = 'noopener noreferrer';
-        button.removeAttribute('aria-disabled');
-        button.title = `Grump ${release.tag_name || ''} · Linux x64 beta AppImage`;
-      } catch (err) {
-        console.warn('Linux beta unavailable:', err);
-      }
-    }
-    resolveLinuxBeta();
-
     async function refreshDownloadCount() {
       try {
         const response = await fetch('https://grump-feedback.azkaatsmara456.workers.dev/downloads', { cache: 'no-store', signal: AbortSignal.timeout(8000) });
@@ -3067,10 +2636,6 @@
     setInterval(()=>{if(!document.hidden)refreshDownloadCount();},60*1000);
 
     function setDockMode(dockMode) {
-      stopAiDemo();
-      document.getElementById('laptop-screen').classList.remove('demo-reminder');
-      document.getElementById('grump-settings-frame').hidden = true;
-      document.getElementById('grump-demo-frame').hidden = false;
       document.getElementById('btn-dock-anchored').setAttribute('aria-pressed', String(dockMode === 'anchored'));
       document.getElementById('btn-dock-island').setAttribute('aria-pressed', String(dockMode === 'island'));
       sendToGrump({ action: 'dock', dockMode });
@@ -3143,62 +2708,12 @@
 
     function setDemoMode(mode) {
       stopAiDemo();
-      currentDemoMode = mode;
-      if (!grumpDemoReady) connectGrumpDemo();
       document.querySelectorAll('.state-btn').forEach(btn => {
         btn.setAttribute('aria-pressed', String(btn.dataset.mode === mode));
       });
-      document.querySelectorAll('.eye-btn').forEach(btn => {
-        btn.setAttribute('aria-pressed', 'false');
-      });
-      const settingsFrame = document.getElementById('grump-settings-frame');
-      const grumpFrame = document.getElementById('grump-demo-frame');
-      const laptopScreen = document.getElementById('laptop-screen');
-      const isDisplay = mode === 'display';
-      if (laptopScreen) laptopScreen.classList.toggle('demo-reminder', mode === 'prayer-alert' || mode === 'water-alert');
-      if (settingsFrame) settingsFrame.hidden = !isDisplay;
-      if (grumpFrame) grumpFrame.hidden = isDisplay;
-      if (!isDisplay) sendToGrump({ mode });
+      sendToGrump({ mode });
       if (mode === 'ai-work') startAiDemo();
       updateCaption(mode);
-    }
-
-    function setAngryVariant(variant) {
-      stopAiDemo();
-      document.getElementById('laptop-screen').classList.remove('demo-reminder');
-      document.getElementById('grump-settings-frame').hidden = true;
-      document.getElementById('grump-demo-frame').hidden = false;
-      document.querySelectorAll('.state-btn').forEach(btn => {
-        btn.setAttribute('aria-pressed', 'false');
-      });
-      document.querySelectorAll('.eye-btn').forEach(btn => {
-        btn.setAttribute('aria-pressed', 'false');
-      });
-      const idMap = {
-        'gold-matrix': 'btn-eye-gold',
-        'dragon': 'btn-eye-dragon',
-        'pink': 'btn-eye-pink',
-        'berserk': 'btn-eye-berserk'
-      };
-      const active = document.getElementById(idMap[variant]);
-      if (active) active.setAttribute('aria-pressed', 'true');
-      sendToGrump({ action: 'variant', variant });
-      updateCaption('eye');
-    }
-
-    function setEyeShape(shape) {
-      stopAiDemo();
-      document.getElementById('laptop-screen').classList.remove('demo-reminder');
-      document.getElementById('grump-settings-frame').hidden = true;
-      document.getElementById('grump-demo-frame').hidden = false;
-      document.querySelectorAll('.state-btn').forEach(btn => {
-        btn.setAttribute('aria-pressed', 'false');
-      });
-      document.querySelectorAll('.eye-btn').forEach(btn => {
-        btn.setAttribute('aria-pressed', String(btn.id === 'btn-shape-' + shape));
-      });
-      sendToGrump({ action: 'eyeshape', shape });
-      updateCaption('eye');
     }
 
     /* Creator notes Interactive State Engine */
@@ -3408,7 +2923,7 @@
     window.addEventListener('scroll', checkHeaderScroll, { passive: true });
 
     window.addEventListener('DOMContentLoaded', () => {
-      initLanguage();
+      setLang('en');
       initTestiParallax();
       checkHeaderScroll();
       resetTestiTimer();

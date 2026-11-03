@@ -332,6 +332,8 @@ void main() {
   let activeApp = 'spotify';
   let isRunning = false;
   let releaseTimer = null;
+  let listenersAttached = false;
+  let lastRenderedAt = 0;
 
   let currentColors = SPOTIFY_COLORS.map(c => [...c]);
   let targetColors = SPOTIFY_COLORS;
@@ -406,7 +408,8 @@ void main() {
 
   function attachListeners() {
     const parent = document.getElementById('v-music');
-    if (!parent) return;
+    if (!parent || listenersAttached) return;
+    listenersAttached = true;
 
     parent.addEventListener('pointermove', (e) => {
       bounds = parent.getBoundingClientRect();
@@ -424,6 +427,12 @@ void main() {
   function render(now) {
     raf = 0;
     if (!isRunning || !gl) return;
+    const softwareFrameMs = 1000 / 30;
+    if (S.settings?._softwareRendering && now - lastRenderedAt < softwareFrameMs) {
+      raf = requestAnimationFrame(render);
+      return;
+    }
+    lastRenderedAt = now;
 
     const dt = lastNow === null ? 0 : Math.min((now - lastNow) / 1000, 0.1);
     lastNow = now;
@@ -482,6 +491,7 @@ void main() {
     isRunning = true;
     resize();
     lastNow = performance.now();
+    lastRenderedAt = 0;
     raf = requestAnimationFrame(render);
     if (canvas) canvas.style.opacity = '0.72';
   }
@@ -499,12 +509,26 @@ void main() {
     releaseTimer = setTimeout(() => {
       releaseTimer = null;
       if (!isRunning && canvas && gl) {
+        const oldCanvas = canvas;
+        const loseContext = gl.getExtension('WEBGL_lose_context');
         canvas.width = 1;
         canvas.height = 1;
         gl.viewport(0, 0, 1, 1);
+        if (loseContext) loseContext.loseContext();
+        const replacement = oldCanvas.cloneNode(false);
+        oldCanvas.replaceWith(replacement);
+        canvas = replacement;
+        gl = null;
+        program = null;
+        uni = {};
       }
-    }, 20000);
+    }, 5000);
   }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stop();
+    else if (typeof curKey !== 'undefined' && curKey === 'music' && typeof isPlaying === 'function' && isPlaying()) start();
+  });
 
   window.musicShader = {
     init: initGL,

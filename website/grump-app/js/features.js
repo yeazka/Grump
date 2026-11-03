@@ -17,6 +17,12 @@ bridge.onProductivityEvent?.((event)=>{
     if(done && done.id!==lastDownloadNotice){lastDownloadNotice=done.id;notice('bell',`${isId()?'Terunduh':'Downloaded'}: ${done.name}`,3500);}
   }
 });
+bridge.onWhatsAppNotification?.(message=>{
+  const title=String(message?.title||'WhatsApp').trim();
+  const body=String(message?.body||'').trim();
+  const sourceApp=String(message?.sourceApp||'').trim();
+  notice('whatsapp',body?`${title}: ${body}`:title,7000,{kind:'whatsapp',sourceApp});
+});
 let timerSeconds = 900;
 function timerLeft(){return timerState.status==='running'?Math.max(0,timerState.endAt-Date.now()):timerState.remaining}
 function renderTimerPreview(){
@@ -198,11 +204,11 @@ bridge.onAntigravityActivity?.((state) => { antigravityAnswering = state && type
 bridge.onClaudeActivity?.((state) => { claudeAnswering = state && typeof state === 'object' ? state : { active: false, status: '', detail: '' }; refreshAiWorkActivity(); });
 bridge.onChatgptActivity?.((state) => { chatgptAnswering = state && typeof state === 'object' ? state : { active: false, status: '', detail: '' }; refreshAiWorkActivity(); });
 bridge.onFgApp?.((data) => {
-  currentFgApp = String(data?.app || '').toLowerCase();
+  currentFgApp = String(data?.app || '').toLowerCase().trim().replace(/\.exe$/i, '');
   const title=String(data?.title||'');
   currentFgTitle = title;
   currentFgIsGame = !!data?.isGame;
-  S.spotifyApp = currentFgApp === 'spotify';
+  S.spotifyApp = /^(spotify|spotifyab\.spotifymusic)$/.test(currentFgApp);
   if (!S.spotifyApp && typeof resetSpotifyDodge === 'function') resetSpotifyDodge();
   if (typeof setCreativeAppState === 'function') setCreativeAppState(isCreativeEditingApp(currentFgApp));
   refreshAiWorkActivity();

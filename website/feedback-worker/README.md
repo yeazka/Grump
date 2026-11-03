@@ -1,6 +1,9 @@
 # Discord feedback endpoint
 
-The static website calls this Worker. The Discord webhook stays in the existing DISCORD_WEBHOOK_URL Worker secret, never in frontend assets.
+The static website calls this Worker. Website feedback and opt-in app diagnostics use separate Discord webhooks. Both URLs stay in Worker secrets and never ship in frontend assets or the Grump installer:
+
+- `DISCORD_WEBHOOK_URL` routes `/feedback` to `#grump-feedback`.
+- `DIAGNOSTICS_WEBHOOK_URL` routes `/diagnostics` to `#grump-diagnostics`.
 
 ## Deployment
 

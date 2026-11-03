@@ -20,7 +20,8 @@
     chatgpt: [],
     fgApp: [],
     drop: [],
-    connectivity: [], addon: [], addonAlert: [], productivity: [], productivityEvent: [], capsLock: [], cpuLoad: []
+    connectivity: [], addon: [], addonAlert: [], productivity: [], productivityEvent: [],
+    whatsapp: [], glancePreview: []
   };
 
   const on = (list) => (fn) => { if (typeof fn === 'function') list.push(fn); };
@@ -108,17 +109,15 @@
     theme: 'default',
     eyeMode: 'auto',
     staticExp: 'normal',
-    angryVariant: 'gold-matrix',
+    angryVariant: 'crimson-orbit',
     leftEyeSize: 1,
     rightEyeSize: 1,
-    quiet: false
+    quiet: false,
+    idleInfoItems: ['clock','weather','battery','todo'],
+    idleInfoSides: {clock:'left',weather:'right',battery:'left',todo:'right'}
   };
-  const demoAddons = {
-    selected:['todo','notes','prayer','water'],city:'Yogyakarta',locationMode:'auto',locationSource:'IPWho',
-    waterMinutes:45,waterEnabled:true,waterNextAt:Date.now()+31*60000,prayerEnabled:true,prayerStatus:'ready',
-    prayer:{date:new Date().toISOString().slice(0,10),city:'Yogyakarta',timezone:'Asia/Jakarta',times:{Fajr:'04:07',Dhuhr:'11:42',Asr:'14:52',Maghrib:'17:47',Isha:'18:59'},nextFajr:'04:07'}
-  };
-  const demoProductivity = {tasks:[{id:'demo-task-1',text:'Plan the next big idea',done:false},{id:'demo-task-2',text:'Take a well-earned break',done:true}],notes:[{id:'demo-note-1',text:'Little ideas\nMake space for the good ones.',at:Date.now()}]};
+  const demoAddons = {selected:['todo','notes','prayer','water'],city:'Jakarta',waterMinutes:45,waterEnabled:true,prayerEnabled:true,prayerStatus:'ready',prayer:{times:{Fajr:'04:17',Dhuhr:'11:39',Asr:'15:01',Maghrib:'17:49',Isha:'19:01'}},waterNextAt:Date.now()+45*60000};
+  const demoProductivity = {tasks:[{id:'demo-task-1',text:'Ship Grump v1.1.3',done:false,remindAt:Date.now()+3600000},{id:'demo-task-2',text:'Review release notes',done:true}],notes:[{id:'demo-note-1',text:'Little ideas\nMake space for the good ones.',at:Date.now()}]};
 
   let timerState = {
     status: 'idle',
@@ -216,18 +215,12 @@
     },
     onSettings: on(cbs.settings),
     onAddonState: on(cbs.addon),
-    onAddonAlert: on(cbs.addonAlert),
     onProductivityState: on(cbs.productivity),
     onProductivityEvent: on(cbs.productivityEvent),
+    onWhatsAppNotification: on(cbs.whatsapp),
+    onAddonAlert: on(cbs.addonAlert),
+    onGlancePreview: on(cbs.glancePreview),
     addonState: () => Promise.resolve({...demoAddons}),
-    async addonCommand(command,value) {
-      if(command==='select'&&!demoAddons.selected.includes(value))demoAddons.selected.push(value);
-      if(command==='remove')demoAddons.selected=demoAddons.selected.filter(id=>id!==value);
-      if(command==='water-enabled')demoAddons.waterEnabled=!!value;
-      if(command==='water-interval')demoAddons.waterMinutes=Number(value)||45;
-      emit(cbs.addon,{...demoAddons});
-      return {...demoAddons};
-    },
     productivityState: () => Promise.resolve(demoProductivity),
     async productivitySave(type,payload) {
       const id = () => 'demo-'+Date.now()+'-'+Math.random().toString(36).slice(2,7);
@@ -251,6 +244,8 @@
         emit(cbs.settings, demoSettings);
       }
     },
+    previewGlance(value) { emit(cbs.glancePreview, value); },
+    openWhatsApp() {},
     openSettingsWindow() {},
     onTimer: on(cbs.timer),
     timerCommand(cmdOrObj, ms) {
@@ -304,11 +299,6 @@
     onFgApp: on(cbs.fgApp),
     onDrop: on(cbs.drop),
     onConnectivity: on(cbs.connectivity),
-    onCapsLock: on(cbs.capsLock),
-    onCpuLoad: on(cbs.cpuLoad),
-    onCollapse() {}, onExpandHome() {}, onGameMode() {}, onResetDodge() {},
-    setExpanded() {}, lyricViewport() {}, setVolume(v){emit(cbs.sysState,{volume:v})}, setBrightness(v){emit(cbs.sysState,{brightness:v})},
-    openConnectivity(kind){return this.connectionCommand({kind,action:'list'})},
     connectionCommand(req) {
       const state = req.kind === 'wifi' ? wifiState : btState;
       if (req.action === 'power') state.on = !!req.on;
@@ -396,6 +386,7 @@
     isl.S.prompt = null;
     isl.S.idleInfoActive = false;
     isl.S.inAngryRadius = false;
+    emit(cbs.glancePreview, null);
     emit(cbs.antigravity, { active: false, status: '', detail: '' });
     emit(cbs.fgApp, { app: 'explorer', title: 'Desktop', isGame: false });
   }
@@ -422,7 +413,9 @@
     emit(cbs.media, { ...mediaState });
   }
 
-  function applyDemoMessage(d) {
+  window.addEventListener('message', (ev) => {
+    if(ev.source!==window.parent||ev.origin!==window.location.origin)return;
+    const d = ev.data;
     if (!d || d.type !== 'grump-demo') return;
     const isl = window.__island;
     const islandEl = document.getElementById('island');
@@ -524,10 +517,6 @@
     }
 
     const mode = d.mode;
-    if (isl.S.miniPopup) {
-      isl.dismissMiniPopup?.();
-      document.querySelectorAll('.view.mini-popup').forEach(view=>view.classList.remove('on','sliding'));
-    }
     clearDemoActivities();
 
     switch (mode) {
@@ -554,6 +543,18 @@
         const ttEl = document.getElementById('idle-time-text');
         if (ttEl) ttEl.textContent = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
         isl.layout();
+        break;
+
+      case 'glance':
+        stopMusic();
+        isl.collapse();
+        emit(cbs.glancePreview,{items:['battery','todo'],sides:{battery:'left',todo:'right'},focus:'battery'});
+        break;
+
+      case 'whatsapp':
+        stopMusic();
+        isl.collapse();
+        emit(cbs.whatsapp,{title:'Grump Team',body:'v1.1.3 is ready. Don’t ghost the update.',sourceApp:'Brave'});
         break;
 
       case 'closed':
@@ -601,37 +602,37 @@
         isl.go('timer');
         break;
 
-      case 'todo':
-      case 'notes':
       case 'prayer':
+        stopMusic();
+        isl.collapse();
+        emit(cbs.addon,demoAddons);
+        emit(cbs.addonAlert,{kind:'prayer',title:'Waktu Maghrib',body:'Jakarta'});
+        break;
+
       case 'water':
         stopMusic();
-        isl.S.focusLock = true;
-        isl.S.expanded = false;
-        isl.S.view = mode;
-        isl.go(mode);
-        break;
-
-      case 'prayer-alert':
-        stopMusic();
-        isl.dismissMiniPopup?.();
-        document.querySelectorAll('.view.mini-popup').forEach(view=>view.classList.remove('on','sliding'));
-        isl.S.ring = null;
-        isl.S.focusLock = false;
-        isl.S.expanded = false;
         isl.collapse();
-        emit(cbs.addonAlert,{kind:'prayer',title:'Waktu Maghrib',body:'Yogyakarta · 17:47'});
-        break;
-
-      case 'water-alert':
-        stopMusic();
-        isl.dismissMiniPopup?.();
-        document.querySelectorAll('.view.mini-popup').forEach(view=>view.classList.remove('on','sliding'));
-        isl.S.ring = null;
-        isl.S.focusLock = false;
-        isl.S.expanded = false;
-        isl.collapse();
+        emit(cbs.addon,demoAddons);
         emit(cbs.addonAlert,{kind:'water',title:'WATER BEFORE U CRASH.',body:'1 glass (~200 ml) · every 45 min'});
+        break;
+
+      case 'crimson':
+        demoSettings.angryVariant='crimson-orbit';
+        demoSettings.eyeMode='auto';
+        emit(cbs.settings,demoSettings);
+        stopMusic();
+        isl.collapse();
+        isl.S.inAngryRadius=true;
+        if(islandEl)islandEl.dataset.angry='1';
+        handlePointer(window.innerWidth/2+34,38);
+        isl.layout();
+        break;
+
+      case 'todo':
+      case 'notes':
+        stopMusic();
+        isl.S.focusLock = true;
+        isl.go(mode);
         break;
 
       case 'stash':
@@ -665,10 +666,5 @@
         emit(cbs.testCharge, 'charging');
         break;
     }
-  }
-  window.__grumpDemoControl = applyDemoMessage;
-  window.addEventListener('message', (ev) => {
-    if(ev.source!==window.parent||ev.origin!==window.location.origin)return;
-    applyDemoMessage(ev.data);
   });
 })();

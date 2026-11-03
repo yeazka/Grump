@@ -116,6 +116,38 @@
   box-shadow: var(--waterline-shadow);
 }
 
+/* The notice surface is rendered by the supplied LiquidGlass component. */
+#island[data-key="notice"] {
+  background: transparent !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+#island[data-key="notice"][data-notice-icon="whatsapp"] {
+  background: #000 !important;
+}
+#island[data-key="notice"] #v-notice {
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,.72);
+}
+#liquid-glass-notice-root {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 0;
+}
+#island[data-key="notice"] #island-notch-svg {
+  z-index: 1;
+}
+#island[data-key="notice"] #island-content-clip {
+  z-index: 2;
+}
+
 /* Feature-colored glass keeps each reminder identifiable at a glance. */
 #island[data-key="prayernotice"] {
   background: linear-gradient(145deg, var(--prayer-notice-a, rgba(76,29,149,.82)), var(--prayer-notice-b, rgba(30,27,75,.76))) !important;

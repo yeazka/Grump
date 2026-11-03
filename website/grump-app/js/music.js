@@ -450,6 +450,14 @@ function getCurrentLyricLine() {
     }
     if (idx >= 0 && S.lyrics[idx].text) return S.lyrics[idx].text;
   }
+  if (S.plainLyrics && S.plainLyrics.length) {
+    const lines = S.plainLyrics.filter(Boolean);
+    if (lines.length) {
+      const duration = Number(S.media.dur) || 0;
+      const progress = duration > 0 ? clamp(curPos() / duration, 0, 0.999999) : 0;
+      return lines[Math.min(lines.length - 1, Math.floor(progress * lines.length))] || lines[0];
+    }
+  }
   return S.media.title || '';
 }
 

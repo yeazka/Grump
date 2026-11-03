@@ -39,6 +39,7 @@ const ICONS = {
   check: svg('<path d="M5 12.5l4.5 4.5L19 7.5"/>', ST),
   note:  svg('<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>', ST),
   bell:  svg('<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>', ST),
+  whatsapp: svg('<circle cx="12" cy="12" r="10.5" fill="#25D366"/><path d="M7.1 18.5l.8-2.5a6.8 6.8 0 1 1 2.2 1.9z" transform="translate(-0.7 0)" fill="none" stroke="#fff" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.7 8.1c.25-.42.66-.49 1.02-.16l1.16 1.35c.27.31.27.69.02 1.02l-.65.78c.73 1.35 1.8 2.42 3.15 3.15l.78-.65c.33-.25.71-.25 1.02.02l1.35 1.16c.33.36.26.77-.16 1.02-.69.41-1.52.55-2.31.32-3.02-.87-5.39-3.24-6.26-6.26-.23-.79-.09-1.62.32-2.31z" transform="translate(-0.7 0)" fill="#fff"/>'),
   moon:  svg('<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>', ST),
   location: svg('<path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/>', ST),
   quiet: svg('<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>', ST),
@@ -103,7 +104,17 @@ const bridge = window.dynIsland || makeMock();
 /* ---------- Spring physics ---------- */
 class Spring {
   constructor(v, k, c) { this.x = v; this.v = 0; this.t = v; this.k = k; this.c = c; }
-  step(dt) { const a = -this.k * (this.x - this.t) - this.c * this.v; this.v += a * dt; this.x += this.v * dt; }
+  step(dt) {
+    dt = Number.isFinite(dt) ? clamp(dt, 0, 1 / 30) : 0;
+    if (!Number.isFinite(this.x) || !Number.isFinite(this.v) || !Number.isFinite(this.t)) {
+      this.x = Number.isFinite(this.t) ? this.t : 0;
+      this.v = 0;
+      return;
+    }
+    const a = -this.k * (this.x - this.t) - this.c * this.v;
+    this.v = clamp(this.v + a * dt, -4000, 4000);
+    this.x = clamp(this.x + this.v * dt, 0, 2000);
+  }
   get done() { return Math.abs(this.x - this.t) < 0.2 && Math.abs(this.v) < 0.4; }
 }
 // [lebar, tinggi, radius] — Semua menu expanded 1 ukuran (392x196) agar tidak nge-warp
@@ -132,6 +143,14 @@ function isTimerActive() {
   return typeof timerState !== 'undefined' && timerState && (timerState.status === 'running' || timerState.status === 'paused');
 }
 
+function whatsappNoticeWidth(text, defaultWidth) {
+  const value = String(text || '');
+  const separator = value.indexOf(':');
+  const message = (separator >= 0 ? value.slice(separator + 1) : value).trim();
+  if (message.length <= 12) return defaultWidth;
+  return clamp(Math.ceil(defaultWidth + (message.length - 12) * 5.6), defaultWidth, 300);
+}
+
 function buildNotchPaths(w, h, rOut, rBot) {
   rOut = Math.max(1, Math.min(rOut, Math.max(1, h * 0.46)));
   rBot = Math.max(1, Math.min(rBot, Math.max(1, h * 0.49)));
@@ -153,8 +172,14 @@ function buildNotchPaths(w, h, rOut, rBot) {
     `A ${rBot} ${rBot} 0 0 0 ${x5.toFixed(2)} ${y5.toFixed(2)} ` +
     `L ${x6} ${y6.toFixed(2)} ` +
     `C ${x6} ${(y6 - c).toFixed(2)} ${(x7 - c).toFixed(2)} 0 ${x7} 0`;
+  const strokeNoTop = `M ${x1} ${y1} ` +
+    `L ${x1} ${y2.toFixed(2)} ` +
+    `A ${rBot} ${rBot} 0 0 0 ${x3.toFixed(2)} ${y3.toFixed(2)} ` +
+    `L ${x4.toFixed(2)} ${y4.toFixed(2)} ` +
+    `A ${rBot} ${rBot} 0 0 0 ${x5.toFixed(2)} ${y5.toFixed(2)} ` +
+    `L ${x6} ${y6.toFixed(2)}`;
   const fill = stroke + ' Z';
-  return { stroke, fill };
+  return { stroke, strokeNoTop, fill };
 }
 
 let isTuckDodging = false;
@@ -178,11 +203,12 @@ function reportRect() {
   if (sig !== lastRectSig) { lastRectSig = sig; bridge.rect({ left: rl, top: rt, width: rw, height: rh, tight }); }
 }
 function paintIsland() {
-  const w = sw.x;
-  const h = sh.x;
+  const w = clamp(Number.isFinite(sw.x) ? sw.x : sw.t, 16, WIN_W);
+  const h = clamp(Number.isFinite(sh.x) ? sh.x : sh.t, 6, 400);
   island.style.width = w.toFixed(2) + 'px';
   island.style.height = h.toFixed(2) + 'px';
-  const r = Math.max(0, sr.x).toFixed(2) + 'px';
+  const safeRadius = clamp(Number.isFinite(sr.x) ? sr.x : sr.t, 0, Math.min(w, h) / 2);
+  const r = safeRadius.toFixed(2) + 'px';
   const isAnchored = ((S.settings && S.settings.dockMode === 'anchored') && curKey !== 'timerpreview' && curKey !== 'prayernotice' && curKey !== 'waternotice' && curKey !== 'tasknotice') || curKey === 'tuck' || curKey === 'peekaboo' || curKey === 'quiettuck';
   
   const svg = $('#island-notch-svg');
@@ -194,8 +220,8 @@ function paintIsland() {
     if (svg) {
       svg.style.display = 'block';
       const rOut = curKey === 'quiettuck' ? 6 : (curKey === 'tuck' && isTuckDodging ? 3 : ((curKey === 'tuck' || curKey === 'peekaboo') ? 12 : (S.expanded ? 20 : 16)));
-      const rBot = Math.round(sr.x);
-      const { stroke, fill } = buildNotchPaths(w, h, rOut, rBot);
+      const rBot = Math.round(safeRadius);
+      const { stroke, strokeNoTop, fill } = buildNotchPaths(w, h, rOut, rBot);
       svg.style.left = `-${rOut}px`;
       svg.style.width = `${(w + 2 * rOut).toFixed(2)}px`;
       svg.style.height = `${h.toFixed(2)}px`;
@@ -213,6 +239,7 @@ function paintIsland() {
       const isAngry = island.dataset.angry === '1';
       const isQuiet = S.settings && !!S.settings.quiet;
       const isCaps = curKey === 'notice' && island.dataset.caps === '1';
+      const isWhatsAppNotice = curKey === 'notice' && island.dataset.noticeIcon === 'whatsapp';
       const theme = island.dataset.theme || 'default';
       const angryVar = (S.settings && S.settings.angryVariant) || island.dataset.angryVariant || 'pink';
       island.dataset.angryVariant = angryVar;
@@ -242,6 +269,10 @@ function paintIsland() {
           angryEl.setAttribute('stroke', 'url(#gpt-notch-gradient)');
           angryEl.setAttribute('stroke-width', '1.35');
           angryEl.style.filter = 'drop-shadow(0 0 3px rgba(117,205,255,.85)) drop-shadow(0 0 8px rgba(163,112,255,.62))';
+        } else if (angryVar === 'crimson-orbit') {
+          angryEl.setAttribute('stroke', '#ff334f');
+          angryEl.setAttribute('stroke-width', '1.65');
+          angryEl.style.filter = 'drop-shadow(0 0 4px rgba(255,35,68,.78))';
         } else if (angryVar === 'cyber-violet' || angryVar === 'cyber-amber') {
           const violet = angryVar === 'cyber-violet';
           angryEl.setAttribute('stroke', violet ? '#8b5cff' : '#ff9d00');
@@ -253,12 +284,18 @@ function paintIsland() {
           angryEl.style.filter = 'drop-shadow(0 0 6px rgba(255, 38, 38, 0.85))';
         }
       }
+      const isGlassNotice = curKey === 'notice' && !isCaps && !isWhatsAppNotice;
       if (strokeEl) {
-        strokeEl.style.opacity = isCaps || (theme === 'outline-glass' && !isAngry) ? '1' : '0';
+        strokeEl.setAttribute('d', isGlassNotice ? strokeNoTop : stroke);
+        strokeEl.style.opacity = isCaps || (theme === 'outline-glass' && !isAngry && !isGlassNotice && !isWhatsAppNotice) ? '1' : '0';
         if (isCaps) {
           strokeEl.setAttribute('stroke', '#70e69b');
           strokeEl.setAttribute('stroke-width', '1.6');
           strokeEl.style.filter = 'drop-shadow(0 0 5px rgba(112,230,155,.75))';
+        } else if (isGlassNotice) {
+          strokeEl.setAttribute('stroke', 'rgba(255, 255, 255, 0.58)');
+          strokeEl.setAttribute('stroke-width', '1.15');
+          strokeEl.style.filter = 'none';
         } else if (isQuiet) {
           // Quiet mode: golden/amber ambient outline
           strokeEl.setAttribute('stroke', '#eab308');
@@ -276,7 +313,11 @@ function paintIsland() {
       }
 
       if (fillEl) {
-        if (S.expanded && curKey === 'prayer') {
+        if (isWhatsAppNotice) {
+          fillEl.setAttribute('fill', '#000000');
+        } else if (isGlassNotice) {
+          fillEl.setAttribute('fill', 'transparent');
+        } else if (S.expanded && curKey === 'prayer') {
           fillEl.setAttribute('fill', islandSurfaceColor());
         } else if (S.expanded && (curKey === 'addons' || curKey === 'stash')) {
           fillEl.setAttribute('fill', islandSurfaceColor(20, 20, 24));
@@ -388,6 +429,7 @@ function wantKey() {
     return S.view;
   }
   if (S.notice) return 'notice';
+  if (S.glancePreviewActive) return 'idle';
   const musicActive = typeof hasMusic === 'function' && hasMusic();
   if (S.settings && S.settings.quiet && !inside && !musicActive) return 'quiettuck';
   if (S.tuckApp && S.settings.autoTuck !== false && !inside) return 'tuck';
@@ -418,7 +460,8 @@ function layout() {
   const creativeFocus = k === 'idle' && S.creativeNear && !isTimerOn && !isIdleInfo;
   const idleH = creativeFocus ? Math.max(20, baseH * .7) : baseH;
   const spotifyCompactWidth = isTimerOn ? Math.max(184,baseW) : (isCompactTimer ? SIZES.compact[0]+36 : SIZES.compact[0]);
-  const [w, h, r] = isSpotifyDodging ? [spotifyCompactWidth, 25, 12.5] : (isTimerOn ? [Math.max(184,baseW), Math.max(36,baseH), Math.min(Math.max(36,baseH)/2,24)] : (isCompactTimer ? [SIZES.compact[0]+36, 36, 18] : (k === 'tuck' && isTuckDodging ? [targetDodgeW, targetDodgeH, targetDodgeR] : (k === 'idle' ? [idleW,idleH,Math.min(idleH/2,24)] : (k === 'work' ? [clamp(Number(S.workWidth)||128,128,392),32,16] : (k === 'notice' && island.dataset.caps === '1' ? [174,40,20] : SIZES[k]))))));
+  const whatsAppNoticeW = whatsappNoticeWidth(S.notice?.text, baseW);
+  const [w, h, r] = isSpotifyDodging ? [spotifyCompactWidth, 25, 12.5] : (isTimerOn ? [Math.max(184,baseW), Math.max(36,baseH), Math.min(Math.max(36,baseH)/2,24)] : (isCompactTimer ? [SIZES.compact[0]+36, 36, 18] : (k === 'tuck' && isTuckDodging ? [targetDodgeW, targetDodgeH, targetDodgeR] : (k === 'idle' ? [idleW,idleH,Math.min(idleH/2,24)] : (k === 'work' ? [clamp(Number(S.workWidth)||128,128,392),32,16] : (k === 'notice' && island.dataset.caps === '1' ? [174,40,20] : (k === 'notice' && island.dataset.noticeIcon === 'whatsapp' ? [whatsAppNoticeW,40,20] : SIZES[k])))))));
   const isAnchored = ((S.settings && S.settings.dockMode === 'anchored') && k !== 'timerpreview' && k !== 'prayernotice' && k !== 'waternotice' && k !== 'tasknotice') || k === 'tuck' || k === 'peekaboo' || k === 'quiettuck';
   const dockChanged = (island.dataset.anchored === '1') !== isAnchored;
   const sizeChanged = Math.abs(sw.t - w) > 0.5 || Math.abs(sh.t - h) > 0.5 || Math.abs(sr.t - r) > 0.5;
@@ -498,13 +541,14 @@ function peek(key, ms) {
   layout();
   triggerGlassRing();
 }
-function notice(icon, text, ms = 2800) {
+function notice(icon, text, ms = 2800, action = '') {
   if (S.ring || (S.settings.quiet && icon !== 'moon' && icon !== 'quiet')) return;
   $('#v-notice').dataset.compact = /^Download(?:ing|ed):/.test(text) ? '1' : '0';
   $('#v-notice').dataset.caps = icon === 'caps' ? '1' : '0';
+  island.dataset.noticeIcon = icon;
   const el = $('#n-ico'); el.dataset.ico = icon; el.innerHTML = icon === 'caps' ? '' : icoOf(icon);
   setText('n-text', text);
-  S.notice = { icon, text };
+  S.notice = { icon, text, action };
   clearTimeout(noticeT);
   noticeT = setTimeout(() => { S.notice = null; layout(); }, ms);
   layout();
@@ -541,7 +585,7 @@ let slideTimeout = null;
 function renderPager() {
   const pg = PAGE_OF[curKey] || S.view || 'home';
   const list = pageList();
-  const showPager = !bridge.mock && !!pg && S.expanded && list.length > 1;
+  const showPager = !!pg && S.expanded && list.length > 1;
   $('#pager').classList.toggle('on', showPager);
   island.dataset.paged = showPager ? '1' : '0';
   island.dataset.expanded = (S.expanded || curKey === 'ring') ? '1' : '0';
@@ -632,7 +676,6 @@ function slideToView(nextView, d) {
 }
 
 function pageStep(d) {
-  if (bridge.mock) return;
   const list = pageList();
   if (list.length <= 1) return;
   const i = list.indexOf(PAGE_OF[curKey] || 'home');
@@ -676,13 +719,11 @@ function promotePeek() {
 }
 island.addEventListener('click', (e) => {
   if (performance.now() < suppressClickUntil) { e.stopPropagation(); e.preventDefault(); return; }
-  if (bridge.mock && (S.miniPopup?.kind === 'prayernotice' || S.miniPopup?.kind === 'waternotice')) {
-    e.stopPropagation();
-    e.preventDefault();
-    return;
-  }
   const btn = e.target.closest('[data-act]');
   if (btn && acts[btn.dataset.act]) { promotePeek(); acts[btn.dataset.act](btn, e); return; }
+  if(curKey==='notice'&&S.notice?.action?.kind==='whatsapp'){
+    bridge.openWhatsApp?.(S.notice.action.sourceApp||'');S.notice=null;clearTimeout(noticeT);layout();return;
+  }
   if (S.miniPopup?.kind === 'tasknotice' || S.miniPopup?.kind === 'prayernotice' || S.miniPopup?.kind === 'waternotice' || S.miniPopup?.kind === 'timerpreview') {
     if (S.miniPopup?.kind === 'timerpreview') go('timer');
     else if (S.miniPopup?.kind === 'waternotice') go('water');
@@ -708,7 +749,7 @@ island.addEventListener('pointerdown', (e) => {
     return;
   }
   // Drag-to-slide untuk halaman expanded (primary button saja)
-  if (!bridge.mock && e.button === 0 && S.expanded && PAGE_OF[curKey] && !isSliding && !e.target.closest('button, [data-act], [data-hold], input, textarea, .s-item, #m-bar, .ios-slider, .dashboard-glass-slider')) {
+  if (e.button === 0 && S.expanded && PAGE_OF[curKey] && !isSliding && !e.target.closest('button, [data-act], [data-hold], input, textarea, .s-item, #m-bar, .ios-slider, .dashboard-glass-slider')) {
     dragState = { id: e.pointerId, startX: e.clientX, startY: e.clientY, dx: 0, active: false, t0: performance.now(), curPage: PAGE_OF[curKey] || 'home' };
   }
 });
@@ -865,7 +906,7 @@ island.addEventListener('wheel', (e) => {
     holds[(w.dataset.wheel === 'h' ? 'h' : 'm') + (up ? 'inc' : 'dec')]();
     return;
   }
-  if (!bridge.mock && S.expanded && PAGE_OF[curKey] && !e.target.closest('#v-connectivity,#connection-list,#timer-ruler,.addon-body,input,textarea,.ios-slider,.dashboard-glass-slider,#m-bar') && Math.max(Math.abs(e.deltaX),Math.abs(e.deltaY)) > 16) {
+  if (S.expanded && PAGE_OF[curKey] && !e.target.closest('#v-connectivity,#connection-list,#timer-ruler,.addon-body,input,textarea,.ios-slider,.dashboard-glass-slider,#m-bar') && Math.max(Math.abs(e.deltaX),Math.abs(e.deltaY)) > 16) {
     const now = performance.now();
     if (now - lastWheelSlide > 320) {
       lastWheelSlide = now;
@@ -875,7 +916,7 @@ island.addEventListener('wheel', (e) => {
   }
 }, { passive: false });
 document.addEventListener('keydown', (e) => {
-  if (bridge.mock || !S.expanded || !PAGE_OF[curKey] || S.focusLock) return;
+  if (!S.expanded || !PAGE_OF[curKey] || S.focusLock) return;
   if (e.key === 'ArrowLeft') { e.preventDefault(); pageStep(-1); }
   else if (e.key === 'ArrowRight') { e.preventDefault(); pageStep(1); }
 });
@@ -1087,9 +1128,3 @@ if (bridge.mock) {
 setInterval(() => { for (const f of ticks) f(); }, 200);
 
 window.addEventListener("resize",()=>{lastRectSig="";reportRect();});
-
-// Public demo control surface. The desktop build does not expose this object.
-if (bridge.mock) {
-  window.__island = { S, go, collapse, layout, dismissMiniPopup };
-  window.parent.postMessage({ type: 'grump-demo-ready' }, window.location.origin);
-}

@@ -587,7 +587,54 @@ svg { display: block; }
   100% { transform: scaleY(1); }
 }
 #v-compact { width: 312px; height: 36px; }
-#v-notice { width: 300px; height: 40px; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 11.5px; font-weight: 600; }
+#v-notice { position: relative; width: 300px; height: 40px; display: flex; align-items: center; justify-content: center; gap: 10px; overflow: hidden; font-size: 11.5px; font-weight: 600; }
+.notice-whatsapp-beam {
+  position: absolute;
+  inset: 0 0 -2px;
+  border-radius: inherit;
+  background:
+    radial-gradient(ellipse 80% 65% at 50% 110%, rgba(30, 215, 96, .45), transparent 100%),
+    linear-gradient(to top, color-mix(in srgb, #1ed760 36%, transparent), color-mix(in srgb, #1ed760 16%, transparent) 52%, transparent 100%);
+  opacity: 0;
+  pointer-events: none;
+  transform-origin: 50% 100%;
+  -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,.55), #000 6%, #000 94%, rgba(0,0,0,.55));
+  mask-image: linear-gradient(to right, rgba(0,0,0,.55), #000 6%, #000 94%, rgba(0,0,0,.55));
+  transition: opacity .3s ease;
+  z-index: 0;
+}
+#v-notice:has(.n-ico[data-ico="whatsapp"]) .notice-whatsapp-beam {
+  opacity: .85;
+  animation: cBeamPulse 2.8s ease-in-out infinite alternate;
+}
+#island[data-key="notice"][data-notice-icon="whatsapp"] #v-notice {
+  width: 100%;
+  padding: 0 12px;
+  box-sizing: border-box;
+}
+#island[data-key="notice"][data-notice-icon="whatsapp"] #n-text {
+  min-width: 0;
+  max-width: calc(100% - 32px);
+}
+#v-notice .n-ico,
+#v-notice #n-text { position: relative; z-index: 1; }
+#v-notice #n-text {
+  display: -webkit-box;
+  width: auto;
+  max-width: 244px;
+  max-height: 26px;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  text-align: left;
+  white-space: normal;
+  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  font-size: 10.5px;
+  line-height: 13px;
+  font-weight: 600;
+}
 #v-notice[data-caps="1"]{width:174px}
 #island[data-key="notice"][data-caps="1"]::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:6;animation:capsOutlinePulse 1.1s ease-in-out infinite}
 #island[data-key="notice"][data-caps="1"][data-anchored="1"]::before{display:none}
@@ -596,7 +643,7 @@ svg { display: block; }
 @keyframes capsNotchPulse{0%,100%{opacity:.62;filter:drop-shadow(0 0 3px rgba(112,230,155,.5))}50%{opacity:1;filter:drop-shadow(0 0 8px rgba(112,230,155,.95))}}
 @media(prefers-reduced-motion:reduce){#island[data-key="notice"][data-caps="1"]::before,#island[data-key="notice"][data-caps="1"] #notch-stroke{animation:none}#island[data-key="notice"][data-caps="1"]::before{box-shadow:inset 0 0 0 1.5px rgba(112,230,155,.75)}}
 #v-notice[data-caps="1"] .n-ico { width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%; background: #70e69b; box-shadow: 0 0 5px #70e69b, 0 0 12px rgba(112,230,155,.65); animation: capsOnPop .45s cubic-bezier(.2,1.5,.3,1) both; }
-#v-notice[data-caps="1"] #n-text { letter-spacing: .01em; }
+#v-notice[data-caps="1"] #n-text { display:block;max-width:none;white-space:nowrap;font-size:11.5px;line-height:normal;letter-spacing:.01em; }
 @keyframes capsOnPop { from { transform: scale(.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 #v-notice[data-compact="1"] #n-text { max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10.5px; font-weight: 500; }
 .mini-popup{display:flex;align-items:center;justify-content:space-between;color:#fff;background:linear-gradient(150deg,rgba(31,32,38,.92),rgba(7,8,12,.95));-webkit-backdrop-filter:blur(22px) saturate(160%);backdrop-filter:blur(22px) saturate(160%);box-shadow:inset 0 1px rgba(255,255,255,.2),inset 0 0 0 1px rgba(255,255,255,.1)}
@@ -1631,6 +1678,18 @@ svg { display: block; }
 }
 #v-compact .bars { display: flex; }
 .n-ico { width: 20px; height: 20px; color: var(--green); }
+#v-notice .n-ico[data-ico="whatsapp"] {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  place-items: center;
+}
+#v-notice .n-ico[data-ico="whatsapp"] svg {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+}
 
 /* ---------- Home ---------- */
 #v-home {
@@ -2866,6 +2925,58 @@ button:disabled { opacity:.35; cursor:default; }
 }
 @media (prefers-reduced-motion:reduce) { #island[data-angry-variant="dragon"] #eyes i::before{animation:none}#island[data-angry-variant="dragon"] .dragon-vapor{display:none !important} }
 
+/* Crimson Orbit: an original rotating red iris for Grump's angry reactions. */
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes { gap:9px; }
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i,
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:first-child,
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:nth-child(2) {
+  position:relative;
+  width:calc(15px * var(--left-eye-size, 1));
+  height:15px;
+  border-radius:50%;
+  clip-path:none;
+  overflow:hidden;
+  background:radial-gradient(circle,#050508 0 17%,#ff4860 19% 26%,#a90627 43%,#37000d 72%,#050507 74%);
+  border:1px solid rgba(255,96,112,.82);
+  box-shadow:inset 0 0 4px #ff183e,0 0 5px rgba(255,24,62,.78);
+  animation:crimsonIrisPulse 1.15s ease-in-out infinite alternate !important;
+}
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:nth-child(2) {
+  width:calc(15px * var(--right-eye-size, 1));
+}
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i::before {
+  content:'';
+  position:absolute;
+  inset:2px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 50% 4%,#050507 0 1.6px,transparent 1.8px),
+    radial-gradient(circle at 91% 73%,#050507 0 1.6px,transparent 1.8px),
+    radial-gradient(circle at 9% 73%,#050507 0 1.6px,transparent 1.8px);
+  animation:crimsonOrbitSpin 1.8s linear infinite;
+}
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i::after {
+  content:'';
+  position:absolute;
+  left:50%;top:50%;
+  width:3px;height:3px;
+  border-radius:50%;
+  background:#020204;
+  box-shadow:0 0 0 1px rgba(255,107,123,.72),0 0 4px #ff2146;
+  transform:translate(-50%,-50%);
+}
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes .cyber-grid,
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes .gpt-eye-grid { display:none !important; }
+@keyframes crimsonOrbitSpin { to { transform:rotate(360deg); } }
+@keyframes crimsonIrisPulse {
+  from { filter:saturate(.92) brightness(.88); }
+  to { filter:saturate(1.2) brightness(1.16); }
+}
+@media(prefers-reduced-motion:reduce){
+  #island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i,
+  #island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i::before{animation:none !important}
+}
+
 /* Rage: override base angry clip/size so the brow and half-circle shape render */
 #island[data-angry-variant="rage"] #v-idle[data-exp="angry"] #eyes i:first-child,
 #island[data-angry-variant="rage"] #v-idle[data-exp="angry"] #eyes i:nth-child(2) { clip-path: none; width: 12px; height: 7px; }
@@ -3121,11 +3232,40 @@ button:disabled { opacity:.35; cursor:default; }
   font-variant-numeric: tabular-nums;
   color: #e4e4e7;
 }
+.idle-side-info.left[data-kind="battery"],.idle-side-info.left[data-kind="todo"] { left: 6px; }
+.idle-side-info.right[data-kind="battery"],.idle-side-info.right[data-kind="todo"] { right: 6px; flex-direction: row-reverse; }
 .idle-cloud-svg {
   width: 14px;
   height: 14px;
   color: #93c5fd;
   filter: drop-shadow(0 0 4px rgba(147, 197, 253, .6));
+}
+.idle-info-visual { display: grid; place-items: center; flex: none; }
+.idle-info-visual:empty { display: none; }
+.idle-info-visual .idle-cloud-svg { display: block; }
+.idle-progress-ring { position: relative; display: grid; place-items: center; width: 27px; height: 27px; }
+.idle-progress-ring svg { position: absolute; inset: 0; width: 27px; height: 27px; overflow: visible; }
+.idle-progress-track { fill: none; stroke: rgba(255,255,255,.14); stroke-width: 2.1; }
+.idle-battery-progress { fill: none; stroke: #53e783; stroke-width: 2.1; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 13.5px 13.5px; filter: drop-shadow(0 0 3px rgba(83,231,131,.42)); transition: stroke-dashoffset .45s ease-in-out; }
+.idle-battery-value { position: relative; color: #eafff0; font-size: 8px; font-weight: 500; line-height: 1; font-variant-numeric: tabular-nums; }
+.idle-side-info[data-kind="battery"][data-unavailable] .idle-battery-value { color: rgba(161,161,170,.78); }
+.idle-todo-segment { fill: none; stroke: rgba(255,255,255,.18); stroke-width: 2.4; stroke-linecap: butt; transform: rotate(-90deg); transform-origin: 13.5px 13.5px; }
+.idle-todo-segment.done { stroke: #4ade80; filter: drop-shadow(0 0 2.5px rgba(74,222,128,.38)); }
+#idle-weather[data-kind="weather"][data-unavailable] {
+  gap: 0;
+}
+#idle-weather[data-kind="weather"][data-unavailable] .idle-cloud-svg { color: rgba(161,161,170,.72); filter: none; }
+#idle-weather[data-kind="weather"][data-unavailable]::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  width: 10px;
+  height: 1.5px;
+  border-radius: 999px;
+  background: rgba(212, 212, 216, .88);
+  transform: translate(-50%, -50%) rotate(-45deg);
+  box-shadow: 0 0 0 1px rgba(10, 10, 11, .72);
 }
 #island[data-idle-info="1"] .idle-side-info {
   opacity: 1;
@@ -3254,6 +3394,221 @@ button:disabled { opacity:.35; cursor:default; }
   76%{transform:translate3d(-.7px,-.8px,0) rotate(calc(var(--gold-lean,0deg) - 5deg)) scale(calc(var(--gold-flex-x,1) + .04),calc(var(--gold-flex-y,1) + .10));filter:hue-rotate(-16deg) saturate(2) drop-shadow(0 0 6px #ff9f19)}
 }
 @media(prefers-reduced-motion:reduce){#island[data-angry-variant="gold-matrix"] #v-idle[data-exp="angry"] #eyes i{animation:none !important}}
+
+/* Crimson Orbit active VFX: compositor-only particles and counter-rotating energy. */
+#island[data-key="idle"][data-angry="1"][data-angry-variant="crimson-orbit"] {
+  box-shadow:inset 0 0 0 1px rgba(255,50,76,.88),inset 0 0 14px rgba(145,0,28,.42),0 0 8px rgba(255,22,56,.72),0 0 22px rgba(130,0,28,.48) !important;
+  animation:crimsonBodyRage .085s steps(2,end) infinite !important;
+}
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes::before,
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes::after {
+  content:'';
+  position:absolute;
+  left:50%;top:50%;
+  width:48px;height:22px;
+  border:1px solid rgba(255,50,80,.66);
+  border-radius:50%;
+  pointer-events:none;
+  transform:translate(-50%,-50%) scale(.55);
+  opacity:0;
+}
+#island[data-angry-variant="crimson-orbit"][data-angry="1"] #v-idle[data-exp="angry"] #eyes::before {
+  animation:crimsonShock .72s cubic-bezier(.2,.7,.2,1) infinite;
+}
+#island[data-angry-variant="crimson-orbit"][data-angry="1"] #v-idle[data-exp="angry"] #eyes::after {
+  border-color:rgba(255,130,145,.38);
+  animation:crimsonShock .72s cubic-bezier(.2,.7,.2,1) -.36s infinite;
+}
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i {
+  background:
+    radial-gradient(circle,#010103 0 15%,transparent 17%),
+    conic-gradient(from -18deg,#210006 0 9deg,#ff3153 10deg 63deg,#4d000f 64deg 77deg,#ff173f 78deg 157deg,#350009 158deg 178deg,#ff5169 179deg 255deg,#43000d 256deg 278deg,#ff183f 279deg 350deg,#210006 351deg),
+    radial-gradient(circle,#ff4860 0 25%,#b4072c 44%,#440010 70%,#050507 72%) !important;
+  box-shadow:inset 0 0 4px #ff173d,inset 0 0 8px rgba(255,65,91,.68),0 0 5px #ff173d,0 0 12px rgba(255,0,48,.7) !important;
+}
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:nth-child(2) {
+  border-color:rgba(203,143,255,.9);
+  background:
+    radial-gradient(circle,#17051f 0 13%,transparent 15%),
+    repeating-radial-gradient(circle,#dca7ff 0 1.05px,#743ba0 1.35px 2.25px,#c686f5 2.55px 3.3px,#542169 3.6px 4.4px) !important;
+  box-shadow:inset 0 0 5px #c46dff,inset 0 0 9px rgba(136,46,205,.72),0 0 6px #b94eff,0 0 14px rgba(137,40,219,.72) !important;
+}
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i::before {
+  background:
+    radial-gradient(circle at 50% 4%,#050507 0 1.7px,#ff6075 1.8px 2.2px,transparent 2.3px),
+    radial-gradient(circle at 91% 73%,#050507 0 1.7px,#ff6075 1.8px 2.2px,transparent 2.3px),
+    radial-gradient(circle at 9% 73%,#050507 0 1.7px,#ff6075 1.8px 2.2px,transparent 2.3px) !important;
+  filter:drop-shadow(0 0 2px #ff3151);
+  translate:var(--crimson-iris-x,0px) var(--crimson-iris-y,0px);
+  animation:crimsonOrbitSpin .88s linear infinite !important;
+}
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i::after {
+  left:calc(50% + var(--crimson-pupil-x,0px));
+  top:calc(50% + var(--crimson-pupil-y,0px));
+  transition:left .075s cubic-bezier(.22,1,.36,1),top .075s cubic-bezier(.22,1,.36,1);
+}
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:nth-child(2)::before {
+  inset:1px;
+  background:repeating-radial-gradient(circle,transparent 0 2px,rgba(43,5,58,.9) 2.25px 2.8px,transparent 3px 4px) !important;
+  filter:drop-shadow(0 0 2px #d68cff);
+  animation:crimsonOrbitSpin 2.4s linear infinite reverse !important;
+}
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:nth-child(2)::after {
+  background:#190521;
+  box-shadow:0 0 0 1px rgba(229,187,255,.9),0 0 5px #c85cff;
+}
+.crimson-burst{display:none}
+#island[data-angry-variant="crimson-orbit"][data-angry="1"] .crimson-burst{
+  position:absolute;
+  inset:-15px -30px;
+  display:block;
+  pointer-events:none;
+  overflow:visible;
+}
+#island[data-angry-variant="crimson-orbit"][data-angry="1"] .crimson-burst b{
+  --cx:0px;--cy:0px;--bx:0px;--by:-20px;--delay:0s;
+  position:absolute;
+  left:50%;top:50%;
+  width:2px;height:2px;
+  border-radius:50%;
+  background:#ff6077;
+  box-shadow:0 0 3px #fff,0 0 7px #ff1743;
+  opacity:0;
+  will-change:transform,opacity;
+  animation:crimsonParticle .92s cubic-bezier(.12,.58,.25,1) var(--delay) infinite;
+}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(1){--bx:-35px;--by:-12px;--delay:-.06s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(2){--bx:-29px;--by:-25px;--delay:-.39s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(3){--bx:-18px;--by:-31px;--delay:-.68s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(4){--bx:-7px;--by:-24px;--delay:-.22s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(5){--bx:7px;--by:-27px;--delay:-.76s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(6){--bx:19px;--by:-33px;--delay:-.47s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(7){--bx:31px;--by:-24px;--delay:-.12s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(8){--bx:37px;--by:-10px;--delay:-.58s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(9){--bx:-39px;--by:5px;--delay:-.51s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(10){--bx:-25px;--by:16px;--delay:-.81s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(11){--bx:-12px;--by:22px;--delay:-.31s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(12){--bx:12px;--by:21px;--delay:-.64s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(13){--bx:27px;--by:15px;--delay:-.18s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(14){--bx:40px;--by:4px;--delay:-.72s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(15){--bx:-2px;--by:-38px;--delay:-.44s;width:1px;height:4px}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(16){--bx:3px;--by:28px;--delay:-.86s;width:1px;height:4px}
+@keyframes crimsonParticle{
+  0%{opacity:0;transform:translate3d(var(--cx),var(--cy),0) scale(.25)}
+  18%{opacity:1}
+  72%{opacity:.72}
+  100%{opacity:0;transform:translate3d(var(--bx),var(--by),0) scale(1.45)}
+}
+@keyframes crimsonShock{
+  0%{opacity:.72;transform:translate(-50%,-50%) scale(.45)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.38)}
+}
+@keyframes crimsonBodyRage{
+  0%,100%{transform:translate3d(calc(-50% - 1px),-.55px,0)}
+  25%{transform:translate3d(calc(-50% + 1.15px),.7px,0)}
+  50%{transform:translate3d(calc(-50% - .4px),.2px,0)}
+  75%{transform:translate3d(calc(-50% + .55px),-.8px,0)}
+}
+@media(prefers-reduced-motion:reduce){
+  #island[data-key="idle"][data-angry="1"][data-angry-variant="crimson-orbit"],
+  #island[data-angry-variant="crimson-orbit"] #eyes::before,
+  #island[data-angry-variant="crimson-orbit"] #eyes::after,
+  #island[data-angry-variant="crimson-orbit"] .crimson-burst b{animation:none !important}
+  #island[data-angry-variant="crimson-orbit"] .crimson-burst{display:none !important}
+}
+
+/* Crimson Orbit eye shell: sharp red eyes with a separately tracked iris. */
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes{
+  gap:2px;
+}
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i,
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:first-child,
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:nth-child(2){
+  width:calc(34px * var(--left-eye-size,1));
+  height:18px;
+  overflow:hidden;
+  border:0;
+  border-radius:0;
+  clip-path:path('M 0 7 Q 15 -1 34 12 Q 18 22 0 7 Z');
+  background:
+    linear-gradient(164deg,rgba(255,255,255,.98) 9%,rgba(255,224,226,.95) 48%,rgba(157,50,62,.72) 100%) !important;
+  box-shadow:inset 0 2px 3px rgba(22,0,3,.82),inset 0 -2px 3px rgba(93,0,14,.72),0 0 5px #ff173d,0 0 13px rgba(255,0,48,.72) !important;
+  transform:rotate(8deg);
+  animation:crimsonEyeTension .72s ease-in-out infinite alternate !important;
+}
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:nth-child(2){
+  width:calc(34px * var(--right-eye-size,1));
+  border-radius:0;
+  clip-path:path('M 0 12 Q 19 -1 34 7 Q 16 22 0 12 Z');
+  transform:rotate(-8deg);
+}
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i::before,
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:nth-child(2)::before{
+  content:'';
+  position:absolute;
+  left:calc(50% + var(--crimson-pupil-x,0px));
+  top:calc(50% + var(--crimson-pupil-y,0px));
+  width:26px;
+  height:26px;
+  inset:auto;
+  border-radius:50%;
+  translate:none;
+  transform:translate(-50%,-50%);
+  background:
+    radial-gradient(circle at 50% 9%,#210006 0 1.9px,transparent 2.1px),
+    radial-gradient(circle at 86% 70%,#210006 0 1.9px,transparent 2.1px),
+    radial-gradient(circle at 14% 70%,#210006 0 1.9px,transparent 2.1px),
+    repeating-conic-gradient(from -7deg,rgba(39,0,7,.92) 0 8deg,transparent 10deg 40deg),
+    radial-gradient(circle,#ff5c70 0 28%,#bc092d 52%,#45000f 74%,#090104 76%) !important;
+  border:2px solid rgba(82,0,14,.96);
+  box-shadow:inset 0 0 4px #ff173d,0 0 0 1px rgba(255,70,91,.48),0 0 5px #ff173d,0 0 10px rgba(255,0,48,.82);
+  filter:none;
+  animation:crimsonIrisTurn 1.35s linear infinite !important;
+  transition:left .075s cubic-bezier(.22,1,.36,1),top .075s cubic-bezier(.22,1,.36,1);
+}
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:nth-child(2)::before{
+  animation-direction:reverse !important;
+}
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i::after,
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:nth-child(2)::after{
+  display:none;
+}
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i::before,
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:nth-child(2)::before{
+  display:none;
+}
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i .cyber-grid{
+  position:absolute;
+  display:block!important;
+  left:50%;
+  top:50%;
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  translate:calc(-50% + var(--crimson-pupil-x,0px)) calc(-50% + var(--crimson-pupil-y,0px));
+  background:
+    radial-gradient(circle at 50% 9%,#260008 0 1.9px,transparent 2.1px),
+    radial-gradient(circle at 86% 70%,#260008 0 1.9px,transparent 2.1px),
+    radial-gradient(circle at 14% 70%,#260008 0 1.9px,transparent 2.1px),
+    repeating-conic-gradient(from -7deg,rgba(43,0,8,.94) 0 12deg,transparent 15deg 120deg),
+    radial-gradient(circle,#ff7181 0 24%,#e71942 43%,#9d0627 68%,#37000d 100%);
+  border:2px solid rgba(82,0,14,.96);
+  box-shadow:inset 0 0 5px #ff173d,0 0 0 1px rgba(255,70,91,.48),0 0 5px #ff173d,0 0 10px rgba(255,0,48,.82);
+  animation:crimsonGridTurn 1.35s linear infinite!important;
+  transition:translate .075s cubic-bezier(.22,1,.36,1);
+}
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:nth-child(2) .cyber-grid{
+  animation-direction:reverse!important;
+}
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i .cyber-grid b{
+  display:none!important;
+}
+@keyframes crimsonGridTurn{to{rotate:360deg}}
+@keyframes crimsonIrisTurn{to{rotate:360deg}}
+@keyframes crimsonEyeTension{
+  from{filter:brightness(.9) saturate(1.08)}
+  to{filter:brightness(1.08) saturate(1.3)}
+}
 /* Personal features slide */
 #v-addons.grump-panel{padding:17px 34px 29px;text-align:left;overflow:hidden;background:#141418}
 #v-todo.grump-panel,#v-notes.grump-panel,#v-prayer.grump-panel,#v-water.grump-panel{display:block;padding:17px 34px 29px;text-align:left;overflow:hidden;background:linear-gradient(160deg,#17171b 0%,#08080a 78%)}

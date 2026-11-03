@@ -2,20 +2,38 @@ const LABELS={idea:['Idea / Suggestion',16751360],bug:['Bug Report',15682628],ch
 const json=(body,status=200,origin='')=>new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store',...(origin?{'Access-Control-Allow-Origin':origin,'Vary':'Origin'}:{})}});
 export default {
   async fetch(request,env){
-    const requestUrl=new URL(request.url);
-    if(requestUrl.pathname==='/locale'&&request.method==='GET'){
-      const country=String(request.cf?.country||request.headers.get('CF-IPCountry')||'').toUpperCase();
-      return new Response(JSON.stringify({language:country==='ID'?'id':'en',country:country||null}),{headers:{'Content-Type':'application/json; charset=utf-8','Access-Control-Allow-Origin':'*','Cache-Control':'private, max-age=3600'}});
-    }
-    if(requestUrl.pathname==='/downloads'&&request.method==='GET'){
+    const url=new URL(request.url);
+    if(url.pathname==='/downloads'&&request.method==='GET'){
       try{const response=await env.FEEDBACK_LIMITER.getByName('public-download-stats-v1').fetch('https://internal/downloads');
         return new Response(response.body,{status:response.status,headers:{'Content-Type':'application/json','Access-Control-Allow-Origin':'*','Cache-Control':'no-store'}});
       }catch{return json({error:'Statistics temporarily unavailable'},503,'*');}
     }
+    if(url.pathname==='/diagnostics'){
+      if(request.method!=='POST')return json({error:'Method not allowed'},405);
+      if(request.headers.get('X-Grump-Diagnostics')!=='1'||!env.DIAGNOSTICS_WEBHOOK_URL||!env.FEEDBACK_LIMITER)return json({error:'Diagnostics unavailable'},503);
+      const declared=Number(request.headers.get('Content-Length')||0);if(declared>35000)return json({error:'Too large'},413);
+      let input;
+      try{
+        const reader=request.body?.getReader();if(!reader)return json({error:'Invalid JSON'},400);
+        const chunks=[];let bytes=0;
+        while(true){const {done,value}=await reader.read();if(done)break;bytes+=value.byteLength;if(bytes>35000){await reader.cancel();return json({error:'Too large'},413);}chunks.push(value);}
+        const body=new Uint8Array(bytes);let offset=0;for(const chunk of chunks){body.set(chunk,offset);offset+=chunk.byteLength;}
+        input=JSON.parse(new TextDecoder().decode(body));
+      }catch{return json({error:'Invalid JSON'},400);}
+      const valid=input&&input.schema===1&&/^[0-9A-Za-z.+-]{1,30}$/.test(input.version||'')&&['win32','linux','darwin'].includes(input.platform)&&Array.isArray(input.events)&&input.events.length<=120&&input.events.every(event=>typeof event==='string'&&event.length<=600)&&Array.isArray(input.processes)&&input.processes.length<=12;
+      if(!valid)return json({error:'Invalid diagnostic report'},400);
+      const ip=request.headers.get('CF-Connecting-IP')||'unknown';
+      const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ip));
+      const key='diagnostics:'+Array.from(new Uint8Array(hash),b=>b.toString(16).padStart(2,'0')).join('');
+      try{const gate=await env.FEEDBACK_LIMITER.getByName(key).fetch('https://limiter.internal/consume',{method:'POST'});if(gate.status===429)return json({error:'Too many reports'},429);if(!gate.ok)return json({error:'Diagnostics temporarily unavailable'},503);}catch{return json({error:'Diagnostics temporarily unavailable'},503);}
+      const processLines=input.processes.map(proc=>`${String(proc.type||'unknown').slice(0,28)}: ${Math.round(Number(proc.privateKB||0)/1024)} MB private`).join('\n').slice(0,1000)||'No process metrics';
+      const events=input.events.slice(-20).join('\n').replace(/`/g,"'").slice(-3500)||'No recent events';
+      const content={username:'Grump Diagnostics',allowed_mentions:{parse:[]},embeds:[{title:`Grump ${input.version} · ${String(input.reason||'manual').slice(0,30)}`,description:'```\n'+events+'\n```',color:5793266,fields:[{name:'System',value:`${input.platform} ${String(input.osVersion||'').slice(0,80)} · ${input.arch||'unknown'}\nElectron ${String(input.electron||'unknown').slice(0,30)} · ${input.displays?.length||0} display(s)`,inline:false},{name:'Processes',value:'```\n'+processLines+'\n```',inline:false},{name:'Previous unexpected exit',value:input.previousUnexpectedExit?'Yes':'No',inline:true},{name:'Report ID',value:String(input.reportId||'none').slice(0,80),inline:true}],footer:{text:'Opt-in sanitized Grump diagnostics'},timestamp:new Date().toISOString()}]};
+      try{const response=await fetch(env.DIAGNOSTICS_WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(content),signal:AbortSignal.timeout(8000)});if(!response.ok)return json({error:'Delivery failed'},502);return json({ok:true});}catch{return json({error:'Delivery failed'},502);}
+    }
     const origin=request.headers.get('Origin')||'';
     const allowed=String(env.ALLOWED_ORIGIN||'').split(',').map(value=>value.trim()).filter(Boolean);
     if(!origin||!allowed.includes(origin))return json({error:'Forbidden'},403);
-    const url=requestUrl;
     if(url.pathname!=='/feedback')return json({error:'Not found'},404,origin);
     if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Methods':'POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type','Access-Control-Max-Age':'600','Vary':'Origin'}});
     if(request.method!=='POST')return json({error:'Method not allowed'},405,origin);

@@ -42,6 +42,7 @@ bridge.onSettings((s) => {
   S.settings = { ...S.settings, ...s };
   applyIslandTransparency(); applyIslandLanguage();
   updateIdleInfoDisplay();
+  if ('idleInfoIntervalSec' in s || 'idleInfoDurationSec' in s || 'idleInfoItems' in s || 'idleInfoSides' in s) configureIdleInfoScheduler();
   if (s.theme) island.dataset.theme = s.theme;
   if (s.angryVariant) island.dataset.angryVariant = s.angryVariant;
   if (s.dockMode) island.dataset.dock = s.dockMode;
@@ -57,6 +58,25 @@ bridge.onSettings((s) => {
   paintIsland();
   layout();
   kick();
+});
+
+let glancePreview=null,glancePreviewPreviousActive=false;
+bridge.onGlancePreview?.((value) => {
+  if(value){
+    if(!glancePreview)glancePreviewPreviousActive=!!S.idleInfoActive;
+    glancePreview=value;
+    S.glancePreviewActive=true;
+    S.idleInfoActive=true;
+    clearTimeout(idleInfoHideTimer);
+    updateIdleInfoDisplay(false);
+  }else{
+    glancePreview=null;
+    S.glancePreviewActive=false;
+    S.idleInfoActive=glancePreviewPreviousActive;
+    updateIdleInfoDisplay(false);
+  }
+  layout();
+  syncIdleInfoEyes();
 });
 
 bridge.onGameMode?.((on) => {
@@ -363,9 +383,10 @@ function updateEyeLook(dx, dy, rawX, rawY) {
   eyesEl.style.setProperty('--right-eye-size', (isAngry && lx > 0 ? edgeEyeSize : 1).toFixed(3));
   const goldEyes = isAngry && variant === 'gold-matrix';
   const dragonEyes = isAngry && variant === 'dragon';
+  const crimsonEyes = isAngry && variant === 'crimson-orbit';
   const pixelEyes=isAngry&&variant==='gpt-pixels';
-  const eyePairWidth = isAngry ? (dragonEyes ? 53 : pixelEyes ? 36 : goldEyes ? 35 : 28) - (dragonEyes ? 23 : pixelEyes ? 14 : goldEyes ? 13 : 10.5) * (1 - edgeEyeSize) : 25;
-  const eyeHeight = isAngry ? (dragonEyes ? 17 : goldEyes ? 18 : pixelEyes ? 14 : 15) : 12;
+  const eyePairWidth = isAngry ? (dragonEyes ? 53 : crimsonEyes ? 75 : pixelEyes ? 36 : goldEyes ? 35 : 28) - (dragonEyes ? 23 : crimsonEyes ? 34 : pixelEyes ? 14 : goldEyes ? 13 : 10.5) * (1 - edgeEyeSize) : 25;
+  const eyeHeight = isAngry ? (dragonEyes ? 17 : crimsonEyes ? 18 : goldEyes ? 18 : pixelEyes ? 14 : 15) : 12;
   const maxY = Math.max(0, islandHeight / 2 - eyeHeight * sc / 2 - 3);
   const edgeMargin = isAngry ? 3 : 8;
   const maxX = Math.max(0, islandWidth / 2 - eyePairWidth * sc / 2 - edgeMargin);
@@ -387,7 +408,7 @@ function updateEyeLook(dx, dy, rawX, rawY) {
     if (weatherInfo && getComputedStyle(weatherInfo).display !== 'none') {
       minX = Math.max(minX, weatherInfo.getBoundingClientRect().right - islandRect.left + clearance + halfPair - islandWidth / 2);
     }
-    if (timeInfo) {
+    if (timeInfo && getComputedStyle(timeInfo).display !== 'none') {
       maxAllowedX = Math.min(maxAllowedX, timeInfo.getBoundingClientRect().left - islandRect.left - clearance - halfPair - islandWidth / 2);
     }
     if (minX > maxAllowedX) minX = maxAllowedX = clamp((minX + maxAllowedX) / 2, -maxX, maxX);
@@ -400,6 +421,14 @@ function updateEyeLook(dx, dy, rawX, rawY) {
     eyesEl.style.setProperty('--gold-tip-shift', `${(horizontal * 14).toFixed(2)}%`);
     eyesEl.style.setProperty('--gold-flex-x', (1 - Math.abs(horizontal) * .19).toFixed(3));
     eyesEl.style.setProperty('--gold-flex-y', (1.15 + Math.max(0, vertical) * .20).toFixed(3));
+  }
+  if (isAngry && crimsonEyes) {
+    const crimsonX = clamp(dx / 70, -1, 1);
+    const crimsonY = clamp(dy / 30, -1, 1);
+    eyesEl.style.setProperty('--crimson-pupil-x', `${(crimsonX * 3.2).toFixed(2)}px`);
+    eyesEl.style.setProperty('--crimson-pupil-y', `${(crimsonY * 2.5).toFixed(2)}px`);
+    eyesEl.style.setProperty('--crimson-iris-x', `${(crimsonX * 1.25).toFixed(2)}px`);
+    eyesEl.style.setProperty('--crimson-iris-y', `${(crimsonY * 1.05).toFixed(2)}px`);
   }
   // At the extreme side, pull the pair toward the vertical center of the
   // rounded end rather than clipping the outer eye against its curved rim.
@@ -908,27 +937,70 @@ bridge.onConnectivity?.(state=>{ syncConnectivityButtons(state); if(typeof rende
 });
 
 
-/* ---------- 30s Idle Info (Weather & Clock) Engine ---------- */
+/* ---------- Custom idle glance rotation ---------- */
 let weatherState = { available: false };
 bridge.onWeather?.(state => {
   weatherState = state || { available: false };
-  if (!weatherState.available && S.idleInfoActive) { S.idleInfoActive = false; layout(); syncIdleInfoEyes(); }
   updateIdleInfoDisplay();
 });
 
-function updateIdleInfoDisplay() {
+const idleInfoKinds=new Set(['clock','weather','battery','todo']);
+const idleWeatherSvg='<svg class="idle-cloud-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>';
+function batteryRing(pct,available=true){
+  const value=available?clamp(Math.round(pct),0,100):0;
+  return `<span class="idle-progress-ring battery-ring"><svg viewBox="0 0 27 27" aria-hidden="true"><circle class="idle-progress-track" cx="13.5" cy="13.5" r="10.5"/><circle class="idle-battery-progress" cx="13.5" cy="13.5" r="10.5" pathLength="100" stroke-dasharray="100" stroke-dashoffset="${100-value}"/></svg><span class="idle-battery-value">${available?value:'—'}</span></span>`;
+}
+function todoRing(done,total){
+  const count=Math.min(12,Math.max(1,total));
+  const completed=total?Math.round(done/total*count):0;
+  const gap=count===1?0:Math.min(4,1.8+count*.16);
+  const length=100/count-gap;
+  const segments=Array.from({length:count},(_,index)=>`<circle class="idle-todo-segment${index<completed?' done':''}" cx="13.5" cy="13.5" r="10.5" pathLength="100" stroke-dasharray="${length} ${100-length}" stroke-dashoffset="${-(index*100/count)}"/>`).join('');
+  return `<span class="idle-progress-ring todo-ring"><svg viewBox="0 0 27 27" aria-hidden="true">${segments}</svg></span>`;
+}
+let idleInfoCursor=0;
+function idleInfoValue(kind) {
   const d = new Date();
   const timeStr = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  const tEl = $('#idle-time-text');
-  if (tEl) tEl.textContent = timeStr;
-  const wEl = $('#idle-weather-text');
-  const weatherEl = $('#idle-weather');
-  const showWeather = S.settings.weatherEnabled === true && weatherState.available;
-  if (weatherEl) weatherEl.style.display = showWeather ? '' : 'none';
-  if (wEl) {
-    wEl.textContent = showWeather ? `${Math.round(weatherState.temperature)}°C` : '';
-    wEl.title = showWeather ? `${weatherState.city} · MET Norway · updated ${new Date(weatherState.updatedAt).toLocaleTimeString()}` : '';
+  if(kind==='clock')return {text:timeStr,label:isId()?'Waktu saat ini':'Current time',visual:''};
+  if(kind==='weather'){
+    const available=S.settings.weatherEnabled===true&&weatherState.available;
+    return {text:available?`${Math.round(weatherState.temperature)}°C`:'',label:available?`${weatherState.city} · MET Norway`:(isId()?'Cuaca tidak tersedia':'Weather unavailable'),unavailable:!available,visual:idleWeatherSvg};
   }
+  if(kind==='battery'){
+    if(!batRef)return {text:'',label:isId()?'Baterai tidak tersedia':'Battery unavailable',unavailable:true,visual:batteryRing(0,false)};
+    const pct=Math.round(batRef.level*100);
+    return {text:'',label:batRef.charging?(isId()?`Mengisi daya ${pct}%`:`Charging ${pct}%`):(isId()?`Baterai ${pct}%`:`Battery ${pct}%`),visual:batteryRing(pct)};
+  }
+  const tasks=typeof addonProductivity!=='undefined'&&Array.isArray(addonProductivity.tasks)?addonProductivity.tasks:[];
+  const done=tasks.filter(task=>task.done).length;
+  const open=tasks.filter(task=>!task.done).length;
+  return {text:isId()?`${open} tersisa`:`${open} left`,label:isId()?`${done} dari ${tasks.length} tugas selesai`:`${done} of ${tasks.length} tasks completed`,visual:todoRing(done,tasks.length)};
+}
+function renderIdleInfoSide(side,kind) {
+  const box=side==='left'?$('#idle-weather'):$('#idle-time');
+  const text=side==='left'?$('#idle-weather-text'):$('#idle-time-text');
+  const icon=side==='left'?$('#idle-left-icon'):$('#idle-right-icon');
+  if(!box||!text||!icon)return;
+  if(!kind){box.style.display='none';return;}
+  const info=idleInfoValue(kind);
+  box.style.display='';box.dataset.kind=kind;box.toggleAttribute('data-unavailable',!!info.unavailable);
+  box.setAttribute('aria-label',info.label);text.textContent=info.text;text.title=info.label;
+  icon.innerHTML=info.visual||'';
+}
+function updateIdleInfoDisplay(advance=false) {
+  const config=glancePreview||S.settings;
+  const configured=Array.isArray(config.idleInfoItems)?config.idleInfoItems:Array.isArray(config.items)?config.items:['clock','weather','battery','todo'];
+  const selected=(config.focus&&idleInfoKinds.has(config.focus)?[config.focus]:configured).filter(kind=>idleInfoKinds.has(kind));
+  const items=selected.length?selected:['clock'];
+  const sides={clock:'left',weather:'right',battery:'left',todo:'right',...(config.idleInfoSides||config.sides||{})};
+  const leftItems=items.filter(kind=>sides[kind]==='left');
+  const rightItems=items.filter(kind=>sides[kind]==='right');
+  const cycleLength=Math.max(leftItems.length,rightItems.length,1);
+  if(idleInfoCursor>=cycleLength)idleInfoCursor=0;
+  renderIdleInfoSide('left',leftItems.length?leftItems[idleInfoCursor%leftItems.length]:null);
+  renderIdleInfoSide('right',rightItems.length?rightItems[idleInfoCursor%rightItems.length]:null);
+  if(advance)idleInfoCursor=(idleInfoCursor+1)%cycleLength;
 }
 
 let idleInfoEyeSyncToken = 0;
@@ -943,8 +1015,8 @@ function syncIdleInfoEyes() {
   requestAnimationFrame(frame);
 }
 
-// Siklus setiap 30 detik: aktif selama 10 detik dengan animasi ease-in
-setInterval(() => {
+let idleInfoIntervalTimer=0,idleInfoHideTimer=0;
+function runIdleInfoCycle(){
   if (curKey !== 'idle' || S.expanded || S.creativeNear || (S.settings && S.settings.quiet) || S.gameMode) {
     if (S.idleInfoActive) {
       S.idleInfoActive = false;
@@ -953,17 +1025,24 @@ setInterval(() => {
     }
     return;
   }
-  updateIdleInfoDisplay();
+  updateIdleInfoDisplay(true);
   S.idleInfoActive = true;
   layout();
   syncIdleInfoEyes();
 
-  setTimeout(() => {
+  clearTimeout(idleInfoHideTimer);
+  idleInfoHideTimer=setTimeout(() => {
     if (S.idleInfoActive) {
       S.idleInfoActive = false;
       layout();
       syncIdleInfoEyes();
     }
-  }, 10000); // Tampil selama 10 detik
-}, 30000); // Ulangi setiap 30 detik
+  },Math.max(3,Math.min(15,Number(S.settings.idleInfoDurationSec)||10))*1000);
+}
+function configureIdleInfoScheduler(){
+  clearInterval(idleInfoIntervalTimer);clearTimeout(idleInfoHideTimer);
+  const interval=Math.max(10,Math.min(3600,Number(S.settings.idleInfoIntervalSec)||30))*1000;
+  idleInfoIntervalTimer=setInterval(runIdleInfoCycle,interval);
+}
+configureIdleInfoScheduler();
 
