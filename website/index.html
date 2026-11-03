@@ -2586,6 +2586,14 @@
       }
     }
 
+    let currentDemoMode = 'glance';
+    let currentDockMode = 'anchored';
+
+    function replayDemoState() {
+      sendToGrump({ action: 'dock', dockMode: currentDockMode });
+      sendToGrump({ mode: currentDemoMode });
+    }
+
     function fitLaptopScale() {
       const vw = window.innerWidth;
       const u = vw > 1024 ? 1.08 : (vw > 640 ? 1.0 : Math.max(0.68, (vw - 44) / 440));
@@ -2594,7 +2602,10 @@
     }
     window.addEventListener('resize', fitLaptopScale);
     window.addEventListener('DOMContentLoaded', fitLaptopScale);
-    document.getElementById('grump-demo-frame').addEventListener('load', fitLaptopScale);
+    document.getElementById('grump-demo-frame').addEventListener('load', () => {
+      fitLaptopScale();
+      replayDemoState();
+    });
 
     async function resolveInstaller() {
       const button = document.getElementById('btn-dl-setup');
@@ -2677,6 +2688,7 @@
     setInterval(()=>{if(!document.hidden)refreshDownloadCount();},60*1000);
 
     function setDockMode(dockMode) {
+      currentDockMode = dockMode;
       document.getElementById('btn-dock-anchored').setAttribute('aria-pressed', String(dockMode === 'anchored'));
       document.getElementById('btn-dock-island').setAttribute('aria-pressed', String(dockMode === 'island'));
       sendToGrump({ action: 'dock', dockMode });
@@ -2748,6 +2760,7 @@
     }
 
     function setDemoMode(mode) {
+      currentDemoMode = mode;
       stopAiDemo();
       document.querySelectorAll('.state-btn').forEach(btn => {
         btn.setAttribute('aria-pressed', String(btn.dataset.mode === mode));
