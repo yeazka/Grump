@@ -373,6 +373,7 @@
   function clearDemoActivities() {
     const isl = window.__island;
     if (!isl) return;
+    isl.dismissMiniPopup?.();
     const islandEl = document.getElementById('island');
     if (islandEl) islandEl.classList.remove('mouth-open');
     isl.S.dropHot = false;
