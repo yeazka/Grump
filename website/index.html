@@ -4,8 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Grump Notch turns the top edge of Windows into an expressive, moody Notch for music, focus timers, AI coding activity, and system controls.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' https://d8j0ntlcm91z4.cloudfront.net; frame-src 'self'; connect-src 'self' https://api.github.com https://grump-feedback.azkaatsmara456.workers.dev; object-src 'none'; base-uri 'self'; form-action 'self'">
   <meta name="theme-color" content="#0b0704">
   <title>Grump Notch: Your Desktop Just Got Angrier</title>
+  <link rel="canonical" href="https://yeazka.github.io/Grump/">
+  <link rel="alternate" hreflang="en" href="https://yeazka.github.io/Grump/?lang=en">
+  <link rel="alternate" hreflang="id" href="https://yeazka.github.io/Grump/?lang=id">
+  <link rel="alternate" hreflang="x-default" href="https://yeazka.github.io/Grump/">
 
   <!-- Favicon -->
   <link rel="icon" type="image/jpeg" href="assets/grump-logo.jpg">
@@ -13,16 +20,32 @@
 
   <!-- OpenGraph / Social Sharing -->
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://yeazka.github.io/Grump/">
   <meta property="og:title" content="Grump Notch: Your Desktop Just Got Angrier">
   <meta property="og:description" content="The moody Notch for Windows 10 &amp; 11. WebGL media player, synced lyrics, focus timer, and cursor-reactive LED eyes.">
-  <meta property="og:image" content="assets/grump-logo.jpg">
+  <meta property="og:image" content="https://yeazka.github.io/Grump/assets/grump-logo.jpg">
   <meta property="og:image:alt" content="Grump Notch Gold Matrix Mascot">
 
   <!-- Twitter Cards -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Grump Notch: Your Desktop Just Got Angrier">
   <meta name="twitter:description" content="The moody Notch for Windows 10 &amp; 11. Cursor-reactive eyes, WebGL music player, and liquid glass controls.">
-  <meta name="twitter:image" content="assets/grump-logo.jpg">
+  <meta name="twitter:image" content="https://yeazka.github.io/Grump/assets/grump-logo.jpg">
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Grump Notch",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Windows 10, Windows 11",
+      "url": "https://yeazka.github.io/Grump/",
+      "downloadUrl": "https://github.com/yeazka/Grump/releases/download/v1.1.3/Grump-Setup-1.1.3.exe",
+      "image": "https://yeazka.github.io/Grump/assets/grump-logo.jpg",
+      "author": { "@type": "Person", "name": "Azka" },
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    }
+  </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -73,6 +96,18 @@
 
     button {
       font: inherit;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
     }
 
     a[href],
@@ -292,6 +327,23 @@
     }
     .github-link[aria-disabled="true"] { opacity: .5; pointer-events: none; }
 
+    .mobile-menu-toggle {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      color: #ded8d2;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+    }
+
+    .mobile-github-link {
+      display: none;
+    }
+
     /* v1.1.3 release notes */
     .release-section {
       position: relative;
@@ -426,7 +478,7 @@
       height: 100%;
       object-fit: cover;
       z-index: 0;
-      filter: hue-rotate(145deg) saturate(1.42) brightness(0.9);
+      filter: hue-rotate(145deg) saturate(1.42) brightness(1.08);
     }
 
     .warm-ambient-glow {
@@ -434,7 +486,7 @@
       inset: 0;
       z-index: 1;
       background:
-        radial-gradient(circle at 50% 36%, rgba(11, 7, 4, 0.08) 0%, rgba(11, 7, 4, 0.32) 72%, #0b0704 100%),
+        radial-gradient(circle at 50% 36%, rgba(11, 7, 4, 0.03) 0%, rgba(11, 7, 4, 0.22) 72%, rgba(11, 7, 4, 0.82) 100%),
         radial-gradient(circle at 50% 30%, rgba(245, 158, 11, 0.35) 0%, transparent 62%);
       pointer-events: none;
     }
@@ -1156,31 +1208,68 @@
       .header-right {
         gap: 8px;
         min-width: 0;
-        flex: 1;
       }
 
       .main-nav {
-        min-width: 0;
-        overflow-x: auto;
-        scrollbar-width: none;
+        position: absolute;
+        top: 64px;
+        left: 14px;
+        right: 14px;
+        display: none;
+        grid-template-columns: 1fr;
+        padding: 8px;
+        background: rgba(14, 10, 8, 0.96);
+        border: 1px solid rgba(255, 255, 255, 0.13);
+        border-radius: 18px;
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.48);
+        backdrop-filter: blur(22px);
+        -webkit-backdrop-filter: blur(22px);
       }
 
-      .main-nav::-webkit-scrollbar {
-        display: none;
+      .site-header.menu-open .main-nav {
+        display: grid;
       }
 
       .nav-link {
-        padding: 0 8px;
-        font-size: 13px;
-        white-space: nowrap;
+        justify-content: flex-start;
+        padding: 0 14px;
+        font-size: 14px;
       }
 
-      .github-link span {
+      .mobile-github-link {
+        display: inline-flex;
+      }
+
+      .mobile-menu-toggle {
+        display: inline-flex;
+      }
+
+      .github-link {
         display: none;
+      }
+
+      .brand-link {
+        margin-right: auto;
+      }
+
+      .lang-btn {
+        min-width: 38px;
+        padding-inline: 8px;
       }
 
       .hero-section {
         padding: 96px 14px 68px;
+      }
+
+      .hero-content,
+      .hero-lead {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+      }
+
+      .hero-lead {
+        overflow-wrap: anywhere;
       }
 
       .hero-line {
@@ -1193,7 +1282,9 @@
       }
 
       .hero-cta-row .liquid-glass-btn {
-        width: 100%;
+        width: calc(100vw - 28px);
+        max-width: calc(100vw - 28px);
+        padding-inline: 18px;
       }
 
       .state-grid {
@@ -1875,13 +1966,20 @@
       </a>
 
       <div class="header-right">
-        <nav class="main-nav" aria-label="Main navigation">
+        <nav class="main-nav" id="main-navigation" aria-label="Main navigation">
           <a href="#overview" class="nav-link" data-i18n="nav-overview">Overview</a>
           <a href="#features" class="nav-link" data-i18n="nav-features">Features</a>
           <a href="#whats-new" class="nav-link" data-i18n="nav-whats-new">What's new</a>
           <a href="#specifications" class="nav-link" data-i18n="nav-specifications">Specification</a>
           <a href="#testimonials" class="nav-link" data-i18n="nav-testimonials">Creator notes</a>
+          <a href="https://github.com/yeazka/Grump" class="nav-link mobile-github-link" target="_blank" rel="noopener noreferrer">GitHub</a>
         </nav>
+
+        <button type="button" class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="main-navigation">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16"/>
+          </svg>
+        </button>
 
         <div class="lang-switch" id="lang-switch" data-lang="en" role="group" aria-label="Language">
           <span class="lang-thumb" aria-hidden="true"></span>
@@ -1931,7 +2029,7 @@
         </h1>
 
         <p class="hero-lead" data-i18n="hero-subtext">
-          The moody Notch for Windows. It judges your Spotify taste, controls your PC, and shoots lasers at your cursor when you annoy it.
+          The moody Notch for Windows. It judges your Spotify taste, controls your PC, and reacts when your cursor gets too close.
         </p>
 
         <div class="hero-cta-row">
@@ -1939,7 +2037,7 @@
           <a
             class="liquid-glass-btn liquid-glass-primary"
             id="btn-dl-setup"
-            href="https://github.com/yeazka/Grump/releases/download/v1.0.9/Grump-Setup-1.0.9.exe"
+            href="https://github.com/yeazka/Grump/releases/download/v1.1.3/Grump-Setup-1.1.3.exe"
             target="_blank"
             rel="noopener noreferrer"
             title="Download Grump Setup for Windows"
@@ -2266,6 +2364,7 @@
 
                   <!-- Message Textarea -->
                   <div class="fb-field">
+                    <label class="sr-only" for="fb-text" data-i18n="fb-message-label">Feedback message</label>
                     <textarea
                       id="fb-text"
                       class="fb-textarea"
@@ -2278,6 +2377,7 @@
 
                   <!-- Optional Contact Handle / Email -->
                   <div class="fb-field">
+                    <label class="sr-only" for="fb-contact" data-i18n="fb-contact-label">Email or contact handle (optional)</label>
                     <input
                       type="text"
                       id="fb-contact"
@@ -2305,7 +2405,7 @@
                         </svg>
                         <span id="fb-btn-text" data-i18n="fb-btn-submit">Send Feedback</span>
                       </button>
-                      <a class="fb-support-btn" href="https://trakteer.id/sewelaspixel/tip" target="_blank" rel="noopener noreferrer">
+                      <a class="fb-support-btn" href="https://github.com/sponsors/yeazka" target="_blank" rel="noopener noreferrer">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                         </svg>
@@ -2330,8 +2430,8 @@
           <!-- Bottom subtle ticker marquee -->
         <div class="testi-ticker" aria-hidden="true">
           <div class="testi-ticker-track">
-            <span data-i18n="marquee-text">Grump &bull; Built by Azka &bull; Moody Notch for Windows &bull; Free &amp; Open Source &bull; Grump &bull; Built by Azka &bull; Moody Notch for Windows &bull; Free &amp; Open Source &bull;&nbsp;</span>
-            <span data-i18n="marquee-text">Grump &bull; Built by Azka &bull; Moody Notch for Windows &bull; Free &amp; Open Source &bull; Grump &bull; Built by Azka &bull; Moody Notch for Windows &bull; Free &amp; Open Source &bull;&nbsp;</span>
+            <span data-i18n="marquee-text">Grump &bull; Built by Azka &bull; Moody Notch for Windows &bull; Free to download &bull; Grump &bull; Built by Azka &bull; Moody Notch for Windows &bull; Free to download &bull;&nbsp;</span>
+            <span data-i18n="marquee-text">Grump &bull; Built by Azka &bull; Moody Notch for Windows &bull; Free to download &bull; Grump &bull; Built by Azka &bull; Moody Notch for Windows &bull; Free to download &bull;&nbsp;</span>
           </div>
         </div>
 
@@ -2349,6 +2449,10 @@
       </div>
       <div class="footer-links-row">
         <a href="https://trakteer.id/sewelaspixel/tip" target="_blank" rel="noopener noreferrer" class="footer-link">Trakteer</a>
+        <span class="footer-sep">&bull;</span>
+        <a href="https://github.com/sponsors/yeazka" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub Sponsors</a>
+        <span class="footer-sep">&bull;</span>
+        <a href="https://discord.gg/F7u3RTzKXM" target="_blank" rel="noopener noreferrer" class="footer-link">Discord</a>
         <span class="footer-sep">&bull;</span>
         <a href="https://github.com/yeazka/Grump" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub</a>
         <span class="footer-sep">&bull;</span>
@@ -2379,7 +2483,7 @@
         "release-7-title": "Cleaner diagnostics", "release-7-desc": "Crash reports and diagnostics are separated from public feedback, with sharing kept opt-in.",
         "release-8-title": "Smoother updates", "release-8-desc": "Setup installs check every 30 minutes, then apply updates and relaunch Grump automatically.",
         "hero-title": "<span class=\"hero-line\">Your desktop is boring af,</span><span class=\"hero-line\">so we made it <span class=\"hero-title-accent\">angrier.</span></span>",
-        "hero-subtext": "The moody Notch for Windows. It judges your Spotify taste, controls your PC, and shoots lasers at your cursor when you annoy it.",
+        "hero-subtext": "The moody Notch for Windows. It judges your Spotify taste, controls your PC, and reacts when your cursor gets too close.",
         "btn-download": "Download for Windows",
         "btn-support": "Support me",
         "testi-trakteer": "Tip on Trakteer",
@@ -2396,6 +2500,8 @@
         "fb-type-cheer": "Cheer",
         "fb-placeholder": "What's on your mind? Share your thoughts, feature ideas, or issues...",
         "fb-contact-placeholder": "Your email or contact handle (optional)",
+        "fb-message-label": "Feedback message",
+        "fb-contact-label": "Email or contact handle (optional)",
         "fb-btn-submit": "Send Feedback",
         "fb-note": "Delivered directly to the creator",
         "fb-dest-sub": "Sent to the Grump feedback channel",
@@ -2433,7 +2539,7 @@
         "eye-happy": "Happy Arc",
         "eye-flirty": "Flirty Wink",
         "eye-sleepy": "Sleepy",
-        "marquee-text": "Grump &bull; Built by Azka &bull; Moody Notch for Windows &bull; Free &amp; Open Source &bull; Grump &bull; Built by Azka &bull; Moody Notch for Windows &bull; Free &amp; Open Source &bull;&nbsp;",
+        "marquee-text": "Grump &bull; Built by Azka &bull; Moody Notch for Windows &bull; Free to download &bull; Grump &bull; Built by Azka &bull; Moody Notch for Windows &bull; Free to download &bull;&nbsp;",
         "footer-crafted": "Crafted with attitude &bull; &copy; 2026 Grump"
       },
       id: {
@@ -2454,7 +2560,7 @@
         "release-7-title": "Diagnostik lebih rapi", "release-7-desc": "Laporan crash dan diagnostik dipisahkan dari feedback publik, dengan pengiriman tetap atas izin user.",
         "release-8-title": "Update lebih mulus", "release-8-desc": "Versi Setup mengecek tiap 30 menit, memasang update, lalu membuka ulang Grump secara otomatis.",
         "hero-title": "<span class=\"hero-line\">Desktop lu ngebosenin bgt,</span><span class=\"hero-line\">makanya kita bikin lebih <span class=\"hero-title-accent\">galak.</span></span>",
-        "hero-subtext": "Notch moody buat Windows. Nge-judge selera Spotify lu, kontrol PC lu, dan nembak laser ke kursor kalo lu usilin.",
+        "hero-subtext": "Notch moody buat Windows. Nge-judge selera Spotify lu, kontrol PC lu, dan bereaksi kalau kursor lu terlalu dekat.",
         "btn-download": "Download buat Windows",
         "btn-support": "Support me",
         "testi-trakteer": "Traktir Kopi",
@@ -2471,6 +2577,8 @@
         "fb-type-cheer": "Apresiasi",
         "fb-placeholder": "Ada ide baru atau nemu kendala? Tulis unek-unek lu di sini...",
         "fb-contact-placeholder": "Email atau kontak lu (opsional)",
+        "fb-message-label": "Pesan feedback",
+        "fb-contact-label": "Email atau kontak (opsional)",
         "fb-btn-submit": "Kirim Feedback",
         "fb-note": "Terkirim langsung ke kreator",
         "fb-dest-sub": "Dikirim ke channel feedback Grump",
@@ -2508,7 +2616,7 @@
         "eye-happy": "Happy Arc",
         "eye-flirty": "Flirty Wink",
         "eye-sleepy": "Sleepy",
-        "marquee-text": "Grump &bull; Dibuat oleh Azka &bull; Notch Moody untuk Windows &bull; Gratis &amp; Open Source &bull; Grump &bull; Dibuat oleh Azka &bull; Notch Moody untuk Windows &bull; Gratis &amp; Open Source &bull;&nbsp;",
+        "marquee-text": "Grump &bull; Dibuat oleh Azka &bull; Notch Moody untuk Windows &bull; Gratis diunduh &bull; Grump &bull; Dibuat oleh Azka &bull; Notch Moody untuk Windows &bull; Gratis diunduh &bull;&nbsp;",
         "footer-crafted": "Dibuat penuh karakter &bull; &copy; 2026 Grump"
       }
     };
@@ -2577,6 +2685,27 @@
       if (btnId) btnId.setAttribute('aria-pressed', String(lang === 'id'));
       updateCaption();
       renderTestimonial(activeTestiIndex);
+    }
+
+    function initMobileMenu() {
+      const header = document.querySelector('.site-header');
+      const button = document.getElementById('mobile-menu-toggle');
+      const nav = document.getElementById('main-navigation');
+      if (!header || !button || !nav) return;
+
+      const closeMenu = () => {
+        header.classList.remove('menu-open');
+        button.setAttribute('aria-expanded', 'false');
+      };
+
+      button.addEventListener('click', () => {
+        const open = header.classList.toggle('menu-open');
+        button.setAttribute('aria-expanded', String(open));
+      });
+      nav.addEventListener('click', closeMenu);
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') closeMenu();
+      });
     }
 
     function sendToGrump(payload) {
@@ -2977,7 +3106,9 @@
     window.addEventListener('scroll', checkHeaderScroll, { passive: true });
 
     window.addEventListener('DOMContentLoaded', () => {
-      setLang('en');
+      const requestedLang = new URLSearchParams(window.location.search).get('lang');
+      setLang(requestedLang === 'id' ? 'id' : 'en');
+      initMobileMenu();
       initTestiParallax();
       checkHeaderScroll();
       resetTestiTimer();

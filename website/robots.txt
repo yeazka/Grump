@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://yeazka.github.io/Grump/sitemap.xml
