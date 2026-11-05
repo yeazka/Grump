@@ -111,7 +111,7 @@
     theme: 'default',
     eyeMode: 'auto',
     staticExp: 'normal',
-    angryVariant: 'crimson-orbit',
+    angryVariant: 'berserk',
     leftEyeSize: 1,
     rightEyeSize: 1,
     quiet: false,
@@ -553,6 +553,26 @@
         stopMusic();
         isl.collapse();
         emit(cbs.glancePreview,{items:['battery','todo'],sides:{battery:'left',todo:'right'},focus:'battery'});
+        break;
+
+      case 'berserk':
+        stopMusic();
+        demoSettings.angryVariant = 'berserk';
+        demoSettings.eyeMode = 'auto';
+        demoSettings.staticExp = 'normal';
+        emit(cbs.settings, demoSettings);
+        isl.collapse();
+        isl.S.inAngryRadius = true;
+        if (islandEl) {
+          islandEl.dataset.angryVariant = 'berserk';
+          islandEl.dataset.angry = '1';
+        }
+        {
+          const idleEl = document.getElementById('v-idle');
+          if (idleEl) idleEl.dataset.exp = 'angry';
+        }
+        handlePointer(window.innerWidth / 2 + 34, 38);
+        isl.layout();
         break;
 
       case 'whatsapp':
