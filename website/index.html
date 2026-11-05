@@ -1884,6 +1884,16 @@
       border-color: rgba(255, 255, 255, 0.4);
     }
 
+    .feedback-discord-row {
+      display: flex;
+      justify-content: center;
+      margin: -8px 0 44px;
+    }
+
+    .feedback-discord-row .liquid-glass-btn {
+      min-width: 210px;
+    }
+
     .fb-error-banner {
       margin-top: 14px;
       padding: 12px 18px;
@@ -1989,6 +1999,20 @@
 
         <a
           class="github-link"
+          id="btn-github-sponsors"
+          href="https://github.com/sponsors/yeazka"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Support Grump through GitHub Sponsors"
+        >
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M17.73 3.06c-2.04 0-3.66 1.15-4.73 2.44-1.07-1.29-2.69-2.44-4.73-2.44A6.27 6.27 0 0 0 2 9.33c0 4.55 3.74 7.64 9.4 11.28a1.1 1.1 0 0 0 1.2 0C18.26 16.97 22 13.88 22 9.33a6.27 6.27 0 0 0-6.27-6.27Zm-5.73 15.3C7.24 15.2 4.2 12.68 4.2 9.33a4.07 4.07 0 0 1 4.07-4.07c1.63 0 2.96 1.02 3.73 2.13.42.6 1.58.6 2 0 .77-1.11 2.1-2.13 3.73-2.13a4.07 4.07 0 0 1 4.07 4.07c0 3.35-3.04 5.87-7.8 9.03Z"/>
+          </svg>
+          <span data-i18n="btn-github-sponsors">GitHub Sponsors</span>
+        </a>
+
+        <a
+          class="github-link"
           data-github-link
           href="https://github.com/yeazka/Grump"
           target="_blank"
@@ -2087,35 +2111,6 @@
             <span data-i18n="btn-support">Support me</span>
           </a>
 
-          <!-- 5. Grump community -->
-          <a
-            class="liquid-glass-btn"
-            id="btn-discord"
-            href="https://discord.gg/F7u3RTzKXM"
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Join the Grump Discord community"
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M19.54 5.34A16.3 16.3 0 0 0 15.44 4l-.5 1.02a15.1 15.1 0 0 0-5.87 0L8.56 4a16.6 16.6 0 0 0-4.1 1.35C1.86 9.2 1.16 12.95 1.5 16.64a16.6 16.6 0 0 0 5.03 2.55l1.23-1.68a10.7 10.7 0 0 1-1.93-.93l.47-.36c3.72 1.72 7.76 1.72 11.44 0l.48.36c-.62.36-1.27.67-1.94.93l1.23 1.68a16.5 16.5 0 0 0 5.03-2.55c.4-4.27-.7-7.98-3-11.3ZM8.52 14.42c-1.12 0-2.04-1.03-2.04-2.3 0-1.26.9-2.3 2.04-2.3 1.15 0 2.06 1.04 2.04 2.3 0 1.27-.9 2.3-2.04 2.3Zm6.96 0c-1.12 0-2.04-1.03-2.04-2.3 0-1.26.9-2.3 2.04-2.3 1.15 0 2.06 1.04 2.04 2.3 0 1.27-.89 2.3-2.04 2.3Z"/>
-            </svg>
-            <span data-i18n="btn-discord">Join Discord</span>
-          </a>
-
-          <!-- 6. International support -->
-          <a
-            class="liquid-glass-btn"
-            id="btn-github-sponsors"
-            href="https://github.com/sponsors/yeazka"
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Support Grump through GitHub Sponsors"
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M17.73 3.06c-2.04 0-3.66 1.15-4.73 2.44-1.07-1.29-2.69-2.44-4.73-2.44A6.27 6.27 0 0 0 2 9.33c0 4.55 3.74 7.64 9.4 11.28a1.1 1.1 0 0 0 1.2 0C18.26 16.97 22 13.88 22 9.33a6.27 6.27 0 0 0-6.27-6.27Zm-5.73 15.3C7.24 15.2 4.2 12.68 4.2 9.33a4.07 4.07 0 0 1 4.07-4.07c1.63 0 2.96 1.02 3.73 2.13.42.6 1.58.6 2 0 .77-1.11 2.1-2.13 3.73-2.13a4.07 4.07 0 0 1 4.07 4.07c0 3.35-3.04 5.87-7.8 9.03Z"/>
-            </svg>
-            <span data-i18n="btn-github-sponsors">GitHub Sponsors</span>
-          </a>
         </div>
 
         <div class="hero-downloads-text" aria-label="Download statistics">
@@ -2435,12 +2430,6 @@
                         </svg>
                         <span id="fb-btn-text" data-i18n="fb-btn-submit">Send Feedback</span>
                       </button>
-                      <a class="fb-support-btn" href="https://github.com/sponsors/yeazka" target="_blank" rel="noopener noreferrer">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                        </svg>
-                        <span data-i18n="btn-support">Support me</span>
-                      </a>
                     </div>
                   </div>
 
@@ -2454,6 +2443,22 @@
                 </form>
               </div>
             </div>
+          </div>
+
+          <div class="feedback-discord-row">
+            <a
+              class="liquid-glass-btn"
+              id="btn-discord"
+              href="https://discord.gg/F7u3RTzKXM"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Join the Grump Discord community"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M19.54 5.34A16.3 16.3 0 0 0 15.44 4l-.5 1.02a15.1 15.1 0 0 0-5.87 0L8.56 4a16.6 16.6 0 0 0-4.1 1.35C1.86 9.2 1.16 12.95 1.5 16.64a16.6 16.6 0 0 0 5.03 2.55l1.23-1.68a10.7 10.7 0 0 1-1.93-.93l.47-.36c3.72 1.72 7.76 1.72 11.44 0l.48.36c-.62.36-1.27.67-1.94.93l1.23 1.68a16.5 16.5 0 0 0 5.03-2.55c.4-4.27-.7-7.98-3-11.3ZM8.52 14.42c-1.12 0-2.04-1.03-2.04-2.3 0-1.26.9-2.3 2.04-2.3 1.15 0 2.06 1.04 2.04 2.3 0 1.27-.9 2.3-2.04 2.3Zm6.96 0c-1.12 0-2.04-1.03-2.04-2.3 0-1.26.9-2.3 2.04-2.3 1.15 0 2.06 1.04 2.04 2.3 0 1.27-.89 2.3-2.04 2.3Z"/>
+              </svg>
+              <span data-i18n="btn-discord">Join Discord</span>
+            </a>
           </div>
 
 
