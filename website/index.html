@@ -1903,16 +1903,23 @@
       box-shadow: 0 10px 30px rgba(88, 101, 242, 0.38);
     }
 
-    .qris-support { margin-top: 18px; border: 1px solid rgba(255,255,255,.12); border-radius: 22px; background: rgba(255,255,255,.035); }
-    .qris-support summary { min-height: 52px; padding: 0 18px; display: flex; align-items: center; justify-content: space-between; gap: 14px; cursor: pointer; list-style: none; font-weight: 700; }
-    .qris-support summary::-webkit-details-marker { display: none; }
-    .qris-support summary::after { content: '+'; color: #f5a524; font-size: 22px; font-weight: 400; }
-    .qris-support[open] summary::after { content: '−'; }
-    .qris-support-body { padding: 0 18px 20px; display: grid; grid-template-columns: minmax(180px,320px) 1fr; align-items: center; gap: 24px; }
-    .qris-support-copy { color: #aaa39d; font-size: 14px; line-height: 1.6; }
-    .qris-support-copy strong { display: block; margin-bottom: 6px; color: #fff; font-size: 16px; }
-    .qris-support-image { display: block; width: 100%; height: auto; border-radius: 16px; background: #fff; }
-    @media (max-width: 640px) { .qris-support-body { grid-template-columns: 1fr; } }
+    .qris-support {
+      min-height: 54px;
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255,255,255,.24);
+      border-radius: 999px;
+      background: #e3312d;
+      color: #fff;
+      font-weight: 700;
+      text-align: center;
+      text-decoration: none;
+      transition: background .18s ease, transform .18s ease;
+    }
+    .qris-support:hover { background: #f03b36; transform: translateY(-1px); }
+    .qris-support:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 
     .fb-error-banner {
       margin-top: 14px;
@@ -2471,15 +2478,7 @@
                     </div>
                   </div>
 
-                  <details class="qris-support">
-                    <summary><span data-i18n="qris-summary">Support with QRIS</span><span data-i18n="qris-summary-note">Indonesia</span></summary>
-                    <div class="qris-support-body">
-                      <a href="assets/qris-yea-zka.jpeg" target="_blank" rel="noopener" aria-label="Open QRIS at full size">
-                        <img class="qris-support-image" src="assets/qris-yea-zka.jpeg" width="875" height="1272" loading="lazy" alt="QRIS YEA.ZKA Service" />
-                      </a>
-                      <p class="qris-support-copy"><strong data-i18n="qris-title">Scan from your payment app</strong><span data-i18n="qris-desc">This is the creator's original QRIS. Open it at full size before scanning if needed.</span></p>
-                    </div>
-                  </details>
+                  <a class="qris-support" href="assets/qris-yea-zka.jpeg" target="_blank" rel="noopener" data-i18n="qris-summary" aria-label="Open QRIS at full size">Support with QRIS</a>
 
                   <div id="fb-success-banner" class="fb-success-banner" style="display: none;" role="status">
                     <span data-i18n="fb-success">Feedback sent successfully! Thank you for helping shape Grump!</span>
@@ -2549,7 +2548,7 @@
         "release-6-title": "More languages", "release-6-desc": "Grump now supports English, Indonesian, French, Spanish, Simplified Chinese, and Korean.",
         "release-7-title": "Support and feedback", "release-7-desc": "Send feedback, join Discord, or support Grump through Trakteer, GitHub Sponsors, and QRIS.",
         "release-8-title": "Lighter and steadier", "release-8-desc": "Idle rendering, transitions, diagnostics, and update handling were tightened for lower overhead and fewer interruptions.",
-        "qris-summary": "Support with QRIS", "qris-summary-note": "Indonesia", "qris-title": "Scan from your payment app", "qris-desc": "This is the creator's original QRIS. Open it at full size before scanning if needed.",
+        "qris-summary": "Support with QRIS",
         "hero-title": "<span class=\"hero-line\">Your desktop is boring af,</span><span class=\"hero-line\">so we made it <span class=\"hero-title-accent\">angrier.</span></span>",
         "hero-subtext": "The moody Notch for Windows. It judges your Spotify taste, controls your PC, and reacts when your cursor gets too close.",
         "btn-download": "Download for Windows",
@@ -2630,7 +2629,7 @@
         "release-6-title": "Lebih banyak bahasa", "release-6-desc": "Grump kini mendukung bahasa Inggris, Indonesia, Prancis, Spanyol, Mandarin Sederhana, dan Korea.",
         "release-7-title": "Dukungan dan feedback", "release-7-desc": "Kirim feedback, gabung Discord, atau dukung Grump lewat Trakteer, GitHub Sponsors, dan QRIS.",
         "release-8-title": "Lebih ringan dan stabil", "release-8-desc": "Rendering saat diam, transisi, diagnostik, dan proses update dirapikan agar lebih hemat dan tidak mengganggu.",
-        "qris-summary": "Dukung lewat QRIS", "qris-summary-note": "Indonesia", "qris-title": "Pindai dari aplikasi pembayaran", "qris-desc": "Ini adalah QRIS asli milik kreator. Buka dalam ukuran penuh jika diperlukan sebelum memindai.",
+        "qris-summary": "Support with QRIS",
         "hero-title": "<span class=\"hero-line\">Desktop lu ngebosenin bgt,</span><span class=\"hero-line\">makanya kita bikin lebih <span class=\"hero-title-accent\">galak.</span></span>",
         "hero-subtext": "Notch moody buat Windows. Nge-judge selera Spotify lu, kontrol PC lu, dan bereaksi kalau kursor lu terlalu dekat.",
         "btn-download": "Download buat Windows",
