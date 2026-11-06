@@ -474,16 +474,18 @@
       justify-content: center;
       padding: 112px 20px 88px;
       overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 34%, rgba(245, 158, 11, 0.14), transparent 42%),
+        linear-gradient(180deg, #0c0805 0%, #070403 100%);
     }
 
-    .warm-video-layer {
+    .hero-code-rain {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
-      object-fit: cover;
       z-index: 0;
-      filter: hue-rotate(145deg) saturate(1.42) brightness(1.08);
+      pointer-events: none;
     }
 
     .warm-ambient-glow {
@@ -491,8 +493,8 @@
       inset: 0;
       z-index: 1;
       background:
-        radial-gradient(circle at 50% 36%, rgba(11, 7, 4, 0.03) 0%, rgba(11, 7, 4, 0.22) 72%, rgba(11, 7, 4, 0.82) 100%),
-        radial-gradient(circle at 50% 30%, rgba(245, 158, 11, 0.35) 0%, transparent 62%);
+        radial-gradient(circle at 50% 36%, rgba(11, 7, 4, 0.02) 0%, rgba(11, 7, 4, 0.24) 70%, rgba(11, 7, 4, 0.88) 100%),
+        radial-gradient(circle at 50% 30%, rgba(249, 115, 22, 0.18) 0%, transparent 58%);
       pointer-events: none;
     }
 
@@ -528,6 +530,20 @@
       letter-spacing: -0.04em;
       color: var(--text);
       text-shadow: 0 4px 28px rgba(0, 0, 0, 0.72);
+      min-height: 1.2em;
+      display: grid;
+      place-items: center;
+      max-width: 1000px;
+    }
+
+    .hero-scramble-copy {
+      display: block;
+      max-width: 100%;
+    }
+
+    .hero-scramble-dud {
+      color: #f59e0b;
+      text-shadow: 0 0 14px rgba(249, 115, 22, 0.82);
     }
 
     .hero-line {
@@ -545,8 +561,14 @@
       padding-right: 4px;
     }
 
+    @media (prefers-reduced-motion: reduce) {
+      .hero-code-rain {
+        display: none;
+      }
+    }
+
     .hero-lead {
-      margin: 22px auto 0;
+      margin: 14px auto 0;
       max-width: 640px;
       font-size: clamp(16px, 1.8vw, 19px);
       font-weight: 500;
@@ -2069,26 +2091,14 @@
   <main id="main-content">
 
     <section id="overview" class="hero-section" aria-labelledby="hero-heading">
-<video
-        id="hero-video"
-        autoplay
-        loop
-        muted
-        playsinline
-        width="1920"
-        height="1080"
-        class="warm-video-layer"
-      >
-        <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260210_031346_d87182fb-b0af-4273-84d1-c6fd17d6bf0f.mp4" type="video/mp4">
-      </video>
+      <canvas id="hero-code-rain" class="hero-code-rain" aria-hidden="true"></canvas>
 
       <div class="warm-ambient-glow" aria-hidden="true"></div>
       <div class="hero-bottom-fade" aria-hidden="true"></div>
 
       <div class="hero-content">
-        <h1 id="hero-heading" class="hero-title" data-i18n="hero-title">
-          <span class="hero-line">Your desktop is boring af,</span>
-          <span class="hero-line">so we made it <span class="hero-title-accent">angrier.</span></span>
+        <h1 id="hero-heading" class="hero-title" aria-label="Your desktop is boring af, so we made it angrier.">
+          <span id="hero-scramble-copy" class="hero-scramble-copy" aria-hidden="true">Your desktop is boring af,<br>so we made it angrier.</span>
         </h1>
 
         <p class="hero-lead" data-i18n="hero-subtext">
@@ -2741,6 +2751,216 @@
       }
     };
 
+    const heroPhrases = {
+      en: [
+        'Your desktop is boring af.',
+        'So we made it angrier.',
+        'Meet Grump.'
+      ],
+      id: [
+        'Desktop lu ngebosenin bgt.',
+        'Makanya kita bikin lebih galak.',
+        'Kenalan sama Grump.'
+      ]
+    };
+
+    let heroScrambleStop = null;
+
+    function startHeroScramble(lang) {
+      if (heroScrambleStop) heroScrambleStop();
+      const target = document.getElementById('hero-scramble-copy');
+      const heading = document.getElementById('hero-heading');
+      if (!target || !heading) return;
+
+      const phrases = heroPhrases[lang] || heroPhrases.en;
+      heading.setAttribute('aria-label', phrases.join(' '));
+
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        target.textContent = phrases.slice(0, 2).join(' ');
+        return;
+      }
+
+      const scrambleChars = '!<>-_\\/[]{}—=+*^?#';
+      let phraseIndex = 0;
+      let frameRequest = 0;
+      let holdTimer = 0;
+      let stopped = false;
+
+      const renderPhrase = phrase => {
+        const from = target.textContent || '';
+        const length = Math.max(from.length, phrase.length);
+        const queue = Array.from({ length }, (_, index) => {
+          const start = Math.floor(Math.random() * 24);
+          return {
+            from: from[index] || '',
+            to: phrase[index] || '',
+            start,
+            end: start + 18 + Math.floor(Math.random() * 22),
+            dud: ''
+          };
+        });
+        let frame = 0;
+
+        const update = () => {
+          if (stopped) return;
+          let complete = 0;
+          const fragment = document.createDocumentFragment();
+
+          queue.forEach(item => {
+            if (frame >= item.end) {
+              complete += 1;
+              fragment.append(document.createTextNode(item.to));
+            } else if (frame >= item.start) {
+              if (!item.dud || Math.random() < 0.28) {
+                item.dud = scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
+              }
+              const dud = document.createElement('span');
+              dud.className = 'hero-scramble-dud';
+              dud.textContent = item.dud;
+              fragment.append(dud);
+            } else {
+              fragment.append(document.createTextNode(item.from));
+            }
+          });
+
+          target.replaceChildren(fragment);
+          if (complete === queue.length) {
+            phraseIndex = (phraseIndex + 1) % phrases.length;
+            holdTimer = window.setTimeout(() => renderPhrase(phrases[phraseIndex]), 1900);
+            return;
+          }
+          frame += 1;
+          frameRequest = requestAnimationFrame(update);
+        };
+
+        update();
+      };
+
+      renderPhrase(phrases[phraseIndex]);
+      heroScrambleStop = () => {
+        stopped = true;
+        cancelAnimationFrame(frameRequest);
+        clearTimeout(holdTimer);
+      };
+    }
+
+    function initHeroCodeRain() {
+      const canvas = document.getElementById('hero-code-rain');
+      const section = document.getElementById('overview');
+      if (!canvas || !section || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      const context = canvas.getContext('2d');
+      if (!context) return;
+
+      const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*+-=[]{}<>?';
+      let glyphs = [];
+      let grumpDrops = [];
+      let width = 0;
+      let height = 0;
+      let running = false;
+      let frameRequest = 0;
+      let lastTime = performance.now();
+      let nextGrumpDrop = 2600;
+
+      const randomGlyph = () => alphabet[Math.floor(Math.random() * alphabet.length)];
+      const makeGlyph = (atTop = false) => ({
+        char: randomGlyph(),
+        x: Math.random() * width,
+        y: atTop ? -20 - Math.random() * height * 0.25 : Math.random() * height,
+        speed: 12 + Math.random() * 24,
+        size: 12 + Math.random() * 10,
+        alpha: 0.12 + Math.random() * 0.28,
+        pulse: Math.random() * Math.PI * 2
+      });
+
+      const resize = () => {
+        const rect = section.getBoundingClientRect();
+        width = Math.max(1, rect.width);
+        height = Math.max(1, rect.height);
+        const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
+        canvas.width = Math.round(width * ratio);
+        canvas.height = Math.round(height * ratio);
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
+        context.setTransform(ratio, 0, 0, ratio, 0, 0);
+        const count = Math.min(130, Math.max(58, Math.round((width * height) / 11500)));
+        glyphs = Array.from({ length: count }, () => makeGlyph());
+      };
+
+      const spawnGrump = () => {
+        grumpDrops.push({
+          x: width * (0.12 + Math.random() * 0.76),
+          y: -42,
+          speed: 18 + Math.random() * 10,
+          size: 18 + Math.random() * 7,
+          alpha: 0.72,
+          label: Math.random() > 0.18 ? 'GRUMP' : 'GRUMP.'
+        });
+      };
+
+      const draw = now => {
+        if (!running) return;
+        const elapsed = Math.min(40, now - lastTime);
+        const seconds = elapsed / 1000;
+        lastTime = now;
+        context.clearRect(0, 0, width, height);
+
+        glyphs.forEach(glyph => {
+          glyph.y += glyph.speed * seconds;
+          glyph.pulse += seconds * 2.1;
+          if (glyph.y > height + 24) Object.assign(glyph, makeGlyph(true));
+          const flicker = Math.max(0, Math.sin(glyph.pulse));
+          const active = flicker > 0.94;
+          context.font = `${active ? 700 : 400} ${glyph.size + (active ? 3 : 0)}px ui-monospace, SFMono-Regular, Consolas, monospace`;
+          context.fillStyle = active
+            ? `rgba(251, 191, 36, ${0.72 + flicker * 0.24})`
+            : `rgba(180, 83, 9, ${glyph.alpha})`;
+          context.shadowBlur = active ? 14 : 0;
+          context.shadowColor = 'rgba(249, 115, 22, 0.9)';
+          context.fillText(glyph.char, glyph.x, glyph.y);
+        });
+
+        nextGrumpDrop -= elapsed;
+        if (nextGrumpDrop <= 0) {
+          spawnGrump();
+          nextGrumpDrop = 5200 + Math.random() * 5200;
+        }
+
+        grumpDrops = grumpDrops.filter(drop => {
+          drop.y += drop.speed * seconds;
+          context.font = `800 ${drop.size}px ui-monospace, SFMono-Regular, Consolas, monospace`;
+          context.fillStyle = `rgba(251, 146, 60, ${drop.alpha})`;
+          context.shadowBlur = 18;
+          context.shadowColor = 'rgba(249, 115, 22, 0.92)';
+          context.fillText(drop.label, drop.x, drop.y);
+          return drop.y < height + 48;
+        });
+
+        context.shadowBlur = 0;
+        frameRequest = requestAnimationFrame(draw);
+      };
+
+      const setRunning = value => {
+        if (running === value) return;
+        running = value;
+        if (running) {
+          lastTime = performance.now();
+          frameRequest = requestAnimationFrame(draw);
+        } else {
+          cancelAnimationFrame(frameRequest);
+        }
+      };
+
+      resize();
+      new ResizeObserver(resize).observe(section);
+      new IntersectionObserver(entries => {
+        setRunning(entries[0]?.isIntersecting && !document.hidden);
+      }, { threshold: 0.02 }).observe(section);
+      document.addEventListener('visibilitychange', () => {
+        setRunning(!document.hidden && section.getBoundingClientRect().bottom > 0);
+      });
+    }
+
     let currentLang = 'en';
     let currentCaptionKey = 'berserk';
 
@@ -2774,6 +2994,7 @@
       if (sw) sw.setAttribute('data-lang', lang);
       if (btnEn) btnEn.setAttribute('aria-pressed', String(lang === 'en'));
       if (btnId) btnId.setAttribute('aria-pressed', String(lang === 'id'));
+      startHeroScramble(lang);
       updateCaption();
       renderTestimonial(activeTestiIndex);
     }
@@ -3216,6 +3437,7 @@
     window.addEventListener('DOMContentLoaded', () => {
       const requestedLang = new URLSearchParams(window.location.search).get('lang');
       setLang(requestedLang === 'id' ? 'id' : 'en');
+      initHeroCodeRain();
       initMobileMenu();
       initTestiParallax();
       checkHeaderScroll();
