@@ -3657,9 +3657,9 @@
         var lx = layer.getContext('2d'); lx.globalCompositeOperation = 'source-over'; lx.clearRect(0, 0, W, H);
         DATA.eyes.forEach(function (e) {
           var p = pose(e, gx, gy); lx.save(); lx.translate(p.px * s, p.py * s); lx.rotate(rad(e.ang)); lx.scale(e.rx * p.sx * s, e.ry * p.sy * s);
-          var col = e.color[0] + ',' + e.color[1] + ',' + e.color[2], g = lx.createRadialGradient(0, 0, 0, 0, 0, 1.05);
-          g.addColorStop(0, 'rgba(' + col + ',1)'); g.addColorStop(.905, 'rgba(' + col + ',1)'); g.addColorStop(1, 'rgba(' + col + ',0)');
-          lx.fillStyle = g; lx.beginPath(); lx.arc(0, 0, 1.05, 0, Math.PI * 2); lx.fill(); lx.restore();
+          var col = e.color[0] + ',' + e.color[1] + ',' + e.color[2], g = lx.createRadialGradient(0, 0, 0, 0, 0, 1.012);
+          g.addColorStop(0, 'rgba(' + col + ',1)'); g.addColorStop(.972, 'rgba(' + col + ',1)'); g.addColorStop(1, 'rgba(' + col + ',0)');   /* crisp edge: about 1 px of anti-aliasing at 4K */
+          lx.fillStyle = g; lx.beginPath(); lx.arc(0, 0, 1.012, 0, Math.PI * 2); lx.fill(); lx.restore();
         });
         lx.globalCompositeOperation = 'destination-in'; lx.drawImage(mask, 0, 0, mask.naturalWidth, mask.naturalHeight, 0, 0, W, H);   /* the pupils only exist inside the eye opening */
         ctx.drawImage(layer, 0, 0);
