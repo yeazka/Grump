@@ -2407,6 +2407,43 @@
     </div>
   </section>
 
+  <!-- Wallpapers: the two desktops used in Grump's own previews, free to download -->
+  <section id="wallpapers" class="release-section wp-section" aria-labelledby="wp-title">
+    <div class="release-inner">
+      <span class="release-kicker" data-i18n="wp-kicker">FREE WALLPAPERS</span>
+      <h2 class="release-title wp-title" id="wp-title" data-i18n="wp-title">Take Grump's desktops home.</h2>
+      <p class="release-sub" data-i18n="wp-sub">The two wallpapers behind Grump's own previews. Free for your desktop.</p>
+      <div class="wp-grid">
+        <article class="wp-card">
+          <img src="assets/wallpapers/grump-wallpaper-highland-hideout-preview.webp" width="800" height="450" alt="A small dark cabin in a sunlit green valley between misty mountains" loading="lazy" decoding="async" data-i18n-alt="wp-1-alt">
+          <div class="wp-row">
+            <div><h3>Highland Hideout</h3><p>1672 × 941 · PNG</p></div>
+            <a class="wp-dl" href="assets/wallpapers/grump-wallpaper-highland-hideout.png" download="Grump Wallpaper - Highland Hideout.png" data-i18n="wp-dl">Download</a>
+          </div>
+        </article>
+        <article class="wp-card">
+          <img src="assets/wallpapers/grump-wallpaper-amber-glow-preview.webp?v=2" width="800" height="450" alt="Tall glowing amber ribbons forming letters on a black background" loading="lazy" decoding="async" data-i18n-alt="wp-2-alt">
+          <div class="wp-row">
+            <div><h3>Amber Glow</h3><p>2048 × 1152 · PNG</p></div>
+            <a class="wp-dl" href="assets/wallpapers/grump-wallpaper-amber-glow.png" download="Grump Wallpaper - Amber Glow.png" data-i18n="wp-dl">Download</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+<style>
+.wp-title{font-size:clamp(34px,5vw,60px)}
+.wp-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:28px}
+.wp-card{border-radius:22px;border:1px solid rgba(255,255,255,.09);background:#14110e;overflow:hidden}
+.wp-card img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover}
+.wp-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px}
+.wp-row h3{margin:0 0 4px;font-size:19px;letter-spacing:-.02em}
+.wp-row p{margin:0;color:var(--muted);font-size:13px}
+.wp-dl{flex:none;padding:11px 18px;border-radius:999px;background:linear-gradient(180deg,var(--amber-bright),var(--orange));color:#1a0d02;font-weight:700;font-size:14px;text-decoration:none}
+.wp-dl:focus-visible{outline:2px solid var(--amber-bright);outline-offset:2px}
+@media (max-width:720px){.wp-grid{grid-template-columns:1fr}}
+</style>
+
     <!-- Creator notes & Feedback Section -->
     <section class="testimonials-section" aria-labelledby="testimonials-heading">
       <div class="wrap testimonial-wrap">
@@ -2698,6 +2735,12 @@
       "peek-more-4": "Volume and brightness shown under the lyric row",
       "peek-more-5": "AI status for Claude Code, Gemini CLI and Cursor",
       "peek-note": "Screenshots from Grump v1.2.0.",
+      "wp-kicker": "FREE WALLPAPERS",
+      "wp-title": "Take Grump's desktops home.",
+      "wp-sub": "The two wallpapers behind Grump's own previews. Free for your desktop.",
+      "wp-dl": "Download",
+      "wp-1-alt": "A small dark cabin in a sunlit green valley between misty mountains",
+      "wp-2-alt": "Tall glowing amber ribbons forming letters on a black background",
       "peek-dock-alt": "The Grump Dock at the bottom of a desktop, with taskbar app icons, Wi-Fi and Bluetooth, a clock, and the notch above it",
       "peek-theme-alt": "Two notch previews side by side: a solid black Obsidian one and a see-through Liquid Glass one",
       "peek-eyes-alt": "The Grump notch with glowing orange eyes",
@@ -2793,6 +2836,12 @@
       "peek-more-4": "Volume dan kecerahan tampil di bawah baris lirik",
       "peek-more-5": "Status AI untuk Claude Code, Gemini CLI, dan Cursor",
       "peek-note": "Screenshot dari Grump v1.2.0.",
+      "wp-kicker": "WALLPAPER GRATIS",
+      "wp-title": "Bawa pulang desktop Grump.",
+      "wp-sub": "Dua wallpaper yang dipakai di preview Grump. Gratis untuk desktopmu.",
+      "wp-dl": "Download",
+      "wp-1-alt": "Kabin gelap kecil di lembah hijau yang tersinari matahari, di antara gunung berkabut",
+      "wp-2-alt": "Pita oranye menyala yang tinggi membentuk huruf di latar hitam",
       "peek-dock-alt": "Dock Grump di bagian bawah desktop, dengan ikon aplikasi taskbar, Wi-Fi dan Bluetooth, jam, dan notch di atasnya",
       "peek-theme-alt": "Dua pratinjau notch berdampingan: Obsidian hitam pekat dan Liquid Glass tembus pandang",
       "peek-eyes-alt": "Notch Grump dengan mata oranye yang menyala",
