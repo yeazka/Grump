@@ -3712,6 +3712,39 @@
       skip.addEventListener('click', function () { finish(true); });
       /* keyboard: tabbing into the page while the screen is still black jumps straight to the overview */
       document.addEventListener('focusin', function (e) { if (!finished && e.target !== skip && root.classList.contains('intro-on') && -intro.getBoundingClientRect().top / window.innerHeight < 2.5) finish(true); });
+
+      /* Autoplay: the first scroll (wheel, swipe, keys or the scrollbar), or 5 seconds without one, plays the whole intro by itself and
+         lands on the overview. While it plays, scroll input is held so it does not fight the animation. Once per page load. */
+      var auto = { running: false, done: false, idle: 0 };
+      var progress = function () { return -intro.getBoundingClientRect().top / window.innerHeight; };
+      var easeInOut = function (t) { return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
+      function autoplay() {
+        if (auto.running || auto.done || finished || !root.classList.contains('intro-on')) return;
+        var s0 = progress(); if (s0 >= 2.95) { auto.done = true; return; }
+        auto.running = true; clearTimeout(auto.idle);
+        var start = window.scrollY, end = start + (3 - s0) * window.innerHeight;
+        var dur = Math.max(900, 4400 * (3 - s0) / 3), t0 = performance.now();
+        (function step(now) {
+          var t = Math.min(1, (now - t0) / dur);
+          window.scrollTo({ top: start + (end - start) * easeInOut(t), behavior: 'instant' });
+          if (t < 1 && !finished) requestAnimationFrame(step);
+          else { auto.running = false; auto.done = true; try { sessionStorage.setItem('grumpIntroSeen', '1'); } catch (e) {} }
+        })(t0);
+      }
+      function onInput(e) {
+        if (auto.running) { if (e.cancelable) e.preventDefault(); return; }
+        if (auto.done || finished || progress() >= 2.9) return;
+        if (e.type === 'wheel' && e.deltaY <= 0) return;                                           /* only a scroll down starts it */
+        if (e.type === 'keydown' && ['ArrowDown', 'PageDown', ' ', 'Spacebar', 'End'].indexOf(e.key) < 0) return;
+        if (e.cancelable) e.preventDefault();
+        autoplay();
+      }
+      window.addEventListener('wheel', onInput, { passive: false });
+      window.addEventListener('touchmove', onInput, { passive: false });
+      window.addEventListener('keydown', onInput);
+      window.addEventListener('scroll', function () { if (!auto.running && !auto.done && !finished && window.scrollY > 4 && progress() < 2.9) autoplay(); }, { passive: true });
+      if (progress() < .05) auto.idle = setTimeout(autoplay, 5000);
+      skip.addEventListener('click', function () { clearTimeout(auto.idle); auto.done = true; });
       request();
     })();
   </script>
