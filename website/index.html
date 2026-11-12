@@ -3657,9 +3657,18 @@
         var lx = layer.getContext('2d'); lx.globalCompositeOperation = 'source-over'; lx.clearRect(0, 0, W, H);
         DATA.eyes.forEach(function (e) {
           var p = pose(e, gx, gy); lx.save(); lx.translate(p.px * s, p.py * s); lx.rotate(rad(e.ang)); lx.scale(e.rx * p.sx * s, e.ry * p.sy * s);
-          var col = e.color[0] + ',' + e.color[1] + ',' + e.color[2], g = lx.createRadialGradient(0, 0, 0, 0, 0, 1.012);
-          g.addColorStop(0, 'rgba(' + col + ',1)'); g.addColorStop(.972, 'rgba(' + col + ',1)'); g.addColorStop(1, 'rgba(' + col + ',0)');   /* crisp edge: about 1 px of anti-aliasing at 4K */
-          lx.fillStyle = g; lx.beginPath(); lx.arc(0, 0, 1.012, 0, Math.PI * 2); lx.fill(); lx.restore();
+          /* depth: an almost black core, the picture's dark brown, a warmer rim lit by the glowing eye; crisp edge (about 1 px at 4K) */
+          var col = e.color[0] + ',' + e.color[1] + ',' + e.color[2], rim = Math.min(255, e.color[0] + 34) + ',' + Math.min(255, e.color[1] + 14) + ',' + Math.min(255, e.color[2] + 4);
+          var g = lx.createRadialGradient(-.12, -.18, 0, 0, 0, 1.012);
+          g.addColorStop(0, 'rgba(4,2,1,1)'); g.addColorStop(.55, 'rgba(' + col + ',1)'); g.addColorStop(.9, 'rgba(' + col + ',1)'); g.addColorStop(.972, 'rgba(' + rim + ',1)'); g.addColorStop(1, 'rgba(' + rim + ',0)');
+          lx.fillStyle = g; lx.beginPath(); lx.arc(0, 0, 1.012, 0, Math.PI * 2); lx.fill();
+          /* reflections on the wet surface: a soft catchlight up left, a small glint low right; the lid cuts them like the pupil */
+          var sp = lx.createRadialGradient(-.34, -.46, 0, -.34, -.46, .27);
+          sp.addColorStop(0, 'rgba(255,248,236,.92)'); sp.addColorStop(.45, 'rgba(255,236,206,.55)'); sp.addColorStop(1, 'rgba(255,226,190,0)');
+          lx.fillStyle = sp; lx.beginPath(); lx.arc(-.34, -.46, .27, 0, Math.PI * 2); lx.fill();
+          var gl = lx.createRadialGradient(.3, .42, 0, .3, .42, .11);
+          gl.addColorStop(0, 'rgba(255,240,220,.5)'); gl.addColorStop(1, 'rgba(255,240,220,0)');
+          lx.fillStyle = gl; lx.beginPath(); lx.arc(.3, .42, .11, 0, Math.PI * 2); lx.fill(); lx.restore();
         });
         lx.globalCompositeOperation = 'destination-in'; lx.drawImage(mask, 0, 0, mask.naturalWidth, mask.naturalHeight, 0, 0, W, H);   /* the pupils only exist inside the eye opening */
         ctx.drawImage(layer, 0, 0);
