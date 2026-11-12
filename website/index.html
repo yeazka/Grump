@@ -2078,7 +2078,7 @@
     .intro-stage { position: sticky; top: 0; height: 100vh; height: 100svh; background: #000; overflow: hidden; opacity: var(--stage, 1); }
     .intro-glow { position: absolute; left: 50%; top: 50%; width: 120vmax; height: 120vmax; margin: -60vmax 0 0 -60vmax; border-radius: 50%; opacity: var(--glow, 0); transform: scale(var(--glow-scale, .12));
       background: radial-gradient(closest-side, rgba(255, 150, 30, .55), rgba(245, 158, 11, .22) 45%, transparent 72%); will-change: transform, opacity; }
-    .intro-eyes { position: absolute; left: 50%; top: 50%; width: min(86vw, 980px); aspect-ratio: 436 / 144; transform: translate(-50%, -50%) scale(var(--zoom, 1)); will-change: transform; mix-blend-mode: screen; }   /* screen: the picture's black disappears into the glow behind it */
+    .intro-eyes { position: absolute; left: 50%; top: 50%; width: min(86vw, 980px); aspect-ratio: 436 / 144; transform: translate(-50%, -50%) scale(var(--zoom, 1)); will-change: transform; }
     .intro-eyes canvas { display: block; width: 100%; height: 100%; opacity: var(--eyes, 0); }
     .intro-hint { position: absolute; left: 0; right: 0; bottom: max(7vh, 36px); margin: 0; text-align: center; color: #8d867f; font-size: 13px; letter-spacing: .06em; opacity: var(--hint, 0); transition: opacity .6s ease; }
     .intro-hint::after { content: ""; display: block; width: 1px; height: 28px; margin: 10px auto 0; background: linear-gradient(#8d867f, transparent); }
@@ -3610,7 +3610,7 @@
       if (!root.classList.contains('intro-on') || !intro) return;
       var canvas = document.getElementById('intro-canvas'), ctx = canvas.getContext('2d');
       var skip = document.getElementById('intro-skip');
-      var DATA = {"w": 436, "h": 144, "scale": 0.45, "eyes": [{"G": [107.52, 68.5], "R": 83.34, "c": [125.55, 69.19], "rx": 22.95, "ry": 40.16, "ang": 0.0, "color": [23, 7, 0], "safe": [[161.1, 106.65], [144.9, 113.85], [120.6, 115.2], [105.75, 112.5], [82.35, 101.7], [68.85, 90.0], [59.4, 77.4], [51.3, 60.75], [45.9, 39.15], [87.75, 61.2]]}, {"G": [327.82, 71.33], "R": 83.03, "c": [309.6, 69.19], "rx": 22.95, "ry": 40.16, "ang": 0.0, "color": [27, 10, 0], "safe": [[388.35, 39.15], [383.85, 58.95], [375.3, 76.95], [362.7, 92.7], [348.75, 103.5], [330.3, 112.05], [310.05, 115.2], [291.15, 113.85], [273.6, 106.65]]}]};
+      var DATA = {"w": 970, "h": 320, "scale": 1.0, "eyes": [{"G": [238.94, 152.22], "R": 185.19, "c": [279.0, 153.75], "rx": 51.0, "ry": 89.25, "ang": 0.0, "color": [23, 7, 0], "safe": [[358.0, 237.0], [322.0, 253.0], [268.0, 256.0], [235.0, 250.0], [183.0, 226.0], [153.0, 200.0], [132.0, 172.0], [114.0, 135.0], [102.0, 87.0], [195.0, 136.0]]}, {"G": [728.5, 158.5], "R": 184.51, "c": [688.0, 153.75], "rx": 51.0, "ry": 89.25, "ang": 0.0, "color": [27, 10, 0], "safe": [[863.0, 87.0], [853.0, 131.0], [834.0, 171.0], [806.0, 206.0], [775.0, 230.0], [734.0, 249.0], [689.0, 256.0], [647.0, 253.0], [608.0, 237.0]]}]};
       var base = new Image(), mask = new Image(), loaded = 0, layer = document.createElement('canvas');
       var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
       var lerp = function (a, b, t) { return a + (b - a) * t; };
@@ -3633,11 +3633,26 @@
         var h = Math.round(w * DATA.h / DATA.w);
         if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; state.open = -1; }
       }
+      /* The picture is glow on black. Its black is turned into transparency (alpha = the brightest channel), so no rectangle shows and the pupils can stay truly dark. Done once per size. */
+      var keyed = null, keyedKey = '';
+      function keyedFace(W, H) {
+        var id = W + 'x' + H; if (keyed && keyedKey === id) return keyed;
+        var cv = document.createElement('canvas'); cv.width = W; cv.height = H; var x = cv.getContext('2d', { willReadFrequently: true });
+        x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high'; x.fillStyle = '#000'; x.fillRect(0, 0, W, H);
+        x.drawImage(base, 0, 0, base.naturalWidth, base.naturalHeight, 0, 0, W, H);
+        var im = x.getImageData(0, 0, W, H), d = im.data;
+        for (var i = 0; i < d.length; i += 4) {
+          var a = Math.max(d[i], d[i + 1], d[i + 2]);
+          if (!a) { d[i + 3] = 0; continue; }
+          d[i] = Math.min(255, Math.round(d[i] * 255 / a)); d[i + 1] = Math.min(255, Math.round(d[i + 1] * 255 / a)); d[i + 2] = Math.min(255, Math.round(d[i + 2] * 255 / a)); d[i + 3] = a;
+        }
+        x.putImageData(im, 0, 0); keyed = cv; keyedKey = id; return cv;
+      }
       function paint(gx, gy) {
         if (loaded < 2) return;
         var W = canvas.width, H = canvas.height, s = W / DATA.w;
         ctx.clearRect(0, 0, W, H); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
-        ctx.drawImage(base, 0, 0, base.naturalWidth, base.naturalHeight, 0, 0, W, H);
+        ctx.drawImage(keyedFace(W, H), 0, 0);
         if (layer.width !== W || layer.height !== H) { layer.width = W; layer.height = H; }
         var lx = layer.getContext('2d'); lx.globalCompositeOperation = 'source-over'; lx.clearRect(0, 0, W, H);
         DATA.eyes.forEach(function (e) {
@@ -3649,10 +3664,12 @@
         lx.globalCompositeOperation = 'destination-in'; lx.drawImage(mask, 0, 0, mask.naturalWidth, mask.naturalHeight, 0, 0, W, H);   /* the pupils only exist inside the eye opening */
         ctx.drawImage(layer, 0, 0);
       }
-      function lids(open) {   /* the eyes open from a thin slit: a soft-edged window that grows from the middle line */
-        var half = open * 54, soft = Math.min(8, half), top = 50 - half, bot = 50 + half;
-        var m = 'linear-gradient(to bottom, transparent ' + top + '%, #000 ' + (top + soft) + '%, #000 ' + (bot - soft) + '%, transparent ' + bot + '%)';
-        canvas.style.webkitMaskImage = m; canvas.style.maskImage = m;
+      function lids(open) {   /* the eyes open from a thin slit: a soft-edged window that grows from the middle line; the picture's own edges are feathered so no rectangle shows */
+        var half = open * 58, soft = Math.min(16, half), top = 50 - half, bot = 50 + half;
+        var v = 'linear-gradient(to bottom, transparent ' + top + '%, #000 ' + (top + soft) + '%, #000 ' + (bot - soft) + '%, transparent ' + bot + '%)';
+        var side = 'linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%)';
+        canvas.style.webkitMaskImage = v + ', ' + side; canvas.style.maskImage = v + ', ' + side;
+        canvas.style.webkitMaskComposite = 'source-in'; canvas.style.maskComposite = 'intersect';
       }
       function finish(jump) {
         if (finished) return; finished = true;
