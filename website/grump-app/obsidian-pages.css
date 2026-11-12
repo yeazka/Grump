@@ -1,0 +1,62 @@
+/* ---------- Obsidian: minimal, flat, no glass (scoped so Liquid Glass can keep its own look) ---------- */
+#v-home .h-time { font-weight: 800; }
+#island[data-theme="default"] #v-home .h-icon-btn,
+#island[data-theme="default"] #v-home .h-gear-btn { background: #141414; border: 1px solid rgba(255, 255, 255, .14); box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; color: #fff; }
+#island[data-theme="default"] #v-home .h-icon-btn:hover,
+#island[data-theme="default"] #v-home .h-gear-btn:hover { background: #242424; border-color: rgba(255, 255, 255, .28); box-shadow: none; }
+#island[data-theme="default"] #v-home .h-icon-btn[data-radio-on="1"] { background: #fff; border-color: #fff; color: #000; box-shadow: none; }
+#island[data-theme="default"] #v-home .h-icon-btn[data-radio-on="1"]:hover { background: #e8e8e8; border-color: #e8e8e8; color: #000; }
+#island[data-theme="default"] #v-home .h-icon-btn [data-ico], #island[data-theme="default"] #v-home .h-gear-btn [data-ico] { opacity: 1; }
+
+/* Prayer times and Drink water: flat black, no glow, no blur */
+#island[data-theme="default"] #v-prayer::before, #island[data-theme="default"] #v-water::before { display: none; }
+#island[data-theme="default"] #v-water.grump-panel, #island[data-theme="default"] #v-prayer.grump-panel { background: #000; }
+#island[data-theme="default"][data-key="water"][data-expanded="1"] { background: #000; box-shadow: none; }
+#island[data-theme="default"] .prayer-time.next { background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .18); box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+#island[data-theme="default"] .prayer-time.next::before { display: none; }
+#island[data-theme="default"] .prayer-2d-card { border-color: rgba(255, 255, 255, .12); box-shadow: none; }
+#island[data-theme="default"] .water-illust { background: none; border: 1px solid rgba(255, 255, 255, .12); box-shadow: none; }
+#island[data-theme="default"] .water-kawaii-svg { filter: none; }
+#island[data-theme="default"] .water-next span { color: rgba(255, 255, 255, .6); }
+#island[data-theme="default"] .addon-toggle { background: transparent; border: 1px solid rgba(255, 255, 255, .3); color: #fff; box-shadow: none; }
+#island[data-theme="default"] .addon-toggle.on { background: #fff !important; border-color: #fff !important; color: #000 !important; box-shadow: none !important; }
+#island[data-theme="default"] .water-summary { background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .12); }
+#island[data-theme="default"] .water-summary strong { color: #fff; }
+#island[data-theme="default"] .water-summary p { border-left-color: rgba(255, 255, 255, .18); color: rgba(255, 255, 255, .6); }
+.water-stepper { flex: none; width: 145px; height: 28px; display: grid; grid-template-columns: 28px 1fr 28px; align-items: center; border-radius: 14px; background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .14); }
+.water-stepper output { text-align: center; font: 600 11px/1 var(--font-display); color: #fff; font-variant-numeric: tabular-nums; }
+.water-stepper button { width: 28px; height: 26px; display: grid; place-items: center; padding: 0; border: 0; background: none; color: #fff; cursor: pointer; border-radius: 13px; transition: background .14s ease, transform .14s cubic-bezier(.2,.8,.2,1); }
+.water-stepper button:hover { background: rgba(255, 255, 255, .14); }
+.water-stepper button:active { transform: scale(.88); }
+.water-stepper button:focus-visible { outline: 2px solid rgba(255, 255, 255, .85); outline-offset: 1px; }
+.water-stepper svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Notification pills for prayer, water and weather: flat black too */
+#island[data-theme="default"][data-key="prayernotice"], #island[data-theme="default"][data-key="waternotice"], #island[data-theme="default"][data-key="weathernotice"] { background: #000 !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1) !important; }
+#island[data-theme="default"] .prayer-popup-beam, #island[data-theme="default"] .water-popup-beam, #island[data-theme="default"] .weather-popup-beam { display: none; }
+#island[data-theme="default"] .prayer-notice-icon { background: #141414; border: 1px solid rgba(255, 255, 255, .14); color: #fff; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+#island[data-theme="default"] .prayer-time-dot, #island[data-theme="default"] .prayer-time.next .prayer-time-dot { background: #fff; box-shadow: none; }
+#island[data-theme="default"] .prayer-time:not(.next) .prayer-time-dot { background: rgba(255, 255, 255, .4); }
+#island .water-stepper button { border: 0 !important; background: none !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; border-radius: 13px; width: 28px; height: 26px; }
+#island .water-stepper button:hover { background: rgba(255, 255, 255, .14) !important; }
+
+/* on but not connected = white; connected = blue; off = dark */
+#island[data-theme="default"] #v-home .h-icon-btn[data-radio-on="1"][data-connected="1"] { background: #2a7bff; border-color: #2a7bff; color: #fff; }
+#island[data-theme="default"] #v-home .h-icon-btn[data-radio-on="1"][data-connected="1"]:hover { background: #4a90ff; border-color: #4a90ff; color: #fff; }
+
+/* To-do: flat black, no glass */
+#island[data-theme="default"] #v-todo, #island[data-theme="default"] #v-todo * { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+#island[data-theme="default"] #v-todo.grump-panel { background: #000; }
+#island[data-theme="default"] #v-todo .addon-glass, #island[data-theme="default"] #v-todo .todo-clear { background: #141414; border: 1px solid rgba(255, 255, 255, .14); box-shadow: none; color: #fff; }
+#island[data-theme="default"] #v-todo .addon-glass:hover, #island[data-theme="default"] #v-todo .todo-clear:hover { background: #242424; transform: none; }
+#island[data-theme="default"] #v-todo .todo-clear[data-confirm="1"] { background: #3a1210; border-color: #7a2a24; }
+#island[data-theme="default"] #v-todo .todo-form input { background: #111; border: 1px solid rgba(255, 255, 255, .14); box-shadow: none; }
+#island[data-theme="default"] #v-todo .todo-row, #island[data-theme="default"] #v-todo.aic-todo-root .todo-row.aic-model-row { background: #0e0e0e; border: 1px solid rgba(255, 255, 255, .1); box-shadow: none; }
+#island[data-theme="default"] #v-todo .todo-row:hover, #island[data-theme="default"] #v-todo.aic-todo-root .todo-row.aic-model-row:hover { background: #181818; border-color: rgba(255, 255, 255, .2); }
+#island[data-theme="default"] #v-todo .todo-row.is-done { background: #0a0a0a; }
+#island[data-theme="default"] #v-todo .todo-row input:checked { background: #fff; border-color: #fff; }
+#island[data-theme="default"] #v-todo .todo-has-schedule, #island[data-theme="default"] #v-todo .has-schedule .todo-remind-toggle { color: #fff; background: rgba(255, 255, 255, .16); }
+#island[data-theme="default"] #v-todo .todo-progress-track { background: rgba(255, 255, 255, .16); }
+#island[data-theme="default"] #v-todo .todo-progress-track i { background: #fff; }
+#island[data-theme="default"] #v-todo #todo-done-count::before { background: #fff; border-color: #fff; box-shadow: none; }
+#island[data-theme="default"] #v-todo .todo-due { color: rgba(255, 255, 255, .7); background: none; border: 0; }

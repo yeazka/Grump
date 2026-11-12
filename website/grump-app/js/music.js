@@ -11,7 +11,7 @@ window.unDismissMedia = () => { mediaDismissed = false; };
 const isPlaying = () => !mediaDismissed && !!S.media && S.media.status === 'Playing';
 const hasMedia = () => !mediaDismissed && !!(S.media && (S.media.title || S.media.status === 'Playing' || S.media.app));
 const hasMusic = () => hasMedia();
-activityProviders.push(() => S.settings.menuMusic !== false && isPlaying());
+activityProviders.push(() => S.settings.menuMusic !== false && isPlaying() && !S.pipOpen); // the floating lyrics replace the compact music view
 ticks.push(() => {
   const pk = $('#v-peekaboo');
   if (pk) pk.dataset.music = '0';
@@ -32,6 +32,24 @@ function detectMediaApp(m) {
   const artist = String(m.artist || '').toLowerCase();
   const album = String(m.album || '').toLowerCase();
   const title = String(m.title || '').toLowerCase();
+  const win = String(m.win || '').toLowerCase();
+  // Word start only, so ids such as "Microsoft.Windows.Search" (contains "arc") are not mistaken for a browser.
+  const isBrowser = /(?:^|[^a-z])(?:chrome|msedge|brave|firefox|opera|vivaldi|arc|zen|floorp)/.test(app);
+  if (isBrowser) {
+    /* A browser only says "Brave" or "Chrome"; the site comes from the tab title in the window title. Unknown sites are shown as the web, never as YouTube. */
+    const site = `${win} ${album}`;
+    const known = [
+      [/youtube|youtu\.be/, { type: 'youtube', name: 'YouTube', color: '#ff0000', ico: 'youtube' }],
+      [/tiktok/, { type: 'tiktok', name: 'TikTok', color: '#25f4ee', ico: 'tiktok', shader: 'apple' }],
+      [/elevenlabs|eleven labs/, { type: 'elevenlabs', name: 'ElevenLabs', color: '#e8e8e8', ico: 'elevenlabs', shader: 'web' }],
+      [/spotify/, { type: 'spotify', name: 'Spotify', color: '#1ed760', ico: 'spotify' }],
+      [/soundcloud/, { type: 'soundcloud', name: 'SoundCloud', color: '#ff5500', ico: 'soundcloud' }],
+      [/twitch/, { type: 'twitch', name: 'Twitch', color: '#9146ff', ico: 'twitch', shader: 'web' }],
+      [/apple music/, { type: 'apple', name: 'Apple Music', color: '#fa2d48', ico: 'apple' }]
+    ];
+    for (const [re, info] of known) if (re.test(site)) return info;
+    return { type: 'web', name: 'Web', color: '#d8dce6', ico: 'globe', shader: 'web' };
+  }
   const all = `${app} ${artist} ${album} ${title}`;
 
   if (all.includes('spotify')) {
@@ -45,9 +63,6 @@ function detectMediaApp(m) {
   }
   if (all.includes('soundcloud')) {
     return { type: 'soundcloud', name: 'SoundCloud', color: '#ff5500', ico: 'soundcloud' };
-  }
-  if (/chrome|msedge|brave|firefox|opera|vivaldi|arc|zen|floorp/.test(app)) {
-    return { type: 'youtube', name: 'YouTube', color: '#ff0000', ico: 'youtube' };
   }
   return { type: 'spotify', name: 'Spotify', color: '#1ed760', ico: 'spotify' };
 }
@@ -64,7 +79,7 @@ function updateMediaAppUI() {
   root.setProperty('--bars-glow', info.type === 'spotify' ? 'rgba(30, 215, 96, .45)' : (info.type === 'youtube' ? 'rgba(255, 0, 0, .45)' : 'rgba(255, 255, 255, .3)'));
 
   if (window.musicShader) {
-    window.musicShader.setApp(info.type, true);
+    window.musicShader.setApp(info.shader || info.type, true);
     if (curKey === 'music' && isPlaying()) {
       window.musicShader.start();
     }
@@ -263,9 +278,12 @@ function paintProg() {
     if (typeof renderCompact === 'function') renderCompact();
   }
 }
-function progLoop() {
+let progLast = 0;
+function progLoop(ts) {
   if ((curKey !== 'music' && curKey !== 'lyrics' && curKey !== 'compact') || !S.media) { progOn = false; return; }
-  paintProg();
+  // Nothing here needs 60 updates a second: the compact view only looks for a new lyric line, the bar and lyric page for a change of a pixel or a line.
+  const every = curKey === 'compact' ? 100 : curKey === 'lyrics' ? 50 : 33;
+  if (!(ts - progLast < every)) { progLast = ts; paintProg(); }
   if (isPlaying()) requestAnimationFrame(progLoop); else progOn = false;
 }
 function ensureProg() {
@@ -277,7 +295,7 @@ enterHooks.music = () => {
   ensureProg();
   if (window.musicShader) {
     const info = detectMediaApp(S.media);
-    window.musicShader.setApp(info.type, true);
+    window.musicShader.setApp(info.shader || info.type, true);
     if (isPlaying()) window.musicShader.start();
     else window.musicShader.stop();
   }
@@ -330,10 +348,33 @@ acts.next = () => mediaCmd('next');
 acts.toggle = () => mediaCmd('toggle');
 acts.music = () => { mediaDismissed = false; go('music'); };
 acts.lyrics = () => { mediaDismissed = false; go('lyrics'); };
-acts.closemusic = () => {
+/* ---------- Floating lyrics (PiP) ---------- */
+// While the floating window is open the notch stays compact and quiet; closing it brings back what was there before.
+S.pipOpen = false;
+let pipReturnToLyrics = false, pipTimer = 0, pipSig = '';
+function pipSend() {
+  if (!S.pipOpen) return;
+  const m = S.media;
+  const sig = `${S.lyricsFor}|${S.lyricsState}|${S.lyrics?.length || 0}|${S.plainLyrics?.length || 0}|${S.lyricsTr ? 1 : 0}`;
+  const payload = { title: m?.title || '', artist: m?.artist || '', art: m?.art || null, id: isId(), playing: isPlaying(), pos: curPos(), state: S.lyricsState === 'loading' ? 'loading' : 'done' };
+  if (sig !== pipSig) { pipSig = sig; payload.lyrics = S.lyrics || null; payload.plain = S.plainLyrics || null; payload.tr = S.lyricsTr || null; }
+  bridge.pipUpdate?.(payload);
+}
+acts.lyricpip = () => {
+  pipReturnToLyrics = S.view === 'lyrics';
+  S.pipOpen = true; pipSig = '';
+  bridge.pipOpen?.();
+  pipSend();
+  clearInterval(pipTimer); pipTimer = setInterval(pipSend, 700);
+  collapse();
+};
+bridge.onPipClosed?.(() => {
+  S.pipOpen = false; clearInterval(pipTimer);
+  if (pipReturnToLyrics && hasMedia()) go('lyrics'); else layout();
+});acts.closemusic = () => {
   mediaDismissed = true;
   mediaCmd('pause');
-  go('home');
+  openDefault();
 };
 $('#m-bar').addEventListener('click', (e) => {
   if (!S.media || !(S.media.dur > 0)) return;
@@ -342,9 +383,16 @@ $('#m-bar').addEventListener('click', (e) => {
   S.media.pos = sec; S.media.at = performance.now(); paintProg(); bridge.mediaCmd('seek:' + sec.toFixed(1));
 });
 
-/* ---------- Lirik tersinkron (LRCLIB lewat main process) ---------- */
-const LH = 36;               // tinggi satu baris lirik
+/* ---------- Lirik tersinkron (LRCLIB lewat main process), gaya Apple Music ---------- */
+// Active line big and white, the rest dimmed and blurred by distance. When the active line changes the whole
+// list glides up and the lines after it follow one after another (stagger). Inside the active line each word
+// lights up in turn across the line's duration, and long instrumental gaps become three dots that fill.
 let lyIdx = -2;
+let lyAnimBase = 0;          // performance.now() at the start of the active line (keeps word timing in step)
+let lyNeedsLayout = false;   // the page was hidden when the line changed, lay out as soon as it is visible
+const LY_ANCHOR = 0.16;      // top of the active line, as a share of the lyrics window height
+const LY_STAGGER = 0.05;     // seconds between lines following the active line
+const LY_GAP_MIN = 4;        // an empty lyric line at least this long (s) is shown as an interlude
 function parseLRC(txt) {
   const out = [];
   for (const raw of String(txt).split(/\r?\n/)) {
@@ -355,30 +403,48 @@ function parseLRC(txt) {
   }
   return out.sort((a, b) => a.t - b.t);
 }
+// "Words" for the highlight: spaces separate them; scripts without spaces (CJK, Thai) use the browser's segmenter.
+function lyricWords(text) {
+  if (/\s/.test(text)) return { parts: text.split(/\s+/).filter(Boolean), joiner: ' ' };
+  if (text.length > 6 && typeof Intl !== 'undefined' && Intl.Segmenter) {
+    const parts = [];
+    for (const seg of new Intl.Segmenter(undefined, { granularity: 'word' }).segment(text)) {
+      if (seg.isWordLike || !parts.length) parts.push(seg.segment); else parts[parts.length - 1] += seg.segment;
+    }
+    if (parts.length > 1) return { parts, joiner: '' };
+  }
+  return { parts: [text], joiner: '' };
+}
 function renderLyricsList() {
   const list = $('#ly-list');
   const win = list.parentElement;
   const plain = !S.lyrics?.length && S.plainLyrics?.length;
   win.classList.toggle('plain', !!plain);
+  list.style.transform = '';
   if (S.lyricsState === 'loading') list.innerHTML = `<div class="ly msg">${isId() ? 'Memuat lirik…' : 'Loading lyrics…'}</div>`;
   else if (plain) list.innerHTML = `<div class="ly-plain-label">${isId() ? 'Belum tersinkron' : 'Not synced'}</div>` + S.plainLyrics.map(line => `<div class="ly plain-line">${esc(line)}</div>`).join('');
   else if (!S.lyrics || !S.lyrics.length) list.innerHTML = `<div class="ly msg">${isId() ? 'Tidak ada lirik' : 'No lyrics available'}</div>`;
   else list.innerHTML = S.lyrics.map((l, i) => {
-    const tx = l.text || '';
-    return `<div class="ly" data-i="${i}">${esc(tx || '♪')}</div>`;
+    const next = S.lyrics[i + 1];
+    const dur = next ? Math.max(0.2, next.t - l.t) : 6;
+    if (!l.text) {
+      return dur >= LY_GAP_MIN
+        ? `<div class="ly gap" data-i="${i}" data-dur="${dur.toFixed(2)}" data-dist="4" aria-hidden="true"><i></i><i></i><i></i></div>`
+        : `<div class="ly skip" data-i="${i}" aria-hidden="true"></div>`;
+    }
+    const { parts, joiner } = lyricWords(l.text);
+    const tr = S.lyricsTr && S.lyricsTr[i] ? `<small class="ly-tr">${esc(S.lyricsTr[i])}</small>` : '';
+    return `<div class="ly" data-i="${i}" data-dur="${dur.toFixed(2)}" data-dist="4">${parts.map(w => `<span class="ly-w">${esc(w)}</span>`).join(joiner)}${tr}</div>`;
   }).join('');
-  list.style.transform = 'translateY(0)';
   lyIdx = -2;
   if (S.lyrics && S.lyrics.length) paintLyrics(curPos(), true);
   else if (plain) win.scrollTop = 0;
-  else list.style.transform = `translateY(${LY_CENTER - LH / 2}px)`;
 }
-const LY_CENTER = 65;
 async function loadLyrics() {
   const m = S.media; if (!m) return;
   const key = trackKey(m);
   if (S.lyricsFor === key) { renderLyricsList(); return; }
-  S.lyricsFor = key; S.lyrics = null; S.plainLyrics = null; S.lyricsState = 'loading'; renderLyricsList();
+  S.lyricsFor = key; S.lyrics = null; S.plainLyrics = null; S.lyricsTr = null; S.lyricsState = 'loading'; renderLyricsList();
   let txt = null;
   try { txt = await bridge.getLyrics({ title: m.title, artist: m.artist, dur: m.dur }); } catch {}
   if (S.lyricsFor !== key) return;
@@ -386,58 +452,88 @@ async function loadLyrics() {
   S.plainLyrics = txt?.plainLyrics ? String(txt.plainLyrics).split(/\r?\n/).map(line => line.trim()).filter(Boolean) : null;
   S.lyricsState = 'done';
   renderLyricsList();
+  translateCurrentLyrics(key);
+}
+// Optional (Preferences > Features > Translate lyrics): the lines go to a translation service, one batch per track, and come back as a small second line.
+async function translateCurrentLyrics(key) {
+  if (!S.settings || S.settings.lyricTranslate !== true || !S.lyrics || !S.lyrics.length || !bridge.translateLyrics) return;
+  const target = S.settings.translateLang || 'en';
+  let result = null;
+  try { result = await bridge.translateLyrics(S.lyrics.map((l) => l.text || ''), target); } catch { /* offline */ }
+  if (S.lyricsFor !== key || !Array.isArray(result)) return;
+  // a line that is already in the target language comes back unchanged: do not repeat it
+  S.lyricsTr = result.map((line, i) => (line && line.toLowerCase() !== String(S.lyrics[i].text || '').toLowerCase() ? line : ''));
+  renderLyricsList();
 }
 const AUDIO_OFFSET = 0.32;
 
+// Words of the active line light up one after another. Each word gets a delay and a duration proportional to its
+// length; a negative delay starts the line partway through (after a seek or when the page opens mid-line).
+function activateLyricLine(item, elapsed) {
+  lyAnimBase = performance.now() - Math.max(0, elapsed) * 1000;
+  animateLyricWords(item, elapsed, 'page');
+}
+// scope 'page' = the lyrics page, 'compact' = the notch line: each keeps its own clock for drift detection.
+function animateLyricWords(item, elapsed, scope) {
+  if (scope === 'compact') compactAnimBase = performance.now() - Math.max(0, elapsed) * 1000;
+  const dur = Number(item.dataset.dur) || 3;
+  if (item.classList.contains('gap')) {
+    item.style.setProperty('--dur', dur + 's');
+    item.style.setProperty('--el', (-Math.max(0, elapsed)).toFixed(3) + 's');
+    item.classList.remove('go'); void item.offsetWidth; item.classList.add('go');
+    return;
+  }
+  const words = [...item.querySelectorAll('.ly-w')];
+  const span = clamp(dur * 0.88, 0.8, 7); // finish slightly before the next line starts
+  const total = words.reduce((sum, w) => sum + w.textContent.length + 1, 0) || 1;
+  let acc = 0;
+  for (const w of words) {
+    const len = w.textContent.length + 1;
+    w.style.animationDelay = ((span * acc / total) - elapsed).toFixed(3) + 's';
+    w.style.animationDuration = Math.max(0.12, span * len / total).toFixed(3) + 's';
+    acc += len;
+    w.classList.remove('go'); void w.offsetWidth; w.classList.add('go');
+  }
+}
 function paintLyrics(pos, force) {
   if (!S.lyrics || !S.lyrics.length) return;
+  const list = $('#ly-list');
+  if (!list) return;
   const effPos = pos + AUDIO_OFFSET;
   let idx = -1;
   for (let i = 0; i < S.lyrics.length; i++) { if (S.lyrics[i].t <= effPos) idx = i; else break; }
-  const list = $('#ly-list');
-  if (!list) return;
-
-  if (idx !== lyIdx || force) {
-    const prev = list.children[lyIdx], cur = list.children[idx];
-    if (prev) prev.classList.remove('cur');
-    if (cur) cur.classList.add('cur');
-
-    for (let i = 0; i < list.children.length; i++) {
-      const d = Math.abs(i - idx);
-      const item = list.children[i];
-      item.dataset.dist = d;
-      if (d === 0) {
-        item.style.opacity = '1';
-        item.style.filter = 'none';
-        item.style.transform = 'scale(1.04)';
-        item.style.color = '#ffffff';
-      } else if (d === 1) {
-        item.style.opacity = '0.52';
-        item.style.filter = 'blur(0.5px)';
-        item.style.transform = 'scale(0.97)';
-        item.style.color = 'rgba(255, 255, 255, 0.70)';
-      } else if (d === 2) {
-        item.style.opacity = '0.24';
-        item.style.filter = 'blur(1.4px)';
-        item.style.transform = 'scale(0.93)';
-        item.style.color = 'rgba(255, 255, 255, 0.40)';
-      } else {
-        item.style.opacity = '0.08';
-        item.style.filter = 'blur(2.4px)';
-        item.style.transform = 'scale(0.88)';
-        item.style.color = 'rgba(255, 255, 255, 0.20)';
-      }
-    }
-    lyIdx = idx;
-    if (cur) {
-      const itemCenter = cur.offsetTop + cur.offsetHeight / 2;
-      list.style.transform = `translateY(${LY_CENTER - itemCenter}px)`;
-    } else {
-      list.style.transform = `translateY(${LY_CENTER - (Math.max(idx, 0) * LH + LH / 2)}px)`;
-    }
+  const playing = isPlaying();
+  list.classList.toggle('paused', !playing);
+  // Keep the word animation in step with playback: pausing freezes it, a seek inside the line restarts it.
+  if (idx >= 0) {
+    const elapsed = effPos - S.lyrics[idx].t;
+    if (!playing) lyAnimBase = performance.now() - elapsed * 1000;
+    else if (idx === lyIdx && Math.abs(elapsed - (performance.now() - lyAnimBase) / 1000) > 0.7) force = true;
   }
-}
+  if (idx === lyIdx && !force && !lyNeedsLayout) return;
 
+  const win = list.parentElement;
+  const height = win.clientHeight;
+  if (!height) { lyNeedsLayout = true; return; }
+  lyNeedsLayout = false;
+  const lineChanged = idx !== lyIdx;
+  const cur = list.children[idx];
+  const first = list.children[0];
+  const shift = (height * LY_ANCHOR) - (cur ? cur.offsetTop : (first ? first.offsetTop : 0));
+  for (let i = 0; i < list.children.length; i++) {
+    const item = list.children[i];
+    if (item.classList.contains('skip')) continue;
+    const dist = idx < 0 ? i + 1 : Math.abs(i - idx);
+    item.dataset.dist = String(Math.min(dist, 4));
+    item.classList.toggle('cur', i === idx);
+    item.classList.toggle('past', i < idx);
+    // Lines after the active one follow in sequence; lines already read move at once.
+    item.style.setProperty('--delay', (lineChanged && i > idx ? Math.min(i - Math.max(idx, -1), 6) * LY_STAGGER : 0).toFixed(3) + 's');
+    item.style.setProperty('--shift', shift.toFixed(1) + 'px');
+  }
+  lyIdx = idx;
+  if (cur) activateLyricLine(cur, effPos - S.lyrics[idx].t);
+}
 function getCurrentLyricLine() {
   if (!S.media) return '';
   if (S.lyrics && S.lyrics.length) {
@@ -462,7 +558,12 @@ function getCurrentLyricLine() {
 }
 
 /* ---------- Compact Lyric & Player View ---------- */
-let lastCompactLyric = '';
+// One lyric line inside the notch. The notch grows slightly BEFORE a longer line arrives, the old line blurs out,
+// the new line blurs in once the notch is ready, and its words light up in turn, like the full lyrics page.
+const COMPACT_LEAD = 0.45;     // s: start growing the notch this long before a longer line begins
+let lastCompactKey = '';
+let compactAnimBase = 0;       // performance.now() at the start of the shown line (keeps word timing in step)
+let lyricViewportFor = '';
 let measureCanvasCtx = null;
 function measureLyricWidth(text, size) {
   if (!measureCanvasCtx) {
@@ -471,51 +572,108 @@ function measureLyricWidth(text, size) {
   measureCanvasCtx.font = `600 ${size}px "Inter", -apple-system, BlinkMacSystemFont, sans-serif`;
   return measureCanvasCtx.measureText(text).width;
 }
-
-function applyCompactLyricStyle(el, text) {
-  if (!text) return;
-  el.style.fontSize='12.5px';
-  const width=clamp(Math.ceil(measureLyricWidth(text,12.5))+110,250,Math.min(850,screen.availWidth-80));
-  const widthChanged=SIZES.compact[0]!==width;
-  SIZES.compact[0]=width;
-  if(widthChanged)requestAnimationFrame(()=>{if(curKey==='compact')layout();});
-  bridge.lyricViewport?.(width);
-
+function compactWidthFor(text) {
+  return clamp(Math.ceil(measureLyricWidth(text, 12.5)) + 110, 250, Math.min(850, screen.availWidth - 80));
+}
+function setCompactWidth(width) {
+  if (SIZES.compact[0] === width) return;
+  SIZES.compact[0] = width;
+  requestAnimationFrame(() => { if (curKey === 'compact') layout(); });
+}
+// The overlay window is resized once per track, for the widest line, instead of on every line change: resizing a
+// transparent window mid-song is what made the notch flicker on wide lines.
+function ensureLyricViewport() {
+  if (!S.lyrics || !S.lyrics.length || lyricViewportFor === S.lyricsFor) return;
+  lyricViewportFor = S.lyricsFor;
+  let widest = 250;
+  for (const line of S.lyrics) if (line.text) widest = Math.max(widest, compactWidthFor(line.text));
+  bridge.lyricViewport?.(widest);
 }
 
-function updateCompactLyric(line) {
+// What the notch should show right now. An empty lyric line shorter than a gap keeps the previous sung line on
+// screen (no flash of the song title between phrases); a long one becomes the three interlude dots.
+function compactLyricInfo() {
+  if (!S.media) return null;
+  if (S.lyrics && S.lyrics.length) {
+    const effPos = curPos() + AUDIO_OFFSET;
+    let idx = -1;
+    for (let i = 0; i < S.lyrics.length; i++) { if (S.lyrics[i].t <= effPos) idx = i; else break; }
+    const lineDur = (i) => (S.lyrics[i + 1] ? Math.max(0.2, S.lyrics[i + 1].t - S.lyrics[i].t) : 6);
+    if (idx >= 0) {
+      let show = idx;
+      while (show >= 0 && !S.lyrics[show].text && lineDur(show) < LY_GAP_MIN) show--;
+      if (show >= 0) {
+        const line = S.lyrics[show];
+        const upcoming = S.lyrics[idx + 1];
+        const info = { kind: line.text ? 'line' : 'gap', key: (line.text ? 'l' : 'g') + show + ':' + S.lyricsFor, text: line.text, elapsed: effPos - line.t, dur: lineDur(show) };
+        if (upcoming && upcoming.text) { info.upcoming = upcoming.text; info.untilNext = upcoming.t - effPos; }
+        return info;
+      }
+    }
+  }
+  const text = getCurrentLyricLine();
+  return text ? { kind: 'text', key: 't:' + text, text } : null;
+}
+
+function removeCompactLyric(el, delay = 260) {
+  if (!el) return;
+  el.id = ''; el.className = 'c-lyric out';
+  setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, delay);
+}
+
+function updateCompactLyric(info) {
   const mid = $('#c-mid');
   if (!mid) return;
-  line = line ? line.trim() : '';
-  if (!line) {
-    lastCompactLyric = '';
-    const cur = $('#c-lyric');
-    if (cur) {
-      cur.className = 'c-lyric out';
-      setTimeout(() => { if (cur.parentNode) cur.parentNode.removeChild(cur); }, 350);
+  if (!info) {
+    lastCompactKey = '';
+    removeCompactLyric($('#c-lyric'), 350);
+    return;
+  }
+  ensureLyricViewport();
+  const curLy = $('#c-lyric');
+
+  // Grow the notch ahead of a longer line so the text arrives into a notch that is already wide enough.
+  if (info.upcoming && info.untilNext <= COMPACT_LEAD) {
+    const ahead = compactWidthFor(info.upcoming);
+    if (ahead > SIZES.compact[0] + 2) setCompactWidth(ahead);
+  }
+
+  if (info.key === lastCompactKey && curLy) {
+    // Same line: after a seek (or a long stall) the word highlight is restarted from the real position.
+    if (info.kind === 'line') {
+      const playing = isPlaying();
+      if (!playing) compactAnimBase = performance.now() - info.elapsed * 1000;
+      else if (Math.abs(info.elapsed - (performance.now() - compactAnimBase) / 1000) > 0.7) animateLyricWords(curLy, info.elapsed, 'compact');
     }
     return;
   }
-  if (line === lastCompactLyric) return;
-  lastCompactLyric = line;
-  const curLy = $('#c-lyric');
+  lastCompactKey = info.key;
+
+  const needed = info.kind === 'gap' ? SIZES.compact[0] : compactWidthFor(info.text);
+  const growing = needed > SIZES.compact[0] + 2;
+  const shrinking = needed < SIZES.compact[0] - 2;
+  setCompactWidth(needed);
+
   const newLy = document.createElement('span');
-  newLy.className = 'c-lyric in';
-  newLy.textContent = line;
-  applyCompactLyricStyle(newLy, line);
-
-  if (curLy && curLy.textContent) {
-    curLy.id = '';
-    curLy.className = 'c-lyric out';
-    newLy.id = 'c-lyric';
-    mid.appendChild(newLy);
-    setTimeout(() => { if (curLy.parentNode) curLy.parentNode.removeChild(curLy); }, 380);
+  newLy.className = 'c-lyric in' + (info.kind === 'gap' ? ' gap' : '') + (info.kind === 'line' ? ' synced' : '');
+  // Text waits for the notch: longer line = wait for it to open, shorter = old text has just left.
+  newLy.style.setProperty('--c-in-delay', (growing ? 0.2 : shrinking ? 0.1 : 0.05) + 's');
+  newLy.style.fontSize = '12.5px';
+  if (info.kind === 'gap') {
+    newLy.innerHTML = '<i></i><i></i><i></i>';
+    newLy.dataset.dur = info.dur.toFixed(2);
+  } else if (info.kind === 'line') {
+    const { parts, joiner } = lyricWords(info.text);
+    newLy.innerHTML = `<span class="c-lyric-words">${parts.map((w) => `<span class="ly-w">${esc(w)}</span>`).join(joiner)}</span>`;
+    newLy.dataset.dur = info.dur.toFixed(2);
   } else {
-    newLy.id = 'c-lyric';
-    mid.appendChild(newLy);
+    newLy.textContent = info.text;
   }
+  newLy.id = 'c-lyric';
+  removeCompactLyric(curLy);
+  mid.appendChild(newLy);
+  if (info.kind === 'line' || info.kind === 'gap') animateLyricWords(newLy, info.elapsed, 'compact');
 }
-
 function renderCompact() {
   const el = $('#v-compact');
   const music = hasMusic();
@@ -525,8 +683,8 @@ function renderCompact() {
   const cb = $('#c-bars');
   if (cb) cb.classList.toggle('paused', !isPlaying());
 
-  const line = music ? getCurrentLyricLine() : (S.media ? S.media.title : '');
-  updateCompactLyric(line);
+  const titleOnly = S.settings.compactLyrics === false && S.media && S.media.title ? { kind: 'text', key: 't:' + S.media.title, text: S.media.title } : null;
+  updateCompactLyric(S.pipOpen ? null : music ? (titleOnly || compactLyricInfo()) : (S.media && S.media.title ? { kind: 'text', key: 't:' + S.media.title, text: S.media.title } : null));
 }
 renderers.push(renderCompact);
 

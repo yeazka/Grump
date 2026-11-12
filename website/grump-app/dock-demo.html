@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'">
+<title>Grump Dock demo</title>
+<link rel="stylesheet" href="dock.css">
+<link rel="stylesheet" href="dock-demo.css">
+</head>
+<body class="dock-body demo">
+  <!-- The real dock styles (dock.css) on static demo content: same capsule, icons, status area and magnification wave. -->
+  <div class="dock-wrapper demo-wrapper">
+    <nav id="dock-capsule" class="dock-capsule" aria-hidden="true">
+      <span class="dock-status-button dock-start-button"><svg viewBox="0 0 24 24"><path class="windows-pane" d="M3 4.2 10.7 3v8.3H3zM12 2.8 21 1.5v9.8h-9zM3 12.7h7.7V21L3 19.8zM12 12.7h9v9.8L12 21.2z"/></svg></span>
+      <div class="dock-status-divider dock-start-divider"></div>
+      <div id="stage" class="dock-items-stage demo-stage"></div>
+      <div class="dock-status-divider"></div>
+      <div class="dock-status">
+        <div class="dock-radio-group">
+          <span class="dock-status-button" data-on="1"><svg viewBox="0 0 24 24"><path d="M3.5 9.5a13.2 13.2 0 0 1 17 0M6.8 13a8 8 0 0 1 10.4 0M10.1 16.5a3 3 0 0 1 3.8 0"/><circle cx="12" cy="19" r="1" fill="currentColor" stroke="none"/></svg></span>
+          <span class="dock-status-button" data-on="1"><svg viewBox="0 0 24 24"><path d="m7 7 10 10-5 4V3l5 4L7 17"/></svg></span>
+        </div>
+        <span class="dock-status-button dock-tray-button"><svg viewBox="0 0 24 24"><path d="m7 14 5-5 5 5"/></svg></span>
+        <span class="dock-clock" id="clock"></span>
+      </div>
+      <div class="dock-status-divider"></div>
+      <span class="dock-show-desktop"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="12" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></span>
+    </nav>
+  </div>
+  <script src="js/dock-demo.js"></script>
+</body>
+</html>

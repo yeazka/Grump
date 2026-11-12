@@ -67,6 +67,15 @@ svg { display: block; }
     0 12px 32px rgba(0, 0, 0, .45);
 }
 
+/* The floating shell owns the anti-aliased top corners. Its surface must match
+   the opaque page below it or a different-colored crescent appears at the top. */
+#island[data-expanded="1"][data-key="weather"] { background:linear-gradient(135deg,#2787f5 0%,#35c6df 100%); }
+#island[data-expanded="1"][data-key="music"] { background:#111013; }
+#island[data-expanded="1"][data-key="todo"] { background:#101012; }
+#island[data-expanded="1"][data-key="prayer"] { background:#000; }
+#island[data-expanded="1"][data-key="water"] { background:#070a0f; }
+#island[data-expanded="1"][data-key="timer"] { background:#000; }
+
 /* ---------- Spotify & Media App Shading (Internal, Clean Elevation Only - No Outer Glow) ---------- */
 #island[data-spotify="1"] {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12);
@@ -257,9 +266,8 @@ svg { display: block; }
     inset 0 -1px 1px 0 rgba(255, 255, 255, .06),
     0 8px 24px rgba(0, 0, 0, .45) !important;
 }
-#island[data-key="timer"],
-#island:has(#v-timer.on),
-#island[data-key="timer"][data-expanded="1"] {
+#island:not([data-theme="full-glass"])[data-key="timer"],
+#island:not([data-theme="full-glass"])[data-key="timer"][data-expanded="1"] {
   background: rgba(0, 0, 0, var(--island-surface-alpha, 1)) !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
@@ -376,6 +384,10 @@ svg { display: block; }
   opacity: 1; visibility: visible; pointer-events: auto; transform: translate3d(-50%, 0, 0);
   transition: opacity .26s ease-in;
   transition-delay: 0.04s;
+}
+.view:not(.on):not(.sliding),
+.view:not(.on):not(.sliding) * {
+  animation-play-state: paused !important;
 }
 .view.sliding {
   visibility: visible !important;
@@ -588,13 +600,14 @@ svg { display: block; }
 }
 #v-compact { width: 312px; height: 36px; }
 #v-notice { position: relative; width: 300px; height: 40px; display: flex; align-items: center; justify-content: center; gap: 10px; overflow: hidden; font-size: 11.5px; font-weight: 600; }
+#liquid-glass-notice-root { display: none !important; }
 .notice-whatsapp-beam {
   position: absolute;
   inset: 0 0 -2px;
   border-radius: inherit;
   background:
-    radial-gradient(ellipse 80% 65% at 50% 110%, rgba(30, 215, 96, .45), transparent 100%),
-    linear-gradient(to top, color-mix(in srgb, #1ed760 36%, transparent), color-mix(in srgb, #1ed760 16%, transparent) 52%, transparent 100%);
+    radial-gradient(ellipse 80% 65% at 50% 110%, color-mix(in srgb, var(--notice-beam, #3b82f6) 45%, transparent), transparent 100%),
+    linear-gradient(to top, color-mix(in srgb, var(--notice-beam, #3b82f6) 36%, transparent), color-mix(in srgb, var(--notice-beam, #3b82f6) 16%, transparent) 52%, transparent 100%);
   opacity: 0;
   pointer-events: none;
   transform-origin: 50% 100%;
@@ -603,16 +616,16 @@ svg { display: block; }
   transition: opacity .3s ease;
   z-index: 0;
 }
-#v-notice:has(.n-ico[data-ico="whatsapp"]) .notice-whatsapp-beam {
+#v-notice:not([data-caps="1"]) .notice-whatsapp-beam {
   opacity: .85;
   animation: cBeamPulse 2.8s ease-in-out infinite alternate;
 }
-#island[data-key="notice"][data-notice-icon="whatsapp"] #v-notice {
+#island[data-key="notice"] #v-notice {
   width: 100%;
   padding: 0 12px;
   box-sizing: border-box;
 }
-#island[data-key="notice"][data-notice-icon="whatsapp"] #n-text {
+#island[data-key="notice"] #n-text {
   min-width: 0;
   max-width: calc(100% - 32px);
 }
@@ -662,11 +675,11 @@ svg { display: block; }
 .timer-notice-copy{position:relative;z-index:2;margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:2px;min-width:0;text-align:right}
 .timer-notice-copy strong,#v-timerpreview #preview-time{font-family:var(--font-display);font-size:22px;line-height:1;font-weight:650;white-space:nowrap;letter-spacing:-.5px;font-variant-numeric:tabular-nums;color:#fff}
 .timer-notice-copy span,#v-timerpreview #timer-notice-detail{font-size:10px;color:#bcc2d1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#island[data-key="prayernotice"],#island[data-key="waternotice"]{background:rgba(13,15,22,.7)!important;-webkit-backdrop-filter:blur(24px) saturate(170%);backdrop-filter:blur(24px) saturate(170%);box-shadow:inset 0 1px rgba(255,255,255,.34),inset 0 0 0 1px rgba(255,255,255,.2),0 8px 22px rgba(0,0,0,.28)!important;cursor:pointer;transition:transform .24s ease-in,box-shadow .24s ease-in,top .44s ease-in,opacity .2s ease-in,background .24s ease-in}
-#island[data-key="prayernotice"]:hover,#island[data-key="waternotice"]:hover{transform:translate3d(-50%,0,0) scale(1.045)!important}
-#island[data-key="prayernotice"]::before,#island[data-key="waternotice"]::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:6;animation:prayerAlertOutline 1.1s ease-in-out infinite}
+#island[data-key="prayernotice"],#island[data-key="waternotice"],#island[data-key="weathernotice"]{background:rgba(13,15,22,.7)!important;-webkit-backdrop-filter:blur(24px) saturate(170%);backdrop-filter:blur(24px) saturate(170%);box-shadow:inset 0 1px rgba(255,255,255,.34),inset 0 0 0 1px rgba(255,255,255,.2),0 8px 22px rgba(0,0,0,.28)!important;cursor:pointer;transition:transform .24s ease-in,box-shadow .24s ease-in,top .44s ease-in,opacity .2s ease-in,background .24s ease-in}
+#island[data-key="prayernotice"]:hover,#island[data-key="waternotice"]:hover,#island[data-key="weathernotice"]:hover{transform:translate3d(-50%,0,0) scale(1.045)!important}
+#island[data-key="prayernotice"]::before,#island[data-key="waternotice"]::before,#island[data-key="weathernotice"]::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:6;animation:prayerAlertOutline 1.1s ease-in-out infinite}
 @keyframes prayerAlertOutline{0%,100%{box-shadow:inset 0 0 0 1.4px rgba(108,170,255,.5),inset 0 0 9px rgba(63,145,255,.08)}50%{box-shadow:inset 0 0 0 2px rgba(177,215,255,.92),inset 0 0 16px rgba(86,160,255,.25)}}
-#v-prayernotice,#v-waternotice{width:300px;height:66px;padding:0 30px 0 14px;gap:12px;background:transparent}
+#v-prayernotice,#v-waternotice,#v-weathernotice{width:300px;height:66px;padding:0 30px 0 14px;gap:12px;background:transparent}
 #v-prayernotice.on .prayer-notice-icon{animation:taskAlarmJolt .7s ease-in infinite}
 @media(prefers-reduced-motion:reduce){#v-prayernotice.on .prayer-notice-icon,#island[data-key="prayernotice"]::before{animation:none}#island[data-key="prayernotice"]::before{box-shadow:inset 0 0 0 1.4px rgba(108,170,255,.7)}}
 .prayer-notice-icon{width:36px;height:36px;flex:none;border-radius:50%;display:grid;place-items:center;background:linear-gradient(140deg,rgba(110,169,255,.3),rgba(44,107,222,.08));border:1px solid rgba(188,220,255,.3);color:#b3d2ff;box-shadow:var(--liquid-shadow);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}.prayer-notice-icon svg{width:18px;height:18px}
@@ -1117,21 +1130,28 @@ svg { display: block; }
 /* ---------- Idle: jam / mata (Eye Tracking + Ekspresi Emosi) ---------- */
 #i-clock { font-size: 13px; font-weight: 600; letter-spacing: .3px; font-variant-numeric: tabular-nums; color: #e5e5ea; }
 #eyes {
-  position: absolute; top: var(--look-y, 0px); left: calc(50% + var(--look-x, 0px)); width: max-content; height: 100%;
+  /* The look offset is the separate `translate` property (compositor only, composes with the `transform` that expression animations
+     replace) and is advanced every frame by eyeGlideStep() in system.js, so there is no CSS transition on it. */
+  position: absolute; top: 0; left: 50%; width: max-content; height: 100%;
   display: none; align-items: center; justify-content: center; gap: 10px;
   transform: translateX(-50%) scale(var(--eye-scale, 1));
-  transition: left .09s cubic-bezier(.22, 1, .36, 1), top .09s cubic-bezier(.22, 1, .36, 1), transform .09s cubic-bezier(.22, 1, .36, 1);
+  translate: var(--look-x, 0px) var(--look-y, 0px);
+  transition: transform .09s cubic-bezier(.22, 1, .36, 1);
+  will-change: translate, transform;
 }
-#island.eye-rejoin #eyes { transition: left .48s cubic-bezier(.22,1,.36,1), top .48s cubic-bezier(.22,1,.36,1), transform .48s cubic-bezier(.22,1,.36,1); }
+#island.eye-rejoin #eyes { transition: transform .48s cubic-bezier(.22,1,.36,1), translate .48s cubic-bezier(.22,1,.36,1); }
 #eyes i {
   width: 7px; height: 11px; flex: 0 0 auto; border-radius: 3.5px; background: #fff;
   transform-origin: 50% 50%;
-  animation: blink 4.2s infinite;
   transition: width .22s ease, height .22s ease, border-radius .22s ease, background .22s ease, box-shadow .22s ease, clip-path .22s ease, transform .22s cubic-bezier(.34, 1.56, .64, 1);
   box-shadow: 0 0 6px rgba(255, 255, 255, .35);
 }
-#eyes i:nth-child(2) { animation-delay: .02s; }
-@keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.08); } }
+#v-idle[data-exp="normal"] #eyes.blink i { transform: scaleY(.08); transition-duration: .08s; }
+#v-idle[data-auto-motion="1"][data-exp="happy"] #eyes i,
+#v-idle[data-auto-motion="1"][data-exp="flirty"] #eyes i,
+#v-idle[data-auto-motion="1"][data-exp="laugh"] #eyes i,
+#v-idle[data-auto-motion="1"][data-exp="sad"] #eyes i,
+#v-idle[data-auto-motion="1"][data-exp="lol"] #eyes i { animation-iteration-count: 1; }
 #v-idle[data-mode="eyes"] #eyes { display: flex; } #v-idle[data-mode="eyes"] #i-clock { display: none; }
 
 #creative-warning {
@@ -1631,30 +1651,56 @@ svg { display: block; }
   will-change: transform, opacity;
 }
 .c-lyric.in {
-  animation: cLyricSlideIn .36s cubic-bezier(.16, 1, .3, 1) forwards;
+  /* waits (--c-in-delay) until the notch has opened far enough for the line, then blurs in */
+  animation: cLyricSlideIn .5s cubic-bezier(.22, 1, .36, 1) var(--c-in-delay, 0s) both;
 }
 .c-lyric.out {
-  animation: cLyricSlideOut .32s cubic-bezier(.22, 1, .36, 1) forwards;
+  animation: cLyricSlideOut .22s cubic-bezier(.4, 0, 1, 1) both;
+}
+/* The line is one nowrap run of words; the wrapper keeps the spaces (a flex parent would drop them) */
+.c-lyric-words { display: block; max-width: 100%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Words of the shown line light up in turn (delay and duration are set per word by JS), like the lyrics page */
+.c-lyric.synced .ly-w { opacity: .5; }
+.c-lyric.synced .ly-w.go { animation: lyWord 1s ease-out both; }
+#v-compact.paused .c-lyric .ly-w, #v-compact.paused .c-lyric.gap i { animation-play-state: paused; }
+/* Instrumental gap: three dots that fill one after another */
+.c-lyric.gap { gap: 5px; }
+.c-lyric.gap i { width: 6px; height: 6px; border-radius: 50%; background: #fff; opacity: .42; transform: scale(.82); }
+.c-lyric.gap i:nth-child(1) { --k: 0; }
+.c-lyric.gap i:nth-child(2) { --k: 1; }
+.c-lyric.gap i:nth-child(3) { --k: 2; }
+.c-lyric.gap.go i {
+  animation: lyDot calc(var(--dur, 6s) / 3) ease-out both;
+  animation-delay: calc(var(--el, 0s) + var(--k) * (var(--dur, 6s) / 3));
+}
+@media (prefers-reduced-motion: reduce) {
+  .c-lyric.in, .c-lyric.out { animation-duration: .01s; animation-delay: 0s; }
+  .c-lyric .ly-w, .c-lyric.gap i { animation: none !important; }
+  .c-lyric.synced .ly-w { opacity: 1; }
 }
 
 @keyframes cLyricSlideIn {
   0% {
     opacity: 0;
-    transform: translate3d(0, 8px, 0);
+    filter: blur(8px);
+    transform: translate3d(0, 7px, 0) scale(.96);
   }
   100% {
     opacity: 1;
-    transform: translate3d(0, 0, 0);
+    filter: blur(0);
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 @keyframes cLyricSlideOut {
   0% {
     opacity: 1;
-    transform: translate3d(0, 0, 0);
+    filter: blur(0);
+    transform: translate3d(0, 0, 0) scale(1);
   }
   100% {
     opacity: 0;
-    transform: translate3d(0, -8px, 0);
+    filter: blur(8px);
+    transform: translate3d(0, -7px, 0) scale(.96);
   }
 }
 .c-trail {
@@ -1678,6 +1724,20 @@ svg { display: block; }
 }
 #v-compact .bars { display: flex; }
 .n-ico { width: 20px; height: 20px; color: var(--green); }
+#v-notice .n-ico {
+  display: grid;
+  place-items: center;
+  flex: 0 0 20px;
+  overflow: hidden;
+}
+#v-notice .n-ico > img {
+  display: block;
+  width: 18px;
+  height: 18px;
+  max-width: 18px;
+  max-height: 18px;
+  object-fit: contain;
+}
 #v-notice .n-ico[data-ico="whatsapp"] {
   display: grid;
   width: 22px;
@@ -2282,6 +2342,7 @@ button:disabled { opacity:.35; cursor:default; }
   flex-shrink: 0;
 }
 .ly-play-btn,
+.ly-pip-btn,
 .ly-back-btn {
   width: 28px;
   height: 28px;
@@ -2295,6 +2356,7 @@ button:disabled { opacity:.35; cursor:default; }
   transition: all .18s ease;
 }
 .ly-play-btn:hover,
+.ly-pip-btn:hover,
 .ly-back-btn:hover {
   background: rgba(255, 255, 255, 0.22);
   transform: scale(1.06);
@@ -2304,54 +2366,87 @@ button:disabled { opacity:.35; cursor:default; }
   width: 100%;
   flex: 1;
   overflow: hidden;
-  -webkit-mask-image: linear-gradient(transparent, #000 15%, #000 75%, transparent);
-  mask-image: linear-gradient(transparent, #000 15%, #000 75%, transparent);
+  -webkit-mask-image: linear-gradient(transparent 0, #000 13%, #000 68%, transparent 100%);
+  mask-image: linear-gradient(transparent 0, #000 13%, #000 68%, transparent 100%);
 }
 .ly-win.plain { overflow-y: auto; scrollbar-width: thin; scrollbar-color: #555 transparent; }
-.ly-win.plain .ly-list { position: static; transform: none !important; will-change: auto; }
+.ly-win.plain .ly-list { position: static; will-change: auto; }
 .ly-plain-label { text-align: center; color: rgba(255,255,255,.55); font-size: 10px; padding: 4px 0 8px; }
-.ly.plain-line { opacity: .85; transform: none; cursor: default; font-size: 13px; min-height: 0; padding: 4px 10px; }
 .ly-list {
   position: absolute;
   left: 0;
   right: 0;
   top: 0;
   width: 100%;
-  transition: transform .52s cubic-bezier(0.25, 1, 0.5, 1);
-  will-change: transform;
 }
-.ly {
-  font-family: var(--font-display);
-  min-height: 38px;
-  padding: 6px 12px;
-  font-size: 15.5px;
-  font-weight: 500;
-  white-space: normal; /* Full text - tidak pernah kepotong! */
-  line-height: 1.35;
-  color: #fff;
-  opacity: .20;
-  transform: scale(0.96);
-  transform-origin: 50% 50%;
-  text-align: center;
-  word-break: break-word;
-  cursor: pointer;
-  transition: opacity .32s ease, transform .36s ease, color .28s ease;
-}
-.ly.cur {
-  font-size: 16.5px;
-  font-weight: 700;
-  opacity: 1 !important;
-  transform: scale(1.04) !important;
-  color: #ffffff !important;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
-}
-.ly:hover:not(.cur):not(.msg) {
-  opacity: .85 !important;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-}
-.ly.msg { opacity: .6; font-size: 14px; font-weight: 500; cursor: default; }
 
+/* Synced lyrics, Apple Music style. JS sets --shift (glide), --delay (stagger) and data-dist (0 = active line). */
+.ly {
+  --sc: .86;
+  font-family: var(--font-display);
+  padding: 7px 18px 7px 22px;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  text-align: left;
+  white-space: normal;
+  word-break: break-word;
+  color: #fff;
+  opacity: .14;
+  filter: blur(3px);
+  transform: translate3d(0, var(--shift, 0px), 0) scale(var(--sc));
+  transform-origin: 0% 50%;
+  cursor: pointer;
+  transition: transform .72s cubic-bezier(.22, 1, .36, 1) var(--delay, 0s), opacity .5s ease var(--delay, 0s), filter .5s ease var(--delay, 0s);
+  will-change: transform, opacity, filter;
+}
+.ly[data-dist="0"] { --sc: 1;   opacity: 1;   filter: none; }
+.ly[data-dist="1"] { --sc: .93; opacity: .46; filter: blur(.7px); }
+.ly[data-dist="2"] { --sc: .9;  opacity: .32; filter: blur(1.5px); }
+.ly[data-dist="3"] { --sc: .88; opacity: .22; filter: blur(2.3px); }
+.ly[data-dist="4"] { --sc: .86; opacity: .14; filter: blur(3px); }
+.ly.skip { display: none; }
+.ly:hover:not(.cur):not(.gap):not(.msg):not(.plain-line) { opacity: .9; filter: none; background: rgba(255, 255, 255, 0.09); border-radius: 12px; }
+
+/* Words of the active line light up in turn (delay and duration are set per word by JS) */
+.ly .ly-w { display: inline; }
+.ly.cur .ly-w { opacity: .45; }
+.ly.cur .ly-w.go { animation: lyWord 1s ease-out both; }
+.ly-list.paused .ly.cur .ly-w, .ly-list.paused .ly.cur.gap i { animation-play-state: paused; }
+@keyframes lyWord {
+  from { opacity: .45; filter: blur(.6px); }
+  to   { opacity: 1;   filter: none; }
+}
+
+/* Instrumental gap: three dots that fill one after another over the gap */
+.ly.gap { display: flex; align-items: center; gap: 7px; height: 34px; padding-top: 0; padding-bottom: 0; cursor: default; }
+.ly.gap i { width: 10px; height: 10px; border-radius: 50%; background: #fff; opacity: .32; transform: scale(.82); }
+.ly.gap.cur i { opacity: .42; }
+.ly.gap i:nth-child(1) { --k: 0; }
+.ly.gap i:nth-child(2) { --k: 1; }
+.ly.gap i:nth-child(3) { --k: 2; }
+.ly.gap.cur.go i {
+  animation: lyDot calc(var(--dur, 6s) / 3) ease-out both;
+  animation-delay: calc(var(--el, 0s) + var(--k) * (var(--dur, 6s) / 3));
+}
+@keyframes lyDot {
+  from { opacity: .42; transform: scale(.82); }
+  to   { opacity: 1;   transform: scale(1); }
+}
+
+/* Messages and unsynced text keep the plain, centred look */
+.ly.msg, .ly.plain-line {
+  transform: none; filter: none; transition: none; text-align: center; cursor: default; will-change: auto;
+}
+.ly.msg { opacity: .6; font-size: 14px; font-weight: 500; }
+.ly.plain-line { opacity: .85; font-size: 13px; font-weight: 500; min-height: 0; padding: 4px 10px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ly { transition: opacity .2s ease, filter .2s ease; transform: none; }
+  .ly .ly-w, .ly.gap i { animation: none !important; }
+  .ly.cur .ly-w { opacity: 1; }
+}
 /* ---------- Redesigned Timer (iOS Liquid Glass UI) ---------- */
 #v-timer.grump-panel {
   display: flex;
@@ -2364,6 +2459,28 @@ button:disabled { opacity:.35; cursor:default; }
   box-sizing: border-box;
   background: #000;
 }
+.timer-main #timer-ruler{width:100%;flex:0 0 92px}
+.timer-main .ruler-footer{width:100%;flex:0 0 auto}
+.timer-main{position:relative;width:100%;height:100%;display:flex;flex-direction:column;justify-content:space-between;align-items:center}
+.timer-main[hidden],.reminder-view[hidden],.reminder-list[hidden],.reminder-editor[hidden],.reminder-days[hidden],.reminder-date-field[hidden],.reminder-picker[hidden]{display:none !important}
+.timer-reminders-open{position:absolute;right:-8px;top:-7px;z-index:5;width:28px;height:28px;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;color:rgba(255,255,255,.58);cursor:pointer;transition:color .16s ease,background .16s ease}
+.timer-reminders-open:hover{color:#fff;background:rgba(255,255,255,.08)}.timer-reminders-open svg{width:15px;height:15px}
+.reminder-view{position:relative;width:100%;height:100%;box-sizing:border-box;color:#fff}
+.reminder-view header{height:24px;display:grid;grid-template-columns:30px 1fr 30px;align-items:center;text-align:center;margin-bottom:3px}
+.reminder-view header button,.reminder-row>button:last-child{width:28px;height:28px;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;color:#aaa;cursor:pointer}
+.reminder-view header button:hover,.reminder-row>button:last-child:hover{background:rgba(255,255,255,.08);color:#fff}.reminder-view header svg{width:14px;height:14px}
+.reminder-list{height:132px;overflow-y:auto;display:grid;align-content:start;gap:5px;padding-right:2px}
+.reminder-row{display:grid;grid-template-columns:1fr 28px;align-items:center;min-height:42px;border:1px solid rgba(255,255,255,.08);border-radius:13px;background:rgba(255,255,255,.035)}
+.reminder-row>button:first-child{height:100%;min-width:0;display:flex;align-items:center;gap:9px;padding:5px 8px;border:0;background:transparent;color:#fff;text-align:left;cursor:pointer}
+.reminder-row i{width:8px;height:8px;border-radius:50%;background:#ff9f0a;box-shadow:0 0 9px rgba(255,159,10,.65)}.reminder-row.off{opacity:.42}.reminder-row.off i{background:#777;box-shadow:none}
+.reminder-row span{min-width:0;display:grid}.reminder-row b,.reminder-row small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.reminder-row b{font-size:11px}.reminder-row small{font-size:9px;color:#96969c;margin-top:2px}
+.reminder-empty{height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#777}.reminder-empty svg{width:20px;height:20px;margin-bottom:5px}.reminder-empty b{font-size:12px;color:#b4b4b8}.reminder-empty small{font-size:9px;margin-top:3px}
+.reminder-editor{height:116px;display:grid;grid-template-columns:1fr 1fr;gap:2px}.reminder-editor>input{grid-column:1/-1}.reminder-editor>input{height:24px;box-sizing:border-box;border:1px solid rgba(255,255,255,.12);border-radius:9px;background:rgba(255,255,255,.055);color:#fff;padding:0 10px;font:500 10px var(--font-display);outline:none}.reminder-editor>input:focus{border-color:rgba(255,159,10,.72);box-shadow:0 0 0 2px rgba(255,159,10,.12)}
+.reminder-when{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:4px}.reminder-value{position:relative;min-width:0;height:27px;padding:3px 22px 3px 9px;border:1px solid rgba(255,255,255,.12);border-radius:9px;background:rgba(255,255,255,.055);color:#fff;text-align:left;cursor:pointer}.reminder-value span{display:block;color:#77777e;font:600 6px/7px var(--font-display)}.reminder-value b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:650 9px/11px var(--font-display)}.reminder-value i{position:absolute;right:9px;top:10px;width:5px;height:5px;border-right:1.5px solid #8b8b91;border-bottom:1.5px solid #8b8b91;transform:rotate(45deg)}.reminder-value:hover{background:rgba(255,255,255,.085)}.reminder-value:focus-visible{outline:2px solid rgba(255,159,10,.8);outline-offset:1px}.reminder-repeat{display:flex;gap:3px}.reminder-repeat button,.reminder-days button{height:27px;flex:1;border:1px solid transparent;border-radius:9px;background:rgba(255,255,255,.065);color:#aaa;font:600 9px var(--font-display);cursor:pointer}.reminder-repeat button:hover,.reminder-days button:hover{background:rgba(255,255,255,.1);color:#fff}.reminder-repeat button:focus-visible,.reminder-days button:focus-visible,.reminder-save:focus-visible{outline:2px solid rgba(255,159,10,.8);outline-offset:1px}.reminder-repeat button.active,.reminder-days button.active{border-color:rgba(255,174,52,.55);background:rgba(255,159,10,.18);color:#ffad33}
+.reminder-days{grid-column:1/-1;display:flex;gap:3px}.reminder-error{grid-column:1/-1;min-height:8px;color:#ff746d;text-align:center;font:600 8px/8px var(--font-display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.reminder-error:empty{display:none}.reminder-save{position:relative;z-index:2;grid-column:1/-1;height:23px;border:1px solid rgba(255,188,85,.72);border-radius:999px;background:linear-gradient(180deg,#ffad2e,#f28b00);color:#1b1104;font:700 9px var(--font-display);cursor:pointer}.reminder-save:hover{filter:brightness(1.07)}.reminder-save:active{transform:scale(.985)}.reminder-editor.invalid{animation:taskAlarmJolt .22s ease-in-out 2}.reminder-editor.invalid>input,.reminder-editor.invalid fieldset{border-color:#ff453a}
+.reminder-picker{position:absolute;top:27px;left:50%;z-index:40;width:310px;padding:18px;border:1px solid rgba(255,255,255,.1);border-radius:24px;background:#1c1c1e;box-shadow:0 24px 56px rgba(0,0,0,.52);box-sizing:border-box;transform:translateX(-50%);animation:reminderPickerIn .18s ease-out}.reminder-picker-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}.reminder-picker-head>div{display:flex;align-items:center;gap:8px}.reminder-picker-head button{border:0;color:#fff;cursor:pointer}.reminder-month-toggle{display:flex;align-items:center;gap:5px;width:auto!important;padding:0!important;border:0!important;border-radius:0!important;outline:0!important;background:transparent!important;box-shadow:none!important;font:700 17px var(--font-display)!important}.reminder-month-toggle i{width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translateY(-2px)}.reminder-picker-head>div button{width:27px;height:27px;border-radius:50%;background:transparent;font:600 18px/25px var(--font-display)}.reminder-picker-head>div button:hover{background:rgba(255,255,255,.08)}.reminder-calendar-stage{position:relative;height:216px;margin-bottom:16px}.reminder-weekdays,.reminder-calendar{display:grid;grid-template-columns:repeat(7,1fr);justify-items:center}.reminder-weekdays{margin-bottom:8px}.reminder-weekdays span{width:36px;color:#6f6f76;text-align:center;font:700 10px var(--font-display);letter-spacing:.04em}.reminder-calendar{row-gap:4px}.reminder-calendar .empty{width:36px;height:32px}.reminder-calendar button{width:32px;height:32px;border:0!important;border-radius:50%;outline:0;background:transparent!important;box-shadow:none!important;color:rgba(255,255,255,.76);font:600 13px var(--font-display);cursor:pointer;transition:color .14s ease,background .14s ease}.reminder-calendar button:hover{background:transparent!important;color:#fff}.reminder-calendar button.today{box-shadow:none!important}.reminder-calendar button.selected{background:#fff!important;color:#18181a!important;font-weight:750;box-shadow:none!important}.reminder-month-overlay{position:absolute;inset:0;z-index:3;padding:12px;border-radius:18px;background:rgba(28,28,30,.97);backdrop-filter:blur(12px)}.reminder-month-overlay header{display:flex;align-items:center;justify-content:space-between;height:auto;margin:0 0 10px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.06)}.reminder-month-overlay header button{width:26px;height:26px;border:0;border-radius:50%;background:transparent;color:#fff;font-size:18px;cursor:pointer}.reminder-month-overlay header strong{font-size:15px}.reminder-month-overlay>div{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.reminder-month-overlay>div button{height:30px;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;color:rgba(255,255,255,.7);font:700 11px var(--font-display);cursor:pointer}.reminder-month-overlay>div button:hover,.reminder-month-overlay>div button.selected{background:transparent!important;color:#fff}.reminder-time-row{display:flex;align-items:center;justify-content:space-between;padding-top:14px;border-top:1px solid rgba(255,255,255,.06)}.reminder-time-row>strong{font:700 16px var(--font-display)}.reminder-time-inputs{display:flex;align-items:center;padding:4px 7px;border-radius:8px;background:#2c2c2e;color:#fff;font:650 15px var(--font-display)}.reminder-time-inputs input{width:24px;border:0;outline:0;background:transparent;color:#fff;text-align:center;font:inherit}.reminder-time-inputs span{opacity:.7}.reminder-period{display:flex;padding:2px;border-radius:8px;background:#2c2c2e}.reminder-period button{padding:5px 9px;border:0;border-radius:6px;background:transparent;color:rgba(255,255,255,.55);font:700 11px var(--font-display);cursor:pointer}.reminder-period button.active{background:#505054;color:#fff;box-shadow:0 1px 4px rgba(0,0,0,.26)}.reminder-picker-done{width:100%;height:30px;margin-top:12px;border:0;border-radius:10px;background:#ff453a;color:#fff;font:700 12px var(--font-display);cursor:pointer}.reminder-picker button:focus-visible,.reminder-picker input:focus-visible{outline:2px solid #fff;outline-offset:1px}.reminder-month-toggle:focus-visible,.reminder-calendar button:focus-visible,.reminder-month-overlay>div button:focus-visible{outline:0!important}.reminder-calendar button.selected:focus-visible{background:#fff!important;color:#18181a!important}@keyframes reminderPickerIn{from{opacity:0;transform:translate(-50%,5px) scale(.98)}to{opacity:1;transform:translate(-50%,0) scale(1)}}@media(prefers-reduced-motion:reduce){.reminder-picker{animation:none}}
+#island[data-key="timer"][data-reminder-picker="1"],#island[data-key="timer"][data-reminder-picker="1"] #island-content-clip,#island[data-key="timer"][data-reminder-picker="1"] #v-timer.grump-panel{overflow:visible!important}
+#island[data-key="timer"][data-reminder-picker="1"] .reminder-picker{top:182px;z-index:70}
 .timer-top-bar {
   display: flex;
   align-items: center;
@@ -2859,14 +2976,83 @@ button:disabled { opacity:.35; cursor:default; }
 /* ---------- Pager ---------- */
 #pager { position: absolute; inset: 0; pointer-events: none; opacity: 0; visibility: hidden; z-index: 25; transition: opacity .14s ease-out, visibility 0s .14s; }
 #pager.on { opacity: 1; visibility: visible; transition-delay: 0s; }
-html[data-website-demo="1"] #pager { display: none !important; }
 .pg { position: absolute; top: 50%; width: 22px; height: 44px; margin-top: -22px; display: grid; place-items: center; color: #5a5a5f; pointer-events: auto; transition: color .15s, transform .15s; }
 .pg.l { left: 3px; } .pg.r { right: 3px; }
 .pg [data-ico] { width: 14px; height: 14px; }
 .pg:hover { color: #fff; } .pg.l:hover { transform: translateX(-2px); } .pg.r:hover { transform: translateX(2px); }
-#dots { position: absolute; left: 0; right: 0; bottom: 6px; display: flex; justify-content: center; gap: 6px; pointer-events: auto; }
-#dots i { width: 5px; height: 5px; border-radius: 3px; background: #48484a; cursor: pointer; transition: width .3s cubic-bezier(.3, 1.3, .5, 1), background .2s; }
-#dots i.on { width: 14px; background: #fff; }
+#dots { position: absolute; left: 28px; right: 28px; bottom: 4px; min-height:18px; display: flex; align-items:center; justify-content: center; gap: 7px; pointer-events: auto; transition:bottom .28s cubic-bezier(.22,1,.36,1),gap .22s ease; }
+#dots i { position:relative;width:6px;height:16px;display:grid;place-items:center;color:rgba(255,255,255,.55);background:transparent;cursor:pointer;transition:color .18s ease,transform .22s cubic-bezier(.22,1,.36,1),width .22s ease; }
+#dots i::before{content:"";position:absolute;width:5px;height:5px;border-radius:50%;background:currentColor;transition:opacity .14s ease,transform .2s ease}
+#dots i span { width:13px;height:13px;display:block;opacity:0;transform:translateY(3px) scale(.72);transition:opacity .16s ease,transform .24s cubic-bezier(.22,1,.36,1); }
+#dots:hover{bottom:10px;gap:10px}
+#dots:hover i{width:20px;color:rgba(255,255,255,.72)}
+#dots:hover i::before{opacity:0;transform:scale(.3)}
+#dots:hover i span{opacity:1;transform:translateY(0) scale(1)}
+#dots i:hover { color:#fff;transform:translateY(-2px) scale(1.08); }
+#dots i.on { color:#fff; }
+
+#v-weather.grump-panel{width:392px;height:100%;min-height:196px}
+.weather-page{padding:11px 24px 12px!important;color:#fff;overflow:hidden;background:linear-gradient(135deg,#2787f5 0%,#35c6df 100%)!important}
+.weather-beam{display:none}
+.weather-current-card,.weather-days{position:relative;z-index:1}
+.weather-current-card{height:83px;margin:0 8px;padding:8px 13px 6px;border:0;border-radius:22px;background:rgba(255,255,255,.34);box-sizing:border-box}
+.weather-current-main{display:flex;align-items:center;gap:11px;height:51px}
+.weather-page-icon{width:48px;height:42px;display:grid;place-items:center;flex:0 0 auto;overflow:visible}
+.weather-current-copy{display:flex;flex-direction:column;min-width:0;text-align:left;justify-content:center}
+.weather-current-copy small{font-size:9px;font-weight:500;color:rgba(255,255,255,.82);margin-bottom:0;letter-spacing:.01em}
+.weather-current-copy strong{display:flex;align-items:baseline;gap:3px;font-size:16px;line-height:1.05;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
+.weather-current-copy strong #weather-page-condition{font-weight:700;color:#fff}
+.weather-current-copy strong #weather-page-temp{font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
+.weather-current-copy>span{font-size:9px;color:rgba(255,255,255,.76);margin-top:1px}
+.weather-sun-row{display:flex;align-items:center;justify-content:space-between;margin-top:0;padding:5px 7px 0;border-top:1px solid rgba(255,255,255,.45);font-size:10px;color:#fff}
+.weather-sun-row>span{display:flex;align-items:center;gap:4px}
+.weather-sun-row b{font-weight:500;color:#fff;font-variant-numeric:tabular-nums}
+#weather-page-daylight{display:flex;align-items:center;gap:6px;color:#fff;font-size:9px;white-space:nowrap}
+#weather-page-daylight::before,#weather-page-daylight::after{content:"";display:block;width:24px;border-top:1px dashed rgba(255,255,255,.48)}
+.weather-days{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-top:6px}
+.weather-day{height:81px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:6px 2px 5px;border-radius:18px;background:rgba(255,255,255,.29);border:1px solid rgba(255,255,255,.72);min-width:0;box-sizing:border-box;transition:background .16s ease,transform .16s ease}
+.weather-day:hover{background:rgba(255,255,255,.4);transform:translateY(-1px)}
+.weather-day.is-today{background:rgba(255,255,255,.34)}
+.weather-day-name{font-size:8px;font-weight:700;color:#fff;white-space:nowrap}
+.weather-day-icon{width:27px;height:21px;display:grid;place-items:center}
+.weather-day strong{font-size:13px;line-height:1;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
+.weather-day small{font-size:9px;line-height:1;color:rgba(255,255,255,.56);font-variant-numeric:tabular-nums}
+.weather-asset{position:relative;display:grid;place-items:center;width:100%;height:100%}
+.weather-asset img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 2px 2px rgba(22,82,146,.18))}
+.weather-asset.is-hero{width:48px;height:42px}
+.weather-asset-clear.is-hero{width:38px;height:34px}
+/* Menu-hover page stretch lives next to the 196px page lock in waterline-glass.css. */
+.weather-asset-lightning{position:absolute;left:51%;top:53%;width:7px;height:14px;background:#ffd23f;clip-path:polygon(46% 0,100% 0,68% 42%,100% 42%,26% 100%,43% 55%,9% 55%);filter:drop-shadow(0 0 2px rgba(255,210,63,.8))}
+.weather-asset-snow{position:absolute;inset:58% 8px auto;height:9px;background:radial-gradient(circle,#fff 0 1px,transparent 1.4px) 0 0/9px 9px,radial-gradient(circle,#fff 0 1px,transparent 1.4px) 5px 3px/10px 10px}
+.weather-asset-fog{position:absolute;left:8%;right:8%;bottom:2px;height:8px;border-top:2px solid rgba(255,255,255,.9);border-bottom:2px solid rgba(255,255,255,.72);border-radius:999px}
+
+/* Weather Animated Keyframes */
+@keyframes weather-spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+@keyframes weather-pulse { 0%,100%{transform:scale(1);filter:drop-shadow(0 0 5px rgba(251,191,36,.55))} 50%{transform:scale(1.08);filter:drop-shadow(0 0 12px rgba(245,158,11,.85))} }
+@keyframes weather-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
+@keyframes weather-drift-back { 0%{transform:translateX(-3px)} 100%{transform:translateX(3px)} }
+@keyframes weather-raindrop { 0%{opacity:0;transform:translate(3px,-8px)} 30%{opacity:1} 85%{opacity:.9} 100%{opacity:0;transform:translate(-4px,10px)} }
+@keyframes weather-lightning { 0%,82%,92%,100%{opacity:0;transform:scale(.9)} 85%,89%{opacity:1;transform:scale(1.05);filter:drop-shadow(0 0 7px #fde047)} }
+@keyframes weather-snow { 0%{opacity:0;transform:translateY(-5px) translateX(-2px)} 40%{opacity:1} 100%{opacity:0;transform:translateY(12px) translateX(2px)} }
+@keyframes weather-fog { 0%{transform:translateX(-4px);opacity:.55} 100%{transform:translateX(4px);opacity:.9} }
+
+.weather-anim-sun-spin{transform-origin:32px 24px;animation:weather-spin 14s linear infinite}
+.weather-anim-sun-breathe{transform-origin:43px 17px;animation:weather-pulse 3s ease-in-out infinite}
+.weather-anim-cloud-float{animation:weather-float 3.5s ease-in-out infinite}
+.weather-anim-cloud-back{animation:weather-drift-back 4.5s ease-in-out infinite alternate}
+.weather-anim-rain-drops .rain-drop.d1{animation:weather-raindrop .85s linear infinite}
+.weather-anim-rain-drops .rain-drop.d2{animation:weather-raindrop .85s linear .22s infinite}
+.weather-anim-rain-drops .rain-drop.d3{animation:weather-raindrop .85s linear .44s infinite}
+.weather-anim-rain-drops .rain-drop.d4{animation:weather-raindrop .85s linear .66s infinite}
+.weather-anim-lightning{animation:weather-lightning 2.8s ease-in-out infinite}
+.weather-anim-snow .snow-flake.s1{animation:weather-snow 2s ease-in-out infinite}
+.weather-anim-snow .snow-flake.s2{animation:weather-snow 2s ease-in-out .65s infinite}
+.weather-anim-snow .snow-flake.s3{animation:weather-snow 2s ease-in-out 1.3s infinite}
+.weather-anim-fog-wave{animation:weather-fog 3.5s ease-in-out infinite alternate}
+
+@media(prefers-reduced-motion:reduce){
+  .weather-anim-sun-spin,.weather-anim-sun-breathe,.weather-anim-cloud-float,.weather-anim-cloud-back,.weather-anim-rain-drops .rain-drop,.weather-anim-lightning,.weather-anim-snow .snow-flake,.weather-anim-fog-wave{animation:none!important}
+}
 /* Character reactions use transforms only, keeping animation on the compositor. */
 #island.spam-angry { animation: grump-spam .45s ease-in-out 2; }
 #island.cursor-dizzy #eyes { animation: grump-dizzy .7s ease-in-out; }
@@ -2875,7 +3061,9 @@ html[data-website-demo="1"] #pager { display: none !important; }
 #island.dragging { filter: saturate(1.25); }
 #island.dragging .view.on { animation: grump-resist .5s ease-in-out infinite; }
 /* Mouth open animation replaced with magnetic field */
-#island.timer-panic { animation: grump-spam .35s ease-in-out 10; }
+#island.timer-panic { animation: timer-shake .35s ease-in-out 10; }
+/* keeps the island's own -50% centering while it shakes (grump-spam would replace it and push the island half off screen) */
+@keyframes timer-shake { 0%,100%{transform:translate3d(-50%,0,0)} 25%{transform:translate3d(calc(-50% - 5px),0,0)} 75%{transform:translate3d(calc(-50% + 5px),0,0)} }
 #island.birthday #v-idle::before { content: ''; position:absolute; width:11px; height:11px; left:calc(50% - 5px); top:2px; background:linear-gradient(145deg,#ffd77a 0 38%,#ff9052 39% 65%,#fff2c8 66%); clip-path:polygon(50% 0,100% 100%,0 100%); z-index:8; pointer-events:none; }
 @keyframes grump-spam { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
 @keyframes grump-dizzy { 0%,100%{transform:translateX(0)} 30%{transform:translateX(10px) rotate(5deg)} 70%{transform:translateX(-10px) rotate(-5deg)} }
@@ -2884,7 +3072,9 @@ html[data-website-demo="1"] #pager { display: none !important; }
 @keyframes grump-resist { 0%,100%{transform:scaleX(1)} 50%{transform:scaleX(.965)} }
 @media (prefers-reduced-motion:reduce) { #island.spam-angry,#island.cursor-dizzy #eyes,#island.petted #eyes,#island.overworked #eyes { animation:none; } }
 
-#island[data-angry-variant="dragon"] #v-idle[data-exp="angry"] #eyes { gap:7px; }
+#island[data-angry-variant="dragon"] #v-idle[data-exp="angry"] #eyes {
+  gap:7px;animation:dragonBerserkEyes .075s linear infinite alternate;
+}
 #island[data-angry-variant="dragon"] #v-idle[data-exp="angry"] #eyes i,
 #island[data-angry-variant="dragon"] #v-idle[data-exp="angry"] #eyes i:first-child,
 #island[data-angry-variant="dragon"] #v-idle[data-exp="angry"] #eyes i:nth-child(2) {
@@ -2894,7 +3084,9 @@ html[data-website-demo="1"] #pager { display: none !important; }
   box-shadow:none;filter:drop-shadow(0 0 4px rgba(119,230,74,.65));
   overflow:hidden;animation:none !important;
 }
-#island[data-angry-variant="dragon"] #v-idle[data-exp="angry"] #eyes i:nth-child(2) { width:calc(23px * var(--right-eye-size, 1));transform:scaleX(-1); }
+#island[data-angry-variant="dragon"] #v-idle[data-exp="angry"] #eyes i:nth-child(2) {
+  width:calc(23px * var(--right-eye-size, 1));transform:scaleX(-1);
+}
 #island[data-angry-variant="dragon"] #v-idle[data-exp="angry"] #eyes i::before {
   content:'';position:absolute;left:8px;top:1px;width:7px;height:15px;border-radius:44% 44% 48% 48%;
   background:radial-gradient(circle at 34% 20%,#fff 0 1px,transparent 1.5px),linear-gradient(90deg,#06110d,#020907 55%,#0b1b11);animation:dragon-glance 3.8s ease-in-out infinite;
@@ -2902,7 +3094,12 @@ html[data-website-demo="1"] #pager { display: none !important; }
 #island[data-angry-variant="dragon"] #v-idle[data-exp="angry"] #eyes i::after {
   display:none;
 }
-@keyframes dragon-glance { 0%,25%,100% { transform:translateX(0); } 42%,62% { transform:translateX(2px); } 78% { transform:translateX(-1px); } }
+@keyframes dragon-glance{0%,25%,100%{transform:translateX(0)}42%,62%{transform:translateX(2px)}78%{transform:translateX(-1px)}}
+@keyframes dragonBerserkEyes{0%{transform:translateX(-50%) translate3d(-1px,-.5px,0) scale(var(--eye-scale,1)) scale(1.01);filter:brightness(.94)}100%{transform:translateX(-50%) translate3d(1px,.5px,0) scale(var(--eye-scale,1)) scale(1.035);filter:brightness(1.2)}}
+#island[data-angry-variant="dragon"][data-angry="1"]{
+  box-shadow:none !important;
+  animation:islandBerserkTremor .075s linear infinite !important;
+}
 .dragon-vapor{display:none}
 #island[data-angry-variant="dragon"][data-angry="1"] .dragon-vapor{
   position:absolute;inset:0;display:block;pointer-events:none;overflow:visible;
@@ -2926,57 +3123,7 @@ html[data-website-demo="1"] #pager { display: none !important; }
 }
 @media (prefers-reduced-motion:reduce) { #island[data-angry-variant="dragon"] #eyes i::before{animation:none}#island[data-angry-variant="dragon"] .dragon-vapor{display:none !important} }
 
-/* Crimson Orbit: an original rotating red iris for Grump's angry reactions. */
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes { gap:9px; }
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i,
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:first-child,
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:nth-child(2) {
-  position:relative;
-  width:calc(15px * var(--left-eye-size, 1));
-  height:15px;
-  border-radius:50%;
-  clip-path:none;
-  overflow:hidden;
-  background:radial-gradient(circle,#050508 0 17%,#ff4860 19% 26%,#a90627 43%,#37000d 72%,#050507 74%);
-  border:1px solid rgba(255,96,112,.82);
-  box-shadow:inset 0 0 4px #ff183e,0 0 5px rgba(255,24,62,.78);
-  animation:crimsonIrisPulse 1.15s ease-in-out infinite alternate !important;
-}
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:nth-child(2) {
-  width:calc(15px * var(--right-eye-size, 1));
-}
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i::before {
-  content:'';
-  position:absolute;
-  inset:2px;
-  border-radius:50%;
-  background:
-    radial-gradient(circle at 50% 4%,#050507 0 1.6px,transparent 1.8px),
-    radial-gradient(circle at 91% 73%,#050507 0 1.6px,transparent 1.8px),
-    radial-gradient(circle at 9% 73%,#050507 0 1.6px,transparent 1.8px);
-  animation:crimsonOrbitSpin 1.8s linear infinite;
-}
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i::after {
-  content:'';
-  position:absolute;
-  left:50%;top:50%;
-  width:3px;height:3px;
-  border-radius:50%;
-  background:#020204;
-  box-shadow:0 0 0 1px rgba(255,107,123,.72),0 0 4px #ff2146;
-  transform:translate(-50%,-50%);
-}
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes .cyber-grid,
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes .gpt-eye-grid { display:none !important; }
-@keyframes crimsonOrbitSpin { to { transform:rotate(360deg); } }
-@keyframes crimsonIrisPulse {
-  from { filter:saturate(.92) brightness(.88); }
-  to { filter:saturate(1.2) brightness(1.16); }
-}
-@media(prefers-reduced-motion:reduce){
-  #island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i,
-  #island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i::before{animation:none !important}
-}
+/* Naruto Anime Eyes: see detailed styling in active VFX section below */
 
 /* Rage: override base angry clip/size so the brow and half-circle shape render */
 #island[data-angry-variant="rage"] #v-idle[data-exp="angry"] #eyes i:first-child,
@@ -2985,57 +3132,13 @@ html[data-website-demo="1"] #pager { display: none !important; }
 
 
 /* ---------- Laser Beam Angry Variant & Overlay ---------- */
-.laser-overlay {
+.laser-canvas {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100vw;
   height: 100vh;
   pointer-events: none;
   z-index: 9999;
-  display: none;
-}
-.laser-overlay.active {
-  display: block;
-}
-.laser-beam {
-  stroke: #ff0044;
-  stroke-width: 5.5;
-  stroke-linecap: round;
-  opacity: 0.95;
-  filter: url(#laserGlowFilter);
-}
-.laser-core {
-  stroke: #ffffff;
-  stroke-width: 2.2;
-  stroke-linecap: round;
-  opacity: 1;
-}
-.laser-target-halo {
-  fill: rgba(255, 0, 68, 0.28);
-  stroke: #ff0044;
-  stroke-width: 1.8;
-  animation: targetPulse .14s ease-in-out infinite alternate;
-}
-.laser-target-core {
-  fill: #ffffff;
-  stroke: #ff0044;
-  stroke-width: 2;
-  filter: url(#laserGlowFilter);
-}
-.laser-spark {
-  stroke: #ffdd44;
-  stroke-width: 2;
-  stroke-linecap: round;
-  animation: sparkJitter .07s linear infinite;
-}
-@keyframes targetPulse {
-  0% { r: 11; opacity: 0.6; }
-  100% { r: 17; opacity: 1; }
-}
-@keyframes sparkJitter {
-  0% { transform: rotate(0deg) scale(0.75); }
-  100% { transform: rotate(180deg) scale(1.35); }
 }
 
 #island[data-angry-variant="laser"] #v-idle[data-exp="angry"] #eyes {
@@ -3048,30 +3151,35 @@ html[data-website-demo="1"] #pager { display: none !important; }
   border-radius: 50% !important;
   background: radial-gradient(circle, #ffffff 0%, #ff0044 42%, #8b0022 100%) !important;
   box-shadow: 0 0 10px #ff0044, 0 0 22px #ff0044, 0 0 38px #ff0044 !important;
-  animation: eyeLaserPulse .055s linear infinite alternate !important;
+  animation: eyeLaserPulse .9s ease-in-out infinite alternate !important;
 }
+/* A slow charge glow; the old 55 ms flicker and 65 ms notch shake strobed. */
 @keyframes eyeLaserPulse {
-  0% { transform: scale(1.02); filter: brightness(1.2); }
-  100% { transform: scale(1.28); filter: brightness(1.9); }
+  0% { transform: scale(1.04); filter: brightness(1.15); }
+  100% { transform: scale(1.16); filter: brightness(1.6); }
 }
 #island[data-angry-variant="laser"][data-angry="1"] {
-  animation: islandLaserShake .065s linear infinite !important;
   box-shadow: inset 0 0 0 1.6px #ff0044, 0 0 22px rgba(255, 0, 68, .8) !important;
-}
-@keyframes islandLaserShake {
-  0% { transform: translate3d(calc(-50% - 1.2px), -0.6px, 0); }
-  50% { transform: translate3d(calc(-50% + 1.4px), 0.8px, 0); }
-  100% { transform: translate3d(calc(-50% - 0.6px), 0.6px, 0); }
 }
 
 /* ---------- Berserk Void Angry Variant ---------- */
 #island[data-key="idle"][data-angry="1"][data-angry-variant="cyber-violet"] {
-  --cyber-edge:#9d6bff;--cyber-glow:rgba(122,61,255,.44);
-  animation:cyberFramePulse 1.1s ease-in-out infinite alternate;
+  --cyber-edge:#a855f7;--cyber-glow:rgba(168,85,247,.55);
+  box-shadow:
+    inset 0 0 0 1.5px #a855f7,
+    inset 0 0 14px rgba(168, 85, 247, .5),
+    0 0 18px rgba(168, 85, 247, .45),
+    0 0 30px rgba(147, 51, 234, .3) !important;
+  animation:cyberFramePulseViolet 1.1s ease-in-out infinite alternate, angryBodyTremor .095s linear infinite !important;
 }
 #island[data-key="idle"][data-angry="1"][data-angry-variant="cyber-amber"] {
-  --cyber-edge:#ffaf2e;--cyber-glow:rgba(255,121,0,.44);
-  animation:cyberFramePulse 1.1s ease-in-out infinite alternate;
+  --cyber-edge:#f59e0b;--cyber-glow:rgba(245,158,11,.55);
+  box-shadow:
+    inset 0 0 0 1.5px #f59e0b,
+    inset 0 0 14px rgba(245, 158, 11, .5),
+    0 0 18px rgba(245, 158, 11, .45),
+    0 0 30px rgba(217, 119, 6, .3) !important;
+  animation:cyberFramePulseAmber 1.1s ease-in-out infinite alternate, angryBodyTremor .095s linear infinite !important;
 }
 #island[data-angry-variant="cyber-violet"] #v-idle[data-exp="angry"] #eyes i,
 #island[data-angry-variant="cyber-amber"] #v-idle[data-exp="angry"] #eyes i {
@@ -3095,15 +3203,21 @@ html[data-website-demo="1"] #pager { display: none !important; }
   display:block;min-width:0;min-height:0;border-radius:.2px;
   opacity:.82;animation:none;
 }
-#island[data-angry-variant="cyber-violet"] #eyes { --pixel-glow:#63d8ff; }
-#island[data-angry-variant="cyber-amber"] #eyes { --pixel-glow:#ffe071; }
-#island[data-angry-variant="cyber-violet"] #eyes .cyber-grid b { background:#a46dff;box-shadow:0 0 2px #9860ff; }
+#island[data-angry-variant="cyber-violet"] #v-idle[data-exp="angry"] #eyes {
+  filter: drop-shadow(0 0 4px #a855f7) drop-shadow(0 0 10px rgba(168, 85, 247, 0.9)) !important;
+}
+#island[data-angry-variant="cyber-amber"] #v-idle[data-exp="angry"] #eyes {
+  filter: drop-shadow(0 0 4px #f59e0b) drop-shadow(0 0 10px rgba(245, 158, 11, 0.9)) !important;
+}
+#island[data-angry-variant="cyber-violet"] #eyes { --pixel-glow:#c084fc; }
+#island[data-angry-variant="cyber-amber"] #eyes { --pixel-glow:#fbbf24; }
+#island[data-angry-variant="cyber-violet"] #eyes .cyber-grid b { background:#c084fc;box-shadow:0 0 3px #c084fc, 0 0 6px #a855f7; }
 #island[data-angry-variant="cyber-violet"] #eyes .cyber-grid b:nth-child(5n+2),
-#island[data-angry-variant="cyber-violet"] #eyes .cyber-grid b:nth-child(5n+4) { background:#48d5ff;box-shadow:0 0 2px #3ccaff; }
-#island[data-angry-variant="cyber-violet"] #eyes .cyber-grid b:nth-child(5n+3) { background:#eee0ff; }
-#island[data-angry-variant="cyber-amber"] #eyes .cyber-grid b { background:#ff8a18;box-shadow:0 0 2px #ff9d00; }
-#island[data-angry-variant="cyber-amber"] #eyes .cyber-grid b:nth-child(2n) { background:#ffe05c;box-shadow:0 0 2px #ffe45e; }
-#island[data-angry-variant="cyber-amber"] #eyes .cyber-grid b:nth-child(5n+3) { background:#fff4bc; }
+#island[data-angry-variant="cyber-violet"] #eyes .cyber-grid b:nth-child(5n+4) { background:#e879f9;box-shadow:0 0 4px #e879f9, 0 0 8px #d946ef; }
+#island[data-angry-variant="cyber-violet"] #eyes .cyber-grid b:nth-child(5n+3) { background:#ffffff;box-shadow:0 0 3px #ffffff, 0 0 8px #e9d5ff; }
+#island[data-angry-variant="cyber-amber"] #eyes .cyber-grid b { background:#fbbf24;box-shadow:0 0 3px #fbbf24, 0 0 6px #f59e0b; }
+#island[data-angry-variant="cyber-amber"] #eyes .cyber-grid b:nth-child(2n) { background:#fde047;box-shadow:0 0 4px #fde047, 0 0 8px #eab308; }
+#island[data-angry-variant="cyber-amber"] #eyes .cyber-grid b:nth-child(5n+3) { background:#ffffff;box-shadow:0 0 3px #ffffff, 0 0 8px #fef08a; }
 #island[data-angry-variant^="cyber-"] #v-idle[data-exp="angry"] #eyes .cyber-grid b:nth-child(5n+2),
 #island[data-angry-variant^="cyber-"] #v-idle[data-exp="angry"] #eyes .cyber-grid b:nth-child(7n+4),
 #island[data-angry-variant^="cyber-"] #v-idle[data-exp="angry"] #eyes .cyber-grid b:nth-child(11n+1) {
@@ -3143,9 +3257,35 @@ html[data-website-demo="1"] #pager { display: none !important; }
   30% { opacity:.9; }
   100% { opacity:0;transform:translate3d(0,-7px,0); }
 }
-@keyframes cyberFramePulse {
-  from { box-shadow:inset 0 0 0 1px var(--cyber-edge),inset 0 0 5px var(--cyber-glow); }
-  to { box-shadow:inset 0 0 0 1px var(--cyber-edge),inset 0 0 11px var(--cyber-glow); }
+@keyframes cyberFramePulseViolet {
+  from {
+    box-shadow:
+      inset 0 0 0 1.5px #a855f7,
+      inset 0 0 8px rgba(168, 85, 247, .45),
+      0 0 14px rgba(168, 85, 247, .4) !important;
+  }
+  to {
+    box-shadow:
+      inset 0 0 0 1.5px #c084fc,
+      inset 0 0 16px rgba(192, 132, 252, .7),
+      0 0 24px rgba(168, 85, 247, .65),
+      0 0 36px rgba(147, 51, 234, .45) !important;
+  }
+}
+@keyframes cyberFramePulseAmber {
+  from {
+    box-shadow:
+      inset 0 0 0 1.5px #f59e0b,
+      inset 0 0 8px rgba(245, 158, 11, .45),
+      0 0 14px rgba(245, 158, 11, .4) !important;
+  }
+  to {
+    box-shadow:
+      inset 0 0 0 1.5px #fbbf24,
+      inset 0 0 16px rgba(251, 191, 36, .7),
+      0 0 24px rgba(245, 158, 11, .65),
+      0 0 36px rgba(217, 119, 6, .45) !important;
+  }
 }
 @media (prefers-reduced-motion:reduce) {
   #island[data-angry-variant="cyber-violet"] #v-idle[data-exp="angry"] #eyes i,
@@ -3249,6 +3389,14 @@ html[data-website-demo="1"] #pager { display: none !important; }
 .idle-progress-track { fill: none; stroke: rgba(255,255,255,.14); stroke-width: 2.1; }
 .idle-battery-progress { fill: none; stroke: #53e783; stroke-width: 2.1; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 13.5px 13.5px; filter: drop-shadow(0 0 3px rgba(83,231,131,.42)); transition: stroke-dashoffset .45s ease-in-out; }
 .idle-battery-value { position: relative; color: #eafff0; font-size: 8px; font-weight: 500; line-height: 1; font-variant-numeric: tabular-nums; }
+.idle-battery-center { position:relative; display:flex; align-items:center; justify-content:center; gap:0; min-width:0; }
+.idle-battery-center.is-charging { gap:0; }
+.idle-battery-center.is-charging .idle-battery-value { font-size:7px; }
+.idle-battery-charge { display:grid; place-items:center; width:11px; height:11px; margin-left:-1px; color:#fff; filter:drop-shadow(0 0 4px rgba(255,255,255,1)); }
+.idle-battery-charge svg { display:block; width:11px; height:11px; overflow:visible; fill:currentColor; }
+
+/* Weather palette */
+.weather-page { background:linear-gradient(135deg,#2787f5 0%,#35c6df 100%); }
 .idle-side-info[data-kind="battery"][data-unavailable] .idle-battery-value { color: rgba(161,161,170,.78); }
 .idle-todo-segment { fill: none; stroke: rgba(255,255,255,.18); stroke-width: 2.4; stroke-linecap: butt; transform: rotate(-90deg); transform-origin: 13.5px 13.5px; }
 .idle-todo-segment.done { stroke: #4ade80; filter: drop-shadow(0 0 2.5px rgba(74,222,128,.38)); }
@@ -3396,223 +3544,204 @@ html[data-website-demo="1"] #pager { display: none !important; }
 }
 @media(prefers-reduced-motion:reduce){#island[data-angry-variant="gold-matrix"] #v-idle[data-exp="angry"] #eyes i{animation:none !important}}
 
-/* Crimson Orbit active VFX: compositor-only particles and counter-rotating energy. */
+/* Naruto Anime Eyes (Kyuubi Fox Mode / Anime Style):
+   - Fierce angled anime eyelid silhouette with dark eyeliner contour
+   - Luminous anime sclera with lid shading
+   - Blazing ruby-to-amber anime iris with cel-shading & limbal ring
+   - Black vertical tapered fox slit pupil (iconic Kyuubi eye)
+   - Crisp white specular anime catchlights (reflection dots)
+   - Dynamic cursor gaze tracking (crimson-pupil-x/y)
+   - Rising Nine-Tails red-orange chakra vapor & flames (crimson-burst)
+*/
 #island[data-key="idle"][data-angry="1"][data-angry-variant="crimson-orbit"] {
-  box-shadow:inset 0 0 0 1px rgba(255,50,76,.88),inset 0 0 14px rgba(145,0,28,.42),0 0 8px rgba(255,22,56,.72),0 0 22px rgba(130,0,28,.48) !important;
-  animation:crimsonBodyRage .085s steps(2,end) infinite !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 60, 0, 0.88), inset 0 0 14px rgba(200, 20, 0, 0.42), 0 0 10px rgba(255, 40, 0, 0.75), 0 0 25px rgba(220, 30, 0, 0.45) !important;
+  animation: crimsonBodyRage 0.085s steps(2, end) infinite !important;
 }
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes::before,
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes::after {
-  content:'';
-  position:absolute;
-  left:50%;top:50%;
-  width:48px;height:22px;
-  border:1px solid rgba(255,50,80,.66);
-  border-radius:50%;
-  pointer-events:none;
-  transform:translate(-50%,-50%) scale(.55);
-  opacity:0;
+
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes {
+  gap: 5px;
+  filter: drop-shadow(0 0 8px rgba(255, 40, 10, 0.65));
 }
-#island[data-angry-variant="crimson-orbit"][data-angry="1"] #v-idle[data-exp="angry"] #eyes::before {
-  animation:crimsonShock .72s cubic-bezier(.2,.7,.2,1) infinite;
-}
-#island[data-angry-variant="crimson-orbit"][data-angry="1"] #v-idle[data-exp="angry"] #eyes::after {
-  border-color:rgba(255,130,145,.38);
-  animation:crimsonShock .72s cubic-bezier(.2,.7,.2,1) -.36s infinite;
-}
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i {
-  background:
-    radial-gradient(circle,#010103 0 15%,transparent 17%),
-    conic-gradient(from -18deg,#210006 0 9deg,#ff3153 10deg 63deg,#4d000f 64deg 77deg,#ff173f 78deg 157deg,#350009 158deg 178deg,#ff5169 179deg 255deg,#43000d 256deg 278deg,#ff183f 279deg 350deg,#210006 351deg),
-    radial-gradient(circle,#ff4860 0 25%,#b4072c 44%,#440010 70%,#050507 72%) !important;
-  box-shadow:inset 0 0 4px #ff173d,inset 0 0 8px rgba(255,65,91,.68),0 0 5px #ff173d,0 0 12px rgba(255,0,48,.7) !important;
-}
+
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i,
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:first-child,
 #island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:nth-child(2) {
-  border-color:rgba(203,143,255,.9);
+  position: relative;
+  width: calc(22px * var(--left-eye-size, 1));
+  height: 15px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  /* Left anime eye: sharp downward inner angle and upward outer flick */
+  clip-path: path('M 0 5 Q 11 -1 22 9 Q 11 17 0 5 Z');
   background:
-    radial-gradient(circle,#17051f 0 13%,transparent 15%),
-    repeating-radial-gradient(circle,#dca7ff 0 1.05px,#743ba0 1.35px 2.25px,#c686f5 2.55px 3.3px,#542169 3.6px 4.4px) !important;
-  box-shadow:inset 0 0 5px #c46dff,inset 0 0 9px rgba(136,46,205,.72),0 0 6px #b94eff,0 0 14px rgba(137,40,219,.72) !important;
+    /* Bold anime upper eyelid contour & lid shadow */
+    linear-gradient(180deg, #090103 0%, #190306 26%, rgba(25, 3, 6, 0) 42%),
+    /* Luminous anime sclera with soft crimson corner shading */
+    linear-gradient(172deg, #ffffff 15%, #fff0f3 55%, #ffd4d8 100%) !important;
+  box-shadow:
+    inset 0 2px 2px rgba(10, 0, 2, 0.9),
+    inset 0 -1px 2px rgba(180, 0, 25, 0.35),
+    0 0 5px #ff2200,
+    0 0 12px rgba(235, 20, 40, 0.7) !important;
+  transform: rotate(6deg);
+  animation: narutoEyeTension 0.8s ease-in-out infinite alternate !important;
+  filter: drop-shadow(0 -1px 0 #100204);
 }
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i::before {
-  background:
-    radial-gradient(circle at 50% 4%,#050507 0 1.7px,#ff6075 1.8px 2.2px,transparent 2.3px),
-    radial-gradient(circle at 91% 73%,#050507 0 1.7px,#ff6075 1.8px 2.2px,transparent 2.3px),
-    radial-gradient(circle at 9% 73%,#050507 0 1.7px,#ff6075 1.8px 2.2px,transparent 2.3px) !important;
-  filter:drop-shadow(0 0 2px #ff3151);
-  translate:var(--crimson-iris-x,0px) var(--crimson-iris-y,0px);
-  animation:crimsonOrbitSpin .88s linear infinite !important;
+
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:nth-child(2) {
+  width: calc(22px * var(--right-eye-size, 1));
+  /* Mirrored right anime eye */
+  clip-path: path('M 0 9 Q 11 -1 22 5 Q 11 17 0 9 Z');
+  transform: rotate(-6deg);
 }
+
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i::before,
 #island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i::after {
-  left:calc(50% + var(--crimson-pupil-x,0px));
-  top:calc(50% + var(--crimson-pupil-y,0px));
-  transition:left .075s cubic-bezier(.22,1,.36,1),top .075s cubic-bezier(.22,1,.36,1);
+  display: none !important;
 }
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:nth-child(2)::before {
-  inset:1px;
-  background:repeating-radial-gradient(circle,transparent 0 2px,rgba(43,5,58,.9) 2.25px 2.8px,transparent 3px 4px) !important;
-  filter:drop-shadow(0 0 2px #d68cff);
-  animation:crimsonOrbitSpin 2.4s linear infinite reverse !important;
+
+/* Naruto Anime Iris */
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i .cyber-grid {
+  position: absolute;
+  display: block !important;
+  left: 50%;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  translate: calc(-50% + var(--crimson-pupil-x, 0px)) calc(-50% + var(--crimson-pupil-y, 0px));
+  /* Anime cel-shaded fiery iris */
+  background:
+    linear-gradient(180deg, rgba(18, 1, 4, 0.88) 0%, rgba(18, 1, 4, 0) 38%),
+    repeating-conic-gradient(from 0deg, rgba(255, 60, 0, 0.38) 0deg 8deg, rgba(140, 5, 20, 0.22) 8deg 16deg),
+    radial-gradient(circle at 50% 68%, #ffb703 0%, #fb8500 28%, #dc2626 58%, #850616 85%, #250005 100%) !important;
+  border: 1px solid #200004;
+  box-shadow:
+    inset 0 0 3px rgba(255, 90, 0, 0.85),
+    inset 0 -1.5px 4px #ffb703,
+    0 0 5px rgba(255, 30, 20, 0.85),
+    0 0 10px rgba(230, 10, 40, 0.55);
+  transition: translate 0.075s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: narutoIrisGlow 1.4s ease-in-out infinite alternate !important;
 }
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:nth-child(2)::after {
-  background:#190521;
-  box-shadow:0 0 0 1px rgba(229,187,255,.9),0 0 5px #c85cff;
+
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i .cyber-grid b {
+  display: none !important;
 }
-.crimson-burst{display:none}
-#island[data-angry-variant="crimson-orbit"][data-angry="1"] .crimson-burst{
-  position:absolute;
-  inset:-15px -30px;
-  display:block;
-  pointer-events:none;
-  overflow:visible;
+
+/* Naruto Kyuubi Slit Pupil */
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i .cyber-grid::before {
+  content: '';
+  position: absolute;
+  display: block !important;
+  left: 50%;
+  top: 50%;
+  width: 2.8px;
+  height: 13px;
+  border-radius: 50% / 18%;
+  background: #020204;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.95), 0 0 3px rgba(220, 15, 0, 0.7);
+  transform: translate(-50%, -50%);
+  z-index: 2;
 }
-#island[data-angry-variant="crimson-orbit"][data-angry="1"] .crimson-burst b{
-  --cx:0px;--cy:0px;--bx:0px;--by:-20px;--delay:0s;
-  position:absolute;
-  left:50%;top:50%;
-  width:2px;height:2px;
-  border-radius:50%;
-  background:#ff6077;
-  box-shadow:0 0 3px #fff,0 0 7px #ff1743;
-  opacity:0;
-  will-change:transform,opacity;
-  animation:crimsonParticle .92s cubic-bezier(.12,.58,.25,1) var(--delay) infinite;
+
+/* Anime Specular Catchlights (Iconic Anime Shine Reflection) */
+#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i .cyber-grid::after {
+  content: '';
+  position: absolute;
+  display: block !important;
+  left: 28%;
+  top: 22%;
+  width: 2.8px;
+  height: 2.8px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow:
+    0 0 2px #ffffff,
+    5px 6px 0 -0.8px rgba(255, 255, 255, 0.85);
+  z-index: 4;
+  pointer-events: none;
 }
-#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(1){--bx:-35px;--by:-12px;--delay:-.06s}
-#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(2){--bx:-29px;--by:-25px;--delay:-.39s}
-#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(3){--bx:-18px;--by:-31px;--delay:-.68s}
-#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(4){--bx:-7px;--by:-24px;--delay:-.22s}
-#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(5){--bx:7px;--by:-27px;--delay:-.76s}
-#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(6){--bx:19px;--by:-33px;--delay:-.47s}
-#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(7){--bx:31px;--by:-24px;--delay:-.12s}
-#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(8){--bx:37px;--by:-10px;--delay:-.58s}
-#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(9){--bx:-39px;--by:5px;--delay:-.51s}
-#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(10){--bx:-25px;--by:16px;--delay:-.81s}
-#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(11){--bx:-12px;--by:22px;--delay:-.31s}
-#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(12){--bx:12px;--by:21px;--delay:-.64s}
-#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(13){--bx:27px;--by:15px;--delay:-.18s}
-#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(14){--bx:40px;--by:4px;--delay:-.72s}
-#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(15){--bx:-2px;--by:-38px;--delay:-.44s;width:1px;height:4px}
-#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(16){--bx:3px;--by:28px;--delay:-.86s;width:1px;height:4px}
-@keyframes crimsonParticle{
-  0%{opacity:0;transform:translate3d(var(--cx),var(--cy),0) scale(.25)}
-  18%{opacity:1}
-  72%{opacity:.72}
-  100%{opacity:0;transform:translate3d(var(--bx),var(--by),0) scale(1.45)}
+
+/* Rising Kyuubi Red Chakra Flames & Embers */
+.crimson-burst { display: none; }
+#island[data-angry-variant="crimson-orbit"][data-angry="1"] .crimson-burst {
+  position: absolute;
+  inset: -18px -26px;
+  display: block;
+  pointer-events: none;
+  overflow: visible;
 }
-@keyframes crimsonShock{
-  0%{opacity:.72;transform:translate(-50%,-50%) scale(.45)}
-  100%{opacity:0;transform:translate(-50%,-50%) scale(1.38)}
+#island[data-angry-variant="crimson-orbit"][data-angry="1"] .crimson-burst b {
+  --cx: 0px; --cy: 0px; --bx: 0px; --by: -24px; --delay: 0s;
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 2.5px; height: 3.5px;
+  border-radius: 50% 50% 30% 30%;
+  background: linear-gradient(180deg, #ffdd55 0%, #ff4d00 60%, #cc0022 100%);
+  box-shadow: 0 0 4px #ff3300, 0 0 8px #ff7700;
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: narutoChakraFlame 0.88s cubic-bezier(0.15, 0.6, 0.25, 1) var(--delay) infinite;
 }
-@keyframes crimsonBodyRage{
-  0%,100%{transform:translate3d(calc(-50% - 1px),-.55px,0)}
-  25%{transform:translate3d(calc(-50% + 1.15px),.7px,0)}
-  50%{transform:translate3d(calc(-50% - .4px),.2px,0)}
-  75%{transform:translate3d(calc(-50% + .55px),-.8px,0)}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(1){--bx:-34px;--by:-14px;--delay:-.06s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(2){--bx:-28px;--by:-26px;--delay:-.39s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(3){--bx:-18px;--by:-32px;--delay:-.68s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(4){--bx:-8px;--by:-26px;--delay:-.22s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(5){--bx:6px;--by:-28px;--delay:-.76s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(6){--bx:18px;--by:-33px;--delay:-.47s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(7){--bx:30px;--by:-25px;--delay:-.12s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(8){--bx:36px;--by:-12px;--delay:-.58s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(9){--bx:-38px;--by:4px;--delay:-.51s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(10){--bx:-24px;--by:14px;--delay:-.81s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(11){--bx:-12px;--by:20px;--delay:-.31s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(12){--bx:12px;--by:20px;--delay:-.64s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(13){--bx:26px;--by:14px;--delay:-.18s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(14){--bx:38px;--by:4px;--delay:-.72s}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(15){--bx:-2px;--by:-38px;--delay:-.44s;width:2px;height:5px}
+#island[data-angry-variant="crimson-orbit"] .crimson-burst b:nth-child(16){--bx:4px;--by:-32px;--delay:-.86s;width:2px;height:5px}
+
+@keyframes narutoChakraFlame {
+  0% { opacity: 0; transform: translate3d(var(--cx), var(--cy), 0) scale(0.3); }
+  20% { opacity: 0.95; }
+  70% { opacity: 0.65; }
+  100% { opacity: 0; transform: translate3d(var(--bx), var(--by), 0) scale(1.4); }
 }
-@media(prefers-reduced-motion:reduce){
+@keyframes narutoEyeTension {
+  from { filter: drop-shadow(0 -1.5px 0 #100204) brightness(0.94) saturate(1.1); }
+  to { filter: drop-shadow(0 -1.5px 0 #100204) brightness(1.12) saturate(1.35); }
+}
+@keyframes narutoIrisGlow {
+  from { filter: brightness(0.95) contrast(1.05); }
+  to { filter: brightness(1.15) contrast(1.2); }
+}
+@keyframes crimsonBodyRage {
+  0%, 100% { transform: translate3d(calc(-50% - 1px), -0.55px, 0); }
+  25% { transform: translate3d(calc(-50% + 1.15px), 0.7px, 0); }
+  50% { transform: translate3d(calc(-50% - 0.4px), 0.2px, 0); }
+  75% { transform: translate3d(calc(-50% + 0.55px), -0.8px, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
   #island[data-key="idle"][data-angry="1"][data-angry-variant="crimson-orbit"],
   #island[data-angry-variant="crimson-orbit"] #eyes::before,
   #island[data-angry-variant="crimson-orbit"] #eyes::after,
-  #island[data-angry-variant="crimson-orbit"] .crimson-burst b{animation:none !important}
-  #island[data-angry-variant="crimson-orbit"] .crimson-burst{display:none !important}
+  #island[data-angry-variant="crimson-orbit"] #eyes i,
+  #island[data-angry-variant="crimson-orbit"] #eyes i .cyber-grid,
+  #island[data-angry-variant="crimson-orbit"] .crimson-burst b {
+    animation: none !important;
+  }
+  #island[data-angry-variant="crimson-orbit"] .crimson-burst {
+    display: none !important;
+  }
 }
 
-/* Crimson Orbit eye shell: sharp red eyes with a separately tracked iris. */
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes{
-  gap:2px;
-}
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i,
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:first-child,
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:nth-child(2){
-  width:calc(34px * var(--left-eye-size,1));
-  height:18px;
-  overflow:hidden;
-  border:0;
-  border-radius:0;
-  clip-path:path('M 0 7 Q 15 -1 34 12 Q 18 22 0 7 Z');
-  background:
-    linear-gradient(164deg,rgba(255,255,255,.98) 9%,rgba(255,224,226,.95) 48%,rgba(157,50,62,.72) 100%) !important;
-  box-shadow:inset 0 2px 3px rgba(22,0,3,.82),inset 0 -2px 3px rgba(93,0,14,.72),0 0 5px #ff173d,0 0 13px rgba(255,0,48,.72) !important;
-  transform:rotate(8deg);
-  animation:crimsonEyeTension .72s ease-in-out infinite alternate !important;
-}
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:nth-child(2){
-  width:calc(34px * var(--right-eye-size,1));
-  border-radius:0;
-  clip-path:path('M 0 12 Q 19 -1 34 7 Q 16 22 0 12 Z');
-  transform:rotate(-8deg);
-}
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i::before,
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:nth-child(2)::before{
-  content:'';
-  position:absolute;
-  left:calc(50% + var(--crimson-pupil-x,0px));
-  top:calc(50% + var(--crimson-pupil-y,0px));
-  width:26px;
-  height:26px;
-  inset:auto;
-  border-radius:50%;
-  translate:none;
-  transform:translate(-50%,-50%);
-  background:
-    radial-gradient(circle at 50% 9%,#210006 0 1.9px,transparent 2.1px),
-    radial-gradient(circle at 86% 70%,#210006 0 1.9px,transparent 2.1px),
-    radial-gradient(circle at 14% 70%,#210006 0 1.9px,transparent 2.1px),
-    repeating-conic-gradient(from -7deg,rgba(39,0,7,.92) 0 8deg,transparent 10deg 40deg),
-    radial-gradient(circle,#ff5c70 0 28%,#bc092d 52%,#45000f 74%,#090104 76%) !important;
-  border:2px solid rgba(82,0,14,.96);
-  box-shadow:inset 0 0 4px #ff173d,0 0 0 1px rgba(255,70,91,.48),0 0 5px #ff173d,0 0 10px rgba(255,0,48,.82);
-  filter:none;
-  animation:crimsonIrisTurn 1.35s linear infinite !important;
-  transition:left .075s cubic-bezier(.22,1,.36,1),top .075s cubic-bezier(.22,1,.36,1);
-}
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:nth-child(2)::before{
-  animation-direction:reverse !important;
-}
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i::after,
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:nth-child(2)::after{
-  display:none;
-}
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i::before,
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:nth-child(2)::before{
-  display:none;
-}
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i .cyber-grid{
-  position:absolute;
-  display:block!important;
-  left:50%;
-  top:50%;
-  width:26px;
-  height:26px;
-  border-radius:50%;
-  translate:calc(-50% + var(--crimson-pupil-x,0px)) calc(-50% + var(--crimson-pupil-y,0px));
-  background:
-    radial-gradient(circle at 50% 9%,#260008 0 1.9px,transparent 2.1px),
-    radial-gradient(circle at 86% 70%,#260008 0 1.9px,transparent 2.1px),
-    radial-gradient(circle at 14% 70%,#260008 0 1.9px,transparent 2.1px),
-    repeating-conic-gradient(from -7deg,rgba(43,0,8,.94) 0 12deg,transparent 15deg 120deg),
-    radial-gradient(circle,#ff7181 0 24%,#e71942 43%,#9d0627 68%,#37000d 100%);
-  border:2px solid rgba(82,0,14,.96);
-  box-shadow:inset 0 0 5px #ff173d,0 0 0 1px rgba(255,70,91,.48),0 0 5px #ff173d,0 0 10px rgba(255,0,48,.82);
-  animation:crimsonGridTurn 1.35s linear infinite!important;
-  transition:translate .075s cubic-bezier(.22,1,.36,1);
-}
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i:nth-child(2) .cyber-grid{
-  animation-direction:reverse!important;
-}
-#island[data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i .cyber-grid b{
-  display:none!important;
-}
-@keyframes crimsonGridTurn{to{rotate:360deg}}
-@keyframes crimsonIrisTurn{to{rotate:360deg}}
-@keyframes crimsonEyeTension{
-  from{filter:brightness(.9) saturate(1.08)}
-  to{filter:brightness(1.08) saturate(1.3)}
-}
 /* Personal features slide */
 #v-addons.grump-panel{padding:17px 34px 29px;text-align:left;overflow:hidden;background:#141418}
 #v-todo.grump-panel,#v-notes.grump-panel,#v-prayer.grump-panel,#v-water.grump-panel{display:block;padding:17px 34px 29px;text-align:left;overflow:hidden;background:linear-gradient(160deg,#17171b 0%,#08080a 78%)}
+/* Notes uses one flat color so the island's curved top edge (filled with the same color) blends in */
+#v-notes.grump-panel{background:#0c0c0e}
 
 
 
@@ -3635,8 +3764,8 @@ html[data-website-demo="1"] #pager { display: none !important; }
 .addon-controls,.addon-water{display:flex;align-items:center;gap:8px}.addon-controls form{display:flex;flex:1;gap:5px}.addon-controls input{width:90px}.addon-toggle{border-radius:14px;padding:5px 11px;font:inherit;font-size:11px;font-weight:650;flex:none}.addon-toggle.on{background:rgba(255,255,255,.85);color:#111}
 #island[data-key="prayer"][data-expanded="1"]{background:#000;box-shadow:inset 0 1px rgba(255,255,255,.16),0 12px 30px rgba(0,0,0,.36)}
 #v-prayer.grump-panel{padding:14px 28px 24px;background:#000;color:#fff;isolation:isolate}
-#v-prayer::before{content:"";position:absolute;inset:auto -2px -2px;height:52%;border-radius:0 0 40px 40px;background:radial-gradient(ellipse 110% 120% at 50% 100%,rgba(23,124,255,.78) 0%,rgba(20,101,229,.35) 45%,transparent 80%);filter:blur(8px);opacity:.88;pointer-events:none;z-index:0;-webkit-mask-image:linear-gradient(to right,rgba(0,0,0,.55),#000 6%,#000 94%,rgba(0,0,0,.55));mask-image:linear-gradient(to right,rgba(0,0,0,.55),#000 6%,#000 94%,rgba(0,0,0,.55))}
-#v-prayer>.addon-head,#v-prayer>.addon-body{position:relative;z-index:1}
+#v-prayer::before{content:"";position:absolute;left:0;right:0;bottom:0;width:100%;height:52%;border-bottom-left-radius:42px;border-bottom-right-radius:42px;background:radial-gradient(ellipse 110% 120% at 50% 100%,rgba(23,124,255,.78) 0%,rgba(20,101,229,.35) 45%,transparent 80%);filter:blur(8px);opacity:.88;pointer-events:none;z-index:1}
+#v-prayer>.addon-head,#v-prayer>.addon-body{position:relative;z-index:2}
 #v-prayer .addon-head{height:22px;margin-bottom:5px;font-size:14px}
 #v-prayer .addon-body{height:126px;overflow:hidden}
 .prayer-content{height:100%;display:grid;grid-template-columns:98px minmax(0,1fr);align-items:center;gap:14px;color:#fff}
@@ -3668,8 +3797,8 @@ html[data-website-demo="1"] #pager { display: none !important; }
 
 #island[data-key="water"][data-expanded="1"]{background:#070a0f;box-shadow:inset 0 1px rgba(255,255,255,.16),0 12px 30px rgba(0,0,0,.36)}
 #v-water.grump-panel{padding:14px 28px 24px;background:#070a0f;color:#fff;isolation:isolate}
-#v-water::before{content:"";position:absolute;inset:auto -2px -2px;height:48%;border-radius:0 0 40px 40px;background:radial-gradient(ellipse 105% 115% at 50% 100%,rgba(56,189,248,.42) 0%,rgba(14,165,233,.16) 48%,transparent 82%);filter:blur(8px);pointer-events:none;z-index:0}
-#v-water>.addon-head,#v-water>.addon-body{position:relative;z-index:1}
+#v-water::before{content:"";position:absolute;left:0;right:0;bottom:0;width:100%;height:48%;border-bottom-left-radius:42px;border-bottom-right-radius:42px;background:radial-gradient(ellipse 105% 115% at 50% 100%,rgba(56,189,248,.48) 0%,rgba(14,165,233,.2) 48%,transparent 82%);filter:blur(8px);opacity:.88;pointer-events:none;z-index:1}
+#v-water>.addon-head,#v-water>.addon-body{position:relative;z-index:2}
 #v-water .addon-head{height:22px;margin-bottom:5px;font-size:14px}
 #v-water .addon-body{height:126px;overflow:hidden}
 .water-panel-grid{height:100%;display:grid;grid-template-columns:82px minmax(0,1fr);align-items:center;gap:14px}
@@ -3761,6 +3890,68 @@ html[data-website-demo="1"] #pager { display: none !important; }
 #v-todo :is(input,button):focus-visible{outline:2px solid #ffc06a;outline-offset:2px}
 @media(prefers-reduced-motion:reduce){#v-todo .todo-progress-track i,#v-todo .todo-row button{transition:none}#v-todo .todo-form.is-invalid input{animation:none}}
 #v-notes .addon-body{height:135px;overflow:hidden}
+#v-notifications{text-align:left!important}
+.sr-only,#notification-center-live{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;pointer-events:none!important}
+.notification-feed{padding:14px 18px 11px!important;text-align:left!important}
+.notification-feed-head{height:25px;display:flex;align-items:center;gap:7px;padding:0 2px 6px;border-bottom:0;text-align:left!important}
+.notification-feed-bell{display:grid;place-items:center;width:17px;height:17px;color:#f2f2f5;cursor:pointer;transition:transform .16s ease}
+.notification-feed-bell svg{width:14px;height:14px}
+.notification-feed-bell.is-ringing,.notification-feed-bell:hover{transform-origin:top center;animation:bell-ring .65s cubic-bezier(.2,.9,.25,1.12)}
+@keyframes bell-ring{0%{transform:rotate(0)}15%{transform:rotate(14deg)}30%{transform:rotate(-12deg)}45%{transform:rotate(8deg)}60%{transform:rotate(-6deg)}75%{transform:rotate(3deg)}100%{transform:rotate(0)}}
+.notification-feed-head>strong{font-size:12.5px;letter-spacing:-.01em;color:#f7f7f8;text-align:left!important}
+.notification-unread-count{min-width:17px;height:17px;padding:0 5px;border-radius:9px;background:#3b82f6;color:#ffffff;font-size:9px;font-weight:800;line-height:17px;text-align:center}
+.notification-feed-actions{display:flex;align-items:center;gap:8px;margin-left:auto;background:none!important;border:0!important;box-shadow:none!important;padding:0!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+.notification-feed-actions button{border:0!important;background:transparent!important;color:#8e8e95!important;font:inherit;font-size:10.5px;font-weight:500;padding:0 3px!important;cursor:pointer;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;transition:color .16s ease}
+.notification-feed-actions button:hover,.notification-feed-actions button:focus-visible{color:#ffffff!important;background:transparent!important;box-shadow:none!important;outline:0}
+.notification-feed-actions button:disabled{opacity:.35;pointer-events:none}
+.notification-center-list{position:relative;height:133px!important;display:flex;flex-direction:column;gap:5px;overflow-y:auto!important;overflow-x:hidden;padding:6px 2px 15px 0;scrollbar-width:none;overscroll-behavior:contain;touch-action:pan-y;mask-image:linear-gradient(#000 0,#000 calc(100% - 18px),transparent 100%)}
+.notification-center-list::-webkit-scrollbar{display:none}
+.notification-center-item{position:relative;display:flex;align-items:center;text-align:left!important;justify-content:flex-start;gap:10px;min-height:52px;padding:6px 18px 6px 7px;border-radius:9999px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.065);cursor:default;transition:background .16s ease,border-color .16s ease,transform .2s cubic-bezier(.2,.8,.2,1),opacity .2s ease}
+.notification-center-item:hover,.notification-center-item:focus-visible{background:rgba(255,255,255,.085);border-color:rgba(255,255,255,.11);outline:0}
+.notification-center-item.is-leaving{opacity:0;transform:translateX(18%) scale(.96);pointer-events:none}
+.notification-app-icon{position:relative;display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:rgba(255,174,47,.12);color:#ffb43d;flex-shrink:0;margin-top:0;transition:transform .18s cubic-bezier(.2,.9,.25,1.12)}
+.notification-center-item:hover .notification-app-icon{transform:scale(1.05)}
+.notification-app-icon[data-source="whatsapp"]{background:rgba(37,211,102,.18);color:#25d366;box-shadow:inset 0 0 0 1px rgba(37,211,102,.08)}
+.notification-app-icon[data-source="whatsapp"] svg{width:29px;height:29px}
+.notification-app-icon[data-source="chatgpt"]{background:#171717;color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+.notification-app-icon[data-source="chatgpt"] img{display:block;width:27px;height:27px;object-fit:contain}
+.notification-app-icon[data-source="claude"]{background:#1f1d1b;color:#fff;box-shadow:inset 0 0 0 1px rgba(217,119,87,.28)}
+.notification-app-icon[data-source="claude"] img{display:block;width:25px;height:25px;object-fit:contain}
+.notification-app-icon[data-source="discord"]{background:rgba(88,101,242,.2);color:#fff;box-shadow:inset 0 0 0 1px rgba(88,101,242,.22)}
+.notification-app-icon[data-source="discord"] svg{width:29px;height:29px}
+.notification-app-icon[data-source="browser"]{background:rgba(148,163,184,.14);color:#cbd5e1}
+.notification-app-icon[data-source="check"]{background:rgba(16,185,129,.13);color:#10b981}
+.notification-app-icon[data-source="weather"],.notification-app-icon[data-source="cloud"]{background:rgba(92,173,255,.14);color:#76b9ff}
+.notification-app-icon[data-source="drop"]{background:rgba(58,192,255,.14);color:#4dc7ff}
+.notification-app-icon[data-source="timer"]{background:rgba(255,159,10,.14);color:#ff9f0a}
+.notification-app-icon[data-source="battery"],.notification-app-icon[data-source="charge"]{background:rgba(52,211,153,.14);color:#34d399}
+.notification-app-icon[data-source="moon"]{background:rgba(168,85,247,.14);color:#c084fc}
+.notification-app-icon[data-source="caps"]{background:rgba(148,163,184,.14);color:#94a3b8}
+.notification-app-icon svg{width:16px;height:16px}
+.notification-center-item.is-fresh .notification-app-icon::before{content:"";position:absolute;inset:-3px;border-radius:50%;border:1.5px solid currentColor;opacity:.8;animation:notification-pulse-ring 1.1s cubic-bezier(.2,.8,.2,1) forwards;pointer-events:none}
+@keyframes notification-pulse-ring{0%{transform:scale(.9);opacity:.9}60%{transform:scale(1.24);opacity:.3}100%{transform:scale(1.4);opacity:0}}
+.notification-copy{display:block;flex:1;min-width:0;padding-right:24px;line-height:1.25;text-align:left!important}
+.notification-copy small{display:flex;align-items:center;gap:4px;margin-bottom:2px;color:#8e8e95;font-size:8.5px;font-weight:600;letter-spacing:.015em;text-align:left!important;justify-content:flex-start!important}
+.notification-copy small time{font-variant-numeric:tabular-nums;color:#8e8e95;font-size:8.5px;font-weight:500}
+.notification-copy strong{display:-webkit-box;overflow:hidden;text-overflow:ellipsis;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;word-break:break-word;line-height:1.3;color:#f3f3f5;font-size:11.5px;font-weight:600;text-align:left!important;margin:0}
+.notification-copy>span{display:-webkit-box;overflow:hidden;text-overflow:ellipsis;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;word-break:break-word;line-height:1.3;margin-top:1.5px;color:#a1a1aa;font-size:9.5px;text-align:left!important}
+.notification-copy .notification-message-line{display:-webkit-box;overflow:hidden;text-overflow:ellipsis;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;word-break:break-word;line-height:1.28;margin:0;color:#f3f3f5;font-size:11px;font-weight:400;text-align:left!important}
+.notification-copy .notification-message-line strong{display:inline;overflow:visible;color:#fff;font:inherit;font-weight:750;line-height:inherit;margin:0}
+.notification-copy .notification-message-line>span{display:inline;color:#f3f3f5;font:inherit;font-weight:400;line-height:inherit;margin:0}
+.notification-center-item.is-unread:after{content:"";position:absolute;right:15px;top:50%;transform:translateY(-50%);width:7px;height:7px;border-radius:50%;background:#3b82f6;box-shadow:none;transition:opacity .16s ease;pointer-events:none;z-index:1}
+.notification-center-item.is-unread:hover:after,.notification-center-item.is-unread:focus-within:after{opacity:0}
+.notification-dismiss{position:absolute;right:11px;top:50%;transform:translateY(-50%);display:grid;place-items:center;width:22px;height:22px;padding:0;border:0;border-radius:50%;background:transparent;color:#8e8e95;opacity:0;cursor:pointer;z-index:2;transition:opacity .16s ease,color .16s ease,background .16s ease}
+.notification-center-item:hover .notification-dismiss,.notification-center-item:focus-within .notification-dismiss{opacity:1}
+.notification-dismiss:hover,.notification-dismiss:focus-visible{color:#fff;background:rgba(255,255,255,.09);outline:0}
+.notification-dismiss svg{width:9px;height:9px}
+.notification-center-empty{margin:auto;display:grid;grid-template-columns:30px auto;grid-template-rows:auto auto;column-gap:10px;align-items:center;color:#8f8f96}
+.notification-center-empty>i{grid-row:1/3;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.06);color:#b8b8be}
+.notification-center-empty>i svg{width:14px;height:14px}
+.notification-center-empty strong{color:#d7d7da;font-size:11px;font-weight:650;text-align:left!important}
+.notification-center-empty span{font-size:8.5px;text-align:left!important}
+.notification-center-item.is-fresh{animation:notification-land .32s cubic-bezier(.2,.9,.25,1.12) both}
+@keyframes notification-land{from{opacity:0;transform:translateY(-8px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.notification-center-item.is-fresh{animation:none}.notification-feed-bell.is-ringing,.notification-feed-bell:hover{animation:none}.notification-center-item.is-fresh .notification-app-icon::before{animation:none}.notification-center-item,.notification-feed-actions button,.notification-dismiss{transition:none}}
 .note-new,.note-editor-head button{border:0;background:none;color:#ffc06a;font:inherit;font-size:11px;cursor:pointer;padding:3px 0}
 #v-notes>.addon-head .note-new{display:inline-flex;align-items:center;gap:4px;font-weight:600}
 #v-notes>.addon-head .note-new svg{width:12px;height:12px}
@@ -3807,3 +3998,71 @@ html[data-website-demo="1"] #pager { display: none !important; }
 .birthday-confetti i:nth-child(14){--n:13;--c:#ff7979;--duration:2.66s;--delay:-2.14s}
 .birthday-confetti i:nth-child(15){--n:14;--c:#8fdcff;--duration:1.70s;--delay:-0.25s}
 .birthday-confetti i:nth-child(16){--n:15;--c:#f5a6ed;--duration:1.94s;--delay:-0.56s}
+
+
+/* ---------- Rage Off Overrides (No Shaking/Tremors, Smooth Reaction) ---------- */
+#island[data-rage="0"],
+#island[data-rage="0"][data-angry="1"],
+#island[data-key="idle"][data-angry="1"][data-rage="0"] {
+  animation: none !important;
+}
+#island[data-key="idle"][data-angry="1"][data-angry-variant="lightning"][data-rage="0"] {
+  animation: lightningIslandFlicker .18s steps(2, start) infinite !important;
+}
+#island[data-key="idle"][data-angry="1"][data-angry-variant="flame"][data-rage="0"] {
+  animation: flameIslandPulse .35s ease-in-out infinite alternate !important;
+}
+#island[data-key="idle"][data-angry="1"][data-angry-variant="ember"][data-rage="0"] {
+  animation: emberIslandPulse .8s ease-in-out infinite alternate !important;
+}
+#island[data-key="idle"][data-angry="1"][data-angry-variant="pink"][data-rage="0"] {
+  animation: pinkIslandPulse .45s ease-in-out infinite alternate !important;
+}
+#island[data-key="idle"][data-angry="1"][data-angry-variant="cyber-violet"][data-rage="0"] {
+  animation: cyberFramePulseViolet 1.1s ease-in-out infinite alternate !important;
+}
+#island[data-key="idle"][data-angry="1"][data-angry-variant="cyber-amber"][data-rage="0"] {
+  animation: cyberFramePulseAmber 1.1s ease-in-out infinite alternate !important;
+}
+#island[data-rage="0"] #v-idle[data-exp="angry"] #eyes,
+#island[data-rage="0"] #v-idle[data-exp="angry"] #eyes i,
+#island[data-rage="0"][data-angry-variant="dragon"] #v-idle[data-exp="angry"] #eyes,
+#island[data-rage="0"][data-angry-variant="berserk"] #v-idle[data-exp="angry"] #eyes i,
+#island[data-rage="0"][data-angry-variant="gold-matrix"] #v-idle[data-exp="angry"] #eyes i,
+#island[data-rage="0"][data-angry-variant="rage"] #v-idle[data-exp="angry"] #eyes i,
+#island[data-rage="0"][data-angry-variant="laser"] #v-idle[data-exp="angry"] #eyes i,
+#island[data-rage="0"][data-angry-variant="crimson-orbit"] #v-idle[data-exp="angry"] #eyes i {
+  animation: none !important;
+}
+html[data-platform="linux"] #h-sliders{display:none}
+/* ---------- Obsidian theme: every page surface is solid black ---------- */
+#island[data-theme="default"] #v-addons.grump-panel,
+#island[data-theme="default"] #v-todo.grump-panel,
+#island[data-theme="default"] #v-notes.grump-panel,
+#island[data-theme="default"] #v-water.grump-panel,
+#island[data-theme="default"] #v-prayer.grump-panel,
+#island[data-theme="default"] #v-stash.grump-panel,
+#island[data-theme="default"] #v-timer.grump-panel {
+  background: #000;
+}
+#island[data-theme="default"] .weather-page > * { position: relative; z-index: 1; }
+
+/* Level HUD: the notch turns into a thick white slider while a key changes volume or brightness */
+#island[data-key="levelhud"] { background: #000 !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1) !important; cursor: default; }
+#v-levelhud { width: 268px; height: 46px; padding: 0 22px; gap: 12px; justify-content: flex-start; background: transparent; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+#v-levelhud .lh-ico { width: 20px; height: 20px; flex: none; display: grid; place-items: center; color: #fff; }
+#v-levelhud .lh-ico svg { width: 20px; height: 20px; display: block; }
+#v-levelhud .lh-track { flex: 1; height: 12px; border-radius: 6px; background: rgba(255, 255, 255, .26); overflow: hidden; }
+#v-levelhud .lh-fill { display: block; height: 100%; width: 0; border-radius: 6px; background: #fff; transition: width .16s cubic-bezier(.2, .8, .2, 1); }
+@media (prefers-reduced-motion: reduce) { #v-levelhud .lh-fill { transition: none; } }
+/* Anchored: the notch is the SVG shape, so the rectangular island box must never draw its own surface. The angry variants
+   paint inset rims and backgrounds on the box with stronger selectors, which showed as a box inside the notch. The
+   doubled id outranks all of them; the glow still follows the notch shape through the SVG stroke and drop-shadow filter. */
+#island#island[data-anchored="1"] {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Translation under a lyric line (Preferences > Features > Translate lyrics) */
+.ly .ly-tr { display: block; margin-top: 3px; font-size: .62em; font-weight: 500; letter-spacing: 0; line-height: 1.25; opacity: .78; filter: none; }

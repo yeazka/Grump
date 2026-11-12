@@ -13,14 +13,14 @@
   --control-edge: rgba(255, 255, 255, .20);
   --control-shadow: var(--waterline-shadow);
 }
-#island button:not(:where(#pager button, #v-todo button, button[data-act="lyrics"], button:has([data-ico="close"]))) {
+#island button:not(:where(#pager button, #v-todo button, #v-notifications button, .notification-feed button, .notification-feed-actions button, #notification-read-all, #notification-clear, .notification-dismiss, button[data-act="lyrics"], button:has([data-ico="close"]))) {
   background: var(--waterline-tint);
   border-color: var(--control-edge);
   box-shadow: var(--waterline-shadow);
   -webkit-backdrop-filter: var(--waterline-blur);
   backdrop-filter: var(--waterline-blur);
 }
-#island button:not(:where(#pager button, #v-todo button, button[data-act="lyrics"], button:has([data-ico="close"]))):hover:not(:disabled) {
+#island button:not(:where(#pager button, #v-todo button, #v-notifications button, .notification-feed button, .notification-feed-actions button, #notification-read-all, #notification-clear, .notification-dismiss, button[data-act="lyrics"], button:has([data-ico="close"]))):hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.16);
   box-shadow: var(--liquid-shadow-hover);
 }
@@ -42,31 +42,73 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 3px !important;
+  bottom: 0 !important;
+  height: 32px;
   display: flex !important;
   justify-content: center;
-  align-items: center;
+  align-items: flex-end;
   gap: 6px;
   background: none !important;
   border: none !important;
   box-shadow: none !important;
-  padding: 0 !important;
+  padding: 0 0 4px !important;
   pointer-events: auto;
   z-index: 25;
+  box-sizing: border-box;
+  transition: gap .2s ease-out;
+}
+#pager-hover-zone{
+  position:absolute;
+  z-index:24;
+  left:28px;
+  right:28px;
+  top:164px;
+  bottom:0;
+  pointer-events:auto;
 }
 
 #dots i {
-  display: inline-block;
+  display: inline-grid;
+  place-items: center;
   width: 5px;
   height: 5px;
   border-radius: 3px;
   background: rgba(255, 255, 255, .32);
   cursor: pointer;
-  transition: width .28s cubic-bezier(.3, 1.3, .5, 1), background .2s, box-shadow .2s;
+  overflow: hidden;
+  touch-action: none;
+  transition: width .18s ease-out, height .18s ease-out, border-radius .18s ease-out, background .16s ease-out, box-shadow .16s ease-out;
 }
 
+#dots i span { width:0; height:0; opacity:0; color:#fff; transform:translateY(-7px); transition:opacity .18s ease-out, transform .22s cubic-bezier(.22,1,.36,1); pointer-events:none; }
+#dots:hover, #dots:focus-within { gap:9px; }
+#dots:hover i, #dots:focus-within i { width:22px; height:22px; border-radius:0; background:transparent; box-shadow:none; transform:translateY(0); }
+#dots:hover i span, #dots:focus-within i span { width:12px; height:12px; opacity:.72; transform:translateY(0); }
+#dots:hover i.on, #dots:focus-within i.on { width:22px; height:22px; background:transparent; box-shadow:none; }
+#dots:hover i.on span, #dots:focus-within i.on span { opacity:1; }
+#dots:hover i:hover span, #dots:focus-within i:hover span { transform:translateY(-1px) scale(1.14); opacity:1; }
+#dots:hover i.on span, #dots:focus-within i.on span { filter:drop-shadow(0 0 5px rgba(255,255,255,.45)); }
+#dots:hover i.on span svg *, #dots:focus-within i.on span svg * { stroke-width:2.8; }
+#dots:hover i[data-p="weather"] .pager-weather-cloud,
+#dots:focus-within i[data-p="weather"] .pager-weather-cloud { animation:pager-weather-cloud 1.4s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+#dots:hover i[data-p="weather"] .pager-weather-drop,
+#dots:focus-within i[data-p="weather"] .pager-weather-drop { animation:pager-weather-drop .7s ease-out infinite; }
+#dots:hover i[data-p="weather"] .pager-weather-drop-b,
+#dots:focus-within i[data-p="weather"] .pager-weather-drop-b { animation-delay:.1s; }
+#dots:hover i[data-p="weather"] .pager-weather-drop-c,
+#dots:focus-within i[data-p="weather"] .pager-weather-drop-c { animation-delay:.2s; }
+@keyframes pager-weather-cloud { 0%,100%{transform:translateX(0)} 33%{transform:translateX(1px)} 66%{transform:translateX(-1px)} }
+@keyframes pager-weather-drop { 0%{transform:translateY(-2px);opacity:0} 35%{transform:translateY(0);opacity:1} 70%{opacity:.4} 100%{transform:translateY(0);opacity:1} }
+@media (prefers-reduced-motion:reduce) {
+  #dots i[data-p="weather"] .pager-weather-cloud,
+  #dots i[data-p="weather"] .pager-weather-drop { animation:none!important; }
+}
+#dots.reordering i { transition:opacity .14s ease-out, transform .16s ease-out; }
+#dots i.dragging { opacity:.38; transform:translateY(-2px) scale(1.08); }
+
 #dots i:hover {
-  background: rgba(255, 255, 255, .55);
+  background: transparent;
+  color:#fff;
 }
 
 #dots i.on {
@@ -75,6 +117,29 @@
   border-radius: 3px;
   background: #ffffff;
   box-shadow: 0 0 6px rgba(255, 255, 255, .75);
+}
+
+/* The extra 14px belongs only to the pager rail. Page content keeps its
+   original 392x196 coordinate system while the outer island grows. */
+#island[data-paged="1"] .view.on {
+  width: 392px !important;
+  height: 196px !important;
+  transition: height .24s cubic-bezier(.22,1,.36,1), padding-bottom .24s cubic-bezier(.22,1,.36,1);
+}
+
+/* While the page menu is hovered the island grows to MENU_HOVER_HEIGHT (210px). Stretch the active page
+   into the rail so its own background and beams fill it; otherwise the island's base colour shows as a
+   separate band. Every page lays out from the top except Music, which centres its content, so Music
+   gets the same 14px as extra bottom padding and nothing on it moves. */
+#island[data-paged="1"][data-menu-hover="1"] .view.on {
+  height: 210px !important;
+}
+#island[data-paged="1"][data-menu-hover="1"] #v-music.on {
+  padding-bottom: 24px;
+}
+
+#island[data-paged="1"] .pg {
+  top: 98px;
 }
 
 #island :where(.glass-preset:not(.active), .glass-btn, .addon-manage, .addon-glass, .addon-tab, .addon-pick, .addon-toggle, .prayer-time.next) {
@@ -111,6 +176,31 @@
   backdrop-filter: blur(28px) saturate(150%) brightness(1.12) !important;
   box-shadow: inset 0 1px 1.5px rgba(255, 255, 255, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.22), 0 14px 34px -10px rgba(0, 0, 0, 0.60) !important;
 }
+
+/* Liquid Glass body: see glass-modes.css (bright / dark / clear). */
+
+/* Anchored: the notch is the SVG shape, so the rectangular box behind it must stay clear (it would show as grey ears). */
+#island[data-theme="full-glass"][data-anchored="1"] {
+  background: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+/* Self-lit glass. Nothing behind the notch can be blurred (a transparent window cannot sample the desktop), so the
+   glass is lit from inside: a lens-thick edge, a specular that follows the pointer, a faint reflection band and a
+   little grain. Floating: #glass-skin. Anchored: the sheen and inner-glow paths inside the notch SVG. */
+@property --gx { syntax: '<percentage>'; inherits: true; initial-value: 28%; }
+@property --gy { syntax: '<percentage>'; inherits: true; initial-value: 0%; }
+#glass-skin { transition: --gx .35s cubic-bezier(.22, 1, .36, 1), --gy .35s cubic-bezier(.22, 1, .36, 1); display: none; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 0; }
+#island[data-theme="full-glass"]:not([data-anchored="1"]) #glass-skin { display: block; }
+#glass-skin {
+  background:
+    radial-gradient(56% 74% at var(--gx) var(--gy), rgba(255, 255, 255, .34), rgba(255, 255, 255, .08) 46%, transparent 72%),
+    linear-gradient(112deg, transparent 30%, rgba(255, 255, 255, .10) 41%, rgba(255, 255, 255, .02) 47%, transparent 56%);
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) { #glass-skin { transition: none; } }
 
 #island[data-theme="outline-glass"] {
   box-shadow: var(--waterline-shadow);
@@ -159,6 +249,11 @@
   box-shadow: inset 0 1px 1.5px rgba(255,255,255,.28), inset 0 0 0 1px rgba(125,211,252,.52), 0 14px 34px -10px rgba(0,0,0,.58) !important;
 }
 
+#island[data-key="weathernotice"] {
+  background: linear-gradient(145deg, rgba(26,58,78,.94), rgba(8,25,39,.94)) !important;
+  box-shadow: inset 0 1px 1.5px rgba(255,255,255,.3), inset 0 0 0 1px rgba(148,203,235,.5), 0 14px 34px -10px rgba(0,0,0,.58) !important;
+}
+
 #v-prayernotice .prayer-popup-beam {
   background: radial-gradient(ellipse 110% 120% at 50% 100%, var(--prayer-notice-beam, rgba(167,139,250,.62)) 0%, transparent 78%) !important;
 }
@@ -166,6 +261,14 @@
 #v-waternotice .water-popup-beam {
   background: radial-gradient(ellipse 110% 120% at 50% 100%, rgba(56,189,248,.42) 0%, rgba(3,105,161,.2) 46%, transparent 80%) !important;
 }
+
+#v-weathernotice .weather-popup-beam { background:radial-gradient(ellipse 110% 120% at 50% 100%,rgba(80,178,226,.46) 0%,rgba(29,93,128,.2) 46%,transparent 80%)!important; }
+#v-weathernotice{justify-content:flex-start!important;padding:0 22px 0 14px!important;gap:12px!important;overflow:hidden}
+#v-weathernotice .weather-notice-icon{position:relative;z-index:2;width:38px;height:38px;flex:none;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);box-shadow:inset 0 1px 1px rgba(255,255,255,.4),0 4px 14px rgba(0,0,0,.35);color:#e2f4ff;animation:taskAlarmJolt .7s ease-in infinite}
+#v-weathernotice .weather-notice-icon span,#v-weathernotice .weather-notice-icon svg{width:19px;height:19px;display:block}
+#v-weathernotice .weather-notice-copy{position:relative;z-index:2;margin-left:auto;min-width:0;display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:right}
+#v-weathernotice .weather-notice-copy strong{max-width:205px;font-size:16px;line-height:1.1;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#v-weathernotice .weather-notice-copy span{font-size:10px;color:#c8d7e1;white-space:nowrap}
 
 #v-waternotice .water-notice-bubbles{position:absolute;inset:4px 16px 3px 54px;overflow:hidden;pointer-events:none;z-index:1;opacity:.72}
 #v-waternotice .water-notice-bubbles i{position:absolute;bottom:-8px;width:5px;height:5px;border:1px solid rgba(186,230,253,.72);border-radius:50%;box-shadow:inset 0 0 3px rgba(224,242,254,.42);animation:waterNoticeBubble 3.2s ease-in infinite}
@@ -189,6 +292,7 @@
 /* Neutral Clear Frosted Glass Alert Outlines (Replaces neon blue glow) */
 #island[data-key="prayernotice"]::before,
 #island[data-key="waternotice"]::before,
+#island[data-key="weathernotice"]::before,
 #island[data-key="tasknotice"]::before {
   animation: clearGlassAlertOutline 1.2s ease-in-out infinite !important;
 }
@@ -218,7 +322,8 @@
   color: #ffffff !important;
 }
 
-#island :is(#v-timerpreview, #v-prayernotice, #v-waternotice, #v-tasknotice) { background: transparent; }
+#island :is(#v-timerpreview, #v-prayernotice, #v-waternotice, #v-weathernotice, #v-tasknotice) { background: transparent; }
+@media (prefers-reduced-motion:reduce){#v-weathernotice .weather-notice-icon{animation:none!important}}
 #island .mini-popup-actions button {
   background: radial-gradient(120% 140% at 30% 0%, rgba(255,255,255,.38), transparent 55%), var(--waterline-tint);
   border-color: var(--control-edge);
@@ -245,32 +350,30 @@
 
 
 /* Menu Timer: Full solid black without any transparency ("menu timer full black no transparansi") */
-#island[data-key="timer"],
-#island:has(#v-timer.on),
-#island[data-key="timer"][data-expanded="1"],
-#island[data-theme="full-glass"][data-key="timer"],
+#island:not([data-theme="full-glass"])[data-key="timer"],
+#island:not([data-theme="full-glass"])[data-key="timer"][data-expanded="1"],
 #island[data-theme="outline-glass"][data-key="timer"] {
   background: #000000 !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12), 0 16px 38px rgba(0, 0, 0, 0.75) !important;
+  box-shadow: none !important;
 }
 
 #island[data-key="timer"]::before,
 #island[data-key="timer"]::after,
-#island:has(#v-timer.on)::before,
-#island:has(#v-timer.on)::after {
+#island[data-key="timer"][data-expanded="1"]::before,
+#island[data-key="timer"][data-expanded="1"]::after {
   display: none !important;
 }
 
-#island[data-key="timer"] #notch-fill,
-#island:has(#v-timer.on) #notch-fill {
+#island:not([data-theme="full-glass"])[data-key="timer"] #notch-fill,
+#island:not([data-theme="full-glass"])[data-key="timer"][data-expanded="1"] #notch-fill {
   fill: #000000 !important;
   opacity: 1 !important;
 }
 
-#v-timer,
-#v-timer.grump-panel {
+#island:not([data-theme="full-glass"]) #v-timer,
+#island:not([data-theme="full-glass"]) #v-timer.grump-panel {
   background: #000000 !important;
   opacity: 1 !important;
   -webkit-backdrop-filter: none !important;
@@ -280,6 +383,9 @@
 #v-timer .timer-inner-beam {
   display: none !important;
 }
+
+/* The menu rail adds 14px to the shell. Beam-only layers extend into that
+   rail while page controls keep their original 196px coordinate system. */
 
 /* Timer Popup: Vibrant Orange Glowing Outline Beam & Inner Beam ("beam warna orange") */
 #island[data-key="timerpreview"]::before {
@@ -536,7 +642,8 @@
 #v-todo.aic-todo-root .aic-add-files-btn {
   width: 23px;
   height: 23px;
-  padding: 0 5px;
+  /* (23 - 2 px border - 13 px icon) / 2 = 4 px: the plus sits dead centre in the circle, and stays put when the pill widens */
+  padding: 0 0 0 4px;
   justify-content: flex-start;
   color: var(--icon-primary);
   flex-shrink: 0;
@@ -549,7 +656,7 @@
 #v-todo.aic-todo-root .aic-add-files-btn:hover,
 #v-todo.aic-todo-root #addon-task-form.has-schedule .aic-add-files-btn {
   width: 74px;
-  padding: 0 8px 0 6px;
+  padding: 0 8px 0 4px;
 }
 
 #v-todo.aic-todo-root #addon-task-form.has-schedule .aic-add-files-btn {
@@ -794,4 +901,42 @@
   border-radius: 999px;
   background: linear-gradient(90deg, #22c55e 0%, #6ee7b7 100%);
   transition: width 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ==========================================================================
+   Notification Center — Clean borderless actions, no liquid glass container
+   ========================================================================== */
+#island #v-notifications .notification-feed-actions {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  padding: 0 !important;
+}
+
+#island #v-notifications .notification-feed-actions button,
+#island #notification-read-all,
+#island #notification-clear {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  outline: 0 !important;
+}
+
+#island #v-notifications .notification-feed-actions button::before,
+#island #notification-read-all::before,
+#island #notification-clear::before {
+  content: none !important;
+  display: none !important;
+}
+
+#island #v-notifications .notification-feed-actions button:hover:not(:disabled),
+#island #notification-read-all:hover:not(:disabled),
+#island #notification-clear:hover:not(:disabled) {
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
 }

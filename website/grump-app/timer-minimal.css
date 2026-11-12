@@ -1,0 +1,66 @@
+/* Minimal timer: orange pill ruler, big chosen length on the left, round start/stop button, time left on the right */
+#island #v-timer.grump-panel { padding: 16px 20px 32px; background: #000; }
+#island #v-timer .timer-main { justify-content: space-between; }
+#island #v-timer .timer-pointer { display: none; }
+#island #v-timer #timer-ruler { flex: 0 0 76px; height: 76px; cursor: ew-resize;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, rgba(0,0,0,.45) 7%, #000 22%, #000 78%, rgba(0,0,0,.45) 93%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, rgba(0,0,0,.45) 7%, #000 22%, #000 78%, rgba(0,0,0,.45) 93%, transparent 100%); }
+#island #v-timer .ruler-tick { width: 8px; }
+#island #v-timer .ruler-tick i { margin-top: 26px; height: 40px; width: 8px; border-radius: 5px; background: currentColor; }
+#island #v-timer .ruler-tick span { top: 2px; font-size: 14px; font-weight: 600; }
+#island #v-timer .ruler-filled { color: #ff6a00; }
+#island #v-timer .ruler-future { color: #5e5e63; }
+#island #v-timer .ruler-future span { color: #8e8e93; }
+#island #v-timer .ruler-tick.selected { color: #e8855a; }
+#island #v-timer .ruler-footer { width: 100%; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; }
+#island #v-timer .timer-set { font-size: 31px; font-weight: 400; letter-spacing: -1px; line-height: 1; color: #ff6a00; font-variant-numeric: tabular-nums; white-space: nowrap; }
+#island #v-timer #timer-toggle { width: 54px; height: 54px; padding: 0; border-radius: 50%; display: grid; place-items: center; background: #4a1f00; border: 0; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; color: #ff7a14; cursor: pointer; transition: transform .18s cubic-bezier(.2,.8,.2,1), background .18s ease; }
+#island #v-timer #timer-toggle:hover { background: #5e2800; }
+#island #v-timer #timer-toggle:active { transform: scale(.92); }
+#island #v-timer #timer-toggle svg { width: 26px; height: 26px; fill: currentColor; stroke: none; }
+#island #v-timer #timer-toggle:focus-visible, #island #v-timer #timer-digits:focus-visible { outline: 2px solid #ff9a52; outline-offset: 3px; }
+#island #v-timer .timer-digits { justify-self: end; margin: 0; padding: 0; border: 0; background: none; font: 500 21px/1 var(--font-display); letter-spacing: -.3px; color: #8e8e93; font-variant-numeric: tabular-nums; white-space: nowrap; cursor: default; }
+#island #v-timer .timer-digits[data-status="running"], #island #v-timer .timer-digits[data-status="paused"] { cursor: pointer; }
+#island #v-timer .timer-digits[data-status="paused"] { color: #ff6a00; animation: timerPaused 1.2s ease-in-out infinite; }
+@keyframes timerPaused { 50% { opacity: .45; } }
+@media (prefers-reduced-motion: reduce) { #island #v-timer .timer-digits[data-status="paused"] { animation: none; } }
+/* overrides for global button and tick styles */
+#island #v-timer #timer-reset { display: none !important; }
+#island #v-timer .ruler-tick.ruler-future { color: #66666b !important; opacity: 1 !important; }
+#island #v-timer .ruler-tick.ruler-future span { color: #8e8e93 !important; }
+#island #v-timer button.timer-digits { border: 0 !important; background: none !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; border-radius: 0; height: auto; min-width: 0; }
+#island #v-timer button.timer-digits[data-status="paused"] { color: #ff6a00; }
+
+/* no yellow heat while dragging; the ends of the ruler blur away */
+#island #v-timer .ruler-tick i::after { display: none !important; }
+#island #v-timer .ruler-tick { filter: blur(calc(max(0px, (var(--d, 0) - 7) * .55px))); }
+#island #v-timer #timer-toggle { width: 47px; height: 47px; background: #5a2a0e; color: #ff7a0f; }
+#island #v-timer #timer-toggle:hover { background: #6a330f; }
+#island #v-timer #timer-toggle svg { width: 38px; height: 38px; fill: currentColor; stroke: currentColor; stroke-linejoin: round; stroke-linecap: round; }
+/* Timer notification pill (iPhone Live Activity style): orange timer glyph on the left, time left on the right */
+#island[data-key="timerpreview"] { background: #000 !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1) !important; }
+#island[data-key="timerpreview"]::before { display: none !important; }
+#island[data-key="timerpreview"]:hover { transform: translate3d(-50%, 0, 0) scale(1.03) !important; }
+#v-timerpreview { width: 250px; height: 48px; padding: 0 20px 0 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; background: transparent; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+#v-timerpreview .tp-ico { width: 22px; height: 22px; flex: none; fill: none; stroke: #ff7a0f; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+#v-timerpreview #preview-time { font: 500 24px/1 var(--font-display); letter-spacing: -.5px; color: #ff7a0f; font-variant-numeric: tabular-nums; }
+#island #v-timerpreview { position: absolute !important; top: 0 !important; left: 50% !important; }
+#island #v-timerpreview .tp-actions { display: flex; align-items: center; gap: 8px; }
+#island #v-timerpreview .tp-btn { width: 32px; height: 32px; padding: 0; display: grid; place-items: center; border: 0 !important; border-radius: 50%; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; cursor: pointer; transition: transform .16s cubic-bezier(.2,.8,.2,1), background .16s ease; }
+#island #v-timerpreview .tp-btn:active { transform: scale(.9); }
+#island #v-timerpreview .tp-btn:focus-visible { outline: 2px solid rgba(255, 255, 255, .85); outline-offset: 2px; }
+#island #v-timerpreview .tp-btn svg, #island #v-timerpreview .tp-btn [data-ico] { width: 16px; height: 16px; display: block; }
+#island #v-timerpreview .tp-pause { background: #4a1f00 !important; color: #ff7a0f; }
+#island #v-timerpreview .tp-pause:hover { background: #5e2800 !important; }
+#island #v-timerpreview .tp-stop { background: rgba(255, 255, 255, .16) !important; color: #e8e8ea; }
+#island #v-timerpreview .tp-stop:hover { background: rgba(255, 255, 255, .26) !important; }
+
+/* Timer finished: the same pill with a stopwatch that rings (smooth, repeating bursts) */
+#island[data-key="timerdone"] { background: #000 !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1) !important; cursor: pointer; }
+#island[data-key="timerdone"]::before { display: none !important; }
+#island[data-key="timerdone"]:hover { transform: translate3d(-50%, 0, 0) scale(1.03) !important; }
+#island #v-timerdone { position: absolute !important; top: 0 !important; left: 50% !important; width: 250px; height: 48px; padding: 0 22px; display: flex; align-items: center; justify-content: center; gap: 12px; background: transparent; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+#v-timerdone .td-ico { width: 26px; height: 26px; flex: none; fill: none; stroke: #ff7a0f; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transform-origin: 50% 12%; animation: tdRing 1.5s cubic-bezier(.36, .07, .19, .97) infinite; }
+#v-timerdone #timerdone-text { font: 600 20px/1 var(--font-display); letter-spacing: -.3px; color: #ff7a0f; white-space: nowrap; }
+@keyframes tdRing { 0%, 56%, 100% { transform: rotate(0); } 8% { transform: rotate(-16deg); } 16% { transform: rotate(14deg); } 24% { transform: rotate(-11deg); } 32% { transform: rotate(8deg); } 40% { transform: rotate(-5deg); } 48% { transform: rotate(2deg); } }
+@media (prefers-reduced-motion: reduce) { #v-timerdone .td-ico { animation: none; } }

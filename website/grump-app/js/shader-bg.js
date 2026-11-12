@@ -284,6 +284,17 @@ void main() {
   ];
 
   // Apple Music Magenta / Pink Palette
+  const WEB_COLORS = [
+    [0.0300, 0.0400, 0.0600],
+    [0.2200, 0.2800, 0.4000],
+    [0.5200, 0.6000, 0.7800],
+    [0.9000, 0.9300, 1.0000],
+    [0.0300, 0.0400, 0.0600],
+    [0.2200, 0.2800, 0.4000],
+    [0.5200, 0.6000, 0.7800],
+    [0.9000, 0.9300, 1.0000]
+  ];
+
   const APPLE_COLORS = [
     [0.0800, 0.0100, 0.0300],
     [0.6500, 0.0600, 0.2200],
@@ -470,6 +481,8 @@ void main() {
     activeApp = String(appType || 'spotify').toLowerCase();
     if (activeApp === 'youtube') {
       targetColors = YOUTUBE_COLORS;
+    } else if (activeApp === 'web') {
+      targetColors = WEB_COLORS;
     } else if (activeApp === 'apple') {
       targetColors = APPLE_COLORS;
     } else {

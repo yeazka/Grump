@@ -91,7 +91,7 @@ function renderAddons(){
   const nextPrayer=nextPrayerId(addonState.prayer);
   const activePrayer=previewPrayerId||nextPrayer||'Isha';
   const idLang=isId();
-  const key=JSON.stringify([idLang,selected,addonManage,addonState.city,addonState.locationMode,addonState.waterMinutes,addonState.waterEnabled,addonState.waterNextAt,addonState.prayerEnabled,addonState.prayerStatus,addonState.prayer,nextPrayer,activePrayer,addonProductivity.tasks,addonProductivity.notes]);
+  const key=JSON.stringify([idLang,selected,addonManage,addonState.city,addonState.locationMode,addonState.waterMinutes,addonState.waterEnabled,addonState.waterNextAt,addonState.water,addonState.prayerEnabled,addonState.prayerStatus,addonState.prayer,nextPrayer,activePrayer,addonProductivity.tasks,addonProductivity.notes]);
   if(key===addonRenderKey)return;
   addonRenderKey=key;
   const missing=Object.entries(ADDONS).filter(([id])=>!selected.includes(id));
@@ -123,14 +123,120 @@ function renderAddons(){
   const prayerIllust=buildPrayerIllust(activePrayer);
   setHTML('addon-prayer-body',times?`<div class="prayer-content">${prayerIllust}<div class="prayer-times" aria-label="${idLang?'Jadwal sholat hari ini':'Today prayer times'}">${Object.entries(prayerLabels).map(([id,name])=>`<div class="prayer-time ${id===activePrayer?'next':''}" data-act="prayerpreview" data-prayer-id="${id}" ${id===nextPrayer?'aria-current="true"':''}><span class="prayer-time-dot" aria-hidden="true"></span><span>${name}</span><b>${esc(times[id]||'—')}</b></div>`).join('')}</div></div>`:`<div class="prayer-content">${prayerIllust}<div class="prayer-loading"><span>${addonState.prayerStatus==='unavailable'?(idLang?'Jadwal belum tersedia.':'Schedule unavailable.'):(idLang?'Memuat jadwal sholat…':'Loading prayer times…')}</span></div></div>`);
   const next=addonState.waterEnabled&&addonState.waterNextAt?new Date(addonState.waterNextAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'—';
-  const waterIllust=`<div class="water-illust" aria-hidden="true"><svg viewBox="0 0 108 118" class="water-kawaii-svg"><defs><linearGradient id="wGlass" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="rgba(224,242,254,0.28)"/><stop offset="100%" stop-color="rgba(186,230,253,0.08)"/></linearGradient><linearGradient id="wLiqFront" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></linearGradient><linearGradient id="wLiqBack" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7dd3fc"/><stop offset="100%" stop-color="#0369a1"/></linearGradient><clipPath id="wCupClip"><path d="M24 26 H84 L77 98 A12 12 0 0 1 65 108 H43 A12 12 0 0 1 31 98 Z"/></clipPath></defs><ellipse cx="54" cy="111" rx="26" ry="4" fill="rgba(56,189,248,0.18)"/><path class="w-straw" d="M63 32 L71 10 L83 7" fill="none" stroke="#fb7185" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path class="w-straw-hi" d="M63 32 L71 10 L83 7" fill="none" stroke="#fda4af" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><g clip-path="url(#wCupClip)"><rect x="20" y="24" width="68" height="86" fill="url(#wGlass)"/><path class="w-wave-back" d="M10 47 Q28 41 46 47 T82 47 T118 47 V112 H10 Z" fill="url(#wLiqBack)" opacity="0.65"/><path class="w-wave-front" d="M6 51 Q26 57 46 51 T86 51 T126 51 V112 H6 Z" fill="url(#wLiqFront)"/><g class="w-ice-group"><rect x="31" y="45" width="13" height="13" rx="3.5" transform="rotate(-12 37 51)" fill="rgba(255,255,255,0.42)" stroke="rgba(255,255,255,0.65)" stroke-width="1"/><rect x="59" y="47" width="12" height="12" rx="3.5" transform="rotate(14 65 53)" fill="rgba(255,255,255,0.36)" stroke="rgba(255,255,255,0.6)" stroke-width="1"/></g><circle class="w-bub b1" cx="38" cy="94" r="2.2" fill="rgba(255,255,255,0.6)"/><circle class="w-bub b2" cx="66" cy="98" r="1.7" fill="rgba(255,255,255,0.5)"/><circle class="w-bub b3" cx="52" cy="101" r="2.5" fill="rgba(255,255,255,0.55)"/><g class="w-kawaii-face"><ellipse cx="35" cy="79" rx="4.2" ry="2.3" fill="#fda4af" opacity="0.78"/><ellipse cx="73" cy="79" rx="4.2" ry="2.3" fill="#fda4af" opacity="0.78"/><g class="w-eye"><circle cx="41" cy="73" r="3.6" fill="#0c4a6e"/><circle cx="39.8" cy="71.7" r="1.3" fill="#fff"/><circle cx="42.2" cy="74.2" r="0.6" fill="#fff"/></g><g class="w-eye"><circle cx="67" cy="73" r="3.6" fill="#0c4a6e"/><circle cx="65.8" cy="71.7" r="1.3" fill="#fff"/><circle cx="68.2" cy="74.2" r="0.6" fill="#fff"/></g><path d="M49.5 77.5 Q54 82.5 58.5 77.5" fill="none" stroke="#0c4a6e" stroke-width="2.2" stroke-linecap="round"/></g></g><path d="M24 26 H84 L77 98 A12 12 0 0 1 65 108 H43 A12 12 0 0 1 31 98 Z" fill="none" stroke="rgba(186,230,253,0.72)" stroke-width="2.2" stroke-linejoin="round"/><ellipse cx="54" cy="26" rx="30" ry="4.2" fill="rgba(224,242,254,0.22)" stroke="rgba(224,242,254,0.85)" stroke-width="2"/><path d="M29 36 L34 92" stroke="rgba(255,255,255,0.38)" stroke-width="2.2" stroke-linecap="round"/><path class="w-drop-float" d="M14 40 C14 40 19 46 19 49.5 A5 5 0 0 1 9 49.5 C9 46 14 40 14 40 Z" fill="#38bdf8"/><path class="w-sparkle" d="M94 34 L95.5 38.5 L100 40 L95.5 41.5 L94 46 L92.5 41.5 L88 40 L92.5 38.5 Z" fill="#7dd3fc"/></svg></div>`;
-  setHTML('addon-water-body',`<div class="water-panel-grid">${waterIllust}<div class="water-info-col"><div class="water-primary-row"><div class="water-next"><span>${addonState.waterEnabled?(idLang?'Pengingat berikutnya':'Next reminder'):(idLang?'Status':'Status')}</span><strong>${addonState.waterEnabled?esc(next):(idLang?'Dijeda':'Paused')}</strong></div><button class="addon-toggle ${addonState.waterEnabled?'on':''}" data-act="addonwater" aria-label="${addonState.waterEnabled?'Turn off':'Turn on'} water reminders">${addonState.waterEnabled?(idLang?'Aktif':'On'):(idLang?'Mati':'Off')}</button></div><label class="addon-interval"><span>${idLang?'Ingatkan setiap':'Remind every'}</span><select id="addon-water-minutes" aria-label="Water reminder interval">${[15,30,45,60,90,120].map(n=>`<option value="${n}" ${n===addonState.waterMinutes?'selected':''}>${n===45?(idLang?'45 menit (disarankan)':'45 min (recommended)'):(idLang?n+' menit':n+' min')}</option>`).join('')}</select></label><div class="water-summary"><div><strong>${idLang?'Target harian':'Daily target'}</strong><span>${idLang?'2,0 L · sekitar 8 gelas':'2.0 L · about 8 glasses'}</span></div><p>${idLang?'Minum sedikit secara berkala membantu menjaga fokus.':'Small, regular sips help maintain focus.'}</p></div></div></div>`);
+  const waterIllust=`<button type="button" class="water-illust" data-act="waterpagedrink" aria-label="${idLang?'Minum segelas (+200 ml)':'Drink a glass (+200 ml)'}">${waterGlassSvg(addonState.water,waterMood(addonState.water))}</button>`;  setHTML('addon-water-body',`<div class="water-panel-grid">${waterIllust}<div class="water-info-col"><div class="water-primary-row"><div class="water-next"><span>${addonState.waterEnabled?(idLang?'Pengingat berikutnya':'Next reminder'):(idLang?'Status':'Status')}</span><strong>${addonState.waterEnabled?esc(next):(idLang?'Dijeda':'Paused')}</strong></div><div class="water-controls"><button class="addon-toggle ${addonState.waterEnabled?'on':''}" data-act="addonwater" aria-label="${addonState.waterEnabled?'Turn off':'Turn on'} water reminders">${addonState.waterEnabled?(idLang?'Aktif':'On'):(idLang?'Mati':'Off')}</button><button type="button" class="water-reset" data-act="waterreset" aria-label="${idLang?'Atur ulang air hari ini':'Reset today water'}" title="${idLang?'Atur ulang air hari ini':'Reset today water'}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4.5v4.8h4.8"/></svg></button></div></div><div class="addon-interval"><span>${idLang?'Ingatkan setiap':'Remind every'}</span><div class="water-stepper" role="group" aria-label="Water reminder interval"><button type="button" data-act="waterstep" data-dir="-1" aria-label="${idLang?'Lebih sering':'Shorter interval'}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button><output>${idLang?addonState.waterMinutes+' menit':addonState.waterMinutes+' min'}</output><button type="button" data-act="waterstep" data-dir="1" aria-label="${idLang?'Lebih jarang':'Longer interval'}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div></div><div class="water-summary"><div><strong>${idLang?'Target harian':'Daily target'}</strong><span>${waterProgressText(idLang)}</span></div><p>${idLang?'Minum sedikit secara berkala membantu menjaga fokus.':'Small, regular sips help maintain focus.'}</p></div></div></div>`);
 
   setIco($('#v-addons'));for(const id of Object.keys(ADDONS))setIco($('#v-'+id));
 }
 renderers.push(renderAddons);
 setInterval(()=>{if(curKey==='prayer')renderAddons();},15000);
 bridge.onAddonState?.(syncAddonState);
+// ---------- Water: shared glass drawing, daily progress and the reminder pill ----------
+let waterGlassSeq=0;
+const waterLiters=ml=>(ml/1000).toFixed(1);
+function waterProgressText(idLang){
+  const w=addonState.water||{ml:0,goalMl:2000,stepMl:200};
+  const l=ml=>idLang?waterLiters(ml).replace('.',','):waterLiters(ml);
+  const done=Math.round(w.ml/w.stepMl),total=Math.round(w.goalMl/w.stepMl);
+  return idLang?`${l(w.ml)} / ${l(w.goalMl)} L · ${done} dari ${total} gelas`:`${l(w.ml)} / ${l(w.goalMl)} L · ${done} of ${total} glasses`;
+}
+function waterMood(view){
+  if(!view)return 'neutral';
+  if(view.full)return 'full';
+  if(view.missed>=2)return 'furious';
+  if(view.ml===0||view.missed>=1)return 'angry';
+  return 'neutral';
+}
+// "Paper Soda" glass (see DESIGN.md): cream outline, aqua-to-teal liquid, cloud-shaped ice, foam when full, striped straw.
+function waterGlassSvg(view,mood){
+  const fill=view?Math.min(1,view.ml/Math.max(1,view.goalMl)):0,n=++waterGlassSeq;
+  const cup='M7 14H53L48.6 74.2Q48.2 77 45.4 77H14.6Q11.8 77 11.4 74.2Z';
+  const cloud='M-5.5 3.2C-9 3.4-9.4-2.2-5.4-2.4-4.6-6.6 1.8-6.8 3-2.8 7.4-3.6 9.2 1.8 5.6 3.2Z';
+  const ice=(x,y,s,d)=>`<g transform="translate(${x} ${y}) scale(${s})"><g class="wg-ice" style="--d:${d}"><path class="ice" d="${cloud}"/><path class="ice-hi" d="M-3.4 -0.6Q-2.2 -2.6 -0.4 -2.2"/></g></g>`;
+  return `<svg class="wg" viewBox="0 0 60 84" data-mood="${mood}" style="--fill:${fill.toFixed(3)}" aria-hidden="true"><defs><clipPath id="wgc${n}"><path d="${cup}"/></clipPath><linearGradient id="wgw${n}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#92e6dd"/><stop offset="1" stop-color="#2f93ad"/></linearGradient></defs>`
+    +`<ellipse class="wg-shadow" cx="30" cy="80.5" rx="18" ry="2.6"/>`
+    +`<g class="wg-foam"><path d="M8.5 14C5 6.5 12 5 15.6 8.6 16.4 1.4 25.6-.6 29.6 4.4 34.4-1 44.4 1 44.8 8.4 51.6 7 55 12.6 51.6 14Z"/><path class="foam-hi" d="M17 9.4Q19 6.6 22 7M33 6.6Q36 4.8 39 6.4"/></g>`
+    +`<g clip-path="url(#wgc${n})"><rect class="wg-body" x="5" y="12" width="50" height="68"/><g class="wg-water"><path class="wg-wave b" d="M-10 20Q8 15 26 20T62 20T98 20V96H-10Z" fill="#b6efe8" opacity=".8"/><path class="wg-wave f" d="M-14 23Q4 28 22 23T58 23T94 23V96H-14Z" fill="url(#wgw${n})"/>`
+    +ice(21,34,1.15,0)+ice(40,42,1,.9)+ice(27,56,.8,1.7)
+    +`<circle class="wg-bub b1" cx="17" cy="62" r="1.3"/><circle class="wg-bub b2" cx="40" cy="66" r="1"/><circle class="wg-bub b3" cx="31" cy="64" r="1.6"/><circle class="wg-bub b4" cx="24" cy="48" r=".9"/></g>`
+    +`<rect class="wg-base" x="9" y="66" width="42" height="12"/><rect class="wg-base-mark" x="13.4" y="68.6" width="4.6" height="6" rx="1"/><rect class="wg-base-mark" x="42" y="68.6" width="4.6" height="6" rx="1"/></g>`
+    +`<path class="wg-shine" d="M11.6 22 14.6 58"/><path class="wg-rim" d="${cup}"/><path class="wg-lip" d="M7.6 17.4Q30 21.6 52.4 17.4"/>`
+    +`<g class="wg-straw"><path class="s-base" d="M35 30 43.5 6 52 3.4"/><path class="s-blue" d="M35 30 43.5 6 52 3.4"/><path class="s-yellow" d="M35 30 43.5 6 52 3.4"/></g>`
+    +`<g class="wg-face"><g class="f-neutral"><circle cx="24" cy="46" r="2.3"/><circle cx="36" cy="46" r="2.3"/><path d="M26.2 51.6Q30 54.4 33.8 51.6"/></g><g class="f-tired"><path class="xeye" d="M20.5 43 27 49M27 43 20.5 49M33 43 39.5 49M39.5 43 33 49"/><path class="mouth-line" d="M25 53.6H35"/><path class="tongue" d="M27.5 54.2V62.5A3.2 3.2 0 0 0 34 62.5V54.2Z"/></g><g class="f-happy"><path class="eye" d="M20.5 47.4Q24 42.4 27.5 47.4M32.5 47.4Q36 42.4 39.5 47.4"/><path class="mouth" d="M24 51.4Q30 59 36 51.4Z"/><ellipse class="cheek" cx="19" cy="52.6" rx="3" ry="1.8"/><ellipse class="cheek" cx="41" cy="52.6" rx="3" ry="1.8"/></g></g>`
+    +`<path class="wg-sweat" d="M45 33Q48.5 38 45 40.5Q41.5 38 45 33Z"/><path class="wg-spark s1" d="M55 24l1.4 3.6L60 29l-3.6 1.4L55 34l-1.4-3.6L50 29l3.6-1.4Z"/><path class="wg-spark s2" d="M5 30l1 2.6 2.6 1-2.6 1L5 37.2l-1-2.6-2.6-1 2.6-1Z"/></svg>`;
+}let waterPill=null;
+function waterPillTexts(){
+  const st=waterPill,v=st.view,idLang=isId();
+  const waterCopyId={'DRINK NOW!':'MINUM SEKARANG!','HYDRATE, DRY HUMAN.':'HAUS KOK BANDEL.',"SIP. DON'T ARGUE.":'TEGUK. JANGAN NGEYEL.','WATER BEFORE U CRASH.':'MINUM SEBELUM TUMBANG.'};
+  let title;
+  if(st.answered)title=v.full?(idLang?'Target tercapai!':'Goal reached!'):(idLang?`Segar! +${v.stepMl} ml`:`Fresh! +${v.stepMl} ml`);
+  else if(v.full)title=idLang?'Tetap minum ya!':'Keep sipping!';
+  else if(v.missed>=2)title=idLang?'KAMU LUPA MINUM TERUS!':'YOU KEEP IGNORING ME!';
+  else if(v.ml===0||v.missed>=1)title=idLang?'BELUM MINUM NIH!':'NOT A SIP YET!';
+  else title=idLang?(waterCopyId[st.title]||'MINUM SEKARANG!'):(st.title||'DRINK NOW!');
+  const l=ml=>idLang?waterLiters(ml).replace('.',','):waterLiters(ml);
+  const detail=(v.full&&!st.answered?(idLang?'Gelas penuh hari ini · ':'Full for today · '):'')+`${l(v.ml)} / ${l(v.goalMl)} L`;
+  return {title,detail};
+}
+function paintWaterPill(initial){
+  const st=waterPill;if(!st)return;
+  const v=st.view,mood=st.answered?(v.full?'full':'happy'):waterMood(v);
+  const host=$('#wp-glass');
+  if(initial||!host.querySelector('svg')){
+    host.innerHTML=waterGlassSvg({...v,ml:0},mood);   // starts empty, then fills
+    const svg=host.querySelector('svg');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{svg.style.setProperty('--fill',Math.min(1,v.ml/v.goalMl).toFixed(3));}));
+  }else{
+    const svg=host.querySelector('svg');svg.dataset.mood=mood;svg.style.setProperty('--fill',Math.min(1,v.ml/v.goalMl).toFixed(3));
+  }
+  host.querySelector('svg').dataset.mood=mood;
+  const text=waterPillTexts();
+  setText('water-notice-title',text.title);setText('water-notice-detail',text.detail);
+  $('#wp-actions').hidden=v.full||st.answered;
+  setText('wp-yes',isId()?'Aku minum':'I drank');setText('wp-later',isId()?'Nanti':'Later');
+  const popup=$('#v-waternotice');if(popup)popup.dataset.mood=mood;
+}
+function showWaterPill(event){
+  const view=event.water||{ml:0,goalMl:2000,stepMl:200,missed:0,full:false};
+  waterPill={view:{...view},preview:event.preview===true,answered:false,title:event.title||''};
+  paintWaterPill(true);
+  showMiniPopup('waternotice',view.full?7000:25000);
+}
+/* The sip: the glass tips towards you, rings spread from it, droplets leave in arcs, a wave of water crosses the pill and a few stars settle. */
+function burstWaterBubbles(){
+  const host=$('#wp-bubbles'),popup=$('#v-waternotice');if(!host)return;
+  host.replaceChildren();
+  const make=(tag,css,cls)=>{const el=document.createElement(tag);if(cls)el.className=cls;el.style.cssText=css;host.append(el);return el;};
+  make('b','','wp-wash');
+  for(let i=0;i<3;i++)make('s',`--i:${i}`,'wp-ring');
+  for(let i=0;i<9;i++){
+    const spread=(i/8)*2-1,size=3+Math.random()*3.5;
+    make('u',`--tx:${(spread*118+Math.random()*30).toFixed(0)}px;--up:${(-(18+Math.random()*20)).toFixed(0)}px;--down:${(10+Math.random()*16).toFixed(0)}px;--dl:${(0.16+i*0.045).toFixed(2)}s;width:${size.toFixed(1)}px;height:${(size*1.35).toFixed(1)}px`,'wp-drop');
+  }
+  for(let i=0;i<12;i++){
+    const size=3+Math.random()*7;
+    make('i',`left:${(8+Math.random()*84).toFixed(1)}%;width:${size.toFixed(1)}px;height:${size.toFixed(1)}px;--dx:${(Math.random()*30-15).toFixed(1)}px;--dur:${(1.1+Math.random()*0.9).toFixed(2)}s;animation-delay:${(0.25+Math.random()*0.55).toFixed(2)}s`);
+  }
+  [[78,28],[64,70],[88,62]].forEach(([x,y],i)=>make('em',`left:${x}%;top:${y}%;--dl:${(0.9+i*0.22).toFixed(2)}s`,'wp-star'));
+  if(popup){popup.classList.remove('is-drinking');void popup.offsetWidth;popup.classList.add('is-drinking');}
+  setTimeout(()=>{host.replaceChildren();popup?.classList.remove('is-drinking');},3000);
+}
+acts.waterdrink=async()=>{
+  const st=waterPill;if(!st||st.answered)return;
+  st.answered=true;
+  const next=Math.min(st.view.goalMl,st.view.ml+st.view.stepMl);
+  st.view={...st.view,ml:next,missed:0,full:next>=st.view.goalMl};   // optimistic: the glass fills right away
+  paintWaterPill(false);
+  burstWaterBubbles();
+  clearTimeout(miniPopupTimer);miniPopupTimer=setTimeout(()=>dismissMiniPopup(),st.view.full?4200:3000);
+  if(!st.preview){try{const result=await bridge.addonCommand?.('water-drink');if(result)syncAddonState(result);}catch{}}
+};
+acts.waterlater=async()=>{
+  const st=waterPill;
+  dismissMiniPopup();
+  if(st&&!st.preview){try{const result=await bridge.addonCommand?.('water-snooze');if(result)syncAddonState(result);}catch{}}
+};
+acts.waterreset=async()=>{try{const result=await bridge.addonCommand?.('water-reset');if(result)syncAddonState(result);}catch{}};
+acts.waterpagedrink=async()=>{try{const result=await bridge.addonCommand?.('water-drink');if(result)syncAddonState(result);}catch{}};
 bridge.onAddonAlert?.(event=>{
   if(!event?.title)return;
   if(event.kind==='prayer'){
@@ -141,16 +247,7 @@ bridge.onAddonAlert?.(event=>{
     setText('prayer-notice-detail',event.body||'');
     showMiniPopup('prayernotice',10000);
   }else if(event.kind==='water'){
-    const mins=addonState.waterMinutes||45;
-    const waterCopyId={
-      'DRINK NOW!':'MINUM SEKARANG!',
-      'HYDRATE, DRY HUMAN.':'HAUS KOK BANDEL.',
-      "SIP. DON'T ARGUE.":'TEGUK. JANGAN NGEYEL.',
-      'WATER BEFORE U CRASH.':'MINUM SEBELUM TUMBANG.'
-    };
-    setText('water-notice-title',isId()?(waterCopyId[event.title]||'MINUM SEKARANG!'):event.title);
-    setText('water-notice-detail',isId()?`1 gelas (~200 ml) · tiap ${mins} menit`:(event.body||`1 glass (~200 ml) · every ${mins} min`));
-    showMiniPopup('waternotice',10000);
+    showWaterPill(event);
   }else notice('bell',event.title,5000);
 });
 bridge.onProductivityState?.(s=>{if(s){addonProductivity=s;renderAddons();}});
@@ -238,10 +335,47 @@ acts.todoclear=async()=>{
   todoClearTimer=setTimeout(()=>{todoClearArmedUntil=0;const current=$('#v-todo .todo-clear');if(current){current.dataset.confirm='0';current.querySelector('.todo-clear-label').textContent=isId()?'Hapus':'Clear';current.setAttribute('aria-label',isId()?'Hapus semua tugas':'Clear all tasks');}},4000);
 };
 acts.addonnotedelete=el=>addonSave('delete-note',el.dataset.id);
-function openNoteEditor(note){const idLang=isId();const lines=String(note?.text||'').split('\n');const title=lines.shift()||'',body=lines.join('\n');noteEditor={id:note?.id||null,original:note?.text||''};S.focusLock=true;bridge.setFocusable?.(true);setHTML('addon-notes-body',`<div class="note-editor-head"><button data-act="notecancel">${idLang?'Kembali':'Back'}</button><button data-act="notedone">${idLang?'Selesai':'Done'}</button></div><input class="note-title" maxlength="500" aria-label="Note title" placeholder="${idLang?'Judul':'Title'}" value="${esc(title)}"><textarea class="note-editor" maxlength="9500" aria-label="Note content" placeholder="${idLang?'Mulai menulis…':'Start writing…'}">${esc(body)}</textarea><div class="note-save-error" role="status" hidden>${idLang?'Gagal menyimpan. Coba lagi.':'Could not save. Try again.'}</div>`);$('#addon-notes-body .note-title').focus();}
+function openNoteEditor(note){const idLang=isId();const lines=String(note?.text||'').split('\n');const title=lines.shift()||'',body=lines.join('\n');noteEditor={id:note?.id||null,original:note?.text||''};S.focusLock=true;bridge.setFocusable?.(true);setHTML('addon-notes-body',`<div class="note-editor-head"><button data-act="notecancel">${idLang?'Kembali':'Back'}</button><button data-act="notedone">${idLang?'Selesai':'Done'}</button></div><input class="note-title" maxlength="500" aria-label="Note title" placeholder="${idLang?'Judul':'Title'}" value="${esc(title)}"><textarea class="note-editor" maxlength="9500" aria-label="Note content" placeholder="${idLang?'Mulai menulis…':'Start writing…'}">${esc(body)}</textarea><div class="note-save-error" role="status" hidden>${idLang?'Gagal menyimpan. Coba lagi.':'Could not save. Try again.'}</div>`);$('#addon-notes-body .note-title').focus();for(const el of $$('#addon-notes-body .note-title, #addon-notes-body .note-editor'))el.addEventListener('input',scheduleNoteSave);}
 acts.notenew=()=>openNoteEditor(null);
 acts.noteopen=el=>{const note=addonProductivity.notes.find(n=>n.id===el.dataset.id);if(note)openNoteEditor(note);};
-async function closeNoteEditor(save){const title=$('#addon-notes-body .note-title')?.value.trim()||'',body=$('#addon-notes-body .note-editor')?.value.trim()||'',text=title?(body?title+'\n'+body:title):body,id=noteEditor?.id;if(save&&text&&text!==noteEditor?.original){try{const ok=await bridge.productivitySave?.(id?'update-note':'note',id?{id,text}:{text});if(!ok)throw new Error('save failed');}catch{const error=$('#addon-notes-body .note-save-error');if(error)error.hidden=false;return;}}noteEditor=null;S.focusLock=false;bridge.setFocusable?.(false);addonProductivity=await bridge.productivityState?.()||addonProductivity;addonRenderKey='';renderAddons();}
+// Notes save themselves: 0.6 s after the last keystroke, and whenever the editor is left in any way (Done, Back, a click outside,
+// a swipe to another page, the pointer staying away). Saves run one after another so a quick second save never makes a duplicate note.
+let noteSaveTimer=0,noteQueue=Promise.resolve(),noteLeaveTimer=0;
+function noteTextNow(){const title=$('#addon-notes-body .note-title')?.value.trim()||'',body=$('#addon-notes-body .note-editor')?.value.trim()||'';return title?(body?title+'\n'+body:title):body;}
+function scheduleNoteSave(){clearTimeout(noteSaveTimer);noteSaveTimer=setTimeout(saveNoteNow,600);}
+function saveNoteNow(){
+  clearTimeout(noteSaveTimer);
+  const editor=noteEditor,text=noteTextNow();
+  const job=noteQueue.then(async()=>{
+    if(!editor||!text||text===editor.original)return true;
+    try{
+      const id=editor.id;
+      const ok=await bridge.productivitySave?.(id?'update-note':'note',id?{id,text}:{text});
+      if(!ok)return false;
+      editor.original=text;
+      if(!id){const state=await bridge.productivityState?.();const created=state?.notes?.[0];if(created&&created.text===text)editor.id=created.id;}
+      return true;
+    }catch{return false;}
+  });
+  noteQueue=job.catch(()=>{});
+  return job;
+}
+async function closeNoteEditor(save,options={}){
+  clearTimeout(noteLeaveTimer);
+  if(!noteEditor)return;
+  if(save){
+    const ok=await saveNoteNow();
+    if(!ok&&!options.silent){const error=$('#addon-notes-body .note-save-error');if(error)error.hidden=false;return;}
+  }
+  noteEditor=null;S.focusLock=false;bridge.setFocusable?.(false);
+  addonProductivity=await bridge.productivityState?.()||addonProductivity;addonRenderKey='';renderAddons();
+  if(!inside&&S.expanded)collapse(); // the lock held the island open: let it fold back to the compact view now
+}
+function flushNoteEditorForNav(){if(noteEditor)closeNoteEditor(true,{silent:true});}
+document.addEventListener('pointerdown',e=>{if(noteEditor&&!e.target.closest('#v-notes'))closeNoteEditor(true,{silent:true});},true);
+window.addEventListener('blur',()=>{if(noteEditor)closeNoteEditor(true,{silent:true});});
+island.addEventListener('pointerleave',()=>{if(!noteEditor)return;clearTimeout(noteLeaveTimer);noteLeaveTimer=setTimeout(()=>{if(noteEditor&&!inside)closeNoteEditor(true,{silent:true});},1500);});
+island.addEventListener('pointerenter',()=>clearTimeout(noteLeaveTimer));
 acts.notedone=()=>closeNoteEditor(true);
 acts.notecancel=()=>closeNoteEditor(true);
 for(const id of Object.keys(ADDONS))$('#v-'+id).addEventListener('submit',async e=>{e.preventDefault();const form=e.target;if(form.id!=='addon-task-form'&&form.id!=='addon-note-form')return;const text=form.elements.text.value.trim();if(form.id==='addon-note-form'){if(text)await addonSave('note',{text});return;}const schedule=form.querySelector('.todo-schedule');const remindAt=schedule.hidden?0:new Date(`${form.elements.date.value}T${form.elements.time.value}`).getTime();const invalid=!text||(!schedule.hidden&&(!Number.isFinite(remindAt)||remindAt<=Date.now()));if(invalid){form.classList.remove('is-invalid');void form.offsetWidth;form.classList.add('is-invalid');(!text?form.elements.text:!form.elements.date.value?form.elements.date:form.elements.time).focus();return;}schedule.hidden=true;todoDraftText='';setTodoScheduleLock(false);await addonSave('task',{text,remindAt});});
@@ -257,3 +391,4 @@ $('#v-todo').addEventListener('change', async e => {
   await toggleTaskWithAnimation(id, row);
 });
 $('#v-water').addEventListener('change',async e=>{if(e.target.id==='addon-water-minutes')syncAddonState(await bridge.addonCommand?.('water-interval',Number(e.target.value)));});
+acts.waterstep=async el=>{const list=[15,30,45,60,90,120];const i=list.indexOf(addonState.waterMinutes);const next=list[Math.max(0,Math.min(list.length-1,(i<0?2:i)+Number(el.dataset.dir)))];syncAddonState(await bridge.addonCommand?.('water-interval',next));};

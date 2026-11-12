@@ -1,0 +1,283 @@
+/* Liquid Glass modes, shared by the notch (index.html), the dock (dock.html) and the Preferences preview.
+   The glass is three layers: a tint, two diagonal edge highlights, a soft drop shadow.
+   - clear  : almost no tint, so it never turns milky over a dark desktop; the edges carry the glass
+   - bright : a white tint, the classic light glass
+   - dark   : a smoked tint for busy or bright wallpapers
+   --lg-alpha comes from the Transparency setting (1 = as designed, lower = more see-through). */
+[data-glass-mode], :root {
+  --lg-alpha: 1;
+  --lg-a1: .08; --lg-a2: .02;           /* white tint, top-left -> bottom-right */
+  --lg-base: 8, 8, 11; --lg-base-a: .56; /* layer under the tint; keeps text readable */
+  --lg-edge-1: .46; --lg-edge-2: .26;   /* edge highlights */
+  --lg-page-top: .4; --lg-page-bottom: .5; /* open menus: opacity of the base, top -> bottom */
+  --lg-adapt: 0; --lg-adapt-max: .9;      /* adaptive glass: 0..1 from what is behind the notch / dock */
+}
+[data-glass-mode="bright"] { --lg-a1: .30; --lg-a2: .12; --lg-base: 14, 14, 18; --lg-base-a: .14; --lg-edge-1: .62; --lg-edge-2: .42; --lg-page-top: .2; --lg-page-bottom: .3; }
+[data-glass-mode="dark"]   { --lg-a1: .08; --lg-a2: .02; --lg-base: 8, 8, 11;   --lg-base-a: .56; --lg-edge-1: .46; --lg-edge-2: .26; --lg-page-top: .4; --lg-page-bottom: .5; }
+[data-glass-mode="clear"]  { --lg-a1: .07; --lg-a2: .015; --lg-base: 0, 0, 0;   --lg-base-a: .05; --lg-edge-1: .58; --lg-edge-2: .34; --lg-page-top: .12; --lg-page-bottom: .22; }
+
+.lg-surface,
+#island[data-theme="full-glass"]:not([data-anchored="1"]),
+.dock-capsule {
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, calc(var(--lg-a1) * var(--lg-alpha))), rgba(255, 255, 255, calc(var(--lg-a2) * var(--lg-alpha))) 60%),
+    rgba(var(--lg-base), calc((var(--lg-base-a) + (var(--lg-adapt-max) - var(--lg-base-a)) * var(--lg-adapt, 0)) * var(--lg-alpha))) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow:
+    inset 2px 2px 1px 0 rgba(255, 255, 255, var(--lg-edge-1)),
+    inset -1px -1px 1px 1px rgba(255, 255, 255, var(--lg-edge-2)),
+    0 6px 6px rgba(0, 0, 0, .2),
+    0 0 20px rgba(0, 0, 0, .1) !important;
+}
+/* Open menus: the glass gets lighter towards the top (Dark: 40% at the top, 50% at the bottom). */
+#island[data-theme="full-glass"][data-expanded="1"]:not([data-anchored="1"]) {
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, calc(var(--lg-a1) * var(--lg-alpha))), rgba(255, 255, 255, calc(var(--lg-a2) * var(--lg-alpha))) 60%),
+    linear-gradient(180deg, rgba(var(--lg-base), calc((var(--lg-page-top) + (var(--lg-adapt-max) - var(--lg-page-top)) * var(--lg-adapt, 0)) * var(--lg-alpha))), rgba(var(--lg-base), calc((var(--lg-page-bottom) + (var(--lg-adapt-max) - var(--lg-page-bottom)) * var(--lg-adapt, 0)) * var(--lg-alpha)))) !important;
+}
+/* The timer ruler softens content by distance from its center. The open shell uses the same idea at its two
+   upper corners: two small frosted zones fade inward and downward, while the center stays optically clear. */
+#glass-top-blur { display: none; position: absolute; inset: 0 0 auto; height: 30px; z-index: 40; pointer-events: none; }
+#glass-top-blur::before,
+#glass-top-blur::after { content: ''; position: absolute; top: 0; width: 31%; height: 100%;
+  background: rgba(255,255,255,.001);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+/* Each zone fades to nothing at the body's side edge, where the notch ears (which are just the glass fill) begin:
+   a blur that stops exactly at the edge showed up as a hard vertical seam between the ear and the body. The mask is the
+   corner falloff multiplied by a short horizontal fade-in. */
+#glass-top-blur::before, #glass-top-blur::after { -webkit-mask-composite: source-in; mask-composite: intersect; }
+#glass-top-blur::before { left: 0;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 34%), radial-gradient(ellipse 110% 105% at 0 0, #000 0, rgba(0,0,0,.78) 38%, transparent 78%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 34%), radial-gradient(ellipse 110% 105% at 0 0, #000 0, rgba(0,0,0,.78) 38%, transparent 78%); }
+#glass-top-blur::after { right: 0;
+  -webkit-mask-image: linear-gradient(270deg, transparent 0, #000 34%), radial-gradient(ellipse 110% 105% at 100% 0, #000 0, rgba(0,0,0,.78) 38%, transparent 78%);
+  mask-image: linear-gradient(270deg, transparent 0, #000 34%), radial-gradient(ellipse 110% 105% at 100% 0, #000 0, rgba(0,0,0,.78) 38%, transparent 78%); }
+#island[data-theme="full-glass"][data-expanded="1"] #glass-top-blur { display: block; }
+/* the dock drew its own rim before; the edge highlights replace it */
+.dock-capsule::before { display: none; }
+
+/* Every page of the notch is glass in this theme: the panels drop their own solid backgrounds. */
+#island[data-theme="full-glass"] :is(#v-timer, #v-notes, #v-prayer, #v-water, #v-todo, #v-addons, #v-stash, #v-weather, #v-lyrics, #v-music, #v-notifications, #v-home).grump-panel,
+#island[data-theme="full-glass"] :is(#v-timer, #v-weather, #v-lyrics, #v-stash) {
+  background: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+#island[data-theme="full-glass"] :is(#v-prayer, #v-water)::before { display: none; }
+#island[data-theme="full-glass"][data-key="timer"] #notch-fill { opacity: 1; }
+
+/* ---------- Timer in Liquid Glass: white only, hierarchy by opacity (no orange) ---------- */
+#island[data-theme="full-glass"] #v-timer .ruler-filled { color: #fff; }
+#island[data-theme="full-glass"] #v-timer .ruler-tick.selected { color: #fff; }
+#island[data-theme="full-glass"] #v-timer .ruler-tick.ruler-future { color: rgba(255, 255, 255, .26) !important; opacity: 1 !important; }
+#island[data-theme="full-glass"] #v-timer .ruler-tick.ruler-future span { color: rgba(255, 255, 255, .5) !important; }
+#island[data-theme="full-glass"] #v-timer .ruler-filled span { color: rgba(255, 255, 255, .92); }
+#island[data-theme="full-glass"] #v-timer .timer-set { color: #fff; }
+#island[data-theme="full-glass"] #v-timer .timer-digits,
+#island[data-theme="full-glass"] #v-timer button.timer-digits { color: rgba(255, 255, 255, .6); }
+#island[data-theme="full-glass"] #v-timer .timer-digits[data-status="running"],
+#island[data-theme="full-glass"] #v-timer button.timer-digits[data-status="running"] { color: #fff; }
+#island[data-theme="full-glass"] #v-timer .timer-digits[data-status="paused"],
+#island[data-theme="full-glass"] #v-timer button.timer-digits[data-status="paused"] { color: rgba(255, 255, 255, .92); }
+#island[data-theme="full-glass"] #v-timer #timer-toggle {
+  background: rgba(255, 255, 255, .16); color: #fff;
+  box-shadow: inset 1px 1px 1px rgba(255, 255, 255, .45), inset -1px -1px 1px rgba(255, 255, 255, .2);
+}
+#island[data-theme="full-glass"] #v-timer #timer-toggle:hover { background: rgba(255, 255, 255, .26); }
+#island[data-theme="full-glass"] #v-timer #timer-toggle:focus-visible, #island[data-theme="full-glass"] #v-timer #timer-digits:focus-visible { outline-color: rgba(255, 255, 255, .85); }
+#island[data-theme="full-glass"] #v-timer .timer-reminders-open { color: #fff; }
+/* the timer notification pills follow */
+#island[data-theme="full-glass"] #v-timerpreview .tp-ico, #island[data-theme="full-glass"] #v-timerdone .td-ico { stroke: #fff; }
+#island[data-theme="full-glass"] #v-timerpreview #preview-time, #island[data-theme="full-glass"] #v-timerdone #timerdone-text { color: #fff; }
+#island[data-theme="full-glass"] #v-timerpreview .tp-pause { background: rgba(255, 255, 255, .2) !important; color: #fff; }
+#island[data-theme="full-glass"] #v-timerpreview .tp-pause:hover { background: rgba(255, 255, 255, .3) !important; }
+
+/* No glow while the ruler is dragged: the ticks keep their flat white look. */
+
+/* Weather and To-do drew their own dark or blue surfaces; in Liquid Glass they are glass like the other pages. */
+html #island[data-theme="full-glass"] #v-weather.weather-page,
+html #island[data-theme="full-glass"] #v-weather,
+html #island[data-theme="full-glass"] #v-todo.grump-panel { background: transparent !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+/* Beam light stays independent from the glass surface, so lowering the shell to 20% -> 40% does not wash it out. */
+#island[data-theme="full-glass"][data-expanded="1"] .m-inner-beam { opacity: .9 !important; }
+html #island[data-theme="full-glass"] #v-todo :is(.todo-row, .todo-row.is-done, .todo-row.aic-model-row) { background: rgba(255, 255, 255, .07) !important; border-color: rgba(255, 255, 255, .10) !important; box-shadow: inset 1px 1px 0 rgba(255, 255, 255, .12) !important; }
+html #island[data-theme="full-glass"] #v-todo :is(.todo-row, .todo-row.aic-model-row):hover { background: rgba(255, 255, 255, .12) !important; }
+html #island[data-theme="full-glass"] #v-todo :is(.todo-form input, .todo-clear, #addon-task-form.aic-composer-card, .aic-pill-control) { background: rgba(255, 255, 255, .08) !important; border-color: rgba(255, 255, 255, .12) !important; }
+html #island[data-theme="full-glass"] #v-todo .todo-progress-track { background: rgba(255, 255, 255, .16) !important; }
+
+/* The music page darkened only its own box with a vignette, so the notch ears (which are just the glass fill) looked
+   lighter than the body: a visible seam at the top corners. In Liquid Glass the page adds no darkening of its own. */
+#island[data-theme="full-glass"] .m-shader-overlay { display: none !important; }
+
+/* =====================================================================================================
+   Liquid Glass: legible content. Text and accents are white (never grey or amber) and carry a faint shadow
+   so they stay readable over any desktop; surfaces inside the glass are a step lighter than the glass itself.
+   ===================================================================================================== */
+#island[data-theme="full-glass"] {
+  --lgt: #fff; --lgt2: rgba(255, 255, 255, .84); --lgt3: rgba(255, 255, 255, .66);
+  --lgt-shadow: 0 1px 2px rgba(0, 0, 0, .34);
+  --lgt-tile: rgba(255, 255, 255, .11); --lgt-tile-line: rgba(255, 255, 255, .22);
+}
+
+/* --- Notification center --- */
+#island[data-theme="full-glass"] .notification-feed-bell,
+#island[data-theme="full-glass"] .notification-feed-head > strong { color: var(--lgt); text-shadow: var(--lgt-shadow); }
+#island[data-theme="full-glass"] #v-notifications .notification-feed-actions button,
+#island[data-theme="full-glass"] #notification-read-all,
+#island[data-theme="full-glass"] #notification-clear { color: var(--lgt) !important; opacity: .92; font-weight: 600 !important; text-shadow: var(--lgt-shadow); }
+#island[data-theme="full-glass"] #v-notifications .notification-feed-actions button:disabled { opacity: .45; }
+#island[data-theme="full-glass"] .notification-copy small, #island[data-theme="full-glass"] .notification-copy small time { color: var(--lgt2); text-shadow: var(--lgt-shadow); }
+#island[data-theme="full-glass"] .notification-copy strong, #island[data-theme="full-glass"] .notification-copy .notification-message-line,
+#island[data-theme="full-glass"] .notification-copy .notification-message-line > span { color: var(--lgt); text-shadow: var(--lgt-shadow); }
+#island[data-theme="full-glass"] .notification-copy > span { color: var(--lgt2); text-shadow: var(--lgt-shadow); }
+#island[data-theme="full-glass"] .notification-center-item {
+  background: var(--lgt-tile); border: 1px solid var(--lgt-tile-line);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, .22), inset -1px -1px 0 rgba(255, 255, 255, .08), 0 3px 8px rgba(0, 0, 0, .12);
+}
+#island[data-theme="full-glass"] .notification-center-item:hover, #island[data-theme="full-glass"] .notification-center-item:focus-visible { background: rgba(255, 255, 255, .17); border-color: rgba(255, 255, 255, .34); }
+#island[data-theme="full-glass"] .notification-dismiss { color: var(--lgt2); }
+#island[data-theme="full-glass"] .notification-center-empty, #island[data-theme="full-glass"] .notification-center-empty strong { color: var(--lgt); text-shadow: var(--lgt-shadow); }
+#island[data-theme="full-glass"] .notification-center-empty span { color: var(--lgt2); }
+#island[data-theme="full-glass"] .notification-center-empty > i { background: var(--lgt-tile); color: var(--lgt); }
+
+/* --- Weather: no black outline on the symbols (the sun behind a cloud is told apart by opacity instead) --- */
+#island[data-theme="full-glass"] #v-weather svg [stroke="#000"] { stroke: none; }
+#island[data-theme="full-glass"] #v-weather svg path[d^="m34 33"], #island[data-theme="full-glass"] #v-weather svg path[d^="m34 31"] { fill: #4aa8ff; }
+#island[data-theme="full-glass"] #v-weather .wm-hour-icon svg circle[fill="#fff"], #island[data-theme="full-glass"] #v-weather .wm-hour-icon svg g[stroke="#fff"] { opacity: .55; }
+#island[data-theme="full-glass"] #v-weather .wm-hour-name, #island[data-theme="full-glass"] #v-weather .wm-city { color: var(--lgt2); text-shadow: var(--lgt-shadow); }
+#island[data-theme="full-glass"] #v-weather .wm-temp, #island[data-theme="full-glass"] #v-weather .wm-hour strong { text-shadow: var(--lgt-shadow); }
+
+/* --- To-do: every text is white or white at a lower opacity --- */
+#island[data-theme="full-glass"] #v-todo.aic-todo-root {
+  --text-primary: #fff; --text-secondary: rgba(255, 255, 255, .82); --text-muted: rgba(255, 255, 255, .64);
+  --placeholder-color: rgba(255, 255, 255, .7); --icon-primary: #fff;
+  --pill-bg: rgba(255, 255, 255, .12); --pill-hover-bg: rgba(255, 255, 255, .2); --card-bg: rgba(255, 255, 255, .1);
+  --submit-bg: rgba(255, 255, 255, .14); --submit-border: rgba(255, 255, 255, .26); --submit-color: rgba(255, 255, 255, .9);
+  --submit-ready-bg: rgba(255, 255, 255, .92); --submit-ready-border: #fff; --submit-ready-color: #0b0b0e;
+  text-shadow: var(--lgt-shadow);
+}
+#island[data-theme="full-glass"] #v-todo :is(.todo-empty, .todo-progress, .todo-progress-meta, .todo-totals, .todo-heading, .todo-text) { color: var(--lgt); }
+#island[data-theme="full-glass"] #v-todo :is(.todo-empty, .todo-progress-meta, .todo-totals) { color: var(--lgt2); }
+#island[data-theme="full-glass"] #v-todo .todo-row.is-done .todo-text, #island[data-theme="full-glass"] #v-todo.aic-todo-root .todo-row.is-done .todo-text { color: var(--lgt3); }
+#island[data-theme="full-glass"] #v-todo .todo-row button, #island[data-theme="full-glass"] #v-todo .todo-del-btn { color: var(--lgt2); }
+#island[data-theme="full-glass"] #v-todo :is(.todo-due, .todo-remind-toggle, .has-schedule .todo-remind-toggle, #addon-task-form.has-schedule .aic-add-files-btn) { color: var(--lgt) !important; background: var(--lgt-tile) !important; border-color: var(--lgt-tile-line) !important; }
+#island[data-theme="full-glass"] #v-todo .todo-form input::placeholder, #island[data-theme="full-glass"] #v-todo .aic-prompt-input::placeholder { color: rgba(255, 255, 255, .7); }
+#island[data-theme="full-glass"] #v-todo .todo-progress-track i { background: #fff; }
+
+/* --- Notes: white only, one consistent set of tones (no yellow) --- */
+#island[data-theme="full-glass"] #v-notes .addon-head { color: var(--lgt); text-shadow: var(--lgt-shadow); }
+#island[data-theme="full-glass"] .note-new, #island[data-theme="full-glass"] .note-editor-head button, #island[data-theme="full-glass"] #v-notes > .addon-head .note-new { color: var(--lgt); text-shadow: var(--lgt-shadow); }
+#island[data-theme="full-glass"] .note-row { border-bottom-color: rgba(255, 255, 255, .2); }
+#island[data-theme="full-glass"] .note-open, #island[data-theme="full-glass"] .note-open b { color: var(--lgt); text-shadow: var(--lgt-shadow); }
+#island[data-theme="full-glass"] .note-open span { color: var(--lgt2); }
+#island[data-theme="full-glass"] .note-delete { color: var(--lgt2); }
+#island[data-theme="full-glass"] .note-delete:hover { color: var(--lgt); }
+#island[data-theme="full-glass"] .note-title, #island[data-theme="full-glass"] .note-editor { color: var(--lgt); }
+#island[data-theme="full-glass"] .note-title::placeholder, #island[data-theme="full-glass"] .note-editor::placeholder { color: var(--lgt3); }
+#island[data-theme="full-glass"] #v-notes .addon-hint { color: var(--lgt2); }
+#island[data-theme="full-glass"] .note-list { scrollbar-color: rgba(255, 255, 255, .4) transparent; }
+
+/* --- Drink water: the illustration sits straight on the glass (no framed box, no shadow), and the reset button --- */
+#island[data-theme="full-glass"] .water-illust { background: none !important; border: 0 !important; box-shadow: none !important; overflow: visible; }
+#island[data-theme="full-glass"] .water-illust .wg-shadow { display: none; }
+#island[data-theme="full-glass"] .water-illust .water-kawaii-svg, #island[data-theme="full-glass"] .water-illust svg { filter: none; }
+#island[data-theme="full-glass"] #v-water .addon-head, #island[data-theme="full-glass"] #v-water .water-next strong,
+#island[data-theme="full-glass"] #v-water .water-summary strong { color: var(--lgt); text-shadow: var(--lgt-shadow); }
+#island[data-theme="full-glass"] #v-water :is(.water-next > span, .addon-interval > span, .water-summary span, .water-summary p) { color: var(--lgt2); text-shadow: var(--lgt-shadow); }
+.water-controls { display: flex; align-items: center; gap: 8px; flex: none; }
+.water-reset { width: 28px; height: 28px; padding: 0; display: grid; place-items: center; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .28); background: rgba(255, 255, 255, .1); color: #fff; cursor: pointer; transition: background .16s ease, transform .2s cubic-bezier(.2, .8, .2, 1); }
+.water-reset svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .45s cubic-bezier(.2, .8, .2, 1); }
+.water-reset:hover { background: rgba(255, 255, 255, .2); }
+.water-reset:hover svg { transform: rotate(-200deg); }
+.water-reset:active { transform: scale(.92); }
+.water-reset:focus-visible { outline: 2px solid rgba(255, 255, 255, .85); outline-offset: 2px; }
+
+/* small refinements */
+#island[data-theme="full-glass"] { --lgt-shadow: 0 1px 2px rgba(0, 0, 0, .28); }
+#island[data-theme="full-glass"] #v-todo .aic-prompt-input, #island[data-theme="full-glass"] #v-todo .todo-form input { background: transparent !important; }
+#island[data-theme="full-glass"] #v-timer .timer-digits, #island[data-theme="full-glass"] #v-timer button.timer-digits { color: rgba(255, 255, 255, .74); }
+#island[data-theme="full-glass"] #v-notes .addon-head, #island[data-theme="full-glass"] #v-water .addon-head { text-shadow: 0 1px 1px rgba(0, 0, 0, .25); }
+
+/* Bottom frost (every open menu): content that reaches the lower edge of the notch softens progressively towards the
+   edge, the way the timer ruler blurs towards its ends. It fades out at the sides, so it never forms a visible
+   rectangle, and the pager dots sit above it so they stay sharp. */
+#glass-bottom-blur { display: none; position: absolute; left: 0; right: 0; bottom: 0; height: 40px; z-index: 41; pointer-events: none;
+  background: rgba(255, 255, 255, .001);
+  -webkit-backdrop-filter: blur(7px); backdrop-filter: blur(7px);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, rgba(0, 0, 0, .55) 50%, #000 100%), linear-gradient(90deg, transparent 0, #000 16%, #000 84%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0, rgba(0, 0, 0, .55) 50%, #000 100%), linear-gradient(90deg, transparent 0, #000 16%, #000 84%, transparent 100%);
+  -webkit-mask-composite: source-in; mask-composite: intersect; }
+#island[data-theme="full-glass"][data-expanded="1"] #glass-bottom-blur { display: block; }
+html #island[data-theme="full-glass"] #v-todo .aic-prompt-input, html #island[data-theme="full-glass"] #v-todo .todo-form input { background: transparent !important; }
+
+/* The React Glass Calendar card is transparent: the dock flyout around it is the glass. (Kept here, not in dock.css, which must stay free of backdrop-filter.) */
+#dock-calendar-react .gc-root > div { max-width: none; background: transparent !important; border: 0 !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; border-radius: inherit; }
+
+
+/* Glass Calendar flyout = the original card: rounded-3xl, bg-black/20, border white/10, shadow-2xl.
+   The original also has backdrop-blur-xl; a transparent window cannot blur the desktop, so adaptive glass thickens the
+   tint instead when what is behind the flyout is busy (the same measurement the dock uses). */
+.dock-calendar.is-react {
+  border: 1px solid rgba(255, 255, 255, .1) !important;
+  border-radius: 24px !important;
+  background: rgba(0, 0, 0, calc(.2 + .65 * var(--lg-adapt, 0))) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, .25) !important;
+}
+
+/* Frost for the Glass Calendar: the blurred desktop snapshot sits under the card's own tint, like backdrop-blur-xl on the web.
+   filter: blur on a normal element (not backdrop-filter) works in a transparent window; the oversize hides the soft edge. */
+.dock-calendar-frost { display: none; position: absolute; inset: 0; border-radius: inherit; overflow: hidden; pointer-events: none; z-index: 0; }
+.dock-calendar.is-react .dock-calendar-frost { display: block; }
+.dock-calendar-frost::before { content: ''; position: absolute; inset: -48px; background-image: inherit; background-size: cover; background-position: center; filter: blur(22px) saturate(.42) brightness(.93); opacity: 0; transition: opacity .35s ease; }
+.dock-calendar-frost.ready::before { opacity: 1; }
+.dock-calendar.is-react #dock-calendar-react { position: relative; z-index: 1; }
+
+/* ---------- Live glass (WebGL canvas behind the content) ---------- */
+#glass-live { display: none; position: absolute; pointer-events: none; z-index: 2; }
+/* the canvas is the body: the CSS tint steps aside (the rim, edge highlights and pointer specular stay) */
+#island[data-glass-live="1"][data-theme="full-glass"]:not([data-anchored="1"]) { background: transparent !important; }
+#island[data-glass-live="1"] #notch-sheen, #island[data-glass-live="1"] #notch-innerglow { opacity: 0 !important; }
+
+/* No frosted band along the bottom edge: it read as a dark strip under the content. */
+#glass-bottom-blur { display: none !important; }
+
+/* The Music layers stop 1px short of the left and right edges so the glass rim runs unbroken down the sides. This uses clip-path:
+   these layers already have their own mask-image (it fades them in from the top), and a second mask-image would replace it. */
+#island[data-theme="full-glass"] .m-inner-beam,
+#island[data-theme="full-glass"] #music-shader-bg { clip-path: inset(0 1px 0 1px); }
+
+/* Brightness and volume sliders in Liquid Glass: the filled part is translucent white glass (not solid white), and the icon stays white with a
+   faint shadow, so it reads on both the filled and the empty part (the Obsidian slider flips it to black with mix-blend-mode). */
+#island[data-theme="full-glass"] #v-home .dashboard-glass-slider {
+  background: rgba(255, 255, 255, .10);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, .28), inset -1px -1px 0 rgba(255, 255, 255, .10);
+}
+#island[data-theme="full-glass"] #v-home .dashboard-glass-fill {
+  background: linear-gradient(145deg, rgba(255, 255, 255, .50), rgba(255, 255, 255, .26));
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, .55), inset -1px -1px 0 rgba(255, 255, 255, .22);
+}
+#island[data-theme="full-glass"] #v-home .dashboard-glass-labels { mix-blend-mode: normal; color: #fff; }
+#island[data-theme="full-glass"] #v-home .dashboard-glass-slider .slider-icon { color: #fff; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .35)); }
+
+/* ---------- Live glass in the dock: the canvas is the body of the capsule and of every popover ---------- */
+#glass-live { z-index: 0; }
+html[data-glass-live="1"] .dock-capsule,
+html[data-glass-live="1"] .dock-quick,
+html[data-glass-live="1"] .dock-trayhub,
+html[data-glass-live="1"] .dock-start-panel,
+html[data-glass-live="1"] .dock-calendar,
+html[data-glass-live="1"] .dock-calendar.is-react { background: transparent !important; }
+html[data-glass-live="1"] .dock-calendar-frost { display: none !important; }
+
+/* Control Center sliders (dock) in Liquid Glass: the same treatment as the notch sliders. The filled part is translucent white glass instead of solid
+   white, and the icon and the value stay white (they were flipped to black by mix-blend-mode: difference). */
+html[data-glass-live="1"] .qs-slider-row { background: rgba(255, 255, 255, .10); box-shadow: inset 1px 1px 0 rgba(255, 255, 255, .26), inset -1px -1px 0 rgba(255, 255, 255, .10); }
+html[data-glass-live="1"] .qs-slider-row input[type="range"] {
+  background: linear-gradient(90deg, rgba(255, 255, 255, .46) var(--fill), transparent var(--fill));
+  box-shadow: none;
+}
+html[data-glass-live="1"] .qs-slider-row > svg, html[data-glass-live="1"] .qs-slider-val { mix-blend-mode: normal; color: #fff; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .35)); }
+
+/* To-do: the composer card is already the pill; the text field inside it must not draw a second, square box behind the text. */
+html #island[data-theme="full-glass"] #v-todo #addon-task-form .todo-entry input[name="text"] { background: transparent !important; box-shadow: none !important; border-color: transparent !important; border-radius: 0 !important; }

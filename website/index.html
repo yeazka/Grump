@@ -359,7 +359,7 @@
       display: none;
     }
 
-    /* v1.1.5 release notes */
+    /* Current release highlights */
     .release-section {
       position: relative;
       overflow: hidden;
@@ -1095,7 +1095,7 @@
       bottom: 0;
       overflow: hidden;
       border-radius: 24px 24px 0 0;
-      background: #050506 url('assets/mac-pro-wallpaper.png?v=orange2') left top / 100% 100% no-repeat;
+      background: #050506 url('assets/misty-mountain-valley-cabin.png') center center / cover no-repeat;
     }
 
     .screen-vignette {
@@ -1104,6 +1104,17 @@
       background: radial-gradient(circle at var(--notch-x) 0%, transparent 45%, rgba(0, 0, 0, 0.28) 100%);
       pointer-events: none;
       z-index: 1;
+    }
+
+    .grump-dock-iframe {
+      position: absolute;
+      inset: auto 0 100px;
+      width: 100%;
+      height: 150px;
+      z-index: 11;
+      border: 0;
+      background: transparent;
+      mix-blend-mode: screen;
     }
 
     .ai-demo-window { position: absolute; top: 48px; left: 34px; width: 760px; height: 465px; z-index: 2; background: #17191d; border: 1px solid #4a4c50; border-radius: 12px; box-shadow: 0 22px 55px #0009; color: #e7e7e8; overflow: hidden; pointer-events: none; font: 13px/1.5 Inter, sans-serif; }
@@ -2109,7 +2120,7 @@
         <nav class="main-nav" id="main-navigation" aria-label="Main navigation">
           <a href="#overview" class="nav-link" data-i18n="nav-overview">Overview</a>
           <a href="#features" class="nav-link" data-i18n="nav-features">Features</a>
-          <a href="#whats-new" class="nav-link" data-i18n="nav-whats-new">What's new</a>
+          <a href="#sneak-peek" class="nav-link" data-i18n="nav-whats-new">What's new</a>
           <a href="#specifications" class="nav-link" data-i18n="nav-specifications">Specification</a>
           <a href="#testimonials" class="nav-link" data-i18n="nav-testimonials">Creator notes</a>
           <a href="https://github.com/yeazka/Grump" class="nav-link mobile-github-link" target="_blank" rel="noopener noreferrer">GitHub</a>
@@ -2333,6 +2344,14 @@
                     class="grump-iframe"
                     title="Grump 1:1 Interactive Notch Preview"
                   ></iframe>
+                  <iframe
+                    id="grump-dock-frame"
+                    class="grump-dock-iframe"
+                    src="grump-app/dock-demo.html"
+                    title="Interactive Grump Dock preview"
+                    allowtransparency="true"
+                    loading="lazy"
+                  ></iframe>
                 </div>
               </div>
             </div>
@@ -2387,36 +2406,6 @@
       <p class="peek-note" data-i18n="peek-note">Screenshots from Grump v1.2.0.</p>
     </div>
   </section>
-
-    <section id="whats-new" class="release-section" aria-labelledby="release-title">
-      <div class="release-inner">
-        <div class="release-head">
-          <div>
-            <span class="release-kicker" data-i18n="release-kicker">LATEST UPDATE</span>
-            <h2 class="release-title" id="release-title" data-i18n="release-title">Previous update: Grump v1.1.5.</h2>
-            <p class="release-sub" data-i18n="release-sub">A steadier Island, cleaner notifications, and better connectivity controls.</p>
-          </div>
-          <div class="release-status">
-            <span class="release-version">v1.1.5</span>
-            <div class="release-countdown" aria-live="polite">
-              <strong id="release-countdown-value">LIVE</strong>
-              <span id="release-countdown-label" data-i18n="release-countdown-label">Available now with automatic updates</span>
-            </div>
-          </div>
-        </div>
-        <div class="release-grid">
-          <article class="release-item"><span class="release-number">01</span><div><h3 data-i18n="release-1-title">Reliable after sleep</h3><p data-i18n="release-1-desc">Grump rebuilds stale windows and restores pointer interaction after sleep, unlock, or long Modern Standby sessions.</p></div></article>
-          <article class="release-item"><span class="release-number">02</span><div><h3 data-i18n="release-2-title">App &amp; web notifications</h3><p data-i18n="release-2-desc">WhatsApp, ChatGPT, and supported browser notices now carry clearer source names and icons.</p></div></article>
-          <article class="release-item"><span class="release-number">03</span><div><h3 data-i18n="release-3-title">Cleaner Notification Center</h3><p data-i18n="release-3-desc">Alerts stay for seven days while temporary system indicators stay out of notification history.</p></div></article>
-          <article class="release-item"><span class="release-number">04</span><div><h3 data-i18n="release-4-title">Better connectivity controls</h3><p data-i18n="release-4-desc">Wi-Fi and Bluetooth states are roomier and clearer, including secured, empty, password, and disconnect states.</p></div></article>
-          <article class="release-item"><span class="release-number">05</span><div><h3 data-i18n="release-5-title">Sharper compact alerts</h3><p data-i18n="release-5-desc">App artwork stays bounded inside the Island and glass effects load only when needed.</p></div></article>
-          <article class="release-item"><span class="release-number">06</span><div><h3 data-i18n="release-6-title">Lower idle overhead</h3><p data-i18n="release-6-desc">Inactive visuals release resources and the native helper trims its idle footprint.</p></div></article>
-          <article class="release-item"><span class="release-number">07</span><div><h3 data-i18n="release-7-title">Private by default</h3><p data-i18n="release-7-desc">Notification access stays opt-in, text remains on-device, and diagnostics are sanitized before sharing.</p></div></article>
-          <article class="release-item"><span class="release-number">08</span><div><h3 data-i18n="release-8-title">More release checks</h3><p data-i18n="release-8-desc">Automated coverage now checks connectivity, wake recovery, notification filtering, packaging, and updates.</p></div></article>
-        </div>
-      </div>
-    </section>
-
 
     <!-- Creator notes & Feedback Section -->
     <section class="testimonials-section" aria-labelledby="testimonials-heading">
@@ -2686,7 +2675,6 @@
         "nav-features": "Features",
         "nav-whats-new": "What's new",
         "nav-specifications": "Specification",
-        "release-kicker": "LATEST UPDATE",
       "intro-skip": "Skip intro",
       "intro-hint": "Scroll",
       "peek-kicker": "NEW IN 1.2.0",
@@ -2713,17 +2701,6 @@
       "peek-dock-alt": "The Grump Dock at the bottom of a desktop, with taskbar app icons, Wi-Fi and Bluetooth, a clock, and the notch above it",
       "peek-theme-alt": "Two notch previews side by side: a solid black Obsidian one and a see-through Liquid Glass one",
       "peek-eyes-alt": "The Grump notch with glowing orange eyes",
-        "release-title": "Previous update: Grump v1.1.5.",
-        "release-sub": "A steadier Island, cleaner notifications, and better connectivity controls.",
-        "release-countdown-label": "Available now with automatic updates",
-        "release-1-title": "Reliable after sleep", "release-1-desc": "Grump rebuilds stale windows and restores pointer interaction after sleep, unlock, or long Modern Standby sessions.",
-        "release-2-title": "App &amp; web notifications", "release-2-desc": "WhatsApp, ChatGPT, and supported browser notices now carry clearer source names and icons.",
-        "release-3-title": "Cleaner Notification Center", "release-3-desc": "Alerts stay for seven days while temporary system indicators stay out of notification history.",
-        "release-4-title": "Better connectivity controls", "release-4-desc": "Wi-Fi and Bluetooth states are roomier and clearer, including secured, empty, password, and disconnect states.",
-        "release-5-title": "Sharper compact alerts", "release-5-desc": "App artwork stays bounded inside the Island and glass effects load only when needed.",
-        "release-6-title": "Lower idle overhead", "release-6-desc": "Inactive visuals release resources and the native helper trims its idle footprint.",
-        "release-7-title": "Private by default", "release-7-desc": "Notification access stays opt-in, text remains on-device, and diagnostics are sanitized before sharing.",
-        "release-8-title": "More release checks", "release-8-desc": "Automated coverage now checks connectivity, wake recovery, notification filtering, packaging, and updates.",
         "qris-summary": "Support with QRIS", "qris-title": "Scan from your payment app", "qris-desc": "This is the creator's original QRIS.",
         "hero-title": "<span class=\"hero-line\">Your desktop is boring af,</span><span class=\"hero-line\">so we made it <span class=\"hero-title-accent\">angrier.</span></span>",
         "hero-subtext": "The moody Notch for Windows. It judges your Spotify taste, controls your PC, and reacts when your cursor gets too close.",
@@ -2793,7 +2770,6 @@
         "nav-features": "Fitur",
         "nav-whats-new": "Yang baru",
         "nav-specifications": "Spesifikasi",
-        "release-kicker": "UPDATE TERBARU",
       "intro-skip": "Lewati intro",
       "intro-hint": "Gulir ke bawah",
       "peek-kicker": "BARU DI 1.2.0",
@@ -2820,17 +2796,6 @@
       "peek-dock-alt": "Dock Grump di bagian bawah desktop, dengan ikon aplikasi taskbar, Wi-Fi dan Bluetooth, jam, dan notch di atasnya",
       "peek-theme-alt": "Dua pratinjau notch berdampingan: Obsidian hitam pekat dan Liquid Glass tembus pandang",
       "peek-eyes-alt": "Notch Grump dengan mata oranye yang menyala",
-        "release-title": "Update sebelumnya: Grump v1.1.5.",
-        "release-sub": "Island lebih stabil, notifikasi lebih bersih, dan kontrol konektivitas lebih jelas.",
-        "release-countdown-label": "Sudah tersedia dengan update otomatis",
-        "release-1-title": "Lebih andal setelah sleep", "release-1-desc": "Grump membangun ulang window stale dan memulihkan interaksi pointer setelah sleep, unlock, atau Modern Standby panjang.",
-        "release-2-title": "Notifikasi aplikasi &amp; web", "release-2-desc": "Notifikasi WhatsApp, ChatGPT, dan browser kini memiliki nama sumber dan ikon yang lebih jelas.",
-        "release-3-title": "Notification Center lebih bersih", "release-3-desc": "Alert disimpan tujuh hari sementara indikator sistem sementara tidak memenuhi riwayat.",
-        "release-4-title": "Kontrol konektivitas lebih baik", "release-4-desc": "Status Wi-Fi dan Bluetooth lebih lega dan jelas, termasuk keamanan, kosong, password, dan putus koneksi.",
-        "release-5-title": "Compact alert lebih rapi", "release-5-desc": "Artwork aplikasi tetap di dalam Island dan efek glass hanya dimuat saat dibutuhkan.",
-        "release-6-title": "Beban idle lebih rendah", "release-6-desc": "Visual tidak aktif melepas resource dan native helper memangkas footprint saat idle.",
-        "release-7-title": "Privat secara default", "release-7-desc": "Akses notifikasi tetap opt-in, teks tetap di perangkat, dan diagnostik disanitasi sebelum dibagikan.",
-        "release-8-title": "Pemeriksaan rilis lebih lengkap", "release-8-desc": "Tes otomatis kini mencakup konektivitas, wake recovery, filter notifikasi, packaging, dan update.",
         "qris-summary": "Support with QRIS", "qris-title": "Pindai dari aplikasi pembayaran", "qris-desc": "Ini adalah QRIS asli milik kreator.",
         "hero-title": "<span class=\"hero-line\">Desktop lu ngebosenin bgt,</span><span class=\"hero-line\">makanya kita bikin lebih <span class=\"hero-title-accent\">galak.</span></span>",
         "hero-subtext": "Notch moody buat Windows. Nge-judge selera Spotify lu, kontrol PC lu, dan bereaksi kalau kursor lu terlalu dekat.",
@@ -2902,12 +2867,12 @@
         island: "Floating mode: Grump detaches from the top bezel and floats as a sleek rounded floating notch.",
         berserk: "Grump's Berserk Void eyes are now the main demo expression, with the original aggressive tracking and reaction effects.",
         whatsapp: "A compact two-line WhatsApp Web preview with adaptive width and the same green beam treatment as media.",
-        "compact-music": "Compact media bar with live synced lyrics that dynamically morph the island's width to fit every line.",
+        "compact-music": "The current compact lyric view keeps the song and synced words in the Island, with volume and brightness shown below the lyric row.",
         music: "Full media player with reactive WebGL shader background, album art color extraction, and interactive playback controls.",
-        timer: "iOS Liquid Glass focus timer: drag the ruler ticks left or right inside the island, or press Pause / Start Timer.",
+        timer: "Obsidian Focus Timer: drag the orange minute ruler, then start or pause from the round control.",
         todo: "A dated task reminder appears as a focused mini popup without pulling you away from your work.",
-        prayer: "Prayer time appears as a quiet, color-matched mini notification near the top of your display.",
-        water: "Hydration reminders rotate short sassy copy with a compact animated water notice.",
+        prayer: "The current prayer reminder shows the prayer name, location, and illustrated icon in a compact black notice.",
+        water: "The new hydration notice shows your water progress and gives you I drank and Later controls.",
         "ai-work": "A live Codex-style workspace shows what the AI is reading, thinking about, and changing while Grump mirrors the activity."
       },
       id: {
@@ -2915,12 +2880,12 @@
         island: "Mode Melayang: Grump lepas dari bezel atas dan melayang jadi kapsul floating notch.",
         berserk: "Mata Berserk Void sekarang menjadi ekspresi utama demo, lengkap dengan tracking agresif dan efek reaksinya.",
         whatsapp: "Preview WhatsApp Web dua baris dengan lebar adaptif dan beam hijau yang konsisten dengan media.",
-        "compact-music": "Mode musik ringkas dengan lirik tersinkronisasi yang lebarnya ngikutin panjang kalimat lagu secara otomatis.",
+        "compact-music": "Compact Lyric terbaru menampilkan lagu dan lirik tersinkronisasi di Island, dengan volume dan kecerahan di bawah baris lirik.",
         music: "Pemutar musik lengkap dengan background WebGL shader reaktif, ekstraksi warna cover lagu, dan kontrol penuh.",
-        timer: "Focus Timer bergaya iOS Liquid Glass: geser penggaris menit di dalam pulau ke kiri atau kanan, lalu klik Start/Pause Timer.",
+        timer: "Focus Timer Obsidian: geser penggaris menit oranye, lalu mulai atau jeda lewat tombol bulat.",
         todo: "Pengingat tugas bertanggal muncul sebagai mini popup tanpa menarik lu keluar dari pekerjaan.",
-        prayer: "Waktu sholat muncul sebagai mini notifikasi senyap dengan warna yang menyesuaikan jadwal.",
-        water: "Pengingat minum memutar copy sassy yang singkat lewat notifikasi air yang compact.",
+        prayer: "Pengingat sholat terbaru menampilkan nama waktu, lokasi, dan ikon ilustrasi dalam notifikasi hitam yang ringkas.",
+        water: "Notifikasi hidrasi baru menampilkan progres minum serta tombol I drank dan Later.",
         "ai-work": "Workspace bergaya Codex memperlihatkan file yang sedang dibaca, proses berpikir, dan perubahan kode saat Grump menyinkronkan aktivitasnya."
       }
     };
@@ -3622,17 +3587,6 @@
     }
     function startPeekTimer() { updatePeekTimer(); if (!peekTimerId && document.getElementById('peek-timer-value')) peekTimerId = setInterval(updatePeekTimer, 1000); }
 
-    function updateReleaseCountdown() {
-      const value = document.getElementById('release-countdown-value');
-      const label = document.getElementById('release-countdown-label');
-      if (!value || !label) return;
-      value.textContent = 'LIVE';
-      label.textContent = currentLang === 'id'
-        ? 'Sudah tersedia dengan update otomatis'
-        : 'Available now with automatic updates';
-    }
-    updateReleaseCountdown();
-
     window.addEventListener('DOMContentLoaded', () => {
       startPeekTimer();
       const requestedLang = new URLSearchParams(window.location.search).get('lang');
@@ -3642,7 +3596,6 @@
       initTestiParallax();
       checkHeaderScroll();
       resetTestiTimer();
-      updateReleaseCountdown();
     });
 
   </script>

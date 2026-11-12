@@ -18,6 +18,9 @@ let lastCpuReaction = 0;
 
 island.addEventListener('click', (e) => {
   if (e.target.closest('input,textarea,[contenteditable="true"]')) return;
+  // The spam reaction is for poking the closed island. Rapid clicks inside an open menu or popup (sliders, lists,
+  // buttons) are normal use and must never collapse it.
+  if (S.expanded || S.miniPopup || e.target.closest('button,[data-act],[data-hold],a,select')) { grumpClicks = []; return; }
   const now = performance.now();
   grumpClicks = grumpClicks.filter(t => now - t < 2200);
   grumpClicks.push(now);
@@ -26,7 +29,6 @@ island.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopImmediatePropagation();
     clearTimeout(hoverT);
-    if (S.expanded) collapse();
     setTempExp('angry', 4200);
     island.classList.remove('spam-angry');
     void island.offsetWidth;

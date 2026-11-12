@@ -1,27 +1,18 @@
 'use strict';
 let timerState = {status:'idle',duration:900000,remaining:900000,endAt:0};
 let timerStateReady=false;
-let lastDownloadNotice='';
-let lastActiveDownload='';
-let lastDownloadPulse=0;
 bridge.onProductivityEvent?.((event)=>{
   if(event?.kind==='reminder' && event.text)notice('bell',`${isId()?'Tugas':'Task'}: ${event.text}`,5000);
   if(event?.kind==='task-due' && event.text){setText('task-notice-title',event.text);showMiniPopup('tasknotice',10000);}
-  if(event?.kind==='downloads'){
-    const active=(event.downloads||[]).find(d=>d.status==='active');
-    if(active && (active.name!==lastActiveDownload || Date.now()-lastDownloadPulse>10000)){
-      lastActiveDownload=active.name;lastDownloadPulse=Date.now();
-      notice('bell',`${isId()?'Mengunduh':'Downloading'}: ${active.name} · ${(active.bytes/1048576).toFixed(1)} MB`,3000);
-    }
-    const done=(event.downloads||[]).find(d=>d.status==='done');
-    if(done && done.id!==lastDownloadNotice){lastDownloadNotice=done.id;notice('bell',`${isId()?'Terunduh':'Downloaded'}: ${done.name}`,3500);}
-  }
 });
 bridge.onWhatsAppNotification?.(message=>{
-  const title=String(message?.title||'WhatsApp').trim();
+  const kind=['whatsapp','chatgpt','claude','discord','browser'].includes(message?.kind)?message.kind:'whatsapp';
+  const sourceName=String(message?.sourceName||(kind==='chatgpt'?'ChatGPT':kind==='claude'?'Claude':kind==='discord'?'Discord':kind==='browser'?'Browser':'WhatsApp')).trim();
+  const title=String(message?.title||sourceName).trim();
   const body=String(message?.body||'').trim();
   const sourceApp=String(message?.sourceApp||'').trim();
-  notice('whatsapp',body?`${title}: ${body}`:title,7000,{kind:'whatsapp',sourceApp});
+  const action=kind==='whatsapp'?{kind:'whatsapp',sourceApp,app:sourceName,contact:title,body}:{kind,app:sourceName,contact:title,body};
+  notice(kind,body?`${title}: ${body}`:title,7000,action);
 });
 let timerSeconds = 900;
 function timerLeft(){return timerState.status==='running'?Math.max(0,timerState.endAt-Date.now()):timerState.remaining}
@@ -58,14 +49,23 @@ function renderFeatures(){
   const timerDigitsEl = $('#timer-digits');
   if (timerDigitsEl) timerDigitsEl.dataset.running = isRunning ? '1' : '0';
 
+  // Minimal timer: the left value is the chosen length, the round button starts or stops, the right value is the time left
+  // (tap it to pause or resume).
+  const setMin = Math.max(1, Math.round((timerState.status === 'idle' ? timerSeconds : (timerState.duration || timerSeconds * 1000) / 1000) / 60));
+  setText('timer-set', setMin >= 60 ? `${Math.floor(setMin / 60)}h${setMin % 60 ? ' ' + (setMin % 60) + 'm' : ''}` : `${setMin}m`);
   const toggleBtn = $('#timer-toggle');
   if (toggleBtn) {
     toggleBtn.dataset.status = timerState.status;
-    const txt = (isId() ? { idle: 'Mulai Timer', running: 'Jeda', paused: 'Lanjutkan', done: 'Mulai Timer' } : { idle: 'Start Timer', running: 'Pause', paused: 'Resume', done: 'Start Timer' })[timerState.status];
-    setText('timer-toggle-text', txt);
-    const ico = isRunning ? 'pause' : 'play';
-    const icoEl = $('#timer-toggle-ico');
-    if (icoEl) icoEl.innerHTML = icoOf(ico);
+    toggleBtn.dataset.act = isWorking ? 'timerreset' : 'timertoggle';
+    toggleBtn.setAttribute('aria-label', isWorking ? (isId() ? 'Hentikan timer' : 'Stop timer') : (isId() ? 'Mulai timer' : 'Start timer'));
+    const glyph = toggleBtn.firstElementChild?.firstElementChild;
+    glyph?.setAttribute('d', isWorking ? 'M7.5 7.5h9v9h-9z' : 'M8.5 6.2v11.6l9.5-5.8z');
+    glyph?.setAttribute('stroke-width', isWorking ? '5' : '3');
+  }
+  if (timerDigitsEl) {
+    timerDigitsEl.dataset.status = timerState.status;
+    timerDigitsEl.disabled = !isWorking;
+    timerDigitsEl.setAttribute('aria-label', isPaused ? (isId() ? 'Lanjutkan timer' : 'Resume timer') : (isId() ? 'Jeda timer' : 'Pause timer'));
   }
 
   // Update presets active/disabled state
@@ -110,7 +110,14 @@ function renderFeatures(){
   island.dataset.quiet=quiet?'1':'0';
 }
 renderers.push(renderFeatures);
-ticks.push(()=>{if(['home','timer','idle','compact'].includes(curKey) || timerState.status==='running')renderFeatures();renderTimerPreview()});
+// \"Alternate\" priority: when AI and music are both active the notch swaps between them every 9 seconds.
+let altPriorityPhase = null;
+ticks.push(() => {
+  if (S.settings.musicAiPriority !== 'alternate' || !S.workActivity || typeof isPlaying !== 'function' || !isPlaying()) { altPriorityPhase = null; return; }
+  const phase = Math.floor(Date.now() / 9000) % 2;
+  if (phase !== altPriorityPhase) { altPriorityPhase = phase; layout(); }
+});
+ticks.push(()=>{if(['home','timer','idle','compact'].includes(curKey) || timerState.status==='running')renderFeatures();renderTimerPreview();if(curKey==='timer'&&timerState.status==='running'&&typeof drawRuler==='function')drawRuler();});
 acts.openmenu=el=>go(el.dataset.menu);
 acts.timerpreset=el=>bridge.timerCommand?.({action:'set',seconds:Number(el.dataset.seconds)});
 acts.timerless=()=>bridge.timerCommand?.({action:'set',seconds:Math.max(60,timerSeconds-60)});
@@ -120,6 +127,7 @@ acts.timertoggle=()=>{
   bridge.timerCommand?.({action,seconds:timerSeconds});
 };
 acts.timerreset=()=>bridge.timerCommand?.({action:'reset'});
+acts.timerpause=()=>{if(['running','paused'].includes(timerState.status))bridge.timerCommand?.({action:timerState.status==='paused'?'resume':'pause'});};
 acts.previewpause=()=>bridge.timerCommand?.({action:timerState.status==='paused'?'resume':'pause'});
 acts.previewstop=()=>{bridge.timerCommand?.({action:'reset'});dismissMiniPopup();};
 bridge.onTimer?.(state=>{
@@ -131,10 +139,9 @@ bridge.onTimer?.(state=>{
   if(['idle','done'].includes(state.status)&&S.miniPopup?.kind==='timerpreview')dismissMiniPopup();
   if(state.status==='done' && changed && S.settings.menuTimer!==false){
     S.charge=null;S.headset=null;
-    island.classList.add('timer-panic');
-    setTimeout(()=>island.classList.remove('timer-panic'),5000);
-    go('timer');
-    bridge.forceShow(true);
+    // A small pill with a shaking stopwatch (tap it to open the timer) instead of expanding the whole island.
+    setText('timerdone-text',isId()?'Timer selesai':"Time's up");
+    showMiniPopup('timerdone',10000);
     if(!S.settings.quiet)playChargeChime('low');
   }
   renderFeatures();
@@ -142,7 +149,6 @@ bridge.onTimer?.(state=>{
   renderTimerPreview();
   if (changed && typeof layout === 'function') layout();
 });
-
 let currentFgApp = '';
 let currentFgTitle = '';
 let currentFgIsGame = false;
@@ -155,6 +161,7 @@ let codexAnswering = { active: false, status: '', detail: '' };
 let antigravityAnswering = { active: false, status: '', detail: '' };
 let claudeAnswering = { active: false, status: '', detail: '' };
 let chatgptAnswering = { active: false, status: '', detail: '' };
+const providerAnswering = {}; // coding assistants followed through their session files (Claude Code, Gemini CLI, Cursor, custom folders)
 let lastCreativeNotice = '';
 
 const workMeasure = document.createElement('canvas').getContext('2d');
@@ -176,9 +183,13 @@ function measuredWorkWidth(detail, status) {
 
 function refreshAiWorkActivity() {
   const identity = `${currentFgApp} ${currentFgTitle}`;
-  const workApp = currentFgIsGame ? '' : /antigravity/i.test(identity) ? 'Antigravity' : /\bclaude\b/i.test(identity) ? 'Claude' : /\bcodex\b/i.test(identity) ? 'Codex' : currentFgApp === 'chatgpt' ? 'ChatGPT' : '';
-  const titleStatus = /\b(coding|writing code|editing files)\b/i.test(currentFgTitle) ? 'Coding' : /\b(reading|indexing|scanning|opening)\b/i.test(currentFgTitle) ? 'Reading' : /\b(testing|running tests)\b/i.test(currentFgTitle) ? 'Testing' : /\b(thinking|computing|processing|generating|analyzing|running|building)\b/i.test(currentFgTitle) ? 'Computing' : /\bworking\b/i.test(currentFgTitle) ? 'Working' : '';
-  const appState = workApp === 'Codex' ? codexAnswering : workApp === 'Antigravity' ? antigravityAnswering : workApp === 'Claude' ? claudeAnswering : workApp === 'ChatGPT' ? chatgptAnswering : null;
+  const frontApp = currentFgIsGame ? '' : /antigravity/i.test(identity) ? 'Antigravity' : /\bclaude\b/i.test(identity) ? 'Claude' : /\bcodex\b/i.test(identity) ? 'Codex' : currentFgApp === 'chatgpt' ? 'ChatGPT' : '';
+  // The activity of these apps is read from their own session files, so it does not need their window in front:
+  // a minimised or background AI app still shows its status.
+  const backgroundApp = currentFgIsGame ? null : [['Antigravity', antigravityAnswering], ['Claude', claudeAnswering], ['Codex', codexAnswering], ['ChatGPT', chatgptAnswering], ...Object.values(providerAnswering).map((p) => [p.name, p])].find(([, state]) => state && state.active);
+  const workApp = frontApp || (backgroundApp ? backgroundApp[0] : '');
+  const titleStatus = !frontApp ? '' : /\b(coding|writing code|editing files)\b/i.test(currentFgTitle) ? 'Coding' : /\b(reading|indexing|scanning|opening)\b/i.test(currentFgTitle) ? 'Reading' : /\b(testing|running tests)\b/i.test(currentFgTitle) ? 'Testing' : /\b(thinking|computing|processing|generating|analyzing|running|building)\b/i.test(currentFgTitle) ? 'Computing' : /\bworking\b/i.test(currentFgTitle) ? 'Working' : '';
+  const appState = workApp === 'Codex' ? codexAnswering : workApp === 'Antigravity' ? antigravityAnswering : workApp === 'Claude' ? claudeAnswering : workApp === 'ChatGPT' ? chatgptAnswering : (Object.values(providerAnswering).find((p) => p.name === workApp) || null);
   const active = !!workApp && (!!appState?.active || !!titleStatus);
   const workStatus = appState?.active ? (appState.status || 'Working') : titleStatus;
   const workDetail = appState?.active ? appState.detail : workApp;
@@ -188,19 +199,21 @@ function refreshAiWorkActivity() {
     S.workActivity = nextActivity;
     if (nextActivity) {
       setText('work-title', workStatus);
+      setText('c-work-title', workApp && workApp !== workStatus ? `${workStatus} · ${workApp}` : workStatus);
       const detail=workDetailParts(workDetail || workApp);
       setText('work-detail-main',detail.main);
       setText('work-detail-metric',detail.metric);
       S.workWidth=measuredWorkWidth(workDetail || workApp,workStatus);
       const phase = /coding|writing code/i.test(workStatus) ? 'coding' : /reading/i.test(workStatus) ? 'reading' : /test/i.test(workStatus) ? 'testing' : /build/i.test(workStatus) ? 'building' : /think|comput/i.test(workStatus) ? 'thinking' : /reply|writ/i.test(workStatus) ? 'replying' : 'working';
-      $('.work-pixels').dataset.phase = phase;
-      $('.work-pixels').dataset.motion = {reading:'line-v',thinking:'spin',coding:'line-h',testing:'rubik',building:'orbit',replying:'random',working:'scan'}[phase];
+      const motion = {reading:'line-v',thinking:'spin',coding:'line-h',testing:'rubik',building:'orbit',replying:'random',working:'scan'}[phase];
+      $$('.work-pixels').forEach((pixels) => { pixels.dataset.phase = phase; pixels.dataset.motion = motion; });
     }
     layout();
   }
 }
 bridge.onCodexActivity?.((state) => { codexAnswering = state && typeof state === 'object' ? state : { active: false, status: '', detail: '' }; refreshAiWorkActivity(); });
 bridge.onAntigravityActivity?.((state) => { antigravityAnswering = state && typeof state === 'object' ? state : { active: false, status: '', detail: '' }; refreshAiWorkActivity(); });
+bridge.onAiProviderActivity?.((state) => { if (state && typeof state.id === 'string') { providerAnswering[state.id] = state; refreshAiWorkActivity(); } });
 bridge.onClaudeActivity?.((state) => { claudeAnswering = state && typeof state === 'object' ? state : { active: false, status: '', detail: '' }; refreshAiWorkActivity(); });
 bridge.onChatgptActivity?.((state) => { chatgptAnswering = state && typeof state === 'object' ? state : { active: false, status: '', detail: '' }; refreshAiWorkActivity(); });
 bridge.onFgApp?.((data) => {

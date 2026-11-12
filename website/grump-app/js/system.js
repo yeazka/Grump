@@ -10,7 +10,9 @@ function addGoldBurst(eyes) {
 }
 function applyIslandLanguage() {
   const id = isId();
-  document.documentElement.lang = id ? 'id' : 'en';
+  const locale=S.settings.language||'en';
+  document.documentElement.lang = locale;
+  const extra={fr:{birthday:'Joyeux anniversaire !',brightness:'Luminosité',stash:'Stockage',stashSub:'Déposez des fichiers ici • Retirez-les à tout moment',clear:'Tout effacer',addons:'Ajouter des fonctions',todo:'Liste de tâches',notes:'Notes',newNote:'Nouvelle note',prayer:'Heures de prière',water:'Boire de l’eau',reminder:'Rappel de tâche'},es:{birthday:'¡Feliz cumpleaños!',brightness:'Brillo',stash:'Archivos',stashSub:'Suelta archivos aquí • Retíralos cuando quieras',clear:'Borrar todo',addons:'Añadir funciones',todo:'Lista de tareas',notes:'Notas',newNote:'Nueva nota',prayer:'Horario de oración',water:'Beber agua',reminder:'Recordatorio'},'zh-CN':{birthday:'生日快乐！',brightness:'亮度',stash:'文件暂存',stashSub:'将文件拖到此处 • 随时取出',clear:'全部清除',addons:'添加功能',todo:'待办事项',notes:'笔记',newNote:'新建笔记',prayer:'礼拜时间',water:'喝水提醒',reminder:'待办提醒'},ko:{birthday:'생일 축하합니다!',brightness:'밝기',stash:'파일 보관함',stashSub:'파일을 여기에 놓기 • 언제든 꺼내기',clear:'모두 지우기',addons:'기능 추가',todo:'할 일 목록',notes:'메모',newNote:'새 메모',prayer:'기도 시간',water:'물 마시기',reminder:'할 일 알림'}}[locale];
   const setNodeText = (sel, val) => { const el = $(sel); if (el) el.textContent = val; };
   setNodeText('#birthday-celebration strong', id ? 'Selamat ulang tahun!' : 'Happy birthday!');
   setNodeText('#slider-brightness .slider-label', id ? 'Kecerahan' : 'Brightness');
@@ -30,6 +32,7 @@ function applyIslandLanguage() {
   const connSec = $('#connection-secret');
   if (connSec) connSec.placeholder = id ? 'Kata sandi jaringan' : 'Network password';
   setNodeText('#connection-password button[type="submit"]', id ? 'Gabung' : 'Join');
+  if(extra){setNodeText('#birthday-celebration strong',extra.birthday);setNodeText('#slider-brightness .slider-label',extra.brightness);setNodeText('#v-stash .stash-title',extra.stash);setNodeText('#v-stash .stash-sub',extra.stashSub);setNodeText('#s-clear',extra.clear);setNodeText('#v-addons .addon-head span',extra.addons);setNodeText('#v-todo .todo-heading-text',extra.todo);setNodeText('#v-notes .addon-head > span',extra.notes);if(noteNew){noteNew.innerHTML=`<span data-ico="plus" aria-hidden="true"></span>${extra.newNote}`;setIco(noteNew);}setNodeText('#prayer-head-title',extra.prayer);setNodeText('#v-water .addon-head span',extra.water);setNodeText('#v-tasknotice .task-notice-copy span',extra.reminder);}
   if (typeof syncConnectivityButtons === 'function') syncConnectivityButtons();
   if (typeof renderConnection === 'function' && !$('#v-connectivity')?.hidden) renderConnection();
   if (typeof addonRenderKey !== 'undefined') addonRenderKey = '';
@@ -40,18 +43,22 @@ bridge.onSettings((s) => {
   const previousExp = S.settings.staticExp;
   const previousMode = S.settings.eyeMode;
   S.settings = { ...S.settings, ...s };
+  document.documentElement.dataset.platform=s._platform||'win32';
   applyIslandTransparency(); applyIslandLanguage();
   updateIdleInfoDisplay();
-  if ('idleInfoIntervalSec' in s || 'idleInfoDurationSec' in s || 'idleInfoItems' in s || 'idleInfoSides' in s) configureIdleInfoScheduler();
+  if ('idleInfoIntervalSec' in s || 'idleInfoDurationSec' in s || 'idleInfoItems' in s || 'idleInfoSides' in s || 'idleInfoAlwaysOn' in s) configureIdleInfoScheduler();
   if (s.theme) island.dataset.theme = s.theme;
   if (s.angryVariant) island.dataset.angryVariant = s.angryVariant;
+  // Grump Eyes (the glow eyes) is one of the reaction styles; every other style keeps the classic eyes.
+  if (s.angryVariant || !island.dataset.eyeStyle) island.dataset.eyeStyle = (s.angryVariant || island.dataset.angryVariant) === 'grump-eyes' ? 'sprite' : 'classic';
+  if ('rageShake' in s) island.dataset.rage = s.rageShake !== false ? '1' : '0';
   if (s.dockMode) island.dataset.dock = s.dockMode;
   if (s.eyeMode === 'auto') { tempExp = null; }
   if (s.staticExp && s.eyeMode !== 'static' && (s.staticExp !== previousExp || s.eyeMode !== previousMode)) {
     setTempExp(s.staticExp, s.staticExp === 'lol' ? 1800 : 6000);
   }
   if (typeof syncSettingsUI === 'function') syncSettingsUI();
-  if (S.expanded && !pageList().includes(PAGE_OF[S.view])) S.view = 'home';
+  if (S.expanded && !pageList().includes(PAGE_OF[S.view])) S.view = pageList().includes('notifications') ? 'notifications' : 'home';
   if (s.quiet) { S.inAngryRadius = false; tempExp = null; }
   if (s.batteryToast === false || s.quiet) { S.charge=null; clearTimeout(chargeT); }
   if (s.headsetToast === false || s.quiet) { S.headset=null; clearTimeout(headsetT); }
@@ -187,6 +194,10 @@ function renderIdle() {
   el.dataset.mode = eyes ? 'eyes' : 'clock';
   const exp = eyes ? currentEyeExp(idleFor) : 'normal';
   el.dataset.exp = exp;
+  const automaticExpression = eyes && exp !== 'angry' && exp !== 'sleep' &&
+    S.settings.eyeMode !== 'static' && eyeExpMode === 'auto' &&
+    !(tempExp && Date.now() < tempExpUntil) && !(S.petUntil && Date.now() < S.petUntil);
+  el.dataset.autoMotion = automaticExpression ? '1' : '0';
   if(exp==='angry' && S.settings.angryVariant==='gpt-pixels'){
     const phase=Math.floor(Date.now()/2400)%GPT_EYE_MOTIONS.length;
     $$('#eyes > i .gpt-eye-grid').forEach((grid,index)=>{
@@ -296,6 +307,19 @@ function advanceAutoExpression() {
 }
 setTimeout(advanceAutoExpression, 4500);
 
+function scheduleIdleBlink() {
+  const delay = 3400 + Math.round(Math.random() * 1800);
+  setTimeout(() => {
+    const eyes = $('#eyes');
+    if (eyes && curKey === 'idle' && $('#v-idle').dataset.exp === 'normal') {
+      eyes.classList.add('blink');
+      setTimeout(() => eyes.classList.remove('blink'), 105);
+    }
+    scheduleIdleBlink();
+  }, delay);
+}
+scheduleIdleBlink();
+
 // Mata mengikuti kursor secara real-time di seluruh layar
 let lastDx = 0, lastDy = 100;
 const CREATIVE_WARNINGS = ["DON'T TOUCH ME!", 'JUST GET UR WORK DONE!'];
@@ -319,11 +343,73 @@ function setCreativeAppState(active) {
   if (!S.creativeApp) setCreativeProximity(false);
 }
 
+/* Eye tracking. The pointer arrives about 60 times a second as a target; the eyes follow it with a critically damped glide that is
+   advanced once per frame (so they never jump from one pointer sample to the next), drawn with the compositor-only `translate`, and
+   smeared along the direction of travel while they move fast (a motion blur: an SVG blur whose width follows the speed). */
+const eyeGlide = { x: 0, y: 0, gx: 0, gy: 0, vx: 0, vy: 0, last: 0, raf: 0, blur: 0, snap: true };
+const EYE_RESPONSE = 0.055;   // seconds for the glide to cover most of the distance
+const EYE_BLUR_PER_PX = 0.009; // blur (px) per px/s of speed
+function eyeGlideStep(ts) {
+  eyeGlide.raf = 0;
+  const eyes = document.getElementById('eyes');
+  if (!eyes) return;
+  const dt = Math.max(0.001, Math.min(0.05, (ts - (eyeGlide.last || ts - 16.7)) / 1000));
+  eyeGlide.last = ts;
+  // exact solution of a critically damped spring over dt (stable for any frame time)
+  const w = 1 / EYE_RESPONSE, e = Math.exp(-w * dt);
+  const step = (pos, goal, vel) => {
+    const d = pos - goal, tmp = (vel + w * d) * dt;
+    return [goal + (d + tmp) * e, (vel - w * tmp) * e];
+  };
+  const [nx, nvx] = step(eyeGlide.x, eyeGlide.gx, eyeGlide.vx);
+  const [ny, nvy] = step(eyeGlide.y, eyeGlide.gy, eyeGlide.vy);
+  eyeGlide.x = nx; eyeGlide.y = ny; eyeGlide.vx = nvx; eyeGlide.vy = nvy;
+  const resting = Math.abs(eyeGlide.gx - nx) < 0.04 && Math.abs(eyeGlide.gy - ny) < 0.04 && Math.abs(nvx) < 1 && Math.abs(nvy) < 1;
+  if (resting) { eyeGlide.x = eyeGlide.gx; eyeGlide.y = eyeGlide.gy; eyeGlide.vx = eyeGlide.vy = 0; }
+  eyes.style.setProperty('--look-x', eyeGlide.x.toFixed(2) + 'px');
+  eyes.style.setProperty('--look-y', eyeGlide.y.toFixed(2) + 'px');
+  const sprite = eyeGlide.sprite || (eyeGlide.sprite = document.getElementById('sprite-eyes'));
+  if (sprite) { sprite.style.setProperty('--look-x', eyeGlide.x.toFixed(2) + 'px'); sprite.style.setProperty('--look-y', eyeGlide.y.toFixed(2) + 'px'); }
+  // motion blur: only while it is visible, and only the SVG filter's own attribute changes
+  const bx = resting ? 0 : Math.min(1.9, Math.abs(eyeGlide.vx) * EYE_BLUR_PER_PX);
+  const by = resting ? 0 : Math.min(1.2, Math.abs(eyeGlide.vy) * EYE_BLUR_PER_PX * 0.6);
+  const blur = bx > 0.2 || by > 0.2;
+  if (blur) {
+    const node = eyeGlide.node || (eyeGlide.node = document.getElementById('eye-motion-blur'));
+    if (node) node.setAttribute('stdDeviation', bx.toFixed(2) + ' ' + by.toFixed(2));
+    if (!eyeGlide.blur) { eyes.style.filter = 'url(#eye-motion)'; eyeGlide.blur = 1; }
+  } else if (eyeGlide.blur) { eyes.style.filter = ''; eyeGlide.blur = 0; }
+  if (!resting) eyeGlide.raf = requestAnimationFrame(eyeGlideStep);
+  else eyeGlide.last = 0;
+}
+function eyeGlideTo(x, y, immediate) {
+  eyeGlide.gx = x; eyeGlide.gy = y;
+  if (immediate || eyeGlide.snap) { eyeGlide.x = x; eyeGlide.y = y; eyeGlide.vx = eyeGlide.vy = 0; eyeGlide.snap = false; }
+  if (!eyeGlide.raf) eyeGlide.raf = requestAnimationFrame(eyeGlideStep);
+}
+// island size, the timer and the glance texts only change now and then: measured at most 4 times a second
+const eyeMeasure = { at: 0, w: 128, h: 32, timerRight: null, weatherRight: null, timeLeft: null, infoVisible: false };
+function eyeMeasureNow() {
+  const nowMs = performance.now();
+  if (nowMs - eyeMeasure.at < 250) return eyeMeasure;
+  eyeMeasure.at = nowMs;
+  eyeMeasure.w = island.clientWidth || 128;
+  eyeMeasure.h = island.clientHeight || 32;
+  const islandRect = island.getBoundingClientRect();
+  const timerEl = $('#idle-timer');
+  eyeMeasure.timerRight = ($('#v-idle').dataset.timer === '1' && timerEl && timerEl.style.display !== 'none') ? timerEl.getBoundingClientRect().right - islandRect.left : null;
+  const timeInfo = $('#idle-time'), weatherInfo = $('#idle-weather');
+  eyeMeasure.infoVisible = island.dataset.idleInfo === '1' || (timeInfo && getComputedStyle(timeInfo).visibility === 'visible');
+  eyeMeasure.weatherRight = eyeMeasure.infoVisible && weatherInfo && getComputedStyle(weatherInfo).display !== 'none' ? weatherInfo.getBoundingClientRect().right - islandRect.left : null;
+  eyeMeasure.timeLeft = eyeMeasure.infoVisible && timeInfo && getComputedStyle(timeInfo).display !== 'none' ? timeInfo.getBoundingClientRect().left - islandRect.left : null;
+  return eyeMeasure;
+}
+
 function updateEyeLook(dx, dy, rawX, rawY) {
   if (S.settings.quiet || S.gameMode) {
     S.inAngryRadius = false;
     setCreativeProximity(false);
-    $('#eyes').style.setProperty('--look-x','0px'); $('#eyes').style.setProperty('--look-y','0px');
+    window.spriteEyes?.rest(); eyeGlideTo(0, 0, true); $('#eyes').style.setProperty('--look-x','0px'); $('#eyes').style.setProperty('--look-y','0px');
     $('#eyes').style.setProperty('--eye-scale','1');
     return;
   }
@@ -338,6 +424,9 @@ function updateEyeLook(dx, dy, rawX, rawY) {
       const pkLy = clamp(dy / 180, -0.8, 1.2);
       pk.style.setProperty('--pk-look-x', `${pkLx.toFixed(1)}px`);
       pk.style.setProperty('--pk-look-y', `${pkLy.toFixed(1)}px`);
+      const pkSprite = document.getElementById('pk-sprite');
+      if (pkSprite) { pkSprite.style.setProperty('--pk-look-x', `${pkLx.toFixed(1)}px`); pkSprite.style.setProperty('--pk-look-y', `${(pkLy + 1).toFixed(1)}px`); }
+      window.spriteEyes?.look(dx, dy, false);
     }
     return;
   }
@@ -376,8 +465,9 @@ function updateEyeLook(dx, dy, rawX, rawY) {
   const sensitivity = Number(S.settings.sensitivity) || 1;
   // Let the eyes glance hard toward the edge, while keeping both eyes clear
   // of the curved corner when the cursor is also above or below the island.
-  const islandWidth = island.clientWidth || 128;
-  const islandHeight = island.clientHeight || 32;
+  const measured = eyeMeasureNow();
+  const islandWidth = measured.w;
+  const islandHeight = measured.h;
   const edgeEyeSize = isAngry ? 1 - 0.4 * Math.min(1, Math.abs(lx * sensitivity) / 55) : 1;
   eyesEl.style.setProperty('--left-eye-size', (isAngry && lx < 0 ? edgeEyeSize : 1).toFixed(3));
   eyesEl.style.setProperty('--right-eye-size', (isAngry && lx > 0 ? edgeEyeSize : 1).toFixed(3));
@@ -385,31 +475,29 @@ function updateEyeLook(dx, dy, rawX, rawY) {
   const dragonEyes = isAngry && variant === 'dragon';
   const crimsonEyes = isAngry && variant === 'crimson-orbit';
   const pixelEyes=isAngry&&variant==='gpt-pixels';
-  const eyePairWidth = isAngry ? (dragonEyes ? 53 : crimsonEyes ? 75 : pixelEyes ? 36 : goldEyes ? 35 : 28) - (dragonEyes ? 23 : crimsonEyes ? 34 : pixelEyes ? 14 : goldEyes ? 13 : 10.5) * (1 - edgeEyeSize) : 25;
-  const eyeHeight = isAngry ? (dragonEyes ? 17 : crimsonEyes ? 18 : goldEyes ? 18 : pixelEyes ? 14 : 15) : 12;
+  const classicPairWidth = isAngry ? (dragonEyes ? 53 : crimsonEyes ? 50 : pixelEyes ? 36 : goldEyes ? 35 : 28) - (dragonEyes ? 23 : crimsonEyes ? 22 : pixelEyes ? 14 : goldEyes ? 13 : 10.5) * (1 - edgeEyeSize) : 25;
+  const classicEyeHeight = isAngry ? (dragonEyes ? 17 : crimsonEyes ? 15 : goldEyes ? 18 : pixelEyes ? 14 : 15) : 12;
+  const spriteOn = !!window.spriteEyes && window.spriteEyes.active();
+  const eyePairWidth = spriteOn ? window.spriteEyes.pairWidth : classicPairWidth;
+  const eyeHeight = spriteOn ? window.spriteEyes.eyeHeight : classicEyeHeight;
   const maxY = Math.max(0, islandHeight / 2 - eyeHeight * sc / 2 - 3);
   const edgeMargin = isAngry ? 3 : 8;
   const maxX = Math.max(0, islandWidth / 2 - eyePairWidth * sc / 2 - edgeMargin);
   let minX = -maxX;
   let maxAllowedX = maxX;
-  const timerEl = $('#idle-timer');
-  if ($('#v-idle').dataset.timer === '1' && timerEl && timerEl.style.display !== 'none') {
-    const timerRight = timerEl.getBoundingClientRect().right - island.getBoundingClientRect().left;
+  if (measured.timerRight !== null) {
+    const timerRight = measured.timerRight;
     const timerClearance = 7;
     minX = Math.min(maxX, timerRight + timerClearance + eyePairWidth * sc / 2 - islandWidth / 2);
   }
-  const timeInfo = $('#idle-time');
-  const weatherInfo = $('#idle-weather');
-  const infoVisible = island.dataset.idleInfo === '1' || (timeInfo && getComputedStyle(timeInfo).visibility === 'visible');
-  if (infoVisible) {
-    const islandRect = island.getBoundingClientRect();
+  if (measured.infoVisible) {
     const halfPair = eyePairWidth * sc / 2;
     const clearance = 5;
-    if (weatherInfo && getComputedStyle(weatherInfo).display !== 'none') {
-      minX = Math.max(minX, weatherInfo.getBoundingClientRect().right - islandRect.left + clearance + halfPair - islandWidth / 2);
+    if (measured.weatherRight !== null) {
+      minX = Math.max(minX, measured.weatherRight + clearance + halfPair - islandWidth / 2);
     }
-    if (timeInfo && getComputedStyle(timeInfo).display !== 'none') {
-      maxAllowedX = Math.min(maxAllowedX, timeInfo.getBoundingClientRect().left - islandRect.left - clearance - halfPair - islandWidth / 2);
+    if (measured.timeLeft !== null) {
+      maxAllowedX = Math.min(maxAllowedX, measured.timeLeft - clearance - halfPair - islandWidth / 2);
     }
     if (minX > maxAllowedX) minX = maxAllowedX = clamp((minX + maxAllowedX) / 2, -maxX, maxX);
   }
@@ -425,60 +513,23 @@ function updateEyeLook(dx, dy, rawX, rawY) {
   if (isAngry && crimsonEyes) {
     const crimsonX = clamp(dx / 70, -1, 1);
     const crimsonY = clamp(dy / 30, -1, 1);
-    eyesEl.style.setProperty('--crimson-pupil-x', `${(crimsonX * 3.2).toFixed(2)}px`);
-    eyesEl.style.setProperty('--crimson-pupil-y', `${(crimsonY * 2.5).toFixed(2)}px`);
-    eyesEl.style.setProperty('--crimson-iris-x', `${(crimsonX * 1.25).toFixed(2)}px`);
-    eyesEl.style.setProperty('--crimson-iris-y', `${(crimsonY * 1.05).toFixed(2)}px`);
+    eyesEl.style.setProperty('--crimson-pupil-x', `${(crimsonX * 2.2).toFixed(2)}px`);
+    eyesEl.style.setProperty('--crimson-pupil-y', `${(crimsonY * 1.8).toFixed(2)}px`);
+    eyesEl.style.setProperty('--crimson-iris-x', `${(crimsonX * 1.1).toFixed(2)}px`);
+    eyesEl.style.setProperty('--crimson-iris-y', `${(crimsonY * 0.9).toFixed(2)}px`);
   }
   // At the extreme side, pull the pair toward the vertical center of the
   // rounded end rather than clipping the outer eye against its curved rim.
   const sideRatio = Math.min(1, Math.abs(lookX) / Math.max(maxX, 1));
   const verticalRoom = maxY * (isAngry ? 1 - 0.85 * sideRatio ** 3 : 1);
   const lookY = clamp(ly * sensitivity, -verticalRoom, verticalRoom);
-  eyesEl.style.setProperty('--look-x', `${lookX.toFixed(1)}px`);
-  eyesEl.style.setProperty('--look-y', `${lookY.toFixed(1)}px`);
+  eyeGlideTo(lookX, lookY);
   eyesEl.style.setProperty('--eye-scale', sc.toFixed(3));
+  if (spriteOn) { window.spriteEyes.look(dx, dy, isAngry); document.getElementById('sprite-eyes').style.setProperty('--eye-scale', (1 + (sc - 1) * 0.6).toFixed(3)); }
 
-  // Laser Beam & Berserk VFX
-  const laserOverlay = $('#laser-overlay');
-  if (isAngry && variant === 'laser' && curKey === 'idle') {
-    if (laserOverlay) {
-      laserOverlay.classList.add('active');
-      const eyesRect = eyesEl.getBoundingClientRect();
-      const eyeL = eyesEl.children[0];
-      const eyeR = eyesEl.children[1];
-      const eyeLRect = eyeL ? eyeL.getBoundingClientRect() : eyesRect;
-      const eyeRRect = eyeR ? eyeR.getBoundingClientRect() : eyesRect;
-      const originLx = eyeLRect.left + eyeLRect.width / 2;
-      const originLy = eyeLRect.top + eyeLRect.height / 2;
-      const originRx = eyeRRect.left + eyeRRect.width / 2;
-      const originRy = eyeRRect.top + eyeRRect.height / 2;
-
-      const targetX = Number.isFinite(rawX) ? rawX : (window.innerWidth / 2 + dx);
-      const targetY = Number.isFinite(rawY) ? rawY : (10 + dy);
-
-      const beamL = $('#laser-beam-l');
-      const beamR = $('#laser-beam-r');
-      const coreL = $('#laser-core-l');
-      const coreR = $('#laser-core-r');
-      const targetG = $('#laser-target');
-
-      if (beamL) { beamL.setAttribute('x1', originLx); beamL.setAttribute('y1', originLy); beamL.setAttribute('x2', targetX); beamL.setAttribute('y2', targetY); }
-      if (beamR) { beamR.setAttribute('x1', originRx); beamR.setAttribute('y1', originRy); beamR.setAttribute('x2', targetX); beamR.setAttribute('y2', targetY); }
-      if (coreL) { coreL.setAttribute('x1', originLx); coreL.setAttribute('y1', originLy); coreL.setAttribute('x2', targetX); coreL.setAttribute('y2', targetY); }
-      if (coreR) { coreR.setAttribute('x1', originRx); coreR.setAttribute('y1', originRy); coreR.setAttribute('x2', targetX); coreR.setAttribute('y2', targetY); }
-      if (targetG) {
-        targetG.style.display = 'block';
-        targetG.setAttribute('transform', `translate(${targetX}, ${targetY})`);
-      }
-    }
-  } else {
-    if (laserOverlay) {
-      laserOverlay.classList.remove('active');
-      const targetG = $('#laser-target');
-      if (targetG) targetG.style.display = 'none';
-    }
-  }
+  // Laser Beam reaction style: laser-eyes.js draws it every frame from the eyes' live position.
+  if (Number.isFinite(rawX) && Number.isFinite(rawY)) window.laserEyes?.aim(rawX, rawY);
+  else window.laserEyes?.sync();
 
   // Selama di dalam radius -> selalu marah nonstop; begitu keluar radius -> langsung ekspresi flirty (wink)!
   if (S.inAngryRadius !== wasAngry) {
@@ -671,7 +722,10 @@ function triggerHeadsetAnim(info, ms = 3600) {
   if (S.settings.headsetToast === false || S.settings.quiet) return;
   const name = (info && info.name) ? info.name : 'Audio device';
   setText('hs-name', name);
-  setText('hs-status-text', info?.transport === 'bluetooth' ? (isId() ? 'Bluetooth tersambung' : 'Bluetooth connected') : (isId() ? 'Kabel tersambung' : 'Wired connected'));
+  const connected = info?.connected !== false;
+  setText('hs-status-text', info?.transport === 'bluetooth'
+    ? (connected ? (isId() ? 'Bluetooth tersambung' : 'Bluetooth connected') : (isId() ? 'Bluetooth terputus' : 'Bluetooth disconnected'))
+    : (connected ? (isId() ? 'Kabel tersambung' : 'Wired connected') : (isId() ? 'Kabel terlepas' : 'Wired disconnected')));
   const el = $('#v-headset');
   if (el) {
     el.dataset.transport = info?.transport === 'bluetooth' ? 'bluetooth' : 'wired';
@@ -680,8 +734,8 @@ function triggerHeadsetAnim(info, ms = 3600) {
     el.classList.add('surge');
   }
 
-  playHeadsetChime();
-  setTempExp('happy', ms + 4000);
+  if (connected) playHeadsetChime();
+  setTempExp(connected ? 'happy' : 'sad', ms + 4000);
   S.headset = { name };
   S.expanded = false;
   S.peek = null;
@@ -699,7 +753,7 @@ function triggerHeadsetAnim(info, ms = 3600) {
 
 if (bridge.onHeadset) {
   bridge.onHeadset((info) => {
-    if (info && info.connected) {
+    if (info) {
       triggerHeadsetAnim(info);
     }
   });
@@ -766,6 +820,12 @@ function updateSliderUI(kind, val) {
 if (bridge.onSysState) {
   bridge.onSysState((s) => {
     if (!s) return;
+    devicePowerState = {
+      hasBattery: s.hasBattery !== false,
+      percent: Number.isFinite(s.batteryPercent) ? clamp(Math.round(s.batteryPercent), 0, 100) : null,
+      charging: s.charging === true,
+      deviceType: s.deviceType || (s.hasBattery === false ? 'desktop' : 'unknown'),
+    };
     if (Number.isFinite(s.volume) && activeSlider !== 'volume') {
       updateSliderUI('volume', s.volume);
     }
@@ -912,6 +972,7 @@ function syncConnectivityButtons(state = window.__lastConnectivityState) {
         icoSpan.innerHTML = icoOf(targetIco);
       }
       button.dataset.radioOn = (info.on === true || isEth) ? '1' : '0';
+      button.dataset.connected = (isEth || (info.on === true && names)) ? '1' : '0';
       button.dataset.ethernet = isEth ? '1' : '0';
       if (isEth) {
         button.title = (id ? `Tersambung LAN (${ethNames})` : `Ethernet connected (${ethNames})`) + (names ? ` · Wi-Fi: ${names}` : '');
@@ -920,6 +981,7 @@ function syncConnectivityButtons(state = window.__lastConnectivityState) {
       }
     } else {
       button.dataset.radioOn = info.on === true ? '1' : '0';
+      button.dataset.connected = (info.on === true && names) ? '1' : '0';
       button.title = 'Bluetooth: ' + (info.on === null ? (id ? 'Status tidak tersedia' : 'Status unavailable') : info.on ? (names || (id ? 'Aktif · belum tersambung' : 'On · not connected')) : (id ? 'Mati' : 'Off'));
     }
     button.setAttribute('aria-label', button.title);
@@ -942,13 +1004,151 @@ let weatherState = { available: false };
 bridge.onWeather?.(state => {
   weatherState = state || { available: false };
   updateIdleInfoDisplay();
+  renderWeatherPage();
 });
+const weatherAlertCopy={
+  en:{rain:['Rain expected','In about 2 hours'],wind:['Strong winds expected','In about 2 hours'],storm:['Thunderstorm expected','In about 2 hours']},
+  id:{rain:['Hujan diperkirakan','Sekitar 2 jam lagi'],wind:['Angin kencang diperkirakan','Sekitar 2 jam lagi'],storm:['Badai petir diperkirakan','Sekitar 2 jam lagi']},
+  fr:{rain:['Pluie prévue','Dans environ 2 heures'],wind:['Vents forts prévus','Dans environ 2 heures'],storm:['Orage prévu','Dans environ 2 heures']},
+  es:{rain:['Lluvia prevista','En unas 2 horas'],wind:['Vientos fuertes previstos','En unas 2 horas'],storm:['Tormenta prevista','En unas 2 horas']},
+  'zh-CN':{rain:['预计有雨','约 2 小时后'],wind:['预计有强风','约 2 小时后'],storm:['预计有雷暴','约 2 小时后']},
+  ko:{rain:['비가 예상됩니다','약 2시간 후'],wind:['강풍이 예상됩니다','약 2시간 후'],storm:['뇌우가 예상됩니다','약 2시간 후']}
+};
+function weatherAlertIcon(condition){
+  if(condition==='wind')return '<svg viewBox="0 0 64 50" aria-hidden="true"><g fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"><path class="wh-gust-line l1" d="M8 17h32a7 7 0 1 0-7-7"/><path class="wh-gust-line l2" d="M8 28h42a8 8 0 1 1-8 8"/><path class="wh-gust-line l3" d="M8 39h20"/></g></svg>';
+  return weatherHeroIcon(condition==='storm'?'rainandthunder':'rain');
+}
+bridge.onWeatherAlert?.(alert=>{
+  const copy=weatherAlertCopy[S.settings.language]||weatherAlertCopy.en;
+  const message=copy[alert?.condition];
+  if(!message)return;
+  setText('weather-notice-title',message[0]);
+  setText('weather-notice-detail',message[1]);
+  const popup=$('#v-weathernotice');if(popup)popup.dataset.condition=alert?.condition||'rain';
+  const alertIcon=$('#weather-notice-icon');if(alertIcon)alertIcon.innerHTML=weatherAlertIcon(alert?.condition);
+  showMiniPopup('weathernotice',10000);
+});
+const weatherPageCopy={
+  en:{unavailable:'Forecast unavailable',clear:'Clear',cloudy:'Cloudy',partly:'Partly cloudy',rain:'Rain',snow:'Snow',storm:'Thunderstorm',fog:'Fog',today:'Today',rainLabel:'Rain',humidity:'Humidity',wind:'Wind'},
+  id:{unavailable:'Prakiraan tidak tersedia',clear:'Cerah',cloudy:'Berawan',partly:'Cerah berawan',rain:'Hujan',snow:'Salju',storm:'Badai petir',fog:'Berkabut',today:'Hari ini',rainLabel:'Hujan',humidity:'Kelembapan',wind:'Angin'},
+  fr:{unavailable:'Prévisions indisponibles',clear:'Dégagé',cloudy:'Nuageux',partly:'Partiellement nuageux',rain:'Pluie',snow:'Neige',storm:'Orage',fog:'Brouillard',today:'Auj.',rainLabel:'Pluie',humidity:'Humidité',wind:'Vent'},
+  es:{unavailable:'Pronóstico no disponible',clear:'Despejado',cloudy:'Nublado',partly:'Parcialmente nublado',rain:'Lluvia',snow:'Nieve',storm:'Tormenta',fog:'Niebla',today:'Hoy',rainLabel:'Lluvia',humidity:'Humedad',wind:'Viento'},
+  'zh-CN':{unavailable:'天气预报不可用',clear:'晴',cloudy:'多云',partly:'晴间多云',rain:'雨',snow:'雪',storm:'雷暴',fog:'雾',today:'今天',rainLabel:'降雨',humidity:'湿度',wind:'风速'},
+  ko:{unavailable:'예보를 사용할 수 없음',clear:'맑음',cloudy:'흐림',partly:'구름 조금',rain:'비',snow:'눈',storm:'뇌우',fog:'안개',today:'오늘',rainLabel:'강수',humidity:'습도',wind:'바람'}
+};
+const weatherLocale={en:'en-US',id:'id-ID',fr:'fr-FR',es:'es-ES','zh-CN':'zh-CN',ko:'ko-KR'};
+function weatherKind(symbol=''){
+  if(/thunder/.test(symbol))return 'storm';if(/snow|sleet/.test(symbol))return 'snow';if(/rain|drizzle/.test(symbol))return 'rain';if(/fog/.test(symbol))return 'fog';if(/partly/.test(symbol))return 'partly';if(/clear|fair/.test(symbol))return 'clear';return 'cloudy';
+}
+const weatherAssetByKind={
+  clear:'assets/weather/clear.png',
+  partly:'assets/weather/partly-cloudy.png',
+  cloudy:'assets/weather/cloudy.png',
+  rain:'assets/weather/rain.png',
+  storm:'assets/weather/rain.png',
+  snow:'assets/weather/cloudy.png',
+  fog:'assets/weather/overcast.png'
+};
+function weatherAssetIcon(symbol='',isHero=false){
+  const kind=weatherKind(symbol);
+  const extra=kind==='storm'?'<i class="weather-asset-lightning" aria-hidden="true"></i>':kind==='snow'?'<i class="weather-asset-snow" aria-hidden="true"></i>':kind==='fog'?'<i class="weather-asset-fog" aria-hidden="true"></i>':'';
+  return `<span class="weather-asset weather-asset-${kind}${isHero?' is-hero':''}"><img src="${weatherAssetByKind[kind]||weatherAssetByKind.cloudy}" alt="">${extra}</span>`;
+}
+function weatherIcon(symbol='', isHero=false){
+  const kind=weatherKind(symbol);
+  if(isHero){
+    const defs='<defs><linearGradient id="w-sun-grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffb703"/><stop offset="100%" stop-color="#fb8500"/></linearGradient><linearGradient id="w-cloud-grad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#e2e8f0"/></linearGradient><linearGradient id="w-cloud-shade" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#cbd5e1" stop-opacity="0.8"/><stop offset="100%" stop-color="#94a3b8" stop-opacity="0.95"/></linearGradient><linearGradient id="w-cloud-rain" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#cbd5e1"/><stop offset="100%" stop-color="#64748b"/></linearGradient></defs>';
+    if(kind==='clear'){
+      return `<svg class="weather-hero-svg" viewBox="0 0 64 48" aria-hidden="true">${defs}<g class="weather-anim-sun-spin"><circle cx="32" cy="24" r="14" fill="url(#w-sun-grad)"/><g stroke="#ffb703" stroke-width="2.6" stroke-linecap="round"><path d="M32 3v6M32 39v6M11 24h6M47 24h6M17 9l4 4M43 35l4 4M47 9l-4 4M21 35l-4 4"/></g></g></svg>`;
+    }
+    if(kind==='partly'){
+      return `<svg class="weather-hero-svg" viewBox="0 0 64 48" aria-hidden="true">${defs}<g class="weather-anim-sun-breathe"><circle cx="43" cy="17" r="11" fill="url(#w-sun-grad)"/><g stroke="#ffb703" stroke-width="2" stroke-linecap="round"><path d="M43 2v4M43 28v4M29 17h4M54 17h4M32 6l3 3M51 25l3 3M51 9l-3 3M35 25l-3 3"/></g></g><g class="weather-anim-cloud-float"><path d="M16 38h32a10 10 0 0 0 1-20 15 15 0 0 0-28-4 12 12 0 0 0-5 24Z" fill="url(#w-cloud-grad)"/><path d="M16 38h32a10 10 0 0 0 7-4H11a12 12 0 0 0 5 4Z" fill="url(#w-cloud-shade)"/></g></svg>`;
+    }
+    if(kind==='rain'){
+      return `<svg class="weather-hero-svg" viewBox="0 0 64 48" aria-hidden="true">${defs}<g class="weather-anim-cloud-float"><path d="M16 34h32a10 10 0 0 0 1-20 15 15 0 0 0-28-4 12 12 0 0 0-5 24Z" fill="url(#w-cloud-rain)"/></g><g class="weather-anim-rain-drops"><line class="rain-drop d1" x1="22" y1="36" x2="19" y2="45" stroke="#38bdf8" stroke-width="2.4" stroke-linecap="round"/><line class="rain-drop d2" x1="31" y1="36" x2="28" y2="45" stroke="#38bdf8" stroke-width="2.4" stroke-linecap="round"/><line class="rain-drop d3" x1="40" y1="36" x2="37" y2="45" stroke="#38bdf8" stroke-width="2.4" stroke-linecap="round"/><line class="rain-drop d4" x1="48" y1="36" x2="45" y2="45" stroke="#38bdf8" stroke-width="2.4" stroke-linecap="round"/></g></svg>`;
+    }
+    if(kind==='storm'){
+      return `<svg class="weather-hero-svg" viewBox="0 0 64 48" aria-hidden="true">${defs}<g class="weather-anim-cloud-float"><path d="M16 34h32a10 10 0 0 0 1-20 15 15 0 0 0-28-4 12 12 0 0 0-5 24Z" fill="url(#w-cloud-rain)"/></g><g class="weather-anim-rain-drops"><line class="rain-drop d1" x1="20" y1="36" x2="18" y2="44" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round"/><line class="rain-drop d3" x1="44" y1="36" x2="42" y2="44" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round"/></g><polygon class="weather-anim-lightning" points="33,31 26,40 33,40 29,48 41,38 34,38 38,31" fill="#facc15"/></svg>`;
+    }
+    if(kind==='snow'){
+      return `<svg class="weather-hero-svg" viewBox="0 0 64 48" aria-hidden="true">${defs}<g class="weather-anim-cloud-float"><path d="M16 34h32a10 10 0 0 0 1-20 15 15 0 0 0-28-4 12 12 0 0 0-5 24Z" fill="url(#w-cloud-grad)"/></g><g class="weather-anim-snow"><circle class="snow-flake s1" cx="23" cy="41" r="2.2" fill="#e0f2fe"/><circle class="snow-flake s2" cx="33" cy="42" r="2.4" fill="#e0f2fe"/><circle class="snow-flake s3" cx="43" cy="40" r="2" fill="#e0f2fe"/></g></svg>`;
+    }
+    if(kind==='fog'){
+      return `<svg class="weather-hero-svg" viewBox="0 0 64 48" aria-hidden="true">${defs}<g class="weather-anim-cloud-float"><path d="M16 34h32a10 10 0 0 0 1-20 15 15 0 0 0-28-4 12 12 0 0 0-5 24Z" fill="url(#w-cloud-grad)"/></g><g class="weather-anim-fog-wave" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"><path d="M14 40h36M18 44h28"/></g></svg>`;
+    }
+    return `<svg class="weather-hero-svg" viewBox="0 0 64 48" aria-hidden="true">${defs}<g class="weather-anim-cloud-back"><path d="M12 32h28a9 9 0 0 0 1-18 13 13 0 0 0-24-3 10 10 0 0 0-5 21Z" fill="#64748b" opacity="0.65"/></g><g class="weather-anim-cloud-float"><path d="M18 39h30a10 10 0 0 0 1-20 15 15 0 0 0-28-4 12 12 0 0 0-5 24Z" fill="url(#w-cloud-grad)"/><path d="M18 39h30a10 10 0 0 0 7-4H13a12 12 0 0 0 5 4Z" fill="url(#w-cloud-shade)"/></g></svg>`;
+  }
+  const sun='<circle cx="43" cy="15" r="10" fill="#ff9518"/><g stroke="#ffb145" stroke-width="2" stroke-linecap="round"><path d="M43 1v5M43 24v5M29 15h5M52 15h5M33 5l4 4M49 21l4 4M53 5l-4 4"/></g>',cloud='<path d="M17 37h30a9 9 0 0 0 1-18 14 14 0 0 0-26-3 11 11 0 0 0-5 21Z" fill="#f4f6f5"/><path d="M17 37h30a9 9 0 0 0 8-5H12a11 11 0 0 0 5 5Z" fill="#aeb6b2"/>';
+  if(kind==='clear')return `<svg viewBox="0 0 64 48" aria-hidden="true"><circle cx="32" cy="24" r="13" fill="#ff9518"/><g stroke="#ffc05d" stroke-width="2.4" stroke-linecap="round"><path d="M32 3v6M32 39v6M11 24h6M47 24h6M17 9l4 4M43 35l4 4M47 9l-4 4M21 35l-4 4"/></g></svg>`;
+  const effects=kind==='rain'?'<g stroke="#63b7ff" stroke-width="2" stroke-linecap="round"><path d="m23 40-2 5M34 40l-2 5M45 40l-2 5"/></g>':kind==='storm'?'<path d="m35 36-6 8h6l-3 6 11-11h-6l3-3Z" fill="#ffd451"/>':kind==='snow'?'<g fill="#d9f2ff"><circle cx="23" cy="43" r="2"/><circle cx="35" cy="44" r="2"/><circle cx="47" cy="42" r="2"/></g>':'';
+  return `<svg viewBox="0 0 64 48" aria-hidden="true">${kind==='partly'?sun:''}${cloud}${effects}</svg>`;
+}
+function weatherMinute(value){if(!Number.isFinite(value))return '—';const hours=Math.floor(value/60)%24,minutes=value%60;return `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}`;}
+// Flat white weather symbols for the minimal weather page (same silhouette family as the iPhone weather glyphs).
+function weatherMiniIcon(symbol=''){
+  const kind=weatherKind(symbol);
+  const cloud='<path d="M16 36h32a10 10 0 0 0 1-20 15 15 0 0 0-28-4 12 12 0 0 0-5 24Z" fill="#fff"/>';
+  const smallCloud='<path d="M14 40h30a9 9 0 0 0 1-18 13 13 0 0 0-25-3 11 11 0 0 0-6 21Z" fill="#fff" stroke="#000" stroke-width="2.4" paint-order="stroke"/>';
+  const rays='<g stroke="#fff" stroke-width="2.6" stroke-linecap="round"><path d="M32 3v5M32 40v5M11 24h5M48 24h5M17 9l3.5 3.5M43.5 35.5 47 39M47 9l-3.5 3.5M20.5 35.5 17 39"/></g>';
+  let inner;
+  if(kind==='clear')inner=`<circle cx="32" cy="24" r="11" fill="#fff"/>${rays}`;
+  else if(kind==='partly')inner=`<circle cx="43" cy="16" r="9" fill="#fff"/><g stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M43 2v3M43 27v3M29 16h3M54 16h3M33 6l2 2M51 24l2 2M53 6l-2 2"/></g>${smallCloud}`;
+  else if(kind==='rain')inner=`${cloud}<g stroke="#4aa8ff" stroke-width="2.8" stroke-linecap="round"><path d="m23 40-2.5 6M33 40l-2.5 6M43 40l-2.5 6"/></g>`;
+  else if(kind==='storm')inner=`${cloud}<path d="m34 33-7 9h6l-3 7 10-11h-6l3-5Z" fill="#fff" stroke="#000" stroke-width="1.6" paint-order="stroke"/>`;
+  else if(kind==='snow')inner=`${cloud}<g fill="#fff"><circle cx="23" cy="43" r="2.4"/><circle cx="33" cy="45" r="2.4"/><circle cx="43" cy="43" r="2.4"/></g>`;
+  else if(kind==='fog')inner=`${cloud}<g stroke="#fff" stroke-width="2.8" stroke-linecap="round"><path d="M16 42h32M21 46.5h22"/></g>`;
+  else inner=cloud;
+  return `<svg viewBox="0 0 64 50" aria-hidden="true">${inner}</svg>`;
+}
+function weatherHourLabel(iso,offset,locale){
+  const when=new Date(Date.parse(iso)+(Number(offset)||0)*3600000);
+  return new Intl.DateTimeFormat(locale,{hour:'numeric',timeZone:'UTC'}).format(when).replace(/\s/g,'');
+}
+// Large animated hero symbol. Demo: tapping it cycles five weather states so every animation can be previewed.
+const weatherDemoSymbols=['clearsky_day','partlycloudy_day','cloudy','rain','rainandthunder'];
+let weatherDemoIndex=-1;
+acts.weatherdemo=()=>{weatherDemoIndex=(weatherDemoIndex+1)%weatherDemoSymbols.length;renderWeatherPage();};
+function weatherHeroIcon(symbol=''){
+  const kind=weatherKind(symbol);
+  const cloud='<path d="M16 36h32a10 10 0 0 0 1-20 15 15 0 0 0-28-4 12 12 0 0 0-5 24Z" fill="#fff"/>';
+  const rays='<g class="wh-rays" stroke="#fff" stroke-width="2.6" stroke-linecap="round"><path d="M32 3v5M32 40v5M11 24h5M48 24h5M17 9l3.5 3.5M43.5 35.5 47 39M47 9l-3.5 3.5M20.5 35.5 17 39"/></g>';
+  const drops=[[22,0],[30,1],[38,2],[46,3],[26,4],[42,5]].map(([x,i])=>`<path class="wh-drop" style="--i:${i}" d="M${x} 40l-2 5" stroke="#4aa8ff" stroke-width="2.8" stroke-linecap="round"/>`).join('');
+  let inner;
+  if(kind==='clear')inner=`<g class="wh-pulse"><circle cx="32" cy="24" r="11" fill="#fff"/></g>${rays}`;
+  else if(kind==='partly')inner=`<g class="wh-sun"><circle cx="43" cy="16" r="9" fill="#fff"/><g class="wh-rays-s" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M43 2v3M43 27v3M29 16h3M54 16h3M33 6l2 2M51 24l2 2M53 6l-2 2"/></g></g><g class="wh-drift"><path d="M14 42h30a9 9 0 0 0 1-18 13 13 0 0 0-25-3 11 11 0 0 0-6 21Z" fill="#fff" stroke="#000" stroke-width="2.4" paint-order="stroke"/></g>`;
+  else if(kind==='rain')inner=`<g class="wh-drift">${cloud}</g>${drops}`;
+  else if(kind==='storm')inner=`<g class="wh-drift">${cloud}</g>${drops}<path class="wh-bolt" d="m34 31-8 10h6l-3 8 11-12h-6l3-6Z" fill="#fff" stroke="#000" stroke-width="1.6" paint-order="stroke"/>`;
+  else if(kind==='snow')inner=`<g class="wh-drift">${cloud}</g>${[[22,0],[32,1],[42,2],[27,3],[37,4]].map(([x,i])=>`<circle class="wh-flake" style="--i:${i}" cx="${x}" cy="41" r="2.2" fill="#fff"/>`).join('')}`;
+  else if(kind==='fog')inner=`<g class="wh-drift">${cloud}</g><g stroke="#fff" stroke-width="2.8" stroke-linecap="round"><path d="M16 42h32M21 46.5h22"/></g>`;
+  else inner=`<g class="wh-drift-back" opacity=".55"><path d="M8 34h24a8 8 0 0 0 1-16 12 12 0 0 0-22-3 10 10 0 0 0-3 19Z" fill="#fff"/></g><g class="wh-drift">${cloud}</g>`;
+  return `<svg viewBox="0 0 64 50" aria-hidden="true">${inner}</svg>`;
+}
+function renderWeatherPage(){
+  const copy=weatherPageCopy[S.settings.language]||weatherPageCopy.en;
+  const locale=weatherLocale[S.settings.language]||weatherLocale.en;
+  const forecast=weatherState.forecast,daily=Array.isArray(weatherState.daily)?weatherState.daily:[];
+  const kind=weatherKind(weatherState.symbolCode||daily[0]?.symbolCode||forecast?.symbolCode);
+  setText('weather-page-city',weatherState.city||'Weather');setText('wm-city',weatherState.city||'');
+  setText('weather-page-temp',weatherState.available?`${Math.round(weatherState.temperature)}°`:'—');
+  setText('weather-page-condition',weatherState.available?(copy[kind]||copy.cloudy):copy.unavailable);
+  setText('weather-page-date',new Intl.DateTimeFormat(locale,{weekday:'long',hour:'2-digit',minute:'2-digit'}).format(new Date()));
+  const icon=$('#weather-page-icon');if(icon)icon.innerHTML=weatherHeroIcon(weatherDemoIndex>=0?weatherDemoSymbols[weatherDemoIndex]:(weatherState.symbolCode||daily[0]?.symbolCode||'cloudy'));
+  const hoursEl=$('#weather-page-hours');if(hoursEl){const hours=Array.isArray(weatherState.hourly)?weatherState.hourly:[];hoursEl.innerHTML=hours.map(hour=>`<div class="wm-hour" role="listitem"><span class="wm-hour-name">${esc(weatherHourLabel(hour.time,weatherState.utcOffset,locale))}</span><span class="wm-hour-icon">${weatherMiniIcon(hour.symbolCode)}</span><strong>${hour.temperature}°</strong></div>`).join('');}
+  setText('weather-page-sunrise',weatherMinute(weatherState.sunrise));setText('weather-page-sunset',weatherMinute(weatherState.sunset));
+  const daylight=Number.isFinite(weatherState.sunrise)&&Number.isFinite(weatherState.sunset)?weatherState.sunset-weatherState.sunrise:null;
+  setText('weather-page-daylight',Number.isFinite(daylight)?`${Math.floor(daylight/60)} h ${daylight%60} m`:'—');
+  const days=$('#weather-page-days');if(days)days.innerHTML=daily.slice(0,6).map((day,index)=>{const date=new Date(`${day.date}T12:00:00Z`),name=index===0?copy.today:new Intl.DateTimeFormat(locale,{weekday:'short'}).format(date);return `<div class="weather-day${index===0?' is-today':''}"><span class="weather-day-name">${esc(name)}</span><span class="weather-day-icon">${weatherAssetIcon(day.symbolCode)}</span><strong>${day.max}°</strong><small>${day.min}°</small></div>`;}).join('');
+}
+enterHooks.weather=()=>{weatherDemoIndex=-1;renderWeatherPage();};
 
 const idleInfoKinds=new Set(['clock','weather','battery','todo']);
+let devicePowerState={hasBattery:true,percent:null,charging:false,deviceType:'unknown'};
 const idleWeatherSvg='<svg class="idle-cloud-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>';
-function batteryRing(pct,available=true){
+function batteryRing(pct,available=true,charging=false){
   const value=available?clamp(Math.round(pct),0,100):0;
-  return `<span class="idle-progress-ring battery-ring"><svg viewBox="0 0 27 27" aria-hidden="true"><circle class="idle-progress-track" cx="13.5" cy="13.5" r="10.5"/><circle class="idle-battery-progress" cx="13.5" cy="13.5" r="10.5" pathLength="100" stroke-dasharray="100" stroke-dashoffset="${100-value}"/></svg><span class="idle-battery-value">${available?value:'—'}</span></span>`;
+  const showPercent=S.settings.idleInfoBatteryPercent!==false;
+  const chargeIcon=charging?'<span class="idle-battery-charge" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M7.1 1 3.4 6.2h2.5L4.9 11l3.8-5.8H6.3z"/></svg></span>':'';
+  return `<span class="idle-progress-ring battery-ring"><svg viewBox="0 0 27 27" aria-hidden="true"><circle class="idle-progress-track" cx="13.5" cy="13.5" r="10.5"/><circle class="idle-battery-progress" cx="13.5" cy="13.5" r="10.5" pathLength="100" stroke-dasharray="100" stroke-dashoffset="${100-value}"/></svg><span class="idle-battery-center${charging?' is-charging':''}"><span class="idle-battery-value">${available&&showPercent?value:''}</span>${chargeIcon}</span></span>`;
 }
 function todoRing(done,total){
   const count=Math.min(12,Math.max(1,total));
@@ -968,14 +1168,17 @@ function idleInfoValue(kind) {
     return {text:available?`${Math.round(weatherState.temperature)}°C`:'',label:available?`${weatherState.city} · MET Norway`:(isId()?'Cuaca tidak tersedia':'Weather unavailable'),unavailable:!available,visual:idleWeatherSvg};
   }
   if(kind==='battery'){
-    if(!batRef)return {text:'',label:isId()?'Baterai tidak tersedia':'Battery unavailable',unavailable:true,visual:batteryRing(0,false)};
-    const pct=Math.round(batRef.level*100);
-    return {text:'',label:batRef.charging?(isId()?`Mengisi daya ${pct}%`:`Charging ${pct}%`):(isId()?`Baterai ${pct}%`:`Battery ${pct}%`),visual:batteryRing(pct)};
+    if(devicePowerState.hasBattery===false)return null;
+    const pct=Number.isFinite(devicePowerState.percent)?devicePowerState.percent:(batRef?Math.round(batRef.level*100):null);
+    if(!Number.isFinite(pct))return null;
+    const charging=devicePowerState.charging||(batRef&&batRef.charging);
+    return {text:'',label:charging?(isId()?`Mengisi daya ${pct}%`:`Charging ${pct}%`):(isId()?`Baterai ${pct}%`:`Battery ${pct}%`),visual:batteryRing(pct,true,charging)};
   }
   const tasks=typeof addonProductivity!=='undefined'&&Array.isArray(addonProductivity.tasks)?addonProductivity.tasks:[];
   const done=tasks.filter(task=>task.done).length;
   const open=tasks.filter(task=>!task.done).length;
-  return {text:isId()?`${open} tersisa`:`${open} left`,label:isId()?`${done} dari ${tasks.length} tugas selesai`:`${done} of ${tasks.length} tasks completed`,visual:todoRing(done,tasks.length)};
+  if(open===0)return null;
+  return {text:`${open}/${tasks.length}`,label:isId()?`${done} dari ${tasks.length} tugas selesai`:`${done} of ${tasks.length} tasks completed`,visual:todoRing(done,tasks.length)};
 }
 function renderIdleInfoSide(side,kind) {
   const box=side==='left'?$('#idle-weather'):$('#idle-time');
@@ -984,6 +1187,7 @@ function renderIdleInfoSide(side,kind) {
   if(!box||!text||!icon)return;
   if(!kind){box.style.display='none';return;}
   const info=idleInfoValue(kind);
+  if(!info){box.style.display='none';return;}
   box.style.display='';box.dataset.kind=kind;box.toggleAttribute('data-unavailable',!!info.unavailable);
   box.setAttribute('aria-label',info.label);text.textContent=info.text;text.title=info.label;
   icon.innerHTML=info.visual||'';
@@ -991,7 +1195,7 @@ function renderIdleInfoSide(side,kind) {
 function updateIdleInfoDisplay(advance=false) {
   const config=glancePreview||S.settings;
   const configured=Array.isArray(config.idleInfoItems)?config.idleInfoItems:Array.isArray(config.items)?config.items:['clock','weather','battery','todo'];
-  const selected=(config.focus&&idleInfoKinds.has(config.focus)?[config.focus]:configured).filter(kind=>idleInfoKinds.has(kind));
+  const selected=(config.focus&&idleInfoKinds.has(config.focus)?[config.focus]:configured).filter(kind=>idleInfoKinds.has(kind)&&idleInfoValue(kind));
   const items=selected.length?selected:['clock'];
   const sides={clock:'left',weather:'right',battery:'left',todo:'right',...(config.idleInfoSides||config.sides||{})};
   const leftItems=items.filter(kind=>sides[kind]==='left');
@@ -1025,12 +1229,13 @@ function runIdleInfoCycle(){
     }
     return;
   }
-  updateIdleInfoDisplay(true);
+  updateIdleInfoDisplay(S.settings.idleInfoRotate !== false); // off = keep the first item of each side
   S.idleInfoActive = true;
   layout();
   syncIdleInfoEyes();
 
   clearTimeout(idleInfoHideTimer);
+  if(S.settings.idleInfoAlwaysOn===true)return;
   idleInfoHideTimer=setTimeout(() => {
     if (S.idleInfoActive) {
       S.idleInfoActive = false;
@@ -1043,6 +1248,45 @@ function configureIdleInfoScheduler(){
   clearInterval(idleInfoIntervalTimer);clearTimeout(idleInfoHideTimer);
   const interval=Math.max(10,Math.min(3600,Number(S.settings.idleInfoIntervalSec)||30))*1000;
   idleInfoIntervalTimer=setInterval(runIdleInfoCycle,interval);
+  if(S.settings.idleInfoAlwaysOn===true)runIdleInfoCycle();
 }
 configureIdleInfoScheduler();
 
+/* ---------- Level HUD: a thick white slider in the notch while a key changes volume or brightness ---------- */
+let levelHudTimer = null, levelUnderTimer = null;
+function levelHudIcon(kind, value, muted) {
+  if (kind === 'volume') return ICONS[muted || value === 0 ? 'volume-mute' : value <= 33 ? 'volume-low' : value <= 66 ? 'volume-med' : 'volume'] || '';
+  return ICONS[value <= 40 ? 'brightness-low' : 'brightness'] || '';
+}
+function showLevelHud(kind, value, muted) {
+  if (S.expanded || S.ring || S.prompt || S.charge || S.headset || (S.miniPopup && S.miniPopup.kind !== 'levelhud')) return;
+  const shown = muted ? 0 : value;
+  const fill = $('#lh-fill'), track = $('#lh-track'), ico = $('#lh-ico');
+  if (!fill || !track || !ico) return;
+  fill.style.width = shown + '%';
+  track.setAttribute('aria-valuenow', shown);
+  track.setAttribute('aria-label', (kind === 'volume' ? 'Volume' : (isId() ? 'Kecerahan' : 'Brightness')));
+  if (ico.dataset.key !== kind + (muted ? 'm' : '') + (shown <= 33 ? 'l' : shown <= 66 ? 'o' : 'h')) {
+    ico.dataset.key = kind + (muted ? 'm' : '') + (shown <= 33 ? 'l' : shown <= 66 ? 'o' : 'h');
+    ico.innerHTML = levelHudIcon(kind, value, muted);
+  }
+  // Music is on the notch: the level grows under the lyric row instead of replacing the whole notch.
+  if (!S.miniPopup && curKey === 'compact' && typeof hasMusic === 'function' && hasMusic()) {
+    const cf = $('#c-lh-fill'), ci = $('#c-lh-ico');
+    if (cf && ci) {
+      cf.style.width = shown + '%';
+      ci.innerHTML = levelHudIcon(kind, value, muted);
+      if (!S.levelUnder) { S.levelUnder = true; layout(); }
+      clearTimeout(levelUnderTimer); levelUnderTimer = setTimeout(() => { S.levelUnder = false; layout(); }, 1800);
+      return;
+    }
+  }
+  if (S.miniPopup && S.miniPopup.kind === 'levelhud') { clearTimeout(miniPopupTimer); miniPopupTimer = setTimeout(() => dismissMiniPopup(), 1800); }
+  else showMiniPopup('levelhud', 1800);
+}
+bridge.onSysLevel?.((level) => {
+  if (!level || !Number.isFinite(level.value)) return;
+  const value = clamp(Math.round(level.value), 0, 100);
+  updateSliderUI(level.kind, value);
+  showLevelHud(level.kind, value, level.muted === true);
+});

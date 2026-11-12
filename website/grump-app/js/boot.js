@@ -1,7 +1,17 @@
 'use strict';
 /* ===== START ===== */
-// Website demo adapter. The desktop renderer keeps these bindings private.
-window.__island = { S, layout, go, collapse, dismissMiniPopup, resetDemoTransition };
+window.__island = { S, layout, go, collapse, dismissMiniPopup, resetDemoTransition() {
+  clearTimeout(slideTimeout);
+  isSliding = false;
+  island.classList.remove('paged-sliding');
+  document.querySelectorAll('.view.sliding').forEach(view => {
+    view.classList.remove('sliding');
+    view.style.transition = '';
+    view.style.transform = '';
+    view.style.opacity = '';
+    view.style.visibility = '';
+  });
+} };
 layout();
 sw.x = sw.t; sh.x = sh.t; sr.x = sr.t; paintIsland(); reportRect(true);
 

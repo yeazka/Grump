@@ -1,0 +1,43 @@
+/* Glow eyes (js/sprite-eyes.js). They take the place of #eyes when the island carries data-eye-style="sprite"; every rule is scoped to
+   that, so the classic eyes are untouched when the style is Classic. The picture is mostly black: sprite-eyes.js turns that black into
+   transparency (alpha keying), so only the glow lands on the notch, plain or Liquid Glass. */
+.sprite-eyes { display: none; pointer-events: none; }
+#sprite-eyes {
+  position: absolute; left: 50%; top: 50%; width: 84px; height: 27.7px; margin-top: -14px;
+  transform: translateX(-50%) scale(var(--eye-scale, 1));
+  translate: var(--look-x, 0px) var(--look-y, 0px);
+  transition: transform .12s cubic-bezier(.22, 1, .36, 1);
+  will-change: translate, transform;
+}
+#island[data-eye-style="sprite"] #v-idle[data-mode="eyes"] #eyes,
+#island[data-eye-style="sprite"] #v-idle[data-timer="1"] #eyes { display: none !important; }
+#island[data-eye-style="sprite"] #v-idle[data-mode="eyes"] #sprite-eyes,
+#island[data-eye-style="sprite"] #v-idle[data-timer="1"] #sprite-eyes { display: block; }
+#island[data-creative-warning="1"] #sprite-eyes { display: none !important; }
+
+/* near the pointer: the eyes tremble */
+#sprite-eyes[data-angry="1"] { animation: spTremble .42s steps(2, end) infinite; }
+@keyframes spTremble { 0%, 100% { margin-left: 0; margin-top: -14px; } 25% { margin-left: .5px; margin-top: -14.3px; } 50% { margin-left: -.4px; margin-top: -13.7px; } 75% { margin-left: .3px; margin-top: -13.8px; } }
+
+/* the welcome greeting: the eyes glow brighter in two pulses while they wake up */
+#sprite-eyes.greet { animation: spGlow 1.7s ease-in-out 2; }
+@keyframes spGlow { 0%, 100% { filter: brightness(1) saturate(1); } 50% { filter: brightness(1.45) saturate(1.25); } }
+#sprite-eyes.greet.pop { animation: spPop .5s cubic-bezier(.3, 1.6, .5, 1), spGlow 1.7s ease-in-out 2; }
+
+/* a pop when the eyes return or a notice arrives */
+#sprite-eyes.pop { animation: spPop .5s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes spPop { 0% { transform: translateX(-50%) scale(1); } 22% { transform: translateX(-50%) scale(1.22, .78); } 48% { transform: translateX(-50%) scale(.88, 1.2); } 74% { transform: translateX(-50%) scale(1.06, .96); } 100% { transform: translateX(-50%) scale(1); } }
+
+/* tucked away (a browser or another app has the screen): the same eyes, smaller, in the small notch */
+#pk-sprite { width: 42px; height: 13.8px; transform: translate3d(var(--pk-look-x, 0px), var(--pk-look-y, 1px), 0); transition: transform .06s ease-out; }
+#island[data-eye-style="sprite"] #v-peekaboo .pk-eyes { display: none !important; }
+#island[data-eye-style="sprite"] #v-peekaboo:not([data-music="1"]) #pk-sprite { display: block; }
+
+@media (prefers-reduced-motion: reduce) { #sprite-eyes, #pk-sprite { transition: none; animation: none !important; } }
+
+/* Rage: no outline. The classic angry styles draw a coloured outline and glow around the notch (the #notch-angry stroke, box-shadow
+   pulses, decorations); the glow eyes show the anger themselves (they tremble), so the notch keeps its normal edge. */
+#island[data-eye-style="sprite"] #notch-angry { opacity: 0 !important; filter: none !important; }
+#island[data-eye-style="sprite"][data-angry="1"] { box-shadow: none !important; outline: none !important; }
+#island[data-eye-style="sprite"][data-angry="1"]::before,
+#island[data-eye-style="sprite"][data-angry="1"]::after { display: none !important; }

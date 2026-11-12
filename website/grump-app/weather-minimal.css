@@ -1,0 +1,97 @@
+/* Minimal weather: flat black, big white symbol with the temperature on the left, the next four hours on the right */
+#island[data-expanded="1"][data-key="weather"] { background: #000 !important; }
+#island #v-weather.weather-page { background: #000 !important; padding: 0 !important; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 0 30px !important; color: #fff; }
+#island #v-weather .wm-now { flex: none; width: 128px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+#island #v-weather .wm-icon { width: 78px; height: 62px; display: block; }
+#island #v-weather .wm-icon svg { width: 100%; height: 100%; display: block; }
+#island #v-weather .wm-temp { font: 600 40px/1 var(--font-display); letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+#island #v-weather .wm-hours { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+#island #v-weather .wm-hour { display: flex; flex-direction: column; align-items: center; gap: 9px; }
+#island #v-weather .wm-hour-name { font: 500 13px/1 var(--font-display); color: rgba(255, 255, 255, .62); white-space: nowrap; }
+#island #v-weather .wm-hour-icon { width: 38px; height: 30px; display: block; }
+#island #v-weather .wm-hour-icon svg { width: 100%; height: 100%; display: block; }
+#island #v-weather .wm-hour strong { font: 600 17px/1 var(--font-display); font-variant-numeric: tabular-nums; }
+#island #v-weather .wm-meta { display: none; }
+
+/* wider spacing, hairline dividers, larger animated hero */
+#island #v-weather .wm-now { width: 156px; gap: 4px; }
+#island #v-weather button.wm-icon { width: 118px; height: 92px; padding: 0; border: 0 !important; background: none !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; cursor: pointer; border-radius: 12px; }
+#island #v-weather button.wm-icon:focus-visible { outline: 2px solid rgba(255, 255, 255, .85); outline-offset: 3px; }
+#island #v-weather .wm-hours { gap: 0; margin-left: 6px; }
+#island #v-weather .wm-hour { padding: 4px 6px; }
+#island #v-weather .wm-hour + .wm-hour { border-left: .25px solid rgba(255, 255, 255, .45); }
+#island #v-weather.weather-page { gap: 10px; padding: 0 22px 0 26px !important; }
+#island #v-weather .wm-hour-icon { width: 34px; height: 28px; }
+.wh-rays { transform-origin: 32px 24px; animation: whSpin 26s linear infinite; }
+.wh-rays-s { transform-origin: 43px 16px; animation: whSpin 30s linear infinite; }
+.wh-pulse { transform-origin: 32px 24px; animation: whBreath 4s ease-in-out infinite; }
+.wh-sun { transform-origin: 43px 16px; animation: whBreath 5s ease-in-out infinite; }
+.wh-drift { animation: whDrift 6s ease-in-out infinite; }
+.wh-drift-back { animation: whDrift 8s ease-in-out infinite reverse; }
+.wh-drop { animation: whDrop 1.1s ease-in infinite; animation-delay: calc(var(--i) * -.19s); }
+.wh-flake { animation: whFlake 2.4s ease-in infinite; animation-delay: calc(var(--i) * -.45s); }
+.wh-bolt { animation: whBolt 3.2s ease-in-out infinite; }
+@keyframes whSpin { to { transform: rotate(360deg); } }
+@keyframes whBreath { 50% { transform: scale(1.06); } }
+@keyframes whDrift { 50% { transform: translateX(2.5px); } }
+@keyframes whDrop { 0% { transform: translateY(-3px); opacity: 0; } 25% { opacity: 1; } 100% { transform: translateY(9px); opacity: 0; } }
+@keyframes whFlake { 0% { transform: translateY(-3px); opacity: 0; } 25% { opacity: 1; } 100% { transform: translateY(9px); opacity: 0; } }
+@keyframes whBolt { 0%, 62%, 100% { opacity: .28; } 66% { opacity: 1; } 70% { opacity: .35; } 74% { opacity: 1; } 82% { opacity: .28; } }
+@media (prefers-reduced-motion: reduce) { .wh-rays, .wh-rays-s, .wh-pulse, .wh-sun, .wh-drift, .wh-drift-back, .wh-drop, .wh-flake, .wh-bolt { animation: none; } .wh-drop { opacity: 1; } }
+#island #v-weather .wm-now { width: 138px; }
+#island #v-weather button.wm-icon { width: 100px; height: 78px; }
+#island #v-weather .wm-temp { font-size: 38px; }
+#island #v-weather .wm-hours { margin-left: 0; }
+#island #v-weather .wm-hour { padding: 4px 3px; gap: 8px; }
+#island #v-weather .wm-hour-name { font-size: 12px; }
+#island #v-weather .wm-hour strong { font-size: 16px; }
+#island #v-weather.weather-page { padding: 0 34px 0 22px !important; }
+/* location under the temperature */
+#island #v-weather .wm-city { max-width: 138px; font: 500 12px/1.1 var(--font-display); color: rgba(255, 255, 255, .62); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---------- Weather alert pill: a small animated scene (rain streaks, lightning flashes, gusts) ---------- */
+#island[data-key="weathernotice"] { overflow: hidden; }
+#island #v-weathernotice { position: absolute !important; top: 0 !important; left: 50% !important; width: 336px; height: 66px; padding: 0 26px 0 14px !important; gap: 14px !important; justify-content: flex-start !important; overflow: hidden; border-radius: 33px; background: transparent !important; }
+#island #v-weathernotice .wn-fx { position: absolute; inset: 0; pointer-events: none; z-index: 0; border-radius: inherit; overflow: hidden; }
+#island #v-weathernotice .wn-fx i { position: absolute; opacity: 0; transition: opacity .4s ease; }
+#island #v-weathernotice .wn-rain { inset: -20px; background: repeating-linear-gradient(104deg, transparent 0 10px, rgba(255, 255, 255, .5) 10px 11px, transparent 11px 24px); background-size: 48px 48px;
+  -webkit-mask-image: linear-gradient(90deg, #000, transparent 38%, transparent 100%); mask-image: linear-gradient(90deg, #000, transparent 38%, transparent 100%); animation: wnRain .6s linear infinite; }
+#island #v-weathernotice[data-condition="rain"] .wn-rain { opacity: .5; }
+#island #v-weathernotice[data-condition="storm"] .wn-rain { opacity: .6; animation-duration: .45s; }
+#island #v-weathernotice .wn-flash { inset: 0; background: #fff; }
+#island #v-weathernotice[data-condition="storm"] .wn-flash { opacity: 0; animation: wnFlash 3.4s ease-out infinite; }
+#island #v-weathernotice .wn-gust { left: -110px; width: 110px; height: 2px; border-radius: 2px; background: linear-gradient(90deg, transparent, #fff 55%, transparent); animation: wnGust 1.7s linear infinite; }
+#island #v-weathernotice .wn-gust.g1 { top: 18px; animation-delay: 0s; } #island #v-weathernotice .wn-gust.g2 { top: 33px; animation-delay: -.6s; width: 150px; } #island #v-weathernotice .wn-gust.g3 { top: 48px; animation-delay: -1.1s; }
+#island #v-weathernotice[data-condition="wind"] .wn-gust { opacity: .6; }
+#island #v-weathernotice .weather-notice-icon { position: relative; z-index: 2; width: 62px; height: 50px; flex: none; border-radius: 0; background: none !important; border: 0 !important; box-shadow: none !important; display: block; animation: none !important; }
+#island #v-weathernotice .weather-notice-icon svg { width: 100%; height: 100%; display: block; }
+#island #v-weathernotice .weather-notice-copy { margin-left: 0; align-items: flex-start; text-align: left; }
+#island #v-weathernotice .weather-notice-copy strong { max-width: 232px; font-size: 17px; letter-spacing: -.3px; color: #fff; }
+#island #v-weathernotice .weather-notice-copy span { font-size: 11px; color: rgba(255, 255, 255, .62); }
+/* entrance: icon pops in, text follows */
+#island #v-weathernotice.on .weather-notice-icon { animation: wnPop .7s cubic-bezier(.2, 1.35, .4, 1) both !important; }
+#island #v-weathernotice.on .weather-notice-copy strong { animation: wnSlide .5s .12s cubic-bezier(.2, .8, .2, 1) both; }
+#island #v-weathernotice.on .weather-notice-copy span { animation: wnSlide .5s .22s cubic-bezier(.2, .8, .2, 1) both; }
+.wh-gust-line { stroke-dasharray: 70; animation: whGust 2s ease-in-out infinite; }
+.wh-gust-line.l2 { animation-delay: .25s; } .wh-gust-line.l3 { animation-delay: .5s; }
+@keyframes whGust { 0% { stroke-dashoffset: 70; opacity: 0; } 25% { opacity: 1; } 55% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -70; opacity: 0; } }
+@keyframes wnRain { to { background-position: -24px 48px; } }
+@keyframes wnFlash { 0%, 60%, 100% { opacity: 0; } 62% { opacity: .3; } 66% { opacity: .04; } 69% { opacity: .22; } 78% { opacity: 0; } }
+@keyframes wnGust { from { transform: translateX(0); } to { transform: translateX(520px); } }
+@keyframes wnPop { 0% { transform: scale(.4) rotate(-12deg); opacity: 0; } 100% { transform: none; opacity: 1; } }
+@keyframes wnSlide { from { transform: translateX(14px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { #island #v-weathernotice .wn-rain, #island #v-weathernotice .wn-flash, #island #v-weathernotice .wn-gust, .wh-gust-line { animation: none !important; } #island #v-weathernotice.on * { animation: none !important; } }
+
+/* Storm alert: the bolt is glowing yellow and strikes down in time with the pill's flash */
+#island #v-weathernotice .wh-bolt { fill: #ffd426; stroke: none; transform-box: fill-box; transform-origin: 50% 0; opacity: 0;
+  filter: drop-shadow(0 0 3px #ffc400) drop-shadow(0 0 9px rgba(255, 196, 0, .75));
+  animation: wnStrike 3.4s ease-out infinite !important; }
+@keyframes wnStrike {
+  0%, 58% { opacity: 0; transform: translateY(-5px) scaleY(.15); }
+  62% { opacity: 1; transform: none; filter: drop-shadow(0 0 5px #fff3a0) drop-shadow(0 0 14px #ffc400); }
+  66% { opacity: .35; }
+  69% { opacity: 1; transform: none; }
+  80% { opacity: .85; }
+  92%, 100% { opacity: 0; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { #island #v-weathernotice .wh-bolt { animation: none !important; opacity: 1; } }

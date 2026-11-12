@@ -1,0 +1,11 @@
+/* Add-on live features inside the notch: privacy dots and the copy progress line. */
+#live-dots { position: absolute; right: 9px; top: 50%; transform: translateY(-50%); display: flex; gap: 4px; pointer-events: none; z-index: 7; opacity: 0; transition: opacity .25s ease; }
+#live-dots[data-on="1"] { opacity: 1; }
+.live-dot { width: 6px; height: 6px; border-radius: 50%; display: block; background: currentColor; box-shadow: 0 0 6px currentColor; }
+.live-dot.mic { color: #ff9f0a; }
+.live-dot.camera { color: #30d158; }
+.live-dot.screen { color: #bf5af2; }
+.live-dot.mic.muted { opacity: .45; box-shadow: none; }
+#live-progress { position: absolute; left: 14px; right: 14px; bottom: 2px; height: 2px; border-radius: 2px; background: #fff; transform-origin: 0 50%; transform: scaleX(0); opacity: 0; pointer-events: none; z-index: 7; transition: transform .35s ease, opacity .25s ease; }
+#live-progress[data-on="1"] { opacity: .85; }
+@media (prefers-reduced-motion: reduce) { #live-dots, #live-progress { transition: none; } }
