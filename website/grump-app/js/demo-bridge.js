@@ -111,7 +111,7 @@
     theme: 'default',
     eyeMode: 'auto',
     staticExp: 'normal',
-    angryVariant: 'berserk',
+    angryVariant: 'grump-eyes',
     leftEyeSize: 1,
     rightEyeSize: 1,
     quiet: false,
@@ -557,14 +557,15 @@
 
       case 'berserk':
         stopMusic();
-        demoSettings.angryVariant = 'berserk';
+        demoSettings.angryVariant = 'grump-eyes';
         demoSettings.eyeMode = 'auto';
         demoSettings.staticExp = 'normal';
         emit(cbs.settings, demoSettings);
         isl.collapse();
         isl.S.inAngryRadius = true;
         if (islandEl) {
-          islandEl.dataset.angryVariant = 'berserk';
+          islandEl.dataset.angryVariant = 'grump-eyes';
+          islandEl.dataset.eyeStyle = 'sprite';
           islandEl.dataset.angry = '1';
         }
         {
