@@ -2076,14 +2076,7 @@
     html.intro-on:not(.intro-late) .site-header { opacity: 0; visibility: hidden; }
     .site-header { transition: opacity .5s ease; }
     .intro-stage { position: sticky; top: 0; height: 100vh; height: 100svh; background: #000; overflow: hidden; opacity: var(--stage, 1); }
-    .intro-glow { position: absolute; left: 50%; top: 50%; width: 120vmax; height: 120vmax; margin: -60vmax 0 0 -60vmax; border-radius: 50%; opacity: var(--glow, 0); transform: scale(var(--glow-scale, .12));
-      background: radial-gradient(closest-side, rgba(255, 150, 30, .2), rgba(245, 158, 11, .08) 45%, transparent 72%); will-change: transform, opacity; }   /* only a faint ambient haze: the real light comes from the eyes (below) */
-    .intro-eyes::before { content: ""; position: absolute; inset: -60% -20%; z-index: -1; pointer-events: none; opacity: var(--glow, 0);
-      background:
-        radial-gradient(ellipse 25% 22% at 34.9% 49.1%, rgba(255, 140, 20, .5), rgba(245, 158, 11, .2) 50%, transparent 100%),
-        radial-gradient(ellipse 25% 22% at 64.9% 49.1%, rgba(255, 140, 20, .5), rgba(245, 158, 11, .2) 50%, transparent 100%); }   /* one bloom per eye, so it zooms with the eyes and stays behind the brow */
-    .intro-eyes { position: absolute; left: 50%; top: 50%; width: min(86vw, 980px); aspect-ratio: 436 / 144; transform: translate(-50%, -50%) scale(var(--zoom, 1)); will-change: transform; }
-    .intro-eyes canvas { display: block; width: 100%; height: 100%; opacity: var(--eyes, 0); }
+    .intro-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }   /* glow, eyes and zoom are all drawn here: one surface, nothing scaled by CSS */
     .intro-hint { position: absolute; left: 0; right: 0; bottom: max(7vh, 36px); margin: 0; text-align: center; color: #8d867f; font-size: 13px; letter-spacing: .06em; opacity: var(--hint, 0); transition: opacity .6s ease; }
     .intro-hint::after { content: ""; display: block; width: 1px; height: 28px; margin: 10px auto 0; background: linear-gradient(#8d867f, transparent); }
     .intro-skip { position: fixed; right: 18px; bottom: 18px; z-index: 200; display: none; padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(255,255,255,.22); background: rgba(20,17,14,.72); color: #e8e1d9; font: 600 13px/1 var(--font-sans, 'Plus Jakarta Sans', system-ui, sans-serif); cursor: pointer; }
@@ -2161,8 +2154,7 @@
   <main id="main-content">
     <section id="intro" class="intro" aria-hidden="true">
       <div class="intro-stage" id="intro-stage">
-        <div class="intro-glow" id="intro-glow"></div>
-        <div class="intro-eyes" id="intro-eyes"><canvas id="intro-canvas" width="872" height="288"></canvas></div>
+        <canvas class="intro-canvas" id="intro-canvas"></canvas>
         <p class="intro-hint" id="intro-hint" data-i18n="intro-hint">Scroll</p>
       </div>
     </section>
@@ -3615,12 +3607,13 @@
       var canvas = document.getElementById('intro-canvas'), ctx = canvas.getContext('2d');
       var skip = document.getElementById('intro-skip');
       var DATA = {"w": 970, "h": 320, "scale": 1.0, "eyes": [{"G": [238.94, 152.22], "R": 185.19, "c": [279.0, 153.75], "rx": 51.0, "ry": 89.25, "ang": 0.0, "color": [23, 7, 0], "safe": [[358.0, 237.0], [322.0, 253.0], [268.0, 256.0], [235.0, 250.0], [183.0, 226.0], [153.0, 200.0], [132.0, 172.0], [114.0, 135.0], [102.0, 87.0], [195.0, 136.0]]}, {"G": [728.5, 158.5], "R": 184.51, "c": [688.0, 153.75], "rx": 51.0, "ry": 89.25, "ang": 0.0, "color": [27, 10, 0], "safe": [[863.0, 87.0], [853.0, 131.0], [834.0, 171.0], [806.0, 206.0], [775.0, 230.0], [734.0, 249.0], [689.0, 256.0], [647.0, 253.0], [608.0, 237.0]]}]};
-      var base = new Image(), mask = new Image(), brow = new Image(), loaded = 0, layer = document.createElement('canvas');
+      var base = new Image(), mask = new Image(), brow = new Image(), loaded = 0;
+      var face = document.createElement('canvas'), eyes = document.createElement('canvas'), glow = document.createElement('canvas');
       var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
       var lerp = function (a, b, t) { return a + (b - a) * t; };
       var ease = function (t) { t = clamp(t, 0, 1); return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
       var rad = function (d) { return d * Math.PI / 180; };
-      var state = { open: -1, lx: 9, ly: 9 }, handed = false, finished = false, raf = 0;
+      var state = { open: -1, lx: 9, ly: 9, dirty: true }, handed = false, finished = false, raf = 0, last = null;
 
       /* sphere pose of one pupil, the same maths as the app's glow eyes: the pupil rides a globe, narrows toward the edge, and stays inside the eye */
       function inPoly(poly, x, y) { var inside = false; for (var i = 0, j = poly.length - 1; i < poly.length; j = i++) { var xi = poly[i][0], yi = poly[i][1], xj = poly[j][0], yj = poly[j][1]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside; } return inside; }
@@ -3632,40 +3625,35 @@
         if (!inPoly(e.safe, px, py)) { var n = nearest(e.safe, px, py); px = n[0]; py = n[1]; }
         return { px: px, py: py, sx: Math.max(.32, Math.cos(thx) / Math.cos(e.thx0)), sy: Math.max(.4, Math.cos(thy) / Math.cos(e.thy0)) };
       }
+      /* stage canvas at the screen's real pixels (capped at 2x) */
+      var dpr = 1;
       function size() {
-        var w = base.naturalWidth || 1940;   /* the canvas keeps the picture's own resolution (4K or 2K): while the camera falls in, every pixel is magnified, so nothing is thrown away */
-        var h = Math.round(w * DATA.h / DATA.w);
-        if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; state.open = -1; }
+        dpr = Math.min(2, window.devicePixelRatio || 1);
+        var w = Math.round(canvas.clientWidth * dpr), h = Math.round(canvas.clientHeight * dpr);
+        if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; glow.width = w; glow.height = h; }
+        state.dirty = true;
       }
-      /* The picture is glow on black. Its black is turned into transparency (alpha = the brightest channel), so no rectangle shows and the pupils can stay truly dark. Done once per size. */
-      var keyed = null, keyedKey = '';
-      function keyedFace(W, H) {
-        var id = W + 'x' + H; if (keyed && keyedKey === id) return keyed;
-        var cv = document.createElement('canvas'); cv.width = W; cv.height = H; var x = cv.getContext('2d', { willReadFrequently: true });
-        x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high'; x.fillStyle = '#000'; x.fillRect(0, 0, W, H);
-        x.drawImage(base, 0, 0, base.naturalWidth, base.naturalHeight, 0, 0, W, H);
+      /* The picture is glow on black. Its black becomes transparency (alpha = the brightest channel), so no rectangle shows and the pupils stay truly dark. Once. */
+      function keyFace() {
+        var W = base.naturalWidth, H = base.naturalHeight;
+        face.width = W; face.height = H; eyes.width = W; eyes.height = H;
+        var x = face.getContext('2d', { willReadFrequently: true });
+        x.fillStyle = '#000'; x.fillRect(0, 0, W, H); x.drawImage(base, 0, 0);
         var im = x.getImageData(0, 0, W, H), d = im.data;
-        /* the furry brow above the eyes is solid: the brow map keeps it opaque so the glow behind the face never shows through it */
-        var bc = document.createElement('canvas'); bc.width = W; bc.height = H; var bx = bc.getContext('2d', { willReadFrequently: true });
-        bx.imageSmoothingEnabled = true; bx.drawImage(brow, 0, 0, brow.naturalWidth, brow.naturalHeight, 0, 0, W, H);
-        var bd = bx.getImageData(0, 0, W, H).data;
         for (var i = 0; i < d.length; i += 4) {
-          var a = Math.max(d[i], d[i + 1], d[i + 2], bd[i]);
+          var a = Math.max(d[i], d[i + 1], d[i + 2]);
           if (!a) { d[i + 3] = 0; continue; }
           d[i] = Math.min(255, Math.round(d[i] * 255 / a)); d[i + 1] = Math.min(255, Math.round(d[i + 1] * 255 / a)); d[i + 2] = Math.min(255, Math.round(d[i + 2] * 255 / a)); d[i + 3] = a;
         }
-        x.putImageData(im, 0, 0); keyed = cv; keyedKey = id; return cv;
+        x.putImageData(im, 0, 0);
       }
-      function paint(gx, gy) {
-        if (loaded < 3) return;
-        var W = canvas.width, H = canvas.height, s = W / DATA.w;
-        ctx.clearRect(0, 0, W, H); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
-        ctx.drawImage(keyedFace(W, H), 0, 0);
-        if (layer.width !== W || layer.height !== H) { layer.width = W; layer.height = H; }
-        var lx = layer.getContext('2d'); lx.globalCompositeOperation = 'source-over'; lx.clearRect(0, 0, W, H);
+      /* the eyes at the picture's own resolution: face, live pupils clipped by the eye opening, then the opening slit (lids) and feathered sides */
+      function paintEyes(gx, gy, open) {
+        var W = eyes.width, H = eyes.height, s = W / DATA.w, lx = eyes.getContext('2d');
+        lx.globalCompositeOperation = 'source-over'; lx.clearRect(0, 0, W, H);
         DATA.eyes.forEach(function (e) {
           var p = pose(e, gx, gy); lx.save(); lx.translate(p.px * s, p.py * s); lx.rotate(rad(e.ang)); lx.scale(e.rx * p.sx * s, e.ry * p.sy * s);
-          /* depth: an almost black core, the picture's dark brown, a warmer rim lit by the glowing eye; crisp edge (about 1 px at 4K) */
+          /* depth: an almost black core, the picture's dark brown, a warmer rim lit by the glowing eye; crisp edge */
           var col = e.color[0] + ',' + e.color[1] + ',' + e.color[2], rim = Math.min(255, e.color[0] + 34) + ',' + Math.min(255, e.color[1] + 14) + ',' + Math.min(255, e.color[2] + 4);
           var g = lx.createRadialGradient(-.12, -.18, 0, 0, 0, 1.012);
           g.addColorStop(0, 'rgba(4,2,1,1)'); g.addColorStop(.55, 'rgba(' + col + ',1)'); g.addColorStop(.9, 'rgba(' + col + ',1)'); g.addColorStop(.972, 'rgba(' + rim + ',1)'); g.addColorStop(1, 'rgba(' + rim + ',0)');
@@ -3678,15 +3666,37 @@
           gl.addColorStop(0, 'rgba(255,240,220,.5)'); gl.addColorStop(1, 'rgba(255,240,220,0)');
           lx.fillStyle = gl; lx.beginPath(); lx.arc(.3, .42, .11, 0, Math.PI * 2); lx.fill(); lx.restore();
         });
-        lx.globalCompositeOperation = 'destination-in'; lx.drawImage(mask, 0, 0, mask.naturalWidth, mask.naturalHeight, 0, 0, W, H);   /* the pupils only exist inside the eye opening */
-        ctx.drawImage(layer, 0, 0);
+        lx.globalCompositeOperation = 'destination-in'; lx.drawImage(mask, 0, 0, W, H);          /* the pupils only exist inside the eye opening */
+        lx.globalCompositeOperation = 'destination-over'; lx.drawImage(face, 0, 0);               /* the face goes under the pupils */
+        /* the eyes open from a thin slit: a soft window that grows from the middle line; the sides are feathered so no rectangle shows */
+        var half = open * .5, soft = Math.min(.14, half), v = lx.createLinearGradient(0, 0, 0, H);
+        v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(clamp(.5 - half, 0, 1), 'rgba(0,0,0,0)'); v.addColorStop(clamp(.5 - half + soft, 0, 1), '#000');
+        v.addColorStop(clamp(.5 + half - soft, 0, 1), '#000'); v.addColorStop(clamp(.5 + half, 0, 1), 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,0)');
+        lx.globalCompositeOperation = 'destination-in'; lx.fillStyle = v; lx.fillRect(0, 0, W, H);
+        var sd = lx.createLinearGradient(0, 0, W, 0);
+        sd.addColorStop(0, 'rgba(0,0,0,0)'); sd.addColorStop(.09, '#000'); sd.addColorStop(.91, '#000'); sd.addColorStop(1, 'rgba(0,0,0,0)');
+        lx.fillStyle = sd; lx.fillRect(0, 0, W, H); lx.globalCompositeOperation = 'source-over';
       }
-      function lids(open) {   /* the eyes open from a thin slit: a soft-edged window that grows from the middle line; the picture's own edges are feathered so no rectangle shows */
-        var half = open * 50, soft = Math.min(14, half), top = 50 - half, bot = 50 + half;
-        var v = 'linear-gradient(to bottom, transparent ' + top + '%, #000 ' + (top + soft) + '%, #000 ' + (bot - soft) + '%, transparent ' + bot + '%)';
-        var side = 'linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%)';
-        canvas.style.webkitMaskImage = v + ', ' + side; canvas.style.maskImage = v + ', ' + side;
-        canvas.style.webkitMaskComposite = 'source-in'; canvas.style.maskComposite = 'intersect';
+      /* one frame of the stage: the warm glow behind the face (the furry brow hides it, and the brow continues above the picture so no edge shows), then the eyes */
+      function render(open, zoom, zoomT, glowA, glowScale, eyesA) {
+        var CW = canvas.width, CH = canvas.height, cx = CW / 2, cy = CH / 2;
+        var fw = Math.min(.86 * canvas.clientWidth, 980) * dpr * zoom, fh = fw * DATA.h / DATA.w, fx = cx - fw / 2, fy = cy - fh / 2;
+        ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, CW, CH);
+        var gx = glow.getContext('2d'); gx.globalCompositeOperation = 'source-over'; gx.clearRect(0, 0, CW, CH);
+        if (glowA > .001) {
+          var R = .78 * Math.min(.86 * canvas.clientWidth, 980) * dpr * glowScale, g = gx.createRadialGradient(cx, cy, 0, cx, cy, R);   /* sized by the eyes, not the screen, so a tall phone gets the same glow */
+          g.addColorStop(0, 'rgba(255,150,30,.55)'); g.addColorStop(.45, 'rgba(245,158,11,.22)'); g.addColorStop(.72, 'rgba(245,158,11,0)'); g.addColorStop(1, 'rgba(245,158,11,0)');
+          gx.globalAlpha = glowA; gx.fillStyle = g; gx.fillRect(0, 0, CW, CH); gx.globalAlpha = 1;
+          var hide = 1;                                                  /* the brow hides the glow in every phase, also while the camera falls in */
+          if (hide > .001) {
+            gx.globalCompositeOperation = 'destination-out'; gx.globalAlpha = hide; gx.imageSmoothingEnabled = true;
+            gx.drawImage(brow, fx - fw / 2, fy, fw * 2, fh);                                   /* the brow map is twice the picture's width and fades out at its sides */
+            if (fy > 0) gx.drawImage(brow, 0, 0, brow.naturalWidth, 1, fx - fw / 2, 0, fw * 2, fy + 1);   /* its top row carries on to the top of the screen */
+            gx.globalAlpha = 1; gx.globalCompositeOperation = 'source-over';
+          }
+          ctx.drawImage(glow, 0, 0);
+        }
+        if (eyesA > .001) { ctx.globalAlpha = eyesA; ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(eyes, fx, fy, fw, fh); ctx.globalAlpha = 1; }
       }
       function finish(jump) {
         if (finished) return; finished = true;
@@ -3708,26 +3718,25 @@
         else if (s >= 1.8) { t = ease((s - 1.8) / .35); gx = lerp(.85, 0, t); gy = lerp(.15, .8, t); }   /* 1.8 .. 2.15 look down, hold to 2.25 */
         var zoomT = clamp((s - 2.25) / .75, 0, 1), zoom = 1 + Math.pow(zoomT, 3) * 17;  /* 2.25 .. 3.0: the camera falls into the eyes */
         var stage = 1 - clamp((s - 2.55) / .4, 0, 1);                                    /* 2.55 .. 2.95: the overview shows through */
-        intro.style.setProperty('--eyes', clamp(open * 1.4, 0, 1));
-        intro.style.setProperty('--zoom', zoom);
         intro.style.setProperty('--stage', stage);
-        intro.style.setProperty('--glow', clamp(open * .9 + zoomT * .6, 0, 1));
-        intro.style.setProperty('--glow-scale', .12 + open * .5 + zoomT * 2.2);
         intro.style.setProperty('--hint', s < .12 ? 1 : 0);
-        if (Math.abs(open - state.open) > .002) { lids(open); state.open = open; }
-        if (Math.abs(gx - state.lx) > .003 || Math.abs(gy - state.ly) > .003) { paint(gx, gy); state.lx = gx; state.ly = gy; }
+        if (loaded >= 3) {
+          if (state.dirty || Math.abs(open - state.open) > .002 || Math.abs(gx - state.lx) > .003 || Math.abs(gy - state.ly) > .003) { paintEyes(gx, gy, open); state.open = open; state.lx = gx; state.ly = gy; state.dirty = false; last = null; }
+          var key = [open, zoom, zoomT].join();
+          if (key !== last) { render(open, zoom, zoomT, clamp(open * .9 + zoomT * .6, 0, 1), .12 + open * .5 + zoomT * 2.2, clamp(open * 1.4, 0, 1)); last = key; }
+        }
         if (s > 2.4 && !handed) handoff();
         root.classList.toggle('intro-late', s > 2.6);
         if (s >= 3.02) { try { sessionStorage.setItem('grumpIntroSeen', '1'); } catch (e) {} }
       }
       function request() { if (!raf) raf = requestAnimationFrame(frame); }
-      function onload() { if (++loaded === 3) { size(); state.lx = 9; request(); } }
+      function onload() { if (++loaded === 3) { keyFace(); size(); request(); } }
       base.onload = mask.onload = brow.onload = onload;
       /* two sizes of the same picture (AI-upscaled from the original): the 4K one only for big or sharp screens */
       var big = window.innerWidth * (window.devicePixelRatio || 1) > 1500;
-      base.src = big ? 'assets/intro-eyes-base-4k.webp' : 'assets/intro-eyes-base-2k.webp'; mask.src = 'assets/intro-eyes-mask.webp'; brow.src = 'assets/intro-eyes-brow.webp';
+      base.src = big ? 'assets/intro-eyes-base-4k.webp' : 'assets/intro-eyes-base-2k.webp'; mask.src = 'assets/intro-eyes-mask.webp'; brow.src = 'assets/intro-eyes-brow.webp?v=5';
       window.addEventListener('scroll', request, { passive: true });
-      window.addEventListener('resize', function () { size(); request(); });
+      window.addEventListener('resize', function () { size(); last = null; request(); });
       skip.addEventListener('click', function () { finish(true); });
       /* keyboard: tabbing into the page while the screen is still black jumps straight to the overview */
       document.addEventListener('focusin', function (e) { if (!finished && e.target !== skip && root.classList.contains('intro-on') && -intro.getBoundingClientRect().top / window.innerHeight < 2.5) finish(true); });
