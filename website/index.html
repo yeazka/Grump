@@ -3734,7 +3734,7 @@
       base.onload = mask.onload = brow.onload = onload;
       /* two sizes of the same picture (AI-upscaled from the original): the 4K one only for big or sharp screens */
       var big = window.innerWidth * (window.devicePixelRatio || 1) > 1500;
-      base.src = big ? 'assets/intro-eyes-base-4k.webp' : 'assets/intro-eyes-base-2k.webp'; mask.src = 'assets/intro-eyes-mask.webp'; brow.src = 'assets/intro-eyes-brow.webp?v=5';
+      base.src = big ? 'assets/intro-eyes-base-4k.webp' : 'assets/intro-eyes-base-2k.webp'; mask.src = 'assets/intro-eyes-mask.webp?v=2'; brow.src = 'assets/intro-eyes-brow.webp?v=6';
       window.addEventListener('scroll', request, { passive: true });
       window.addEventListener('resize', function () { size(); last = null; request(); });
       skip.addEventListener('click', function () { finish(true); });
