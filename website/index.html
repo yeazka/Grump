@@ -2338,7 +2338,7 @@
                   </div>
                   <iframe
                     id="grump-demo-frame"
-                    src="grump-app/"
+                    src="grump-app/?v=20261112-2"
                     width="640"
                     height="420"
                     class="grump-iframe"
@@ -3165,11 +3165,12 @@
 
     function sendToGrump(payload) {
       const frame = document.getElementById('grump-demo-frame');
-      if (frame && frame.contentWindow) {
+      if (demoFrameReady && frame && frame.contentWindow) {
         frame.contentWindow.postMessage({ type: 'grump-demo', ...payload }, window.location.origin);
       }
     }
 
+    let demoFrameReady = false;
     let currentDemoMode = 'berserk';
     let currentDockMode = 'anchored';
 
@@ -3187,6 +3188,7 @@
     window.addEventListener('resize', fitLaptopScale);
     window.addEventListener('DOMContentLoaded', fitLaptopScale);
     document.getElementById('grump-demo-frame').addEventListener('load', () => {
+      demoFrameReady = true;
       fitLaptopScale();
       replayDemoState();
     });

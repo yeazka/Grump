@@ -689,7 +689,7 @@ function ensureNoticeGlass() {
   if (noticeGlassRequested) return;
   noticeGlassRequested = true;
   const script = document.createElement('script');
-  script.src = 'js/liquid-glass-notice.js';
+  script.src = 'js/liquid-glass-notice.js?v=20261112-2';
   script.async = true;
   document.body.appendChild(script);
 }
