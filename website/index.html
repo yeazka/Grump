@@ -2077,7 +2077,7 @@
     .site-header { transition: opacity .5s ease; }
     .intro-stage { position: sticky; top: 0; height: 100vh; height: 100svh; background: #000; overflow: hidden; opacity: var(--stage, 1); }
     .intro-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }   /* glow, eyes and zoom are all drawn here: one surface, nothing scaled by CSS */
-    .intro-hint { position: absolute; left: 0; right: 0; bottom: max(7vh, 36px); margin: 0; text-align: center; color: #8d867f; font-size: 13px; letter-spacing: .06em; opacity: var(--hint, 0); transition: opacity .6s ease; }
+    .intro-hint { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); margin: 0;   /* centred: the screen is still black while it shows, the eyes open after it fades */ text-align: center; color: #8d867f; font-size: 13px; letter-spacing: .06em; opacity: var(--hint, 0); transition: opacity .6s ease; }
     .intro-hint::after { content: ""; display: block; width: 1px; height: 28px; margin: 10px auto 0; background: linear-gradient(#8d867f, transparent); }
     .intro-skip { position: fixed; right: 18px; bottom: 18px; z-index: 200; display: none; padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(255,255,255,.22); background: rgba(20,17,14,.72); color: #e8e1d9; font: 600 13px/1 var(--font-sans, 'Plus Jakarta Sans', system-ui, sans-serif); cursor: pointer; }
     .intro-skip:hover { background: rgba(255,255,255,.12); }
