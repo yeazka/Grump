@@ -2023,6 +2023,36 @@
       transform: translateY(-2px);
     }
 
+  
+    /* Sneak peek (v1.2.0): one large feature card, two smaller ones, then a quiet list. Reuses the release section head. */
+    .peek-section::before { display: none; }
+    .peek-state { color: #d9d2ca; font-size: 12.5px; font-weight: 700; letter-spacing: .04em; }
+    .peek-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 20px; }
+    .peek-card { grid-column: span 5; display: flex; flex-direction: column; border-radius: 22px; border: 1px solid rgba(255,255,255,.09); background: #14110e; overflow: hidden; }
+    .peek-main { grid-column: span 7; grid-row: span 2; }
+    .peek-card figure { margin: 0; background: #0b0704; }
+    .peek-main figure { flex: 1; display: grid; align-content: center; background: radial-gradient(70% 70% at 50% 45%, rgba(245,158,11,.10), transparent 72%), #0b0704; padding: 18px; }
+    .peek-main figure img { border-radius: 14px; }
+    .peek-card img { display: block; width: 100%; height: auto; }
+    .peek-eyes { padding: 26px 20px 12px; display: grid; place-items: center; background: radial-gradient(60% 90% at 50% 40%, rgba(245,158,11,.14), transparent 70%), #0b0704; }
+    .peek-eyes img { width: min(100%, 380px); }
+    .peek-copy { padding: 20px 22px 24px; }
+    .peek-copy h3 { margin: 0 0 8px; font-size: 20px; line-height: 1.2; letter-spacing: -.02em; }
+    .peek-copy p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.65; }
+    .peek-main .peek-copy { padding: 24px 28px 30px; }
+    .peek-main .peek-copy h3 { font-size: 26px; }
+    .peek-main .peek-copy p { font-size: 16px; max-width: 560px; }
+    .peek-more { margin-top: 44px; padding-top: 28px; border-top: 1px solid rgba(255,255,255,.12); display: grid; grid-template-columns: 220px 1fr; gap: 12px 32px; }
+    .peek-more h3 { margin: 0; font-size: 16px; color: #f4eee8; }
+    .peek-more ul { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 32px; }
+    .peek-more li { color: var(--muted); font-size: 15px; line-height: 1.5; padding-left: 18px; position: relative; }
+    .peek-more li::before { content: ""; position: absolute; left: 2px; top: .62em; width: 6px; height: 6px; border-radius: 50%; background: var(--amber-bright); }
+    .peek-note { margin: 28px 0 0; color: #9f9892; font-size: 13px; }
+    @media (max-width: 860px) {
+      .peek-card, .peek-main { grid-column: 1 / -1; grid-row: auto; }
+      .peek-more { grid-template-columns: 1fr; }
+      .peek-more ul { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -2265,6 +2295,47 @@
       </div>
     </section>
 
+
+  <section id="sneak-peek" class="release-section peek-section" aria-labelledby="peek-title">
+    <div class="release-inner">
+      <div class="release-head">
+        <div>
+          <span class="release-kicker" data-i18n="peek-kicker">SNEAK PEEK</span>
+          <h2 class="release-title" id="peek-title" data-i18n="peek-title">Grump v1.2.0 is coming.</h2>
+          <p class="release-sub" data-i18n="peek-sub">A dock, two looks, and a face that glows. There is no date yet, so here is a first look.</p>
+        </div>
+        <div class="release-status">
+          <span class="release-version">v1.2.0</span>
+          <span class="peek-state" data-i18n="peek-state">Coming soon</span>
+        </div>
+      </div>
+      <div class="peek-grid">
+        <article class="peek-card peek-main">
+          <figure><img src="assets/peek-dock.webp" width="1000" height="489" alt="The Grump Dock at the bottom of a desktop, with taskbar app icons, Wi-Fi and Bluetooth, a clock, and the notch above it" loading="lazy" decoding="async" data-i18n-alt="peek-dock-alt"></figure>
+          <div class="peek-copy"><h3 data-i18n="peek-dock-title">Meet the Dock</h3><p data-i18n="peek-dock-desc">A dock at the bottom of your screen with your taskbar apps, icons that grow under the cursor, a Control Center for Wi-Fi, Bluetooth, volume and brightness, and a glass calendar.</p></div>
+        </article>
+        <article class="peek-card">
+          <figure><img src="assets/peek-themes.webp" width="1000" height="452" alt="Two notch previews side by side: a solid black Obsidian one and a see-through Liquid Glass one" loading="lazy" decoding="async" data-i18n-alt="peek-theme-alt"></figure>
+          <div class="peek-copy"><h3 data-i18n="peek-theme-title">Obsidian or Liquid Glass</h3><p data-i18n="peek-theme-desc">Pick the solid black look or a see-through glass that blurs your desktop. Liquid Glass is heavier, so Obsidian stays for lighter PCs.</p></div>
+        </article>
+        <article class="peek-card">
+          <figure class="peek-eyes"><img src="assets/peek-eyes.webp" width="900" height="190" alt="The Grump notch with glowing orange eyes" loading="lazy" decoding="async" data-i18n-alt="peek-eyes-alt"></figure>
+          <div class="peek-copy"><h3 data-i18n="peek-eyes-title">Grump Eyes</h3><p data-i18n="peek-eyes-desc">A new glowing face with live pupils that follow your cursor, and a hello the first time you open it.</p></div>
+        </article>
+      </div>
+      <div class="peek-more">
+        <h3 data-i18n="peek-more-title">Also on the way</h3>
+        <ul>
+          <li data-i18n="peek-more-1">Full month calendar with events and notes</li>
+          <li data-i18n="peek-more-2">Privacy dots when a microphone, camera or screen capture is in use</li>
+          <li data-i18n="peek-more-3">Meeting mode for calls</li>
+          <li data-i18n="peek-more-4">Volume and brightness shown under the lyric row</li>
+          <li data-i18n="peek-more-5">AI status for Claude Code, Gemini CLI and Cursor</li>
+        </ul>
+      </div>
+      <p class="peek-note" data-i18n="peek-note">First screenshots from a build in progress. Features and visuals can still change.</p>
+    </div>
+  </section>
 
     <section id="whats-new" class="release-section" aria-labelledby="release-title">
       <div class="release-inner">
@@ -2565,6 +2636,26 @@
         "nav-whats-new": "What's new",
         "nav-specifications": "Specification",
         "release-kicker": "LATEST UPDATE",
+      "peek-kicker": "SNEAK PEEK",
+      "peek-title": "Grump v1.2.0 is coming.",
+      "peek-sub": "A dock, two looks, and a face that glows. There is no date yet, so here is a first look.",
+      "peek-state": "Coming soon",
+      "peek-dock-title": "Meet the Dock",
+      "peek-dock-desc": "A dock at the bottom of your screen with your taskbar apps, icons that grow under the cursor, a Control Center for Wi-Fi, Bluetooth, volume and brightness, and a glass calendar.",
+      "peek-theme-title": "Obsidian or Liquid Glass",
+      "peek-theme-desc": "Pick the solid black look or a see-through glass that blurs your desktop. Liquid Glass is heavier, so Obsidian stays for lighter PCs.",
+      "peek-eyes-title": "Grump Eyes",
+      "peek-eyes-desc": "A new glowing face with live pupils that follow your cursor, and a hello the first time you open it.",
+      "peek-more-title": "Also on the way",
+      "peek-more-1": "Full month calendar with events and notes",
+      "peek-more-2": "Privacy dots when a microphone, camera or screen capture is in use",
+      "peek-more-3": "Meeting mode for calls",
+      "peek-more-4": "Volume and brightness shown under the lyric row",
+      "peek-more-5": "AI status for Claude Code, Gemini CLI and Cursor",
+      "peek-note": "First screenshots from a build in progress. Features and visuals can still change.",
+      "peek-dock-alt": "The Grump Dock at the bottom of a desktop, with taskbar app icons, Wi-Fi and Bluetooth, a clock, and the notch above it",
+      "peek-theme-alt": "Two notch previews side by side: a solid black Obsidian one and a see-through Liquid Glass one",
+      "peek-eyes-alt": "The Grump notch with glowing orange eyes",
         "release-title": "Grump v1.1.5 is live.",
         "release-sub": "A steadier Island, cleaner notifications, and better connectivity controls.",
         "release-countdown-label": "Available now with automatic updates",
@@ -2646,6 +2737,26 @@
         "nav-whats-new": "Yang baru",
         "nav-specifications": "Spesifikasi",
         "release-kicker": "UPDATE TERBARU",
+      "peek-kicker": "SNEAK PEEK",
+      "peek-title": "Grump v1.2.0 segera hadir.",
+      "peek-sub": "Dock, dua tampilan, dan wajah yang menyala. Tanggalnya belum ada, jadi ini cuplikan pertamanya.",
+      "peek-state": "Segera hadir",
+      "peek-dock-title": "Kenalan dengan Dock",
+      "peek-dock-desc": "Dock di bagian bawah layar dengan aplikasi taskbar-mu, ikon yang membesar saat kursor lewat, Control Center untuk Wi-Fi, Bluetooth, volume, dan kecerahan, plus kalender kaca.",
+      "peek-theme-title": "Obsidian atau Liquid Glass",
+      "peek-theme-desc": "Pilih tampilan hitam pekat atau kaca tembus pandang yang memburamkan desktopmu. Liquid Glass lebih berat, jadi Obsidian tetap ada untuk PC yang lebih ringan.",
+      "peek-eyes-title": "Grump Eyes",
+      "peek-eyes-desc": "Wajah baru yang menyala dengan pupil hidup yang mengikuti kursor, dan sapaan saat pertama kali dibuka.",
+      "peek-more-title": "Juga sedang dikerjakan",
+      "peek-more-1": "Kalender sebulan penuh dengan acara dan catatan",
+      "peek-more-2": "Titik privasi saat mikrofon, kamera, atau perekaman layar dipakai",
+      "peek-more-3": "Mode meeting untuk panggilan",
+      "peek-more-4": "Volume dan kecerahan tampil di bawah baris lirik",
+      "peek-more-5": "Status AI untuk Claude Code, Gemini CLI, dan Cursor",
+      "peek-note": "Screenshot pertama dari build yang masih dikerjakan. Fitur dan tampilan masih bisa berubah.",
+      "peek-dock-alt": "Dock Grump di bagian bawah desktop, dengan ikon aplikasi taskbar, Wi-Fi dan Bluetooth, jam, dan notch di atasnya",
+      "peek-theme-alt": "Dua pratinjau notch berdampingan: Obsidian hitam pekat dan Liquid Glass tembus pandang",
+      "peek-eyes-alt": "Notch Grump dengan mata oranye yang menyala",
         "release-title": "Grump v1.1.5 sudah rilis.",
         "release-sub": "Island lebih stabil, notifikasi lebih bersih, dan kontrol konektivitas lebih jelas.",
         "release-countdown-label": "Sudah tersedia dengan update otomatis",
@@ -2983,6 +3094,7 @@
         const key = el.getAttribute('data-i18n');
         if (dict && dict[key] !== undefined) el.innerHTML = dict[key];
       });
+      document.querySelectorAll('[data-i18n-alt]').forEach(el => { const key = el.getAttribute('data-i18n-alt'); if (dict && dict[key] !== undefined) el.alt = dict[key]; });
       document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
         const key = el.getAttribute('data-i18n-placeholder');
         if (dict && dict[key] !== undefined) el.placeholder = dict[key];
