@@ -3780,5 +3780,56 @@
       request();
     })();
   </script>
+<!-- Download choice: v1.2.0 is new and still has known bugs, v1.1.5 is the settled build -->
+<div id="dl-choice" class="dlc" hidden role="dialog" aria-modal="true" aria-labelledby="dlc-title">
+  <div class="dlc-back" data-dlc-close></div>
+  <div class="dlc-card">
+    <h3 id="dlc-title"></h3>
+    <p id="dlc-body"></p>
+    <div class="dlc-actions">
+      <a id="dlc-new" class="dlc-btn dlc-new" href="https://github.com/yeazka/Grump/releases/download/v1.2.0/Grump-Setup-1.2.0.exe" rel="noopener noreferrer"></a>
+      <a id="dlc-old" class="dlc-btn dlc-old" href="https://github.com/yeazka/Grump/releases/download/v1.1.5/Grump-Setup-1.1.5.exe" rel="noopener noreferrer"></a>
+    </div>
+    <button type="button" class="dlc-cancel" data-dlc-close></button>
+  </div>
+</div>
+<style>
+.dlc{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:16px}
+.dlc[hidden]{display:none}
+.dlc-back{position:absolute;inset:0;background:rgba(5,3,2,.72);backdrop-filter:blur(6px)}
+.dlc-card{position:relative;max-width:440px;width:100%;background:var(--surface-elevated);border:1px solid var(--line);border-radius:22px;padding:26px 24px 18px;color:var(--text);box-shadow:0 30px 80px rgba(0,0,0,.55)}
+.dlc-card h3{margin:0 0 10px;font-size:22px;line-height:1.25}
+.dlc-card p{margin:0 0 20px;color:var(--muted);font-size:15px;line-height:1.55}
+.dlc-actions{display:grid;gap:10px}
+.dlc-btn{display:block;text-align:center;padding:13px 16px;border-radius:14px;font-weight:700;font-size:15px;text-decoration:none}
+.dlc-new{background:linear-gradient(180deg,var(--amber-bright),var(--orange));color:#1a0d02}
+.dlc-old{background:transparent;color:var(--text);border:1px solid var(--line)}
+.dlc-btn small{display:block;font-weight:500;font-size:12px;opacity:.8;margin-top:2px}
+.dlc-btn:focus-visible,.dlc-cancel:focus-visible{outline:2px solid var(--amber-bright);outline-offset:2px}
+.dlc-cancel{display:block;margin:12px auto 0;background:none;border:0;color:var(--muted);font:inherit;font-size:14px;cursor:pointer;padding:6px 10px}
+</style>
+<script>
+(function(){
+  const T={
+    en:{title:'Heads up: v1.2.0 is brand new',body:'Some new features still have bugs we are fixing right now. If you want the settled version, grab v1.1.5. Grump updates itself when the fixes are out.',
+        nw:'Download v1.2.0 anyway<small>Dock, Liquid Glass, Grump Eyes</small>',old:'Download v1.1.5<small>Stable and lighter</small>',cancel:'Cancel'},
+    id:{title:'Info dulu: v1.2.0 masih baru banget',body:'Beberapa fitur baru masih ada bug yang lagi kami perbaiki. Kalau mau versi yang sudah stabil, ambil v1.1.5. Grump akan update sendiri begitu perbaikannya keluar.',
+        nw:'Tetap download v1.2.0<small>Dock, Liquid Glass, Grump Eyes</small>',old:'Download v1.1.5<small>Stabil dan lebih ringan</small>',cancel:'Batal'}};
+  const box=document.getElementById('dl-choice');let back=null;
+  function lang(){try{return (typeof currentLang!=='undefined'&&currentLang==='id')?'id':'en'}catch(e){return 'en'}}
+  function open(){const t=T[lang()];
+    document.getElementById('dlc-title').textContent=t.title;document.getElementById('dlc-body').textContent=t.body;
+    document.getElementById('dlc-new').innerHTML=t.nw;document.getElementById('dlc-old').innerHTML=t.old;box.querySelector('.dlc-cancel').textContent=t.cancel;
+    back=document.activeElement;box.hidden=false;document.getElementById('dlc-new').focus()}
+  function close(){box.hidden=true;if(back&&back.focus)back.focus()}
+  document.addEventListener('click',e=>{
+    const a=e.target.closest&&e.target.closest('a');
+    if(a&&!box.contains(a)&&(a.id==='btn-dl-setup'||/Grump-Setup-1\.2\.\d+\.exe/i.test(a.getAttribute('href')||''))){e.preventDefault();e.stopImmediatePropagation();open();return}
+    if(e.target.closest&&e.target.closest('[data-dlc-close]'))close();
+    if(e.target.closest&&e.target.closest('.dlc-btn'))setTimeout(close,50);
+  },true);
+  document.addEventListener('keydown',e=>{if(!box.hidden&&e.key==='Escape')close()});
+})();
+</script>
 </body>
 </html>
