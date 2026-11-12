@@ -8,6 +8,16 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' https://d8j0ntlcm91z4.cloudfront.net; frame-src 'self'; connect-src 'self' https://api.github.com https://grump-feedback.azkaatsmara456.workers.dev; object-src 'none'; base-uri 'self'; form-action 'self'">
   <meta name="theme-color" content="#0b0704">
+  <script>
+    /* Scroll intro switch: runs before first paint so there is no flash. No JavaScript, reduced motion, or a repeat visit in this tab means no intro. */
+    (function () {
+      try {
+        var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var seen = sessionStorage.getItem('grumpIntroSeen') === '1';
+        if (!reduced && !seen) { document.documentElement.classList.add('intro-on'); window.__introHold = true; }
+      } catch (e) {}
+    })();
+  </script>
   <title>Grump Notch: Your Desktop Just Got Angrier</title>
   <link rel="canonical" href="https://yeazka.github.io/Grump/">
   <link rel="alternate" hreflang="en" href="https://yeazka.github.io/Grump/?lang=en">
@@ -2058,9 +2068,30 @@
       .peek-more { grid-template-columns: 1fr; }
       .peek-more ul { grid-template-columns: 1fr; }
     }
+  
+    /* Scroll intro: the page starts black, the eyes open while you scroll, then the camera falls into them and the overview takes over.
+       Purpose: Grump waking up is the product's one brand moment. It is skipped for reduced motion, can be skipped with a button, and plays once per tab. */
+    .intro { display: none; position: relative; height: 400vh; height: 400svh; margin-bottom: -100vh; margin-bottom: -100svh; z-index: 60; pointer-events: none; }
+    html.intro-on .intro { display: block; }
+    html.intro-on:not(.intro-late) .site-header { opacity: 0; visibility: hidden; }
+    .site-header { transition: opacity .5s ease; }
+    .intro-stage { position: sticky; top: 0; height: 100vh; height: 100svh; background: #000; overflow: hidden; opacity: var(--stage, 1); }
+    .intro-glow { position: absolute; left: 50%; top: 50%; width: 120vmax; height: 120vmax; margin: -60vmax 0 0 -60vmax; border-radius: 50%; opacity: var(--glow, 0); transform: scale(var(--glow-scale, .12));
+      background: radial-gradient(closest-side, rgba(255, 150, 30, .55), rgba(245, 158, 11, .22) 45%, transparent 72%); will-change: transform, opacity; }
+    .intro-eyes { position: absolute; left: 50%; top: 50%; width: min(86vw, 980px); aspect-ratio: 436 / 144; transform: translate(-50%, -50%) scale(var(--zoom, 1)); will-change: transform; mix-blend-mode: screen; }   /* screen: the picture's black disappears into the glow behind it */
+    .intro-eyes canvas { display: block; width: 100%; height: 100%; opacity: var(--eyes, 0); }
+    .intro-hint { position: absolute; left: 0; right: 0; bottom: max(7vh, 36px); margin: 0; text-align: center; color: #8d867f; font-size: 13px; letter-spacing: .06em; opacity: var(--hint, 0); transition: opacity .6s ease; }
+    .intro-hint::after { content: ""; display: block; width: 1px; height: 28px; margin: 10px auto 0; background: linear-gradient(#8d867f, transparent); }
+    .intro-skip { position: fixed; right: 18px; bottom: 18px; z-index: 200; display: none; padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(255,255,255,.22); background: rgba(20,17,14,.72); color: #e8e1d9; font: 600 13px/1 var(--font-sans, 'Plus Jakarta Sans', system-ui, sans-serif); cursor: pointer; }
+    .intro-skip:hover { background: rgba(255,255,255,.12); }
+    .intro-skip:focus-visible { outline: 2px solid #fbbf24; outline-offset: 3px; }
+    html.intro-on .intro-skip { display: block; }
+    html.intro-on.intro-late .intro-skip { display: none; }
+    @media (prefers-reduced-motion: reduce) { html.intro-on .intro, html.intro-on .intro-skip { display: none; } html.intro-on .site-header { opacity: 1; visibility: visible; } }
   </style>
 </head>
 <body>
+  <button type="button" class="intro-skip" id="intro-skip" data-i18n="intro-skip">Skip intro</button>
 
   <header class="site-header">
     <div class="wrap header-inner">
@@ -2124,6 +2155,13 @@
   </header>
 
   <main id="main-content">
+    <section id="intro" class="intro" aria-hidden="true">
+      <div class="intro-stage" id="intro-stage">
+        <div class="intro-glow" id="intro-glow"></div>
+        <div class="intro-eyes" id="intro-eyes"><canvas id="intro-canvas" width="872" height="288"></canvas></div>
+        <p class="intro-hint" id="intro-hint" data-i18n="intro-hint">Scroll</p>
+      </div>
+    </section>
 
     <section id="overview" class="hero-section" aria-labelledby="hero-heading">
       <canvas id="hero-code-rain" class="hero-code-rain" aria-hidden="true"></canvas>
@@ -2641,6 +2679,8 @@
         "nav-whats-new": "What's new",
         "nav-specifications": "Specification",
         "release-kicker": "LATEST UPDATE",
+      "intro-skip": "Skip intro",
+      "intro-hint": "Scroll",
       "peek-kicker": "SNEAK PEEK",
       "peek-title": "Grump v1.2.0 is coming.",
       "peek-sub": "A dock, two looks, and a face that glows. There is no date yet, so here is a first look.",
@@ -2742,6 +2782,8 @@
         "nav-whats-new": "Yang baru",
         "nav-specifications": "Spesifikasi",
         "release-kicker": "UPDATE TERBARU",
+      "intro-skip": "Lewati intro",
+      "intro-hint": "Gulir ke bawah",
       "peek-kicker": "SNEAK PEEK",
       "peek-title": "Grump v1.2.0 segera hadir.",
       "peek-sub": "Dock, dua tampilan, dan wajah yang menyala. Tanggalnya belum ada, jadi ini cuplikan pertamanya.",
@@ -3113,7 +3155,7 @@
       if (sw) sw.setAttribute('data-lang', lang);
       if (btnEn) btnEn.setAttribute('aria-pressed', String(lang === 'en'));
       if (btnId) btnId.setAttribute('aria-pressed', String(lang === 'id'));
-      startHeroScramble(lang);
+      if (!window.__introHold) startHeroScramble(lang);
       updateCaption();
       renderTestimonial(activeTestiIndex);
     }
@@ -3558,6 +3600,101 @@
       updateReleaseCountdown();
     });
 
+  </script>
+
+  <script>
+    /* Scroll intro (see the styles for the purpose). Everything is driven by the scroll position, so it plays backwards too. */
+    (function () {
+      var root = document.documentElement;
+      var intro = document.getElementById('intro');
+      if (!root.classList.contains('intro-on') || !intro) return;
+      var canvas = document.getElementById('intro-canvas'), ctx = canvas.getContext('2d');
+      var skip = document.getElementById('intro-skip');
+      var DATA = {"w": 436, "h": 144, "scale": 0.45, "eyes": [{"G": [107.52, 68.5], "R": 83.34, "c": [125.55, 69.19], "rx": 22.95, "ry": 40.16, "ang": 0.0, "color": [23, 7, 0], "safe": [[161.1, 106.65], [144.9, 113.85], [120.6, 115.2], [105.75, 112.5], [82.35, 101.7], [68.85, 90.0], [59.4, 77.4], [51.3, 60.75], [45.9, 39.15], [87.75, 61.2]]}, {"G": [327.82, 71.33], "R": 83.03, "c": [309.6, 69.19], "rx": 22.95, "ry": 40.16, "ang": 0.0, "color": [27, 10, 0], "safe": [[388.35, 39.15], [383.85, 58.95], [375.3, 76.95], [362.7, 92.7], [348.75, 103.5], [330.3, 112.05], [310.05, 115.2], [291.15, 113.85], [273.6, 106.65]]}]};
+      var base = new Image(), mask = new Image(), loaded = 0, layer = document.createElement('canvas');
+      var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
+      var lerp = function (a, b, t) { return a + (b - a) * t; };
+      var ease = function (t) { t = clamp(t, 0, 1); return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
+      var rad = function (d) { return d * Math.PI / 180; };
+      var state = { open: -1, lx: 9, ly: 9 }, handed = false, finished = false, raf = 0;
+
+      /* sphere pose of one pupil, the same maths as the app's glow eyes: the pupil rides a globe, narrows toward the edge, and stays inside the eye */
+      function inPoly(poly, x, y) { var inside = false; for (var i = 0, j = poly.length - 1; i < poly.length; j = i++) { var xi = poly[i][0], yi = poly[i][1], xj = poly[j][0], yj = poly[j][1]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside; } return inside; }
+      function nearest(poly, x, y) { var best = null, bd = Infinity; for (var i = 0; i < poly.length; i++) { var a = poly[i], b = poly[(i + 1) % poly.length], dx = b[0] - a[0], dy = b[1] - a[1], l2 = dx * dx + dy * dy || 1, t = clamp(((x - a[0]) * dx + (y - a[1]) * dy) / l2, 0, 1), px = a[0] + t * dx, py = a[1] + t * dy, d = (px - x) * (px - x) + (py - y) * (py - y); if (d < bd) { bd = d; best = [px, py]; } } return best; }
+      DATA.eyes.forEach(function (e) { e.thy0 = Math.asin(clamp((e.c[1] - e.G[1]) / e.R, -.95, .95)); e.thx0 = Math.asin(clamp((e.c[0] - e.G[0]) / e.R / Math.cos(e.thy0), -.95, .95)); });
+      function pose(e, gx, gy) {
+        var thx = e.thx0 + gx * rad(50), thy = e.thy0 + gy * rad(26);
+        var px = e.G[0] + e.R * Math.sin(thx) * Math.cos(thy), py = e.G[1] + e.R * Math.sin(thy);
+        if (!inPoly(e.safe, px, py)) { var n = nearest(e.safe, px, py); px = n[0]; py = n[1]; }
+        return { px: px, py: py, sx: Math.max(.32, Math.cos(thx) / Math.cos(e.thx0)), sy: Math.max(.4, Math.cos(thy) / Math.cos(e.thy0)) };
+      }
+      function size() {
+        var w = Math.round(Math.min(canvas.offsetWidth || 900, 980) * Math.min(window.devicePixelRatio || 1, 2));
+        var h = Math.round(w * DATA.h / DATA.w);
+        if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; state.open = -1; }
+      }
+      function paint(gx, gy) {
+        if (loaded < 2) return;
+        var W = canvas.width, H = canvas.height, s = W / DATA.w;
+        ctx.clearRect(0, 0, W, H); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(base, 0, 0, base.naturalWidth, base.naturalHeight, 0, 0, W, H);
+        if (layer.width !== W || layer.height !== H) { layer.width = W; layer.height = H; }
+        var lx = layer.getContext('2d'); lx.globalCompositeOperation = 'source-over'; lx.clearRect(0, 0, W, H);
+        DATA.eyes.forEach(function (e) {
+          var p = pose(e, gx, gy); lx.save(); lx.translate(p.px * s, p.py * s); lx.rotate(rad(e.ang)); lx.scale(e.rx * p.sx * s, e.ry * p.sy * s);
+          var col = e.color[0] + ',' + e.color[1] + ',' + e.color[2], g = lx.createRadialGradient(0, 0, 0, 0, 0, 1.05);
+          g.addColorStop(0, 'rgba(' + col + ',1)'); g.addColorStop(.905, 'rgba(' + col + ',1)'); g.addColorStop(1, 'rgba(' + col + ',0)');
+          lx.fillStyle = g; lx.beginPath(); lx.arc(0, 0, 1.05, 0, Math.PI * 2); lx.fill(); lx.restore();
+        });
+        lx.globalCompositeOperation = 'destination-in'; lx.drawImage(mask, 0, 0, mask.naturalWidth, mask.naturalHeight, 0, 0, W, H);   /* the pupils only exist inside the eye opening */
+        ctx.drawImage(layer, 0, 0);
+      }
+      function lids(open) {   /* the eyes open from a thin slit: a soft-edged window that grows from the middle line */
+        var half = open * 54, soft = Math.min(8, half), top = 50 - half, bot = 50 + half;
+        var m = 'linear-gradient(to bottom, transparent ' + top + '%, #000 ' + (top + soft) + '%, #000 ' + (bot - soft) + '%, transparent ' + bot + '%)';
+        canvas.style.webkitMaskImage = m; canvas.style.maskImage = m;
+      }
+      function finish(jump) {
+        if (finished) return; finished = true;
+        try { sessionStorage.setItem('grumpIntroSeen', '1'); } catch (e) {}
+        window.__introHold = false; handoff();
+        if (jump) { root.classList.remove('intro-on'); window.scrollTo({ top: 0, behavior: 'instant' }); }   /* the intro leaves the layout, so the overview is at the top */
+      }
+      function handoff() { if (handed) return; handed = true; window.__introHold = false; if (typeof startHeroScramble === 'function') startHeroScramble(typeof currentLang === 'string' ? currentLang : 'en'); }
+
+      function frame() {
+        raf = 0;
+        if (finished) return;
+        var vh = window.innerHeight, s = -intro.getBoundingClientRect().top / vh;      /* 0 at the top of the page, 3 when the intro hands over */
+        var open = ease((s - .12) / 1.25);                                               /* 0.12 .. 1.37: the eyes open */
+        var look = clamp((s - .9) / 1.1, 0, 1);                                          /* 0.9 .. 2.0: they look left, then right, then at you */
+        var gx = look < .5 ? lerp(-.1, -.85, ease(look * 2)) : lerp(-.85, 0, ease((look - .5) * 2));
+        var gy = lerp(.15, .35, look);
+        var zoomT = clamp((s - 2) / 1, 0, 1), zoom = 1 + Math.pow(zoomT, 3) * 17;       /* 2.0 .. 3.0: the camera falls into the eyes */
+        var stage = 1 - clamp((s - 2.55) / .4, 0, 1);                                    /* 2.55 .. 2.95: the overview shows through */
+        intro.style.setProperty('--eyes', clamp(open * 1.4, 0, 1));
+        intro.style.setProperty('--zoom', zoom);
+        intro.style.setProperty('--stage', stage);
+        intro.style.setProperty('--glow', clamp(open * .9 + zoomT * .6, 0, 1));
+        intro.style.setProperty('--glow-scale', .12 + open * .5 + zoomT * 2.2);
+        intro.style.setProperty('--hint', s < .12 ? 1 : 0);
+        if (Math.abs(open - state.open) > .002) { lids(open); state.open = open; }
+        if (Math.abs(gx - state.lx) > .003 || Math.abs(gy - state.ly) > .003) { paint(gx, gy); state.lx = gx; state.ly = gy; }
+        if (s > 2.2 && !handed) handoff();
+        root.classList.toggle('intro-late', s > 2.6);
+        if (s >= 3.02) { try { sessionStorage.setItem('grumpIntroSeen', '1'); } catch (e) {} }
+      }
+      function request() { if (!raf) raf = requestAnimationFrame(frame); }
+      function onload() { if (++loaded === 2) { size(); state.lx = 9; request(); } }
+      base.onload = mask.onload = onload;
+      base.src = 'assets/intro-eyes-base.webp'; mask.src = 'assets/intro-eyes-mask.png';
+      window.addEventListener('scroll', request, { passive: true });
+      window.addEventListener('resize', function () { size(); request(); });
+      skip.addEventListener('click', function () { finish(true); });
+      /* keyboard: tabbing into the page while the screen is still black jumps straight to the overview */
+      document.addEventListener('focusin', function (e) { if (!finished && e.target !== skip && root.classList.contains('intro-on') && -intro.getBoundingClientRect().top / window.innerHeight < 2.5) finish(true); });
+      request();
+    })();
   </script>
 </body>
 </html>
