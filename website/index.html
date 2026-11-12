@@ -15,22 +15,27 @@
   <link rel="alternate" hreflang="x-default" href="https://yeazka.github.io/Grump/">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/jpeg" href="assets/grump-logo.jpg">
-  <link rel="apple-touch-icon" href="assets/grump-logo.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 
   <!-- OpenGraph / Social Sharing -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://yeazka.github.io/Grump/">
   <meta property="og:title" content="Grump Notch: Your Desktop Just Got Angrier">
   <meta property="og:description" content="The moody Notch for Windows 10 &amp; 11. WebGL media player, synced lyrics, focus timer, and cursor-reactive LED eyes.">
-  <meta property="og:image" content="https://yeazka.github.io/Grump/assets/grump-logo.jpg">
-  <meta property="og:image:alt" content="Grump Notch Gold Matrix Mascot">
+  <meta property="og:image" content="https://yeazka.github.io/Grump/assets/og-grump.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Grump: the moody Notch for Windows, with glowing orange eyes">
 
   <!-- Twitter Cards -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Grump Notch: Your Desktop Just Got Angrier">
   <meta name="twitter:description" content="The moody Notch for Windows 10 &amp; 11. Cursor-reactive eyes, WebGL music player, and liquid glass controls.">
-  <meta name="twitter:image" content="https://yeazka.github.io/Grump/assets/grump-logo.jpg">
+  <meta name="twitter:image" content="https://yeazka.github.io/Grump/assets/og-grump.jpg">
+  <meta name="twitter:image:alt" content="Grump: the moody Notch for Windows, with glowing orange eyes">
 
   <script type="application/ld+json">
     {
@@ -2936,8 +2941,10 @@
 
           target.replaceChildren(fragment);
           if (complete === queue.length) {
-            phraseIndex = (phraseIndex + 1) % phrases.length;
-            holdTimer = window.setTimeout(() => renderPhrase(phrases[phraseIndex]), 1900);
+            // one pass through the phrases, then the headline rests on the last one (it used to loop forever)
+            if (phraseIndex >= phrases.length - 1) return;
+            phraseIndex += 1;
+            holdTimer = window.setTimeout(() => renderPhrase(phrases[phraseIndex]), 1500);
             return;
           }
           frame += 1;
@@ -3230,8 +3237,8 @@
         if (!Number.isSafeInteger(data.count) || data.count < 0 || !Number.isFinite(Date.parse(data.updatedAt))) throw new Error('Invalid download statistics');
         const countNode=document.querySelector('[data-i18n="hero-downloads"]');
         countNode.title='GitHub Releases · Updated '+new Date(data.updatedAt).toLocaleString()+(data.stale?' · Last available count':'');
-        translations.en['hero-downloads'] = `${data.count.toLocaleString('en-US')} downloads`;
-        translations.id['hero-downloads'] = `${data.count.toLocaleString('id-ID')} unduhan`;
+        translations.en['hero-downloads'] = `${data.count.toLocaleString('en-US')} installer downloads`;
+        translations.id['hero-downloads'] = `${data.count.toLocaleString('id-ID')} unduhan installer`;
         document.querySelector('[data-i18n="hero-downloads"]').textContent = translations[currentLang]['hero-downloads'];
       } catch (err) {
         console.warn('Download count unavailable:', err);
