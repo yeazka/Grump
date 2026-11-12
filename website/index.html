@@ -2077,7 +2077,11 @@
     .site-header { transition: opacity .5s ease; }
     .intro-stage { position: sticky; top: 0; height: 100vh; height: 100svh; background: #000; overflow: hidden; opacity: var(--stage, 1); }
     .intro-glow { position: absolute; left: 50%; top: 50%; width: 120vmax; height: 120vmax; margin: -60vmax 0 0 -60vmax; border-radius: 50%; opacity: var(--glow, 0); transform: scale(var(--glow-scale, .12));
-      background: radial-gradient(closest-side, rgba(255, 150, 30, .55), rgba(245, 158, 11, .22) 45%, transparent 72%); will-change: transform, opacity; }
+      background: radial-gradient(closest-side, rgba(255, 150, 30, .2), rgba(245, 158, 11, .08) 45%, transparent 72%); will-change: transform, opacity; }   /* only a faint ambient haze: the real light comes from the eyes (below) */
+    .intro-eyes::before { content: ""; position: absolute; inset: -60% -20%; z-index: -1; pointer-events: none; opacity: var(--glow, 0);
+      background:
+        radial-gradient(ellipse 25% 22% at 34.9% 49.1%, rgba(255, 140, 20, .5), rgba(245, 158, 11, .2) 50%, transparent 100%),
+        radial-gradient(ellipse 25% 22% at 64.9% 49.1%, rgba(255, 140, 20, .5), rgba(245, 158, 11, .2) 50%, transparent 100%); }   /* one bloom per eye, so it zooms with the eyes and stays behind the brow */
     .intro-eyes { position: absolute; left: 50%; top: 50%; width: min(86vw, 980px); aspect-ratio: 436 / 144; transform: translate(-50%, -50%) scale(var(--zoom, 1)); will-change: transform; }
     .intro-eyes canvas { display: block; width: 100%; height: 100%; opacity: var(--eyes, 0); }
     .intro-hint { position: absolute; left: 0; right: 0; bottom: max(7vh, 36px); margin: 0; text-align: center; color: #8d867f; font-size: 13px; letter-spacing: .06em; opacity: var(--hint, 0); transition: opacity .6s ease; }
@@ -3611,7 +3615,7 @@
       var canvas = document.getElementById('intro-canvas'), ctx = canvas.getContext('2d');
       var skip = document.getElementById('intro-skip');
       var DATA = {"w": 970, "h": 320, "scale": 1.0, "eyes": [{"G": [238.94, 152.22], "R": 185.19, "c": [279.0, 153.75], "rx": 51.0, "ry": 89.25, "ang": 0.0, "color": [23, 7, 0], "safe": [[358.0, 237.0], [322.0, 253.0], [268.0, 256.0], [235.0, 250.0], [183.0, 226.0], [153.0, 200.0], [132.0, 172.0], [114.0, 135.0], [102.0, 87.0], [195.0, 136.0]]}, {"G": [728.5, 158.5], "R": 184.51, "c": [688.0, 153.75], "rx": 51.0, "ry": 89.25, "ang": 0.0, "color": [27, 10, 0], "safe": [[863.0, 87.0], [853.0, 131.0], [834.0, 171.0], [806.0, 206.0], [775.0, 230.0], [734.0, 249.0], [689.0, 256.0], [647.0, 253.0], [608.0, 237.0]]}]};
-      var base = new Image(), mask = new Image(), loaded = 0, layer = document.createElement('canvas');
+      var base = new Image(), mask = new Image(), brow = new Image(), loaded = 0, layer = document.createElement('canvas');
       var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
       var lerp = function (a, b, t) { return a + (b - a) * t; };
       var ease = function (t) { t = clamp(t, 0, 1); return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
@@ -3641,15 +3645,19 @@
         x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high'; x.fillStyle = '#000'; x.fillRect(0, 0, W, H);
         x.drawImage(base, 0, 0, base.naturalWidth, base.naturalHeight, 0, 0, W, H);
         var im = x.getImageData(0, 0, W, H), d = im.data;
+        /* the furry brow above the eyes is solid: the brow map keeps it opaque so the glow behind the face never shows through it */
+        var bc = document.createElement('canvas'); bc.width = W; bc.height = H; var bx = bc.getContext('2d', { willReadFrequently: true });
+        bx.imageSmoothingEnabled = true; bx.drawImage(brow, 0, 0, brow.naturalWidth, brow.naturalHeight, 0, 0, W, H);
+        var bd = bx.getImageData(0, 0, W, H).data;
         for (var i = 0; i < d.length; i += 4) {
-          var a = Math.max(d[i], d[i + 1], d[i + 2]);
+          var a = Math.max(d[i], d[i + 1], d[i + 2], bd[i]);
           if (!a) { d[i + 3] = 0; continue; }
           d[i] = Math.min(255, Math.round(d[i] * 255 / a)); d[i + 1] = Math.min(255, Math.round(d[i + 1] * 255 / a)); d[i + 2] = Math.min(255, Math.round(d[i + 2] * 255 / a)); d[i + 3] = a;
         }
         x.putImageData(im, 0, 0); keyed = cv; keyedKey = id; return cv;
       }
       function paint(gx, gy) {
-        if (loaded < 2) return;
+        if (loaded < 3) return;
         var W = canvas.width, H = canvas.height, s = W / DATA.w;
         ctx.clearRect(0, 0, W, H); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(keyedFace(W, H), 0, 0);
@@ -3713,11 +3721,11 @@
         if (s >= 3.02) { try { sessionStorage.setItem('grumpIntroSeen', '1'); } catch (e) {} }
       }
       function request() { if (!raf) raf = requestAnimationFrame(frame); }
-      function onload() { if (++loaded === 2) { size(); state.lx = 9; request(); } }
-      base.onload = mask.onload = onload;
+      function onload() { if (++loaded === 3) { size(); state.lx = 9; request(); } }
+      base.onload = mask.onload = brow.onload = onload;
       /* two sizes of the same picture (AI-upscaled from the original): the 4K one only for big or sharp screens */
       var big = window.innerWidth * (window.devicePixelRatio || 1) > 1500;
-      base.src = big ? 'assets/intro-eyes-base-4k.webp' : 'assets/intro-eyes-base-2k.webp'; mask.src = 'assets/intro-eyes-mask.webp';
+      base.src = big ? 'assets/intro-eyes-base-4k.webp' : 'assets/intro-eyes-base-2k.webp'; mask.src = 'assets/intro-eyes-mask.webp'; brow.src = 'assets/intro-eyes-brow.webp';
       window.addEventListener('scroll', request, { passive: true });
       window.addEventListener('resize', function () { size(); request(); });
       skip.addEventListener('click', function () { finish(true); });
