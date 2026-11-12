@@ -3683,11 +3683,13 @@
         raf = 0;
         if (finished) return;
         var vh = window.innerHeight, s = -intro.getBoundingClientRect().top / vh;      /* 0 at the top of the page, 3 when the intro hands over */
-        var open = ease((s - .12) / 1.25);                                               /* 0.12 .. 1.37: the eyes open */
-        var look = clamp((s - .9) / 1.1, 0, 1);                                          /* 0.9 .. 2.0: they look left, then right, then at you */
-        var gx = look < .5 ? lerp(-.1, -.85, ease(look * 2)) : lerp(-.85, 0, ease((look - .5) * 2));
-        var gy = lerp(.15, .35, look);
-        var zoomT = clamp((s - 2) / 1, 0, 1), zoom = 1 + Math.pow(zoomT, 3) * 17;       /* 2.0 .. 3.0: the camera falls into the eyes */
+        /* timeline (scroll units, 3 = the overview; autoplay runs it in about 4 s): open, look left (hold), look right (hold), look down, fall in */
+        var open = ease((s - .1) / .6);                                                  /* 0.1 .. 0.7: the eyes open */
+        var gx = 0, gy = .15, t;
+        if (s >= .7 && s < 1.2) { t = ease((s - .7) / .35); gx = lerp(0, -.85, t); }        /* 0.7 .. 1.05 look left, hold to 1.2 */
+        else if (s >= 1.2 && s < 1.8) { t = ease((s - 1.2) / .45); gx = lerp(-.85, .85, t); }  /* 1.2 .. 1.65 look right, hold to 1.8 */
+        else if (s >= 1.8) { t = ease((s - 1.8) / .35); gx = lerp(.85, 0, t); gy = lerp(.15, .8, t); }   /* 1.8 .. 2.15 look down, hold to 2.25 */
+        var zoomT = clamp((s - 2.25) / .75, 0, 1), zoom = 1 + Math.pow(zoomT, 3) * 17;  /* 2.25 .. 3.0: the camera falls into the eyes */
         var stage = 1 - clamp((s - 2.55) / .4, 0, 1);                                    /* 2.55 .. 2.95: the overview shows through */
         intro.style.setProperty('--eyes', clamp(open * 1.4, 0, 1));
         intro.style.setProperty('--zoom', zoom);
@@ -3697,7 +3699,7 @@
         intro.style.setProperty('--hint', s < .12 ? 1 : 0);
         if (Math.abs(open - state.open) > .002) { lids(open); state.open = open; }
         if (Math.abs(gx - state.lx) > .003 || Math.abs(gy - state.ly) > .003) { paint(gx, gy); state.lx = gx; state.ly = gy; }
-        if (s > 2.2 && !handed) handoff();
+        if (s > 2.4 && !handed) handoff();
         root.classList.toggle('intro-late', s > 2.6);
         if (s >= 3.02) { try { sessionStorage.setItem('grumpIntroSeen', '1'); } catch (e) {} }
       }
@@ -3717,13 +3719,13 @@
          lands on the overview. While it plays, scroll input is held so it does not fight the animation. Once per page load. */
       var auto = { running: false, done: false, idle: 0 };
       var progress = function () { return -intro.getBoundingClientRect().top / window.innerHeight; };
-      var easeInOut = function (t) { return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
+      var easeInOut = function (t) { return .5 - Math.cos(Math.PI * t) / 2; };   /* gentle start and end, close to a steady pace so each look gets its time */
       function autoplay() {
         if (auto.running || auto.done || finished || !root.classList.contains('intro-on')) return;
         var s0 = progress(); if (s0 >= 2.95) { auto.done = true; return; }
         auto.running = true; clearTimeout(auto.idle);
         var start = window.scrollY, end = start + (3 - s0) * window.innerHeight;
-        var dur = Math.max(900, 4400 * (3 - s0) / 3), t0 = performance.now();
+        var dur = Math.max(700, 4000 * (3 - s0) / 3), t0 = performance.now();   /* about 4 s for the whole intro */
         (function step(now) {
           var t = Math.min(1, (now - t0) / dur);
           window.scrollTo({ top: start + (end - start) * easeInOut(t), behavior: 'instant' });
