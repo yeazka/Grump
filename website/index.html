@@ -2042,6 +2042,12 @@
     /* Sneak peek (v1.2.0): one large feature card, two smaller ones, then a quiet list. Reuses the release section head. */
     .peek-section::before { display: none; }
     .peek-state { color: #d9d2ca; font-size: 12.5px; font-weight: 700; letter-spacing: .04em; }
+    .peek-timer { display: grid; justify-items: end; gap: 6px; color: #f4eee8; }
+    .peek-timer-value { display: block; font: 700 clamp(26px,3.4vw,42px)/1 var(--mono, ui-monospace, monospace); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+    .peek-timer-value[data-done] { font-size: clamp(20px,2.4vw,28px); letter-spacing: -.01em; }
+    .peek-timer-label { color: #cfc8c0; font-size: 13px; line-height: 1.4; }
+    .peek-timer-local { color: #9f9892; font-size: 12px; line-height: 1.4; }
+    @media (max-width: 860px) { .peek-timer { justify-items: start; } }
     .peek-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 20px; }
     .peek-card { grid-column: span 5; display: flex; flex-direction: column; border-radius: 22px; border: 1px solid rgba(255,255,255,.09); background: #14110e; overflow: hidden; }
     .peek-main { grid-column: span 7; grid-row: span 2; }
@@ -2341,11 +2347,15 @@
         <div>
           <span class="release-kicker" data-i18n="peek-kicker">SNEAK PEEK</span>
           <h2 class="release-title" id="peek-title" data-i18n="peek-title">Grump v1.2.0 is coming.</h2>
-          <p class="release-sub" data-i18n="peek-sub">A dock, two looks, and a face that glows. There is no date yet, so here is a first look.</p>
+          <p class="release-sub" data-i18n="peek-sub">A dock, two looks, and a face that glows. It arrives today at 8 PM WIB (UTC+7), and here is a first look.</p>
         </div>
         <div class="release-status">
           <span class="release-version">v1.2.0</span>
-          <span class="peek-state" data-i18n="peek-state">Coming soon</span>
+          <div class="peek-timer">
+            <time id="peek-timer-value" class="peek-timer-value" role="timer" datetime="2026-11-12T20:00:00+07:00" data-release-at="2026-11-12T20:00:00+07:00" aria-label="Time left until the Grump v1.2.0 release">--:--:--</time>
+            <span class="peek-timer-label" id="peek-timer-label" data-i18n="peek-timer-label">until the release, today at 8 PM WIB</span>
+            <span class="peek-timer-local" id="peek-timer-local"></span>
+          </div>
         </div>
       </div>
       <div class="peek-grid">
@@ -2679,8 +2689,12 @@
       "intro-hint": "Scroll",
       "peek-kicker": "SNEAK PEEK",
       "peek-title": "Grump v1.2.0 is coming.",
-      "peek-sub": "A dock, two looks, and a face that glows. There is no date yet, so here is a first look.",
+      "peek-sub": "A dock, two looks, and a face that glows. It arrives today at 8 PM WIB (UTC+7), and here is a first look.",
       "peek-state": "Coming soon",
+      "peek-timer-label": "until the release, today at 8 PM WIB",
+      "peek-timer-done": "Releasing now",
+      "peek-timer-done-label": "Grump v1.2.0 is on its way to the download page and the update channel.",
+      "peek-timer-local": "Your time: ",
       "peek-dock-title": "Meet the Dock",
       "peek-dock-desc": "A dock at the bottom of your screen with your taskbar apps, icons that grow under the cursor, a Control Center for Wi-Fi, Bluetooth, volume and brightness, and a glass calendar.",
       "peek-theme-title": "Obsidian or Liquid Glass",
@@ -2782,8 +2796,12 @@
       "intro-hint": "Gulir ke bawah",
       "peek-kicker": "SNEAK PEEK",
       "peek-title": "Grump v1.2.0 segera hadir.",
-      "peek-sub": "Dock, dua tampilan, dan wajah yang menyala. Tanggalnya belum ada, jadi ini cuplikan pertamanya.",
+      "peek-sub": "Dock, dua tampilan, dan wajah yang menyala. Hadir hari ini pukul 20.00 WIB (UTC+7), dan ini cuplikan pertamanya.",
       "peek-state": "Segera hadir",
+      "peek-timer-label": "lagi sampai rilis, hari ini pukul 20.00 WIB",
+      "peek-timer-done": "Sedang dirilis",
+      "peek-timer-done-label": "Grump v1.2.0 sedang menuju halaman unduh dan jalur update.",
+      "peek-timer-local": "Waktu kamu: ",
       "peek-dock-title": "Kenalan dengan Dock",
       "peek-dock-desc": "Dock di bagian bawah layar dengan aplikasi taskbar-mu, ikon yang membesar saat kursor lewat, Control Center untuk Wi-Fi, Bluetooth, volume, dan kecerahan, plus kalender kaca.",
       "peek-theme-title": "Obsidian atau Liquid Glass",
@@ -3154,6 +3172,7 @@
       if (!window.__introHold) startHeroScramble(lang);
       updateCaption();
       renderTestimonial(activeTestiIndex);
+      updatePeekTimer();
     }
 
     function initMobileMenu() {
@@ -3574,6 +3593,36 @@
     }
     window.addEventListener('scroll', checkHeaderScroll, { passive: true });
 
+    /* v1.2.0 release timer: counts down to the time in data-release-at and says 'Releasing now' at zero. It never claims the release is live. */
+    let peekTimerId = 0;
+    function updatePeekTimer() {
+      const el = document.getElementById('peek-timer-value');
+      if (!el) return;
+      const label = document.getElementById('peek-timer-label');
+      const local = document.getElementById('peek-timer-local');
+      const dict = translations[currentLang] || translations.en;
+      const target = new Date(el.getAttribute('data-release-at')).getTime();
+      const left = target - Date.now();
+      if (left <= 0) {
+        el.textContent = dict['peek-timer-done']; el.setAttribute('data-done', '');
+        if (label) label.textContent = dict['peek-timer-done-label'];
+        if (local) local.textContent = '';
+        if (peekTimerId) { clearInterval(peekTimerId); peekTimerId = 0; }
+        return;
+      }
+      el.removeAttribute('data-done');
+      const s = Math.floor(left / 1000), d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60), sec = s % 60;
+      const two = n => String(n).padStart(2, '0');
+      el.textContent = (d ? d + (currentLang === 'id' ? 'h ' : 'd ') : '') + two(h) + ':' + two(m) + ':' + two(sec);
+      if (label && label.textContent !== dict['peek-timer-label']) label.textContent = dict['peek-timer-label'];
+      if (local) {
+        const t = new Date(target);
+        const zone = new Intl.DateTimeFormat(currentLang === 'id' ? 'id-ID' : 'en-GB', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' }).format(t);
+        local.textContent = dict['peek-timer-local'] + zone;
+      }
+    }
+    function startPeekTimer() { updatePeekTimer(); if (!peekTimerId && document.getElementById('peek-timer-value')) peekTimerId = setInterval(updatePeekTimer, 1000); }
+
     function updateReleaseCountdown() {
       const value = document.getElementById('release-countdown-value');
       const label = document.getElementById('release-countdown-label');
@@ -3586,6 +3635,7 @@
     updateReleaseCountdown();
 
     window.addEventListener('DOMContentLoaded', () => {
+      startPeekTimer();
       const requestedLang = new URLSearchParams(window.location.search).get('lang');
       setLang(requestedLang === 'id' ? 'id' : 'en');
       initHeroCodeRain();
