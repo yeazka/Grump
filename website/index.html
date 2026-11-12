@@ -2213,7 +2213,9 @@
           <a
             class="liquid-glass-btn btn-linux-beta"
             id="btn-dl-linux"
-            aria-disabled="true"
+            href="https://github.com/yeazka/Grump/releases/download/v1.2.0/Grump-1.2.0-beta.1-x86_64.AppImage"
+            target="_blank"
+            rel="noopener noreferrer"
             title="Linux x64 beta"
           >
             <img class="platform-logo" src="assets/linux.svg" alt="" width="22" height="22">
@@ -3262,15 +3264,12 @@
     async function resolveLinuxBeta() {
       const button = document.getElementById('btn-dl-linux');
       try {
-        const res = await fetch('https://api.github.com/repos/yeazka/Grump/releases?per_page=20', {
+        const res = await fetch('https://api.github.com/repos/yeazka/Grump/releases/latest', {
           headers: { Accept: 'application/vnd.github+json' }, signal: AbortSignal.timeout(8000)
         });
         if (!res.ok) throw new Error('Linux beta release unavailable');
-        const releases = await res.json();
-        const release = releases.find(item => item.prerelease && (item.assets || []).some(asset =>
-          /^Grump-\d+\.\d+\.\d+-beta\.\d+-x86_64\.AppImage$/i.test(asset.name || '')
-        ));
-        const asset = release?.assets.find(item =>
+        const release = await res.json();
+        const asset = (release.assets || []).find(item =>
           /^Grump-\d+\.\d+\.\d+-beta\.\d+-x86_64\.AppImage$/i.test(item.name || '') &&
           /^https:\/\/github\.com\//i.test(item.browser_download_url || '')
         );
