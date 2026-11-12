@@ -3629,7 +3629,7 @@
         return { px: px, py: py, sx: Math.max(.32, Math.cos(thx) / Math.cos(e.thx0)), sy: Math.max(.4, Math.cos(thy) / Math.cos(e.thy0)) };
       }
       function size() {
-        var w = Math.round(Math.min(canvas.offsetWidth || 900, 980) * Math.min(window.devicePixelRatio || 1, 2));
+        var cap = base.naturalWidth || 1940, w = Math.round(Math.min(cap, (canvas.offsetWidth || 900) * Math.min(window.devicePixelRatio || 1, 2) * 2));   /* 2x headroom for the zoom */
         var h = Math.round(w * DATA.h / DATA.w);
         if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; state.open = -1; }
       }
@@ -3665,7 +3665,7 @@
         ctx.drawImage(layer, 0, 0);
       }
       function lids(open) {   /* the eyes open from a thin slit: a soft-edged window that grows from the middle line; the picture's own edges are feathered so no rectangle shows */
-        var half = open * 58, soft = Math.min(16, half), top = 50 - half, bot = 50 + half;
+        var half = open * 50, soft = Math.min(14, half), top = 50 - half, bot = 50 + half;
         var v = 'linear-gradient(to bottom, transparent ' + top + '%, #000 ' + (top + soft) + '%, #000 ' + (bot - soft) + '%, transparent ' + bot + '%)';
         var side = 'linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%)';
         canvas.style.webkitMaskImage = v + ', ' + side; canvas.style.maskImage = v + ', ' + side;
@@ -3704,7 +3704,9 @@
       function request() { if (!raf) raf = requestAnimationFrame(frame); }
       function onload() { if (++loaded === 2) { size(); state.lx = 9; request(); } }
       base.onload = mask.onload = onload;
-      base.src = 'assets/intro-eyes-base.webp'; mask.src = 'assets/intro-eyes-mask.png';
+      /* two sizes of the same picture (AI-upscaled from the original): the 4K one only for big or sharp screens */
+      var big = window.innerWidth * (window.devicePixelRatio || 1) > 1500;
+      base.src = big ? 'assets/intro-eyes-base-4k.webp' : 'assets/intro-eyes-base-2k.webp'; mask.src = 'assets/intro-eyes-mask.png';
       window.addEventListener('scroll', request, { passive: true });
       window.addEventListener('resize', function () { size(); request(); });
       skip.addEventListener('click', function () { finish(true); });
