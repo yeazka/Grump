@@ -2121,6 +2121,7 @@
           <a href="#overview" class="nav-link" data-i18n="nav-overview">Overview</a>
           <a href="#features" class="nav-link" data-i18n="nav-features">Features</a>
           <a href="#whats-new-122" class="nav-link" data-i18n="nav-whats-new">What's new</a>
+          <a href="#mac" class="nav-link" data-i18n="nav-mac">Mac</a>
           <a href="#wallpapers" class="nav-link" data-i18n="nav-wallpapers">Wallpapers</a>
           <a href="#specifications" class="nav-link" data-i18n="nav-specifications">Specification</a>
           <a href="#testimonials" class="nav-link" data-i18n="nav-testimonials">Creator notes</a>
@@ -2220,6 +2221,17 @@
             <span data-i18n="btn-dl-linux">Linux Beta</span>
           </a>
 
+          <!-- 3b. Mac preview (white): scrolls to the Mac section -->
+          <a
+            class="liquid-glass-btn btn-msstore-white"
+            id="btn-dl-mac"
+            href="#mac"
+            title="Grump for Mac (preview)"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>
+            <span data-i18n="btn-dl-mac">Mac Preview</span>
+          </a>
+
           <!-- 4. Support on Trakteer -->
           <a
             class="liquid-glass-btn btn-trakteer"
@@ -2242,6 +2254,242 @@
         </div>
       </div>
     </section>
+
+    <!-- Grump for Mac (preview). Reason for the shape: the eyes are the one glowing thing (the brand motif), the downloads come right
+         under the headline, and the walkthrough is the largest block because opening an unsigned app is the part people get stuck on. -->
+    <section id="mac" class="mac" aria-labelledby="mac-title">
+      <div class="mac-wrap">
+        <figure class="mac-eyes">
+          <img src="assets/mac-eyes-2k.webp" srcset="assets/mac-eyes-2k.webp 1940w, assets/mac-eyes-4k.webp 3880w" sizes="(min-width: 1200px) 1120px, 92vw" width="1940" height="640" alt="Grump's glowing orange eyes, close up" loading="lazy" decoding="async" data-i18n-alt="mac-eyes-alt">
+        </figure>
+        <header class="mac-head">
+          <h2 class="mac-title" id="mac-title" data-i18n="mac-title">Grump just landed on Mac.</h2>
+          <p class="mac-sub" data-i18n="mac-sub">The moody notch now lives on your MacBook too. An early preview: the notch and its eyes, not signed by Apple, and made to be tried.</p>
+          <div class="mac-cta">
+            <a id="btn-mac-arm" class="liquid-glass-btn btn-msstore-white mac-dl" href="#mac" aria-disabled="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>
+              <span><b data-i18n="mac-dl-arm">Download for Apple Silicon</b><small data-i18n="mac-dl-arm-sub">M1 and newer · .dmg</small></span>
+            </a>
+            <a id="btn-mac-intel" class="liquid-glass-btn btn-msstore-white mac-dl" href="#mac" aria-disabled="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>
+              <span><b data-i18n="mac-dl-intel">Download for Intel</b><small data-i18n="mac-dl-intel-sub">Intel Macs · .dmg</small></span>
+            </a>
+          </div>
+          <p class="mac-status" id="mac-soon" data-i18n="mac-soon">Coming soon. The downloads switch on the moment the preview is published.</p>
+          <p class="mac-status" id="mac-ready" data-i18n="mac-ready" hidden>Free preview. Needs macOS 13 or newer. Not sure which Mac you have? Apple menu > About This Mac: a "Chip" line means Apple Silicon.</p>
+        </header>
+
+        <div class="mac-body">
+          <div class="mt" id="mac-tut" role="group" aria-labelledby="mt-title">
+            <div class="mt-top">
+              <h3 id="mt-title" data-i18n="mt-title">Open it on a Mac in four steps</h3>
+              <p class="mt-note" data-i18n="mt-note">An illustration of macOS, not a screenshot.</p>
+            </div>
+            <div class="mt-stage" id="mt-stage">
+              <div class="mt-canvas" id="mt-canvas">
+
+                <div class="mt-scene s1" role="img" aria-label="A window with the Grump icon being dragged onto the Applications folder">
+                  <div class="mt-win" style="left:50px;top:46px;width:380px;height:200px">
+                    <div class="mt-bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span>Grump</span></div>
+                    <div class="mt-items">
+                      <div class="mt-item app"><img src="assets/grump-logo.jpg" width="64" height="64" alt=""><em>Grump</em></div>
+                      <div class="mt-item folder"><svg width="76" height="64" viewBox="0 0 76 64" aria-hidden="true"><path d="M4 12a6 6 0 0 1 6-6h20l8 8h28a6 6 0 0 1 6 6v34a6 6 0 0 1-6 6H10a6 6 0 0 1-6-6z" fill="#5aa9f6"/><path d="M4 22h68v30a6 6 0 0 1-6 6H10a6 6 0 0 1-6-6z" fill="#8cc4fa"/></svg><em>Applications</em></div>
+                    </div>
+                  </div>
+                  <svg class="mt-cursor" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3l14 9-6.2 1.4L9.6 20z" fill="#fff" stroke="#1d1d1f" stroke-width="1.6" stroke-linejoin="round"/></svg>
+                </div>
+
+                <div class="mt-scene s2" role="img" aria-label="A message saying macOS could not check Grump, with a Done button" hidden>
+                  <div class="mt-dlg" style="left:100px;top:62px;width:280px">
+                    <img src="assets/grump-logo.jpg" width="40" height="40" alt="">
+                    <div><b>"Grump" Not Opened</b><p>macOS cannot check this app for malware.</p></div>
+                    <span class="mt-btnrow"><span class="mt-mockbtn primary done">Done</span></span>
+                  </div>
+                  <svg class="mt-cursor" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3l14 9-6.2 1.4L9.6 20z" fill="#fff" stroke="#1d1d1f" stroke-width="1.6" stroke-linejoin="round"/></svg>
+                </div>
+
+                <div class="mt-scene s3" role="img" aria-label="System Settings, Privacy and Security, with an Open Anyway button next to Grump" hidden>
+                  <div class="mt-win" style="left:40px;top:30px;width:400px;height:240px">
+                    <div class="mt-bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span>Privacy &amp; Security</span></div>
+                    <div class="mt-settings">
+                      <ul><li>Wi-Fi</li><li>Notifications</li><li>Appearance</li><li class="on">Privacy &amp; Security</li><li>Desktop &amp; Dock</li></ul>
+                      <div class="mt-pane"><b>Security</b><p>"Grump" was blocked to protect your Mac.</p><span class="mt-mockbtn openany">Open Anyway</span></div>
+                    </div>
+                  </div>
+                  <svg class="mt-cursor" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3l14 9-6.2 1.4L9.6 20z" fill="#fff" stroke="#1d1d1f" stroke-width="1.6" stroke-linejoin="round"/></svg>
+                </div>
+
+                <div class="mt-scene s4" role="img" aria-label="A confirmation to open Grump, then the Grump notch appearing at the top of the screen" hidden>
+                  <div class="mt-notch"><img src="assets/peek-eyes.webp" width="900" height="190" alt=""></div>
+                  <div class="mt-dlg confirm" style="left:100px;top:84px;width:280px">
+                    <img src="assets/grump-logo.jpg" width="40" height="40" alt="">
+                    <div><b>Open "Grump"?</b><p>Grump is a preview and is not signed by Apple.</p></div>
+                    <span class="mt-btnrow"><span class="mt-mockbtn">Cancel</span><span class="mt-mockbtn primary go">Open Anyway</span></span>
+                  </div>
+                  <svg class="mt-cursor" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3l14 9-6.2 1.4L9.6 20z" fill="#fff" stroke="#1d1d1f" stroke-width="1.6" stroke-linejoin="round"/></svg>
+                </div>
+
+              </div>
+            </div>
+            <div class="mt-caps" aria-live="polite">
+              <p data-i18n="mt-1">Open the .dmg and drag Grump onto Applications.</p>
+              <p data-i18n="mt-2" hidden>Open Grump from Applications. macOS says it cannot check the app. That is expected: the preview is not signed by Apple. Click Done.</p>
+              <p data-i18n="mt-3" hidden>Open System Settings > Privacy &amp; Security, scroll down, and click Open Anyway next to Grump.</p>
+              <p data-i18n="mt-4" hidden>Confirm with Touch ID or your password. Grump opens, and the notch appears at the top of your screen.</p>
+            </div>
+            <div class="mt-nav">
+              <button type="button" class="mt-btn" id="mt-prev" data-i18n="mt-prev">Back</button>
+              <ol class="mt-dots">
+                <li><button type="button" class="mt-dot" data-step="0" aria-current="step"><span class="sr" data-i18n="mt-step">Step</span> 1</button></li>
+                <li><button type="button" class="mt-dot" data-step="1"><span class="sr" data-i18n="mt-step">Step</span> 2</button></li>
+                <li><button type="button" class="mt-dot" data-step="2"><span class="sr" data-i18n="mt-step">Step</span> 3</button></li>
+                <li><button type="button" class="mt-dot" data-step="3"><span class="sr" data-i18n="mt-step">Step</span> 4</button></li>
+              </ol>
+              <button type="button" class="mt-btn mt-next" id="mt-next" data-i18n="mt-next">Next</button>
+            </div>
+            <details class="mt-term">
+              <summary data-i18n="mt-term">Prefer Terminal?</summary>
+              <p data-i18n="mt-term-note">After dragging Grump to Applications, run this once. It removes the flag that triggers the warning.</p>
+              <div class="mt-code"><code id="mt-cmd">xattr -dr com.apple.quarantine /Applications/Grump.app</code><button type="button" class="mt-btn" id="mt-copy" data-i18n="mt-copy">Copy</button></div>
+            </details>
+          </div>
+
+          <div class="mac-facts">
+            <h3 data-i18n="mac-have-title">What you get</h3>
+            <ul>
+              <li data-i18n="mac-have-1">The notch and its glowing eyes</li>
+              <li data-i18n="mac-have-2">Timer, to-do, notes and reminders</li>
+              <li data-i18n="mac-have-3">Weather</li>
+              <li data-i18n="mac-have-4">Stash and screenshot capture</li>
+              <li data-i18n="mac-have-5">The Obsidian look</li>
+            </ul>
+            <h3 data-i18n="mac-not-title">Not on Mac yet</h3>
+            <ul class="mac-not">
+              <li data-i18n="mac-not-1">Music and lyrics</li>
+              <li data-i18n="mac-not-2">Volume and brightness</li>
+              <li data-i18n="mac-not-3">Wi-Fi and Bluetooth</li>
+              <li data-i18n="mac-not-4">The Dock and privacy dots</li>
+              <li data-i18n="mac-not-5">Automatic updates</li>
+            </ul>
+            <p class="mac-note"><span data-i18n="mac-note">Free, and nothing is recorded or uploaded.</span> <a href="#feedback-container" data-i18n="mac-bug">Found a bug? Tell us.</a></p>
+          </div>
+        </div>
+      </div>
+    </section>
+<style>
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.mac{padding:clamp(56px,8vw,112px) 0;border-top:1px solid rgba(255,255,255,.08);background:#0b0704}
+.mac-wrap{width:min(1120px,92vw);margin:0 auto}
+.mac-eyes{margin:0 0 clamp(20px,4vw,48px);position:relative}
+.mac-eyes::before{content:"";position:absolute;inset:-10% -4%;background:radial-gradient(50% 55% at 50% 50%,rgba(245,158,11,.30),transparent 72%);pointer-events:none}
+.mac-eyes img{position:relative;display:block;width:100%;height:auto}
+.mac-head{max-width:760px}
+.mac-title{margin:0 0 14px;font-size:clamp(40px,7.2vw,92px);line-height:.98;letter-spacing:-.045em;font-weight:800}
+.mac-sub{margin:0 0 28px;color:var(--muted);font-size:clamp(16px,2vw,20px);line-height:1.55}
+.mac-cta{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:14px}
+.mac-dl{display:inline-flex;align-items:center;gap:14px;padding:15px 26px;text-decoration:none}
+.mac-dl svg{width:26px;height:26px;flex:none}
+.mac-dl span{display:grid;text-align:left;line-height:1.25}
+.mac-dl b{font-size:17px;font-weight:800}
+.mac-dl small{font-size:12.5px;font-weight:600;opacity:.7}
+.mac-dl[aria-disabled="true"]{pointer-events:none;opacity:.82;cursor:not-allowed}
+.mac-status{margin:0;color:#cfc8c0;font-size:14.5px;line-height:1.55;max-width:600px}
+.mac-body{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:clamp(28px,5vw,72px);margin-top:clamp(40px,6vw,80px);align-items:start}
+.mac-facts h3{margin:0 0 12px;font-size:20px;letter-spacing:-.02em}
+.mac-facts h3:not(:first-child){margin-top:30px}
+.mac-facts ul{margin:0;padding:0;list-style:none;display:grid;gap:9px}
+.mac-facts li{color:var(--muted);font-size:15.5px;line-height:1.5;padding-left:18px;position:relative}
+.mac-facts li::before{content:"";position:absolute;left:2px;top:.62em;width:6px;height:6px;border-radius:50%;background:#f4eee8}
+.mac-not li{color:#9f9892}
+.mac-not li::before{background:transparent;border:1.5px solid #9f9892;width:5px;height:5px}
+.mac-note{margin:26px 0 0;color:#9f9892;font-size:14px;line-height:1.55}
+.mac-note a{color:#f4eee8}
+/* walkthrough */
+.mt-top h3{margin:0 0 4px;font-size:22px;letter-spacing:-.02em}
+.mt-note{margin:0 0 14px;color:#9f9892;font-size:13px}
+.mt-stage{position:relative;aspect-ratio:480/300;border-radius:16px;overflow:hidden;background:#120d09 url(assets/mac-pro-wallpaper.png) center/cover;border:1px solid rgba(255,255,255,.1)}
+.mt-canvas{position:absolute;left:0;top:0;width:480px;height:300px;transform-origin:0 0;transform:scale(var(--k,1))}
+.mt-scene{position:absolute;inset:0;color:#1d1d1f;font:500 12px/1.35 -apple-system,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
+.mt-scene[hidden]{display:none}
+.mt-win{position:absolute;background:#ececee;border-radius:10px;box-shadow:0 14px 40px rgba(0,0,0,.45);overflow:hidden}
+.mt-bar{display:flex;align-items:center;gap:6px;height:24px;padding:0 10px;background:#dcdce0}
+.mt-bar i{width:9px;height:9px;border-radius:50%}
+.mt-bar span{margin:0 auto;padding-right:40px;font-size:11px;font-weight:600;color:#55555a}
+.mt-items{position:relative;height:calc(100% - 24px)}
+.mt-item{position:absolute;top:46px;display:grid;justify-items:center;gap:6px;width:90px}
+.mt-item img{width:64px;height:64px;border-radius:14px;object-fit:cover}
+.mt-item em{font-style:normal;font-size:11px}
+.mt-item.app{left:50px}
+.mt-item.folder{left:240px}
+.mt-dlg{position:absolute;display:grid;grid-template-columns:40px 1fr;gap:12px;padding:18px 18px 14px;background:#ececee;border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.5)}
+.mt-dlg img{width:40px;height:40px;border-radius:9px}
+.mt-dlg b{font-size:13px}
+.mt-dlg p{margin:2px 0 0;font-size:11.5px;color:#55555a}
+.mt-btnrow{grid-column:1/-1;display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
+.mt-mockbtn{display:inline-block;padding:4px 14px;border-radius:6px;background:#fff;border:1px solid #c8c8cc;font-size:12px}
+.mt-mockbtn.primary{background:#0a7aff;border-color:#0a7aff;color:#fff}
+.mt-settings{display:grid;grid-template-columns:130px 1fr;height:calc(100% - 24px)}
+.mt-settings ul{margin:0;padding:10px 8px;list-style:none;background:#e2e2e6;display:grid;align-content:start;gap:2px}
+.mt-settings li{padding:5px 8px;border-radius:6px;font-size:11.5px}
+.mt-settings li.on{background:#c9c9ce;font-weight:600}
+.mt-pane{padding:16px 16px}
+.mt-pane b{font-size:13px}
+.mt-pane p{margin:6px 0 12px;font-size:12px;color:#55555a}
+.mt-mockbtn.openany{outline:2px solid transparent;outline-offset:3px}
+.mt-notch{position:absolute;left:50%;top:0;width:150px;height:30px;margin-left:-75px;background:#000;border-radius:0 0 14px 14px;display:grid;place-items:center;opacity:0}
+.mt-notch img{height:20px;width:auto}
+.mt-cursor{position:absolute;left:0;top:0;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4))}
+/* one pass per step, and only while that step is shown (the .play class is set when it opens) */
+.s1.play .app{animation:s1-drag 1.5s .5s cubic-bezier(.4,0,.2,1) both}
+.s1.play .folder svg{animation:s1-folder .35s 1.85s ease-out both}
+.s1 .mt-cursor{left:141px;top:146px}
+.s1.play .mt-cursor{animation:s1-cur 1.5s .5s cubic-bezier(.4,0,.2,1) both}
+.s2 .mt-cursor{left:329px;top:160px}
+.s2.play .mt-dlg{animation:pop .3s ease-out both}
+.s2.play .mt-cursor{animation:s2-cur 1.2s .4s ease-in-out both}
+.s2.play .done{animation:press .25s 1.35s ease-out both}
+.s3 .mt-cursor{left:232px;top:133px}
+.s3.play .mt-cursor{animation:s3-cur 1.2s .3s ease-in-out both}
+.s3.play .openany{animation:ring .5s 1.4s ease-out both}
+.s4 .mt-cursor{left:308px;top:182px}
+.s4.play .confirm{animation:pop .3s ease-out both,s4-away .35s 2s ease-in both}
+.s4.play .mt-cursor{animation:s4-cur 1.1s .3s ease-in-out both,s4-away .2s 2s ease-in both}
+.s4.play .go{animation:press .25s 1.5s ease-out both}
+.s4.play .mt-notch{animation:notch .5s 2.3s cubic-bezier(.3,1.2,.5,1) both}
+@keyframes s1-drag{0%{transform:none;opacity:1}78%{transform:translateX(190px) scale(1);opacity:1}100%{transform:translateX(190px) scale(.4);opacity:0}}
+@keyframes s1-cur{0%{transform:none}78%,100%{transform:translate(190px,0)}}
+@keyframes s1-folder{50%{transform:scale(1.12)}}
+@keyframes s2-cur{from{transform:translate(-120px,-70px)}to{transform:translate(0,0)}}
+@keyframes s3-cur{from{transform:translate(-110px,-70px)}to{transform:translate(0,0)}}
+@keyframes s4-cur{from{transform:translate(-120px,-60px)}to{transform:translate(0,0)}}
+@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@keyframes press{50%{transform:scale(.94)}}
+@keyframes ring{0%{outline-color:rgba(245,158,11,0)}40%{outline-color:#f59e0b}100%{outline-color:#f59e0b}}
+@keyframes s4-away{to{opacity:0}}
+@keyframes notch{from{opacity:1;transform:translateY(-34px)}to{opacity:1;transform:none}}
+.s3 .openany{outline-color:#f59e0b}
+.s4 .mt-notch{opacity:1}
+.s4 .confirm,.s4 .mt-cursor{opacity:0}
+.mt-caps{min-height:96px;margin:16px 0 4px}
+.mt-caps p{margin:0;color:#e7e1db;font-size:16px;line-height:1.6}
+.mt-nav{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.mt-btn{padding:10px 20px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:transparent;color:#f4eee8;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.mt-btn:hover{background:rgba(255,255,255,.08)}
+.mt-btn:disabled{opacity:.4;cursor:not-allowed}
+.mt-next{background:#fff;color:#0c0907;border-color:#fff}
+.mt-next:hover{background:#ededed}
+.mt-dots{display:flex;gap:8px;margin:0;padding:0;list-style:none}
+.mt-dot{width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:transparent;color:#cfc8c0;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.mt-dot[aria-current="step"]{background:#f4eee8;color:#0c0907;border-color:#f4eee8}
+.mt-btn:focus-visible,.mt-dot:focus-visible,.mt-term summary:focus-visible{outline:2px solid #fbbf24;outline-offset:2px}
+.mt-term{margin-top:20px;border-top:1px solid rgba(255,255,255,.1);padding-top:14px}
+.mt-term summary{cursor:pointer;font-weight:700;font-size:15px}
+.mt-term p{margin:10px 0;color:var(--muted);font-size:14px;line-height:1.55}
+.mt-code{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.mt-code code{flex:1;min-width:0;padding:10px 12px;border-radius:10px;background:#14110e;border:1px solid rgba(255,255,255,.1);font:13px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#f4eee8;overflow-x:auto;white-space:nowrap}
+@media (max-width:900px){.mac-body{grid-template-columns:1fr}.mac-dl{width:100%}}
+@media (prefers-reduced-motion:reduce){.mt-scene *{animation:none !important}.s1 .app{opacity:0}.s1 .mt-cursor{transform:translate(190px,0)}}
+</style>
 
     <section id="features" class="features-section" aria-labelledby="demo-heading">
       <div class="wrap interactive-split">
@@ -2806,6 +3054,44 @@
         "btn-dl-setup": "Download Setup",
         "btn-dl-msstore": "Microsoft Store",
         "btn-dl-linux": "Linux Beta",
+        "nav-mac": "Mac",
+        "btn-dl-mac": "Mac Preview",
+        "mac-eyes-alt": "Grump's glowing orange eyes, close up",
+        "mac-title": "Grump just landed on Mac.",
+        "mac-sub": "The moody notch now lives on your MacBook too. An early preview: the notch and its eyes, not signed by Apple, and made to be tried.",
+        "mac-dl-arm": "Download for Apple Silicon",
+        "mac-dl-arm-sub": "M1 and newer · .dmg",
+        "mac-dl-intel": "Download for Intel",
+        "mac-dl-intel-sub": "Intel Macs · .dmg",
+        "mac-soon": "Coming soon. The downloads switch on the moment the preview is published.",
+        "mac-ready": "Free preview. Needs macOS 13 or newer. Not sure which Mac you have? Apple menu > About This Mac: a \"Chip\" line means Apple Silicon.",
+        "mt-title": "Open it on a Mac in four steps",
+        "mt-note": "An illustration of macOS, not a screenshot.",
+        "mt-prev": "Back",
+        "mt-next": "Next",
+        "mt-step": "Step",
+        "mt-1": "Open the .dmg and drag Grump onto Applications.",
+        "mt-2": "Open Grump from Applications. macOS says it cannot check the app. That is expected: the preview is not signed by Apple. Click Done.",
+        "mt-3": "Open System Settings > Privacy & Security, scroll down, and click Open Anyway next to Grump.",
+        "mt-4": "Confirm with Touch ID or your password. Grump opens, and the notch appears at the top of your screen.",
+        "mt-term": "Prefer Terminal?",
+        "mt-term-note": "After dragging Grump to Applications, run this once. It removes the flag that triggers the warning.",
+        "mt-copy": "Copy",
+        "mt-copied": "Copied",
+        "mac-have-title": "What you get",
+        "mac-have-1": "The notch and its glowing eyes",
+        "mac-have-2": "Timer, to-do, notes and reminders",
+        "mac-have-3": "Weather",
+        "mac-have-4": "Stash and screenshot capture",
+        "mac-have-5": "The Obsidian look",
+        "mac-not-title": "Not on Mac yet",
+        "mac-not-1": "Music and lyrics",
+        "mac-not-2": "Volume and brightness",
+        "mac-not-3": "Wi-Fi and Bluetooth",
+        "mac-not-4": "The Dock and privacy dots",
+        "mac-not-5": "Automatic updates",
+        "mac-note": "Free, and nothing is recorded or uploaded.",
+        "mac-bug": "Found a bug? Tell us.",
         "fb-tag": "FEEDBACK &amp; IDEAS",
         "fb-title": "Got an idea or found a bug? Send it over.",
         "fb-sub": "Your ideas and feedback mean a lot to me. They help make Grump better.",
@@ -2928,6 +3214,44 @@
         "btn-dl-setup": "Download Setup",
         "btn-dl-msstore": "Microsoft Store",
         "btn-dl-linux": "Linux Beta",
+        "nav-mac": "Mac",
+        "btn-dl-mac": "Pratinjau Mac",
+        "mac-eyes-alt": "Mata oranye Grump yang menyala, dari dekat",
+        "mac-title": "Grump akhirnya mendarat di Mac.",
+        "mac-sub": "Notch yang moody sekarang tinggal juga di MacBook-mu. Pratinjau awal: notch dan matanya, belum ditandatangani Apple, dan dibuat untuk dicoba.",
+        "mac-dl-arm": "Unduh untuk Apple Silicon",
+        "mac-dl-arm-sub": "M1 dan yang lebih baru · .dmg",
+        "mac-dl-intel": "Unduh untuk Intel",
+        "mac-dl-intel-sub": "Mac Intel · .dmg",
+        "mac-soon": "Segera hadir. Tombol unduh menyala begitu pratinjaunya dipublikasikan.",
+        "mac-ready": "Pratinjau gratis. Butuh macOS 13 atau lebih baru. Tidak tahu Mac-mu yang mana? Menu Apple > Tentang Mac Ini: kalau ada baris \"Chip\", itu Apple Silicon.",
+        "mt-title": "Buka di Mac dalam empat langkah",
+        "mt-note": "Ilustrasi macOS, bukan tangkapan layar.",
+        "mt-prev": "Kembali",
+        "mt-next": "Lanjut",
+        "mt-step": "Langkah",
+        "mt-1": "Buka .dmg lalu seret Grump ke Applications.",
+        "mt-2": "Buka Grump dari Applications. macOS bilang tidak bisa memeriksa aplikasinya. Itu wajar: pratinjau ini belum ditandatangani Apple. Klik Done.",
+        "mt-3": "Buka Pengaturan Sistem > Privasi & Keamanan, gulir ke bawah, lalu klik Tetap Buka di sebelah Grump.",
+        "mt-4": "Konfirmasi dengan Touch ID atau kata sandimu. Grump terbuka, dan notch muncul di bagian atas layar.",
+        "mt-term": "Lebih suka Terminal?",
+        "mt-term-note": "Setelah menyeret Grump ke Applications, jalankan ini sekali. Perintah ini menghapus tanda yang memicu peringatan.",
+        "mt-copy": "Salin",
+        "mt-copied": "Tersalin",
+        "mac-have-title": "Yang kamu dapat",
+        "mac-have-1": "Notch dan mata menyalanya",
+        "mac-have-2": "Timer, to-do, catatan, dan pengingat",
+        "mac-have-3": "Cuaca",
+        "mac-have-4": "Stash dan tangkapan layar",
+        "mac-have-5": "Tampilan Obsidian",
+        "mac-not-title": "Belum ada di Mac",
+        "mac-not-1": "Musik dan lirik",
+        "mac-not-2": "Volume dan kecerahan",
+        "mac-not-3": "Wi-Fi dan Bluetooth",
+        "mac-not-4": "Dock dan titik privasi",
+        "mac-not-5": "Pembaruan otomatis",
+        "mac-note": "Gratis, dan tidak ada yang direkam atau diunggah.",
+        "mac-bug": "Menemukan bug? Kabari kami.",
         "fb-tag": "FEEDBACK &amp; IDE",
         "fb-title": "Punya ide atau nemu bug? Kirim langsung ke sini.",
         "fb-sub": "Saran dan kritikmu sangat berarti buatku. Setiap masukan membantu Grump jadi lebih baik.",
@@ -3370,6 +3694,85 @@
       }
     }
     resolveLinuxBeta();
+
+    // Grump for Mac: the two buttons stay off until a public release carries the dmg files.
+    async function resolveMacPreview() {
+      try {
+        const res = await fetch('https://api.github.com/repos/yeazka/Grump/releases?per_page=20', {
+          headers: { Accept: 'application/vnd.github+json' }, signal: AbortSignal.timeout(8000)
+        });
+        if (!res.ok) throw new Error('releases unavailable');
+        const releases = await res.json();
+        const pick = (re) => {
+          for (const release of releases) {
+            if (release.draft) continue;
+            const asset = (release.assets || []).find(item => re.test(item.name || '') && /^https:\/\/github\.com\//i.test(item.browser_download_url || ''));
+            if (asset) return { asset, release };
+          }
+          return null;
+        };
+        const arm = pick(/^Grump-\d+\.\d+\.\d+-mac-arm64\.dmg$/i), intel = pick(/^Grump-\d+\.\d+\.\d+-mac-x64\.dmg$/i);
+        let any = false;
+        for (const [id, found] of [['btn-mac-arm', arm], ['btn-mac-intel', intel]]) {
+          if (!found) continue;
+          const button = document.getElementById(id);
+          button.href = found.asset.browser_download_url;
+          button.rel = 'noopener noreferrer';
+          button.removeAttribute('aria-disabled');
+          button.title = `Grump ${found.release.tag_name || ''} · ${found.asset.name}`;
+          any = true;
+        }
+        if (any) { document.getElementById('mac-soon').hidden = true; document.getElementById('mac-ready').hidden = false; }
+      } catch (err) {
+        console.warn('Mac preview unavailable:', err);
+      }
+    }
+    resolveMacPreview();
+
+    // The Mac walkthrough: four scenes, one pass of motion each, Back / Next / numbered steps / arrow keys.
+    (function () {
+      const root = document.getElementById('mac-tut');
+      if (!root) return;
+      const scenes = [...root.querySelectorAll('.mt-scene')], caps = [...root.querySelectorAll('.mt-caps p')], dots = [...root.querySelectorAll('.mt-dot')];
+      const prev = document.getElementById('mt-prev'), next = document.getElementById('mt-next');
+      const stage = document.getElementById('mt-stage'), canvas = document.getElementById('mt-canvas');
+      let step = 0;
+      const fit = () => canvas.style.setProperty('--k', String(stage.clientWidth / 480));
+      if (window.ResizeObserver) new ResizeObserver(fit).observe(stage); else window.addEventListener('resize', fit);
+      fit();
+      function show(n) {
+        step = Math.max(0, Math.min(scenes.length - 1, n));
+        scenes.forEach((s, i) => { s.hidden = i !== step; s.classList.remove('play'); });
+        void scenes[step].offsetWidth;
+        scenes[step].classList.add('play');
+        caps.forEach((c, i) => { c.hidden = i !== step; });
+        dots.forEach((d, i) => { if (i === step) d.setAttribute('aria-current', 'step'); else d.removeAttribute('aria-current'); });
+        prev.disabled = step === 0; next.disabled = step === scenes.length - 1;
+      }
+      prev.addEventListener('click', () => show(step - 1));
+      next.addEventListener('click', () => show(step + 1));
+      dots.forEach((d, i) => d.addEventListener('click', () => show(i)));
+      root.addEventListener('keydown', (e) => {
+        if (e.target.closest && e.target.closest('details')) return;
+        if (e.key === 'ArrowRight') { e.preventDefault(); show(step + 1); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); show(step - 1); }
+      });
+      // play the first scene when the walkthrough comes into view, once
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver((entries) => { if (entries.some(e => e.isIntersecting)) { show(step); io.disconnect(); } }, { threshold: .4 });
+        io.observe(stage);
+      } else show(0);
+      scenes.forEach(s => s.classList.remove('play')); scenes[0].classList.add('play');
+      // copy the Terminal command
+      const copy = document.getElementById('mt-copy'), cmd = document.getElementById('mt-cmd');
+      let label = copy.textContent;
+      copy.addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(cmd.textContent.trim()); }
+        catch (_) { const r = document.createRange(); r.selectNodeContents(cmd); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); try { document.execCommand('copy'); } catch (__) {} }
+        const done = (typeof translations === 'object' && translations[currentLang] && translations[currentLang]['mt-copied']) || 'Copied';
+        copy.textContent = done; setTimeout(() => { copy.textContent = (typeof translations === 'object' && translations[currentLang] && translations[currentLang]['mt-copy']) || label; }, 1600);
+      });
+    })();
 
     async function refreshDownloadCount() {
       try {
