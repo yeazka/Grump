@@ -19,7 +19,9 @@
     clear:  { tint: [255, 255, 255], closed: 0.06, top: 0.10, bottom: 0.16, blur: 3.2, sat: 1.3, lift: 0.025 },
   };
 
+  let startToken = 0;   // a start that is still in flight when the glass is no longer wanted must not switch it on afterwards
   function stopGlass() {
+    startToken++;
     if (glass) { glass.stop(); glass = null; }
     island.dataset.glassLive = '0';
     canvas.style.display = 'none';
@@ -30,6 +32,7 @@
   async function startGlass() {
     if (glass || starting) return;
     starting = true;
+    const token = ++startToken;
     const next = new Glass(canvas);
     next.onFail = (error) => { console.warn('Live glass unavailable, using the CSS glass', error && error.message); failedAt = Date.now(); if (glass === next) { stopGlass(); layout(); } };
     next.onFrame = () => frame(next);
@@ -37,6 +40,7 @@
     const ok = await next.start();
     starting = false;
     if (!ok) { bridge.glassProtect?.(false); failedAt = Date.now(); return; }
+    if (token !== startToken || !wanted()) { next.stop(); bridge.glassProtect?.(false); return; }   // the theme changed while it was starting (Obsidian is solid)
     glass = next;
     island.dataset.glassLive = '1';
     layout();
@@ -88,7 +92,7 @@
     canvas.style.width = rect.width + 'px';
     canvas.style.height = rect.height + 'px';
 
-    if (lastRateExpanded !== expanded) { lastRateExpanded = expanded; instance.setFrameRate(expanded ? 15 : 1); }
+    if (lastRateExpanded !== expanded) { lastRateExpanded = expanded; instance.setFrameRate(expanded ? 10 : (window.GRUMP_GLASS_IDLE_FPS || 5)); }
     const small = Math.min(region.h, region.w);
     instance.draw({
       rect, region, shape, shapeKey,
@@ -98,6 +102,8 @@
   }
 
   // follow the settings: start/stop with the theme and the Preferences switch
-  setInterval(() => { if (wanted()) startGlass(); else if (glass || island.dataset.glassLive === '1') stopGlass(); }, 800);
+  const sync = () => { if (wanted()) startGlass(); else if (glass || starting || island.dataset.glassLive === '1') stopGlass(); };
+  window.GrumpGlassNotch = { sync };   // system.js calls it the moment the theme changes: no glass is left over an Obsidian notch
+  setInterval(sync, 400);
   window.addEventListener('beforeunload', () => { try { stopGlass(); } catch (_) { /* closing */ } });
 })();

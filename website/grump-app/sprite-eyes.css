@@ -28,10 +28,8 @@
 #sprite-eyes.pop { animation: spPop .5s cubic-bezier(.3, 1.6, .5, 1); }
 @keyframes spPop { 0% { transform: translateX(-50%) scale(1); } 22% { transform: translateX(-50%) scale(1.22, .78); } 48% { transform: translateX(-50%) scale(.88, 1.2); } 74% { transform: translateX(-50%) scale(1.06, .96); } 100% { transform: translateX(-50%) scale(1); } }
 
-/* tucked away (a browser or another app has the screen): the same eyes, smaller, in the small notch */
-#pk-sprite { width: 42px; height: 13.8px; transform: translate3d(var(--pk-look-x, 0px), var(--pk-look-y, 1px), 0); transition: transform .06s ease-out; }
-#island[data-eye-style="sprite"] #v-peekaboo .pk-eyes { display: none !important; }
-#island[data-eye-style="sprite"] #v-peekaboo:not([data-music="1"]) #pk-sprite { display: block; }
+/* The tucked pill (a browser or another app has the screen) keeps the plain white eyes. The glow eyes are for the idle page: #pk-sprite stays hidden. */
+#pk-sprite { display: none !important; }
 
 @media (prefers-reduced-motion: reduce) { #sprite-eyes, #pk-sprite { transition: none; animation: none !important; } }
 

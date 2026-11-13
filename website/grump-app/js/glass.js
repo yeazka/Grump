@@ -106,6 +106,16 @@ void main(){
     return shader;
   };
 
+  // The desktop is captured at a quarter of its size: the glass only needs a blurred picture, and every frame of a
+  // half-size capture cost four times the memory in the capturer, the video element and the texture (the RAM report).
+  // The blur is a mip level, so it drops by one level to keep the same look on screen.
+  const CAPTURE_DIV = 4;
+  // The notch, the dock and the floating lyrics each open their own capture of the same screen, and Chromium runs them at the SLOWEST
+  // rate any of them asks for (measured: a dock that wanted 10 frames a second got 1 as long as the closed notch asked for 1, so the glass
+  // behind the dock showed the old picture for a second or two after the screen changed). A window that is only waiting therefore never asks
+  // for less than this, or it holds every other window back.
+  window.GRUMP_GLASS_IDLE_FPS = 5;
+  const BLUR_SHIFT = Math.log2(CAPTURE_DIV / 2);
   class LiveGlass {
     constructor(canvas) {
       this.canvas = canvas;
@@ -123,7 +133,7 @@ void main(){
         this.bounds = source.bounds;
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: false,
-          video: { mandatory: { chromeMediaSource: 'desktop', chromeMediaSourceId: source.id, maxWidth: Math.max(480, Math.round(source.bounds.width / 2)), maxHeight: Math.max(270, Math.round(source.bounds.height / 2)), maxFrameRate: 10 } },
+          video: { mandatory: { chromeMediaSource: 'desktop', chromeMediaSourceId: source.id, maxWidth: Math.max(320, Math.round(source.bounds.width / CAPTURE_DIV)), maxHeight: Math.max(180, Math.round(source.bounds.height / CAPTURE_DIV)), maxFrameRate: 8 } },
         });
         this.stream = stream;
         const video = document.createElement('video');
@@ -245,7 +255,7 @@ void main(){
       gl.uniform2f(u.uVideo, this.video.videoWidth, this.video.videoHeight);
       gl.uniform3f(u.uTint, opts.tint[0], opts.tint[1], opts.tint[2]);
       gl.uniform2f(u.uTintAlpha, opts.tintAlpha[0], opts.tintAlpha[1]);
-      gl.uniform1f(u.uBlur, opts.blur);
+      gl.uniform1f(u.uBlur, Math.max(0, opts.blur - BLUR_SHIFT));
       gl.uniform1f(u.uBevel, opts.bevel);
       gl.uniform1f(u.uRefract, opts.refract);
       gl.uniform1f(u.uSat, opts.sat);
@@ -320,7 +330,7 @@ void main(){
         gl.uniform4f(u.uRegion, s.x, s.y, s.w, s.h);
         gl.uniform3f(u.uTint, s.tint[0], s.tint[1], s.tint[2]);
         gl.uniform2f(u.uTintAlpha, s.tintAlpha[0], s.tintAlpha[1]);
-        gl.uniform1f(u.uBlur, s.blur);
+        gl.uniform1f(u.uBlur, Math.max(0, s.blur - BLUR_SHIFT));
         gl.uniform1f(u.uBevel, s.bevel);
         gl.uniform1f(u.uRefract, s.refract);
         gl.uniform1f(u.uSat, s.sat);

@@ -1,5 +1,5 @@
 'use strict';
-const ADDONS={todo:{label:'To-do',labelId:'Tugas',icon:'check'},notes:{label:'Notes',labelId:'Catatan',icon:'file'},prayer:{label:'Prayer',labelId:'Sholat',icon:'moon'},water:{label:'Water',labelId:'Minum',icon:'drop'}};
+const ADDONS={todo:{label:'To-do',labelId:'Tugas',icon:'check'},notes:{label:'Notes',labelId:'Catatan',icon:'file'},prayer:{label:'Prayer',labelId:'Sholat',icon:'moon'},water:{label:'Water',labelId:'Minum',icon:'drop'},bookmarks:{label:'Bookmarks',labelId:'Bookmark',icon:'bookmark'}};
 let addonState={selected:[],city:'Jakarta',waterMinutes:45,waterEnabled:false,prayerEnabled:false,prayer:null,waterNextAt:0};
 let addonProductivity={tasks:[],notes:[]};
 let addonManage=false;
@@ -82,6 +82,7 @@ function syncAddonState(next){
   if (S.expanded && (curKey === 'addons' || S.view === 'addons') && allAdded) { go(addonPickTarget || next.selected?.at(-1) || 'home'); return; }
   if(S.expanded && ADDONS[curKey] && !S.addonPages.includes(curKey)){go(S.addonPages[0]||'addons');return;}
   if(oldPages!==S.addonPages.join(','))layout();else renderAddons();
+  if(curKey==='bookmarks')renderBookmarks();
 }
 function renderAddons(){
   if(!['addons',...Object.keys(ADDONS)].includes(curKey))return;
@@ -392,3 +393,157 @@ $('#v-todo').addEventListener('change', async e => {
 });
 $('#v-water').addEventListener('change',async e=>{if(e.target.id==='addon-water-minutes')syncAddonState(await bridge.addonCommand?.('water-interval',Number(e.target.value)));});
 acts.waterstep=async el=>{const list=[15,30,45,60,90,120];const i=list.indexOf(addonState.waterMinutes);const next=list[Math.max(0,Math.min(list.length-1,(i<0?2:i)+Number(el.dataset.dir)))];syncAddonState(await bridge.addonCommand?.('water-interval',next));};
+
+/* ---------- Bookmarks: favourite sites, opened in the default browser ---------- */
+let bookmarkAdding=false;
+let bookmarkRenderKey='';
+let bookmarkError='';
+let bookmarkNote='';
+let bookmarkNoteTimer=0;
+let bookmarkFlashUrl='';
+let bookmarkDraft={url:'',name:''};
+function bookmarkSay(text){
+  bookmarkNote=text;clearTimeout(bookmarkNoteTimer);
+  bookmarkNoteTimer=setTimeout(()=>{bookmarkNote='';renderBookmarks();},2600);
+  renderBookmarks();
+}
+function renderBookmarks(){
+  const body=$('#addon-bookmarks-body');
+  if(!body)return;
+  const list=Array.isArray(addonState.bookmarks)?addonState.bookmarks:[];
+  const idLang=isId();
+  const key=JSON.stringify([idLang,bookmarkAdding,bookmarkError,bookmarkNote,bookmarkFlashUrl,bookmarkAdding?bookmarkDraft.url:'',list.map(b=>[b.url,b.name,b.icon?b.icon.length:0])]);
+  if(key===bookmarkRenderKey)return;
+  bookmarkRenderKey=key;
+  setText('bookmarks-head-title',idLang?'Bookmark':'Bookmarks');
+  setText('bookmarks-count',list.length?`${list.length}/12`:'');
+  if(bookmarkAdding){
+    body.innerHTML=`<form class="bm-form" id="addon-bookmark-form" novalidate>
+      <div class="bm-url-row"><input name="url" class="bm-input" maxlength="2000" placeholder="${idLang?'Tempel atau ketik alamat situs':'Paste or type the site address'}" value="${esc(bookmarkDraft.url)}" autocomplete="off" spellcheck="false"><button type="button" class="bm-paste" data-act="bookmarkpaste">${idLang?'Tempel':'Paste'}</button></div>
+      <input name="name" class="bm-input" maxlength="40" placeholder="${idLang?'Nama (opsional)':'Name (optional)'}" value="${esc(bookmarkDraft.name)}" autocomplete="off">
+      ${bookmarkError?`<p class="bm-error">${esc(bookmarkError)}</p>`:''}
+      <div class="bm-form-actions"><button type="button" class="bm-cancel" data-act="bookmarkcancel">${idLang?'Batal':'Cancel'}</button><button type="submit" class="bm-save">${idLang?'Simpan':'Save'}</button></div>
+    </form>`;
+    setTimeout(()=>{const f=body.querySelector('input[name="url"]');if(f&&!f.value)f.focus();else body.querySelector('input[name="name"]')?.focus();},30);
+    return;
+  }
+  const tiles=list.map((b,i)=>{
+    const face=b.icon?`<img src="${b.icon}" alt="" width="28" height="28">`:`<span class="bm-letter">${esc((b.name||'?').charAt(0).toUpperCase())}</span>`;
+    const t=idLang?{rm:'Hapus',cp:'Salin alamat'}:{rm:'Remove',cp:'Copy address'};
+    return `<div class="bm-tile${b.url===bookmarkFlashUrl?' bm-new':''}" data-i="${i}"><button type="button" class="bm-open" data-act="bookmarkopen" data-i="${i}" title="${esc(b.url)}">${face}<span class="bm-name">${esc(b.name)}</span></button><button type="button" class="bm-copy" data-act="bookmarkcopy" data-i="${i}" aria-label="${t.cp}: ${esc(b.name)}" title="${t.cp}">${icoOf('copy')}</button><button type="button" class="bm-remove" data-act="bookmarkremove" data-i="${i}" aria-label="${t.rm} ${esc(b.name)}" title="${t.rm}">${icoOf('x')}</button></div>`;
+  });
+  if(list.length<12)tiles.push(`<button type="button" class="bm-tile bm-add" data-act="bookmarkaddopen">${icoOf('plus')}<span class="bm-name">${idLang?'Tambah':'Add'}</span></button>`);
+  const hint=bookmarkNote||(list.length?'':(idLang?'Seret tab atau link ke notch, tekan Ctrl+Alt+B di browser, atau tempel dari clipboard.':'Drag a tab or link to the notch, press Ctrl+Alt+B in a browser, or paste from the clipboard.'));
+  body.innerHTML=`<div class="bm-grid">${tiles.join('')}</div>${hint?`<p class="${bookmarkNote?'bm-note':'bm-empty'}" role="status">${esc(hint)}</p>`:''}`;
+}
+enterHooks.bookmarks=()=>renderBookmarks();   // layout() re-enters the page on every resize: keep a half-typed form
+// + opens the form already filled with the web address on the clipboard, when there is one.
+acts.bookmarkaddopen=async()=>{
+  bookmarkAdding=true;bookmarkError='';bookmarkDraft={url:'',name:''};
+  try{const link=await bridge.clipboardLink?.();if(link)bookmarkDraft.url=link;}catch{/* no clipboard access: an empty form */}
+  bookmarkRenderKey='';renderBookmarks();
+};
+acts.bookmarkpaste=async()=>{
+  const form=$('#addon-bookmark-form');if(!form)return;
+  bookmarkDraft={url:form.elements.url.value,name:form.elements.name.value};
+  let link='';try{link=await bridge.clipboardLink?.();}catch{}
+  if(!link){bookmarkError=isId()?'Tidak ada alamat situs di clipboard.':'There is no web address on the clipboard.';}
+  else{bookmarkError='';bookmarkDraft.url=link;}
+  bookmarkRenderKey='';renderBookmarks();
+};
+acts.bookmarkcancel=()=>{bookmarkAdding=false;bookmarkError='';bookmarkDraft={url:'',name:''};bookmarkRenderKey='';renderBookmarks();};
+acts.bookmarkopen=async el=>{const i=Number(el.dataset.i);if(Number.isInteger(i))await bridge.addonCommand?.('bookmark-open',i);};
+acts.bookmarkcopy=async el=>{const i=Number(el.dataset.i);if(!Number.isInteger(i))return;await bridge.addonCommand?.('bookmark-copy',i);bookmarkSay(isId()?'Alamat disalin':'Address copied');};
+acts.bookmarkremove=async el=>{const i=Number(el.dataset.i);if(!Number.isInteger(i))return;const result=await bridge.addonCommand?.('bookmark-remove',i);if(result)syncAddonState(result);};
+// right-click a tile copies its address too
+$('#v-bookmarks')?.addEventListener('contextmenu',e=>{const tile=e.target.closest('.bm-tile[data-i]');if(!tile)return;e.preventDefault();acts.bookmarkcopy({dataset:{i:tile.dataset.i}});});
+$('#v-bookmarks')?.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const form=e.target;
+  if(form.id!=='addon-bookmark-form')return;
+  const url=form.elements.url.value.trim(),name=form.elements.name.value.trim();
+  bookmarkDraft={url,name};
+  if(!url){bookmarkError=isId()?'Isi alamat situsnya dulu.':'Enter the site address first.';bookmarkRenderKey='';renderBookmarks();return;}
+  const save=form.querySelector('.bm-save');if(save){save.disabled=true;save.textContent=isId()?'Menyimpan…':'Saving…';}
+  const result=await bridge.addonCommand?.('bookmark-add',{url,name});
+  if(!result){bookmarkError=isId()?'Alamatnya tidak valid, sudah ada, atau bookmark sudah penuh (12).':'That address is not valid, already saved, or the list is full (12).';bookmarkRenderKey='';renderBookmarks();return;}
+  bookmarkAdding=false;bookmarkError='';bookmarkDraft={url:'',name:''};
+  const added=(result.bookmarks||[]).at(-1);if(added)bookmarkFlashUrl=added.url;
+  syncAddonState(result);
+});
+
+/* Drag a link, or the address icon of a browser tab, onto the notch: it is saved as a bookmark. Only while the Bookmarks
+   feature is on, and only for drags that carry a web address (selected text and files are left alone: files go to the Stash). */
+let bmDrag=false;
+const bmWanted=e=>S.addonPages.includes('bookmarks')&&e.dataTransfer&&[...(e.dataTransfer.types||[])].some(t=>t==='text/uri-list'||t==='text/x-moz-url')&&![...(e.dataTransfer.types||[])].includes('Files');
+function bmStartDrag(){
+  if(bmDrag)return;
+  bmDrag=true;S.dragLock=true;bridge.setDragActive?.(true);
+  if(curKey!=='bookmarks'&&!S.bmZone)go('bookmarks');   // in a browser the drop zone pill is already showing
+  $('#v-bookmarks')?.classList.add('hot');
+}
+function bmEndDrag(){
+  if(!bmDrag)return;
+  bmDrag=false;S.dragLock=false;bridge.setDragActive?.(false);
+  $('#v-bookmarks')?.classList.remove('hot');
+}
+// What the browser sent: the address from text/uri-list (first line that is not a comment) or Firefox's text/x-moz-url, and a title when it came along.
+function bmReadDrop(dt){
+  let url='',title='';
+  const moz=dt.getData('text/x-moz-url');
+  if(moz){const [u,t]=moz.split(/\r?\n/);url=(u||'').trim();title=(t||'').trim();}
+  if(!url){url=(dt.getData('text/uri-list')||'').split(/\r?\n/).map(l=>l.trim()).find(l=>l&&!l.startsWith('#'))||'';}
+  if(!title){const html=dt.getData('text/html');const m=html&&html.match(/<a\b[^>]*>([\s\S]*?)<\/a>/i);if(m)title=m[1].replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim();}
+  return {url,title:title.slice(0,40)};
+}
+document.addEventListener('dragenter',e=>{if(bmWanted(e)){e.preventDefault();bmStartDrag();}});
+document.addEventListener('dragover',e=>{if(bmWanted(e)){e.preventDefault();e.dataTransfer.dropEffect='link';bmStartDrag();}});
+document.addEventListener('dragleave',e=>{if(bmDrag&&e.relatedTarget===null)setTimeout(bmEndDrag,90);});
+document.addEventListener('dragend',bmEndDrag);
+document.addEventListener('drop',async e=>{
+  if(!bmDrag&&!bmWanted(e))return;
+  e.preventDefault();
+  const {url,title}=bmReadDrop(e.dataTransfer);   // dataTransfer is only readable during the event
+  const zone=!!S.bmZone;
+  if(zone)bridge.bmDropped?.();   // the address came with the drop: no need to read the address bar
+  bmEndDrag();
+  const say=(ok,text)=>zone?bmZoneShow(ok?'saved':'fail',text,ok?1300:1900):bookmarkSay(text);
+  if(!url){say(false,isId()?'Tidak ada alamat situs yang terbawa':'No web address came with it');return;}
+  const result=await bridge.addonCommand?.('bookmark-add',{url,name:title});
+  if(!result){say(false,isId()?'Tidak disimpan: tidak valid, sudah ada, atau penuh':'Not saved: invalid, already saved, or full');return;}
+  const added=(result.bookmarks||[]).at(-1);if(added)bookmarkFlashUrl=added.url;
+  bookmarkAdding=false;syncAddonState(result);
+  say(true,isId()?`Tersimpan: ${added?added.name:'bookmark'}`:`Saved: ${added?added.name:'bookmark'}`);
+});
+
+
+/* The drop zone pill (main.js "Bookmark drop zone"): ready while a tab or link is dragged near the notch, then the result for a moment. */
+let bmZoneTimer=0;
+function bmZoneShow(state,text,holdMs){
+  clearTimeout(bmZoneTimer);
+  S.bmZone=state;   // 'ready' | 'saving' | 'saved' | 'fail'
+  setText('bd-text',text);
+  island.dataset.bmZone=state;
+  layout();
+  if(holdMs)bmZoneTimer=setTimeout(bmZoneHide,holdMs);
+}
+function bmZoneHide(){
+  clearTimeout(bmZoneTimer);if(!S.bmZone)return;
+  const wasResult=S.bmZone==='saved'||S.bmZone==='fail';
+  S.bmZone=null;delete island.dataset.bmZone;
+  S.bmCool=wasResult&&inside;   // a result closes back to the tucked pill, even though the pointer is still on the notch
+  layout();
+}
+bridge.onBmZone?.(state=>{
+  if(state==='ready')bmZoneShow('ready',isId()?'Lepas untuk simpan ke bookmark':'Drop to save as a bookmark',0);
+  else if(state==='saving')bmZoneShow('saving',isId()?'Menyimpan…':'Saving…',0);
+  else if(S.bmZone==='ready'||S.bmZone==='saving')bmZoneHide();   // a saved/fail message keeps its own timer
+});
+bridge.onBmResult?.(r=>{
+  const id=isId();
+  const text=r&&r.ok?(id?`Tersimpan: ${r.name||'bookmark'}`:`Saved: ${r.name||'bookmark'}`)
+    :r&&r.reason==='exists'?(id?'Sudah ada di bookmark':'Already in bookmarks')
+    :r&&r.reason==='full'?(id?'Bookmark penuh (12)':'Bookmarks are full (12)')
+    :(id?'Alamat tab tidak terbaca':'Could not read the tab address');
+  bmZoneShow(r&&r.ok?'saved':'fail',text,r&&r.ok?1300:1900);
+});

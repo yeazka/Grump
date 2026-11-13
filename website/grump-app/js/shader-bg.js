@@ -496,6 +496,17 @@ void main() {
     }
   }
 
+  // The 8 stops of the background taken from the album cover (js/music.js albumTones). Eased by the render loop unless instant.
+  function setPalette(colors, instant = false) {
+    if (!Array.isArray(colors) || colors.length !== 8) return;
+    activeApp = 'album';
+    targetColors = colors;
+    if (instant) {
+      currentColors = colors.map(c => [...c]);
+      if (gl && uni.colors) gl.uniform3fv(uni.colors, new Float32Array(currentColors.flat()));
+    }
+  }
+
   function start() {
     clearTimeout(releaseTimer);
     releaseTimer = null;
@@ -546,6 +557,7 @@ void main() {
   window.musicShader = {
     init: initGL,
     setApp,
+    setPalette,
     start,
     stop,
     resize

@@ -45,9 +45,10 @@ bridge.onSettings((s) => {
   S.settings = { ...S.settings, ...s };
   document.documentElement.dataset.platform=s._platform||'win32';
   applyIslandTransparency(); applyIslandLanguage();
+  if (('albumColors' in s || 'movieMusic' in s) && typeof updateMediaAppUI === 'function') updateMediaAppUI();
   updateIdleInfoDisplay();
   if ('idleInfoIntervalSec' in s || 'idleInfoDurationSec' in s || 'idleInfoItems' in s || 'idleInfoSides' in s || 'idleInfoAlwaysOn' in s) configureIdleInfoScheduler();
-  if (s.theme) island.dataset.theme = s.theme;
+  if (s.theme) { island.dataset.theme = s.theme; window.GrumpGlassNotch?.sync(); }
   if (s.angryVariant) island.dataset.angryVariant = s.angryVariant;
   // Grump Eyes (the glow eyes) is one of the reaction styles; every other style keeps the classic eyes.
   if (s.angryVariant || !island.dataset.eyeStyle) island.dataset.eyeStyle = (s.angryVariant || island.dataset.angryVariant) === 'grump-eyes' ? 'sprite' : 'classic';
@@ -425,7 +426,8 @@ function updateEyeLook(dx, dy, rawX, rawY) {
       pk.style.setProperty('--pk-look-x', `${pkLx.toFixed(1)}px`);
       pk.style.setProperty('--pk-look-y', `${pkLy.toFixed(1)}px`);
       const pkSprite = document.getElementById('pk-sprite');
-      if (pkSprite) { pkSprite.style.setProperty('--pk-look-x', `${pkLx.toFixed(1)}px`); pkSprite.style.setProperty('--pk-look-y', `${(pkLy + 1).toFixed(1)}px`); }
+      // the glow eyes are 42 px in a 56 px pill: they may slide 3 px, or the far eye is cut by the pill's edge
+      if (pkSprite) { pkSprite.style.setProperty('--pk-look-x', `${clamp(pkLx, -3, 3).toFixed(1)}px`); pkSprite.style.setProperty('--pk-look-y', `${(pkLy + 1).toFixed(1)}px`); }
       window.spriteEyes?.look(dx, dy, false);
     }
     return;

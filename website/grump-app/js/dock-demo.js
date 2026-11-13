@@ -2,7 +2,10 @@
 // Dock demo for the welcome screen: the real dock's cosine magnification wave on a few demo icons. It sweeps by itself and follows the mouse.
 (() => {
   const stage = document.getElementById('stage');
-  const icons = ['dock-win/explorer', 'dock-win/notepad', 'dock-win/claude', 'dock-win/chatgpt', 'dock-win/antigravity', 'dock/terminal', 'dock/code', 'dock/settings'];
+  const withSong = /[?&]np=1/.test(location.search);
+  const all = ['dock-win/explorer', 'dock-win/notepad', 'dock-win/claude', 'dock-win/chatgpt', 'dock-win/antigravity', 'dock/terminal', 'dock/code', 'dock/settings'];
+  const icons = withSong ? all.slice(0, 5) : all;
+  if (withSong) { stage.style.width = (icons.length * 51 - 5) + 'px'; document.getElementById('np-div').hidden = false; document.getElementById('np').hidden = false; }
   const SLOT = 51, MAX = 1.7, WIDTH = 210;
   const items = icons.map((name, i) => {
     const item = document.createElement('div'); item.className = 'dock-item';
@@ -23,7 +26,7 @@
   }
   let mouse = null, t0 = performance.now();
   const SWEEP_MS = 3600;   // one pass of the wave, then it rests; the mouse brings it back
-  document.addEventListener('mousemove', (e) => { const r = stage.getBoundingClientRect(); mouse = e.clientX - r.left; });
+  document.addEventListener('mousemove', (e) => { const r = stage.getBoundingClientRect(); mouse = (e.clientX - r.left) / (r.width / stage.offsetWidth); });
   document.addEventListener('mouseleave', () => { mouse = null; });
   const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   (function loop(now) {
@@ -32,6 +35,15 @@
     else wave(null);
     requestAnimationFrame(loop);
   })(performance.now());
+  // the welcome screen's sliders: icon size, bar length and position, the same three settings as Preferences > Dock
+  const wrapper = document.querySelector('.demo-wrapper'), capsule = document.getElementById('dock-capsule');
+  window.addEventListener('message', (e) => {
+    const m = e.data && e.data.dockDemo; if (!m) return;
+    const size = Math.max(70, Math.min(130, Number(m.size) || 100)) / 100, len = Math.max(0, Math.min(100, Number(m.len) || 0)), pos = Math.max(-100, Math.min(100, Number(m.pos) || 0));
+    wrapper.style.transform = `translateX(calc(-50% + ${pos * 1.4}px)) scale(${size})`;
+    capsule.style.minWidth = '';
+    if (len) capsule.style.minWidth = (capsule.offsetWidth + len * 2.4) + 'px';   // grows from the natural width
+  });
   const clock = document.getElementById('clock');
   const tick = () => {
     const d = new Date();

@@ -58,7 +58,8 @@ function detectMediaApp(m) {
   if (all.includes('youtube') || all.includes('youtu.be') || all.includes('yt music') || all.includes('music.youtube')) {
     return { type: 'youtube', name: 'YouTube', color: '#ff0000', ico: 'youtube' };
   }
-  if (all.includes('apple') || all.includes('itunes')) {
+  // the app id only: a song called "Apple" played elsewhere is not Apple Music (title, artist and album are in `all`)
+  if (app.includes('apple') || app.includes('itunes')) {
     return { type: 'apple', name: 'Apple Music', color: '#fa2d48', ico: 'apple' };
   }
   if (all.includes('soundcloud')) {
@@ -73,13 +74,20 @@ function updateMediaAppUI() {
   const isMusicActive = (isPlaying() || S.view === 'music' || (S.media && S.media.title)) && !mediaDismissed;
   island.dataset.mediaApp = isMusicActive ? info.type : 'none';
   island.dataset.spotify = (isMusicActive && info.type === 'spotify') ? '1' : '0';
-  root.setProperty('--media-beam-color', info.color);
-  root.setProperty('--media-beam-glow', info.type === 'spotify' ? 'rgba(30, 215, 96, .42)' : (info.type === 'youtube' ? 'rgba(255, 30, 30, .42)' : (info.type === 'apple' ? 'rgba(250, 45, 72, .42)' : 'rgba(255, 85, 0, .42)')));
+  // Preferences > Features > Music: the colours follow the album cover instead of the player's own colour
+  const album = isMusicActive && S.settings && S.settings.albumColors !== false && S.mediaPalette ? S.mediaPalette : null;
+  root.setProperty('--media-beam-color', album ? album.beam : info.color);
+  root.setProperty('--media-beam-glow', album ? album.glow : info.type === 'spotify' ? 'rgba(30, 215, 96, .42)' : (info.type === 'youtube' ? 'rgba(255, 30, 30, .42)' : (info.type === 'apple' ? 'rgba(250, 45, 72, .42)' : 'rgba(255, 85, 0, .42)')));
+  // The spectrum bars keep the player's own colour (Spotify green, YouTube red, white for the rest): only the beam and the background follow the cover.
   root.setProperty('--bars-color', info.color);
   root.setProperty('--bars-glow', info.type === 'spotify' ? 'rgba(30, 215, 96, .45)' : (info.type === 'youtube' ? 'rgba(255, 0, 0, .45)' : 'rgba(255, 255, 255, .3)'));
 
+  // Movie Nerd Music: a song from a film adds that film's effects (snow and ice for Frozen) on top of the cover colours
+  if (window.movieFx) window.movieFx.setTheme(isMusicActive && S.settings && S.settings.movieMusic !== false ? window.movieThemeOf(S.media) : null);
+
   if (window.musicShader) {
-    window.musicShader.setApp(info.shader || info.type, true);
+    if (album) window.musicShader.setPalette(album.shader, false);   // eases from the previous song's colours
+    else window.musicShader.setApp(info.shader || info.type, true);
     if (curKey === 'music' && isPlaying()) {
       window.musicShader.start();
     }
@@ -115,6 +123,78 @@ function updateMediaAppUI() {
   }
 }
 
+/* ---------- Album colors: the beam, bars and music background follow the cover ---------- */
+// albumPaletteFromPixels(data): data is the RGBA of a small downscaled cover. Clusters the pixels (k-means) and picks the colour
+// that best stands for the cover: big and colourful first, very dark or very bright clusters count for less, so a white cover with
+// a black title still gives its cream or its blue. Returns { rgb:[r,g,b], vivid } or null.
+function albumPaletteFromPixels(data) {
+  const px = [];
+  for (let i = 0; i + 3 < data.length; i += 4) if (data[i + 3] > 200) px.push([data[i], data[i + 1], data[i + 2]]);
+  if (px.length < 16) return null;
+  const K = 5;
+  const cents = Array.from({ length: K }, (_, i) => px[Math.floor((i + 0.5) * px.length / K)].slice());
+  let counts = new Array(K).fill(0);
+  for (let pass = 0; pass < 7; pass++) {
+    const sum = Array.from({ length: K }, () => [0, 0, 0, 0]);
+    for (const p of px) {
+      let best = 0, bd = Infinity;
+      for (let k = 0; k < K; k++) { const c = cents[k]; const d = (p[0] - c[0]) ** 2 + (p[1] - c[1]) ** 2 + (p[2] - c[2]) ** 2; if (d < bd) { bd = d; best = k; } }
+      const s = sum[best]; s[0] += p[0]; s[1] += p[1]; s[2] += p[2]; s[3]++;
+    }
+    counts = sum.map((s) => s[3]);
+    for (let k = 0; k < K; k++) if (sum[k][3]) cents[k] = [sum[k][0] / sum[k][3], sum[k][1] / sum[k][3], sum[k][2] / sum[k][3]];
+  }
+  // Two tiers. A really colourful cluster (blue head on a grey cover) stands for the cover. When nothing is that colourful, the
+  // body of the cover does: the biggest cluster, leaning to the lighter ones because the beam is seen on the dark notch, with
+  // near-black and near-white (usually the background) counting for less. A cream cover stays cream, not the brown of its portrait.
+  let vivid = null, vividScore = 0, body = null, bodyScore = -1;
+  for (let k = 0; k < K; k++) {
+    if (!counts[k]) continue;
+    const share = counts[k] / px.length;
+    const [, s, l] = rgbToHsl(cents[k][0], cents[k][1], cents[k][2]);
+    if (s >= 0.45 && share >= 0.05 && share * s > vividScore) { vividScore = share * s; vivid = cents[k]; }
+    const edge = l < 0.12 ? 0.3 : l > 0.96 ? 0.4 : 1;
+    const score = share * (0.4 + l) * edge;
+    if (score > bodyScore) { bodyScore = score; body = cents[k]; }
+  }
+  const pick = vivid || body;
+  if (!pick) return null;
+  return { rgb: pick.map((v) => Math.round(v)), vivid: !!vivid };
+}
+function rgbToHsl(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
+  if (!d) return [0, 0, l];
+  const s = d / (1 - Math.abs(2 * l - 1));
+  const h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return [(h * 60 + 360) % 360, s, l];
+}
+function hslToRgb(h, s, l) {
+  const c = (1 - Math.abs(2 * l - 1)) * s, x = c * (1 - Math.abs(((h / 60) % 2) - 1)), m = l - c / 2;
+  const [r, g, b] = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
+  return [r + m, g + m, b + m].map((v) => Math.round(Math.max(0, Math.min(1, v)) * 255));
+}
+// The colours the notch actually uses, from the cover colour: a beam colour that is readable on the dark notch (a cream cover stays cream,
+// a blue one stays blue, a black one becomes a soft grey) and the 8 stops of the music background.
+function albumTones(found) {
+  if (!found) return null;
+  const [h, s, l] = rgbToHsl(found.rgb[0], found.rgb[1], found.rgb[2]);
+  const sat = found.vivid ? Math.min(1, Math.max(0.55, s)) : s;   // only a colourful cover is pushed to stay colourful; cream stays cream
+  const beamL = found.vivid ? Math.min(0.62, Math.max(0.48, l)) : Math.min(0.84, Math.max(0.6, l));
+  const beam = hslToRgb(h, sat, beamL);
+  const stops = [[0, 0.9, 0.05], [0, 1, 0.26], [0, 1, 0.5], [0, 0.55, 0.86]];
+  const shader = [];
+  for (const shift of [0, 10]) for (const [, sm, lv] of stops) shader.push(hslToRgb((h + shift) % 360, Math.min(1, sat * sm), lv).map((v) => +(v / 255).toFixed(4)));
+  return {
+    beam: `rgb(${beam.join(',')})`,
+    glow: `rgba(${beam.join(',')}, .42)`,
+    barsGlow: `rgba(${beam.join(',')}, .45)`,
+    shader,
+    rgb: found.rgb,
+  };
+}
+
+let artToken = 0;
 function setArt(url) {
   for (const id of ['m-art', 'ly-art']) {
     const el = $('#' + id);
@@ -128,13 +208,17 @@ function setArt(url) {
     cEl.style.backgroundImage = '';
   }
   const root = document.documentElement.style;
+  const myArt = ++artToken;
   if (!url) {
     const info = detectMediaApp(S.media);
     root.setProperty('--accent', info.color);
+    S.mediaPalette = null;
+    updateMediaAppUI();
     return;
   }
   const img = new Image();
   img.onload = () => {
+    if (myArt !== artToken) return;   // a newer cover arrived while this one decoded
     try {
       const c = document.createElement('canvas'); c.width = c.height = 8;
       const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(img, 0, 0, 8, 8);
@@ -149,6 +233,12 @@ function setArt(url) {
         root.setProperty('--accent', `rgb(${best.map((v) => Math.min(255, Math.round(v * f))).join(',')})`);
       }
     } catch {}
+    try {
+      const c = document.createElement('canvas'); c.width = c.height = 32;
+      const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(img, 0, 0, 32, 32);
+      S.mediaPalette = albumTones(albumPaletteFromPixels(g.getImageData(0, 0, 32, 32).data));
+    } catch { S.mediaPalette = null; }
+    updateMediaAppUI();
   };
   img.src = url;
 }
@@ -200,7 +290,7 @@ function getLiveLyricsContext() {
   if (!S.media) return { prev: '', cur: isId() ? 'Tidak ada musik diputar' : 'No music playing', next: '', hasLyrics: false };
   if (S.lyrics && S.lyrics.length) {
     const pos = curPos();
-    const effPos = pos + AUDIO_OFFSET;
+    const effPos = pos + lyricShift();
     let idx = -1;
     for (let i = 0; i < S.lyrics.length; i++) {
       if (S.lyrics[i].t <= effPos) idx = i;
@@ -356,7 +446,7 @@ function pipSend() {
   if (!S.pipOpen) return;
   const m = S.media;
   const sig = `${S.lyricsFor}|${S.lyricsState}|${S.lyrics?.length || 0}|${S.plainLyrics?.length || 0}|${S.lyricsTr ? 1 : 0}`;
-  const payload = { title: m?.title || '', artist: m?.artist || '', art: m?.art || null, id: isId(), playing: isPlaying(), pos: curPos(), state: S.lyricsState === 'loading' ? 'loading' : 'done' };
+  const payload = { title: m?.title || '', artist: m?.artist || '', art: m?.art || null, id: isId(), playing: isPlaying(), pos: curPos() + (Number(S.settings && S.settings.lyricOffset) || 0), state: S.lyricsState === 'loading' ? 'loading' : 'done' };
   if (sig !== pipSig) { pipSig = sig; payload.lyrics = S.lyrics || null; payload.plain = S.plainLyrics || null; payload.tr = S.lyricsTr || null; }
   bridge.pipUpdate?.(payload);
 }
@@ -415,8 +505,12 @@ function lyricWords(text) {
   }
   return { parts: [text], joiner: '' };
 }
+// What the list currently shows; layout() re-enters the lyrics page on every resize (hovering the page dots
+// grows the island), and rebuilding the same list then restarted the whole lyric animation.
+const lyricsListSig = () => `${S.lyricsFor}|${S.lyricsState}|${S.lyrics ? S.lyrics.length : 0}|${S.plainLyrics ? S.plainLyrics.length : 0}|${S.lyricsTr ? 1 : 0}|${isId() ? 'id' : 'en'}`;
 function renderLyricsList() {
   const list = $('#ly-list');
+  list.dataset.sig = lyricsListSig();
   const win = list.parentElement;
   const plain = !S.lyrics?.length && S.plainLyrics?.length;
   win.classList.toggle('plain', !!plain);
@@ -443,7 +537,11 @@ function renderLyricsList() {
 async function loadLyrics() {
   const m = S.media; if (!m) return;
   const key = trackKey(m);
-  if (S.lyricsFor === key) { renderLyricsList(); return; }
+  if (S.lyricsFor === key) {
+    const list = $('#ly-list');
+    if (list && list.dataset.sig === lyricsListSig()) { lyNeedsLayout = true; if (S.lyrics && S.lyrics.length) paintLyrics(curPos()); return; }
+    renderLyricsList(); return;
+  }
   S.lyricsFor = key; S.lyrics = null; S.plainLyrics = null; S.lyricsTr = null; S.lyricsState = 'loading'; renderLyricsList();
   let txt = null;
   try { txt = await bridge.getLyrics({ title: m.title, artist: m.artist, dur: m.dur }); } catch {}
@@ -466,6 +564,8 @@ async function translateCurrentLyrics(key) {
   renderLyricsList();
 }
 const AUDIO_OFFSET = 0.32;
+// Preferences > Features > Music > Lyric timing: a nudge in seconds on top of the built-in delay (the PiP gets it folded into the position)
+const lyricShift = () => AUDIO_OFFSET + (Number(S.settings && S.settings.lyricOffset) || 0);
 
 // Words of the active line light up one after another. Each word gets a delay and a duration proportional to its
 // length; a negative delay starts the line partway through (after a seek or when the page opens mid-line).
@@ -499,7 +599,7 @@ function paintLyrics(pos, force) {
   if (!S.lyrics || !S.lyrics.length) return;
   const list = $('#ly-list');
   if (!list) return;
-  const effPos = pos + AUDIO_OFFSET;
+  const effPos = pos + lyricShift();
   let idx = -1;
   for (let i = 0; i < S.lyrics.length; i++) { if (S.lyrics[i].t <= effPos) idx = i; else break; }
   const playing = isPlaying();
@@ -532,13 +632,14 @@ function paintLyrics(pos, force) {
     item.style.setProperty('--shift', shift.toFixed(1) + 'px');
   }
   lyIdx = idx;
-  if (cur) activateLyricLine(cur, effPos - S.lyrics[idx].t);
+  // a relayout of the same line (the island resized) only moves the lines; the word animation keeps running
+  if (cur && (lineChanged || force)) activateLyricLine(cur, effPos - S.lyrics[idx].t);
 }
 function getCurrentLyricLine() {
   if (!S.media) return '';
   if (S.lyrics && S.lyrics.length) {
     const pos = curPos();
-    const effPos = pos + AUDIO_OFFSET;
+    const effPos = pos + lyricShift();
     let idx = -1;
     for (let i = 0; i < S.lyrics.length; i++) {
       if (S.lyrics[i].t <= effPos) idx = i;
@@ -595,7 +696,7 @@ function ensureLyricViewport() {
 function compactLyricInfo() {
   if (!S.media) return null;
   if (S.lyrics && S.lyrics.length) {
-    const effPos = curPos() + AUDIO_OFFSET;
+    const effPos = curPos() + lyricShift();
     let idx = -1;
     for (let i = 0; i < S.lyrics.length; i++) { if (S.lyrics[i].t <= effPos) idx = i; else break; }
     const lineDur = (i) => (S.lyrics[i + 1] ? Math.max(0.2, S.lyrics[i + 1].t - S.lyrics[i].t) : 6);

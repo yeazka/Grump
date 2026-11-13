@@ -463,7 +463,7 @@ html, body {
 .dock-items-stage {
   position: relative;
   flex: 0 0 auto;
-  margin-bottom: 3px;
+  margin: 0 auto 3px;   /* with a longer bar the icons stay in the middle */
 }
 
 .dock-status-divider {
@@ -529,7 +529,7 @@ html, body {
 }
 
 .dock-start-button .windows-pane {
-  fill: #39a8f2;
+  fill: #fff;   /* the Windows logo is white */
   stroke: none;
 }
 
@@ -948,3 +948,36 @@ html, body {
 /* A last row with fewer icons is centred too (a grid would pin it to the left). Five icons per row, as before. */
 .trayhub-grid { display: flex; flex-wrap: wrap; justify-content: center; width: calc(5 * 23px + 4 * 9px); max-width: 100%; }
 .trayhub-grid:empty { display: none; }
+
+/* A file is being dragged over an icon that can open it */
+.dock-item.drop-target .dock-icon-wrapper { outline: 2px solid rgba(255, 255, 255, .9); outline-offset: 2px; filter: brightness(1.15); }
+
+/* A file is being dragged over the window preview: dropping it opens the file in that app */
+.dock-window-preview.drop-target { outline: 2px solid rgba(255, 255, 255, .9); outline-offset: 2px; }
+
+/* ---------- Now playing: the cover of the song with pause and next ---------- */
+.dock-np[hidden], .dock-status-divider[hidden], .dock-np-art[hidden] { display: none !important; }
+.dock-np {
+  --np-h: calc(var(--dock-icon, 56px) * .82);   /* the app icons fill about this much of their slot */
+  position: relative; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; gap: calc(var(--np-h) * .1);
+  width: calc(var(--np-h) * 3); height: var(--np-h); margin: 0 4px 3px;
+  border-radius: calc(var(--np-h) * .22); overflow: hidden; background: linear-gradient(145deg, rgba(255, 255, 255, .24), rgba(255, 255, 255, .08));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .26), inset 0 1px 0 rgba(255, 255, 255, .5);
+}
+.dock-np-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }   /* the cover, sharp, centred */
+.dock-np::after { content: ""; position: absolute; inset: 0; background: rgba(0, 0, 0, .16); pointer-events: none; }   /* a light veil so the glass buttons read on any cover */
+.dock-np-btn {
+  position: relative; z-index: 1; width: calc(var(--np-h) * .62); height: calc(var(--np-h) * .62); padding: 0; border-radius: 50%;
+  display: grid; place-items: center; color: #fff; cursor: pointer;
+  background: linear-gradient(145deg, rgba(255, 255, 255, .4), rgba(255, 255, 255, .1)); border: 1px solid rgba(255, 255, 255, .5);   /* glass, like the buttons of the music player */
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .65), 0 2px 8px rgba(0, 0, 0, .28);
+  transition: transform 140ms cubic-bezier(.2, .8, .2, 1), background-color 140ms ease;
+}
+.dock-np-btn:hover { background: linear-gradient(145deg, rgba(255, 255, 255, .55), rgba(255, 255, 255, .2)); transform: scale(1.06); }
+.dock-np-btn:active { transform: scale(.94); }
+.dock-np-btn:focus-visible { outline: 2px solid rgba(255, 255, 255, .9); outline-offset: 2px; }
+.dock-np-ico { width: 46%; height: 46%; fill: currentColor; }
+@media (prefers-reduced-motion: reduce) { .dock-np-btn { transition: none; } }
+
+/* Dock size > Length: the bar is at least this long (0 px: as long as its icons), never wider than the window */
+.dock-capsule { min-width: var(--dock-length, 0px); max-width: calc(100vw - 24px); box-sizing: border-box; }

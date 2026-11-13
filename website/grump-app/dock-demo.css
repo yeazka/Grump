@@ -6,7 +6,8 @@ html, body { background: #000 !important; }
 .demo .dock-capsule { backdrop-filter: blur(18px) saturate(1.7); -webkit-backdrop-filter: blur(18px) saturate(1.7); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35); color: #fff; }
 .demo-wrapper { width: max-content; }
 .demo .dock-capsule { width: max-content; }
-.demo-stage { display: flex; align-items: flex-end; gap: 5px; width: 403px; flex: none; height: 52px; margin-bottom: 7px; }
+.demo { --dock-icon: 46px; }
+.demo-stage { display: flex; align-items: flex-end; gap: 5px; width: 403px; flex: none; height: 52px; margin: 0 auto 7px; }
 .demo-stage .dock-item { position: relative; width: 46px; height: 46px; flex: none; }
 .demo-stage .dock-icon-wrapper { transition: transform .12s ease-out; }
 .demo .dock-status svg, .demo .dock-show-desktop svg, .demo .dock-start-button svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
@@ -15,3 +16,6 @@ html, body { background: #000 !important; }
 .demo .dock-status-button { cursor: default; }
 @media (prefers-reduced-motion: reduce) { .demo-stage .dock-icon-wrapper { transition: none; } }
 @media (max-width: 600px) { .demo-wrapper { transform: translateX(-50%) scale(.43); transform-origin: center bottom; } }
+/* ?np=1 (what's new): five icons and the song card, with a purple cover */
+.demo .dock-np { background: linear-gradient(145deg, #a78bfa 0%, #6d28d9 55%, #2e1065 100%); }
+.demo-wrapper { transform-origin: 50% 100%; }

@@ -31,6 +31,8 @@ const ICONS = {
   back:  svg('<path d="M15 5l-7 7 7 7"/>', ST),
   right: svg('<path d="M9 5l7 7-7 7"/>', ST),
   plus:  svg('<path d="M12 5v14M5 12h14"/>', ST),
+  bookmark: svg('<path d="M7 4.5h10a1 1 0 0 1 1 1V20l-6-4-6 4V5.5a1 1 0 0 1 1-1z"/>', ST),
+  copy: svg('<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/>', ST),
   minus: svg('<path d="M5 12h14"/>', ST),
   close: svg('<path d="M6 6l12 12M18 6L6 18"/>', ST),
   x:     svg('<path d="M6 6l12 12M18 6L6 18"/>', ST),
@@ -131,13 +133,30 @@ class Spring {
 const EXP_SIZE = [392, 196, 40];
 const MENU_HOVER_HEIGHT = 210;
 const SIZES = {
-  idle: [124, 36, 18], minimal: [150, 6, 3], tuck: [56, 22, 11], peekaboo: [56, 22, 11], quiettuck: [68, 7, 3.5], tuckhide: [38, 19, 14], compact: [312, 36, 18], work: [128, 32, 16], notice: [300, 40, 20], prompt: [320, 42, 21], charge: [296, 44, 22], headset: [312, 44, 22],
-  home: EXP_SIZE, music: EXP_SIZE, lyrics: EXP_SIZE, timer: EXP_SIZE, stash: EXP_SIZE, addons: EXP_SIZE, todo: EXP_SIZE, notes: EXP_SIZE, prayer: EXP_SIZE, water: EXP_SIZE, weather:EXP_SIZE, notifications:EXP_SIZE, connectivity: EXP_SIZE, timerpreview:[250,48,24], prayernotice:[336,66,30], waternotice:[404,70,32], weathernotice:[336,66,30], tasknotice:[300,66,30], levelhud:[268,46,23], timerdone:[250,48,24],
+  bmdrop: [292, 46, 23], idle: [124, 36, 18], minimal: [150, 6, 3], tuck: [56, 22, 11], peekaboo: [56, 22, 11], quiettuck: [68, 7, 3.5], tuckhide: [38, 19, 14], compact: [312, 36, 18], work: [128, 32, 16], notice: [300, 40, 20], prompt: [320, 42, 21], charge: [296, 44, 22], headset: [312, 44, 22],
+  home: EXP_SIZE, music: EXP_SIZE, lyrics: EXP_SIZE, timer: EXP_SIZE, stash: EXP_SIZE, addons: EXP_SIZE, todo: EXP_SIZE, notes: EXP_SIZE, bookmarks: EXP_SIZE, prayer: EXP_SIZE, water: EXP_SIZE, weather:EXP_SIZE, notifications:EXP_SIZE, connectivity: EXP_SIZE, timerpreview:[250,48,24], prayernotice:[336,66,30], waternotice:[404,70,32], weathernotice:[336,66,30], tasknotice:[300,66,30], levelhud:[268,46,23], timerdone:[250,48,24],
 };
-const PAGE_OF = { home: 'home', music: 'music', lyrics: 'music', timer:'timer', stash:'stash', addons:'addons', todo:'todo', notes:'notes', prayer:'prayer', water:'water', weather:'weather', notifications:'notifications' };
+const PAGE_OF = { home: 'home', music: 'music', lyrics: 'music', timer:'timer', stash:'stash', addons:'addons', todo:'todo', notes:'notes', bookmarks:'bookmarks', prayer:'prayer', water:'water', weather:'weather', notifications:'notifications' };
 const island = $('#island');
+// A hidden page (opacity 0, visibility hidden) still kept its compositing layers: with software rendering every
+// will-change/blur element holds its own raster tiles, about 100 MB for all the pages together. Once a page has
+// faded out it is parked (content-visibility: hidden), which drops those layers; it is unparked before it shows.
+const PARK_AFTER_MS = 320;
+const parkTimers = new WeakMap();
+function parkHiddenViews() {
+  for (const v of document.querySelectorAll('.view')) {
+    const shown = v.classList.contains('on') || v.classList.contains('sliding');
+    clearTimeout(parkTimers.get(v));
+    if (shown) { v.classList.remove('parked'); continue; }
+    if (v.classList.contains('parked')) continue;
+    parkTimers.set(v, setTimeout(() => {
+      if (!v.classList.contains('on') && !v.classList.contains('sliding')) v.classList.add('parked');
+    }, PARK_AFTER_MS));
+  }
+}
 function applyIslandTransparency() {
-  const transparency = Math.max(0, Math.min(70, Number(S.settings?.islandTransparency) || 0));
+  // Transparency belongs to Liquid Glass only: Obsidian stays solid whatever the slider says.
+  const transparency = S.settings?.theme === 'full-glass' ? Math.max(0, Math.min(70, Number(S.settings?.islandTransparency) || 0)) : 0;
   island.style.opacity = '1';
   island.style.setProperty('--island-surface-alpha', String(1 - transparency / 100));
   island.style.setProperty('--lg-alpha', String(1 - transparency / 100));
@@ -195,10 +214,10 @@ function glassBodyColor(expanded) {
 }
 function expandedPageSurfaceColor(key) {
   // Liquid Glass: every page is the same glass.
-  if (S.settings?.theme === 'full-glass' && ['music','todo','notes','prayer','water','timer','addons','stash','lyrics','weather'].includes(key)) return glassBodyColor(true);
+  if (S.settings?.theme === 'full-glass' && ['music','todo','notes','bookmarks','prayer','water','timer','addons','stash','lyrics','weather'].includes(key)) return glassBodyColor(true);
   // Obsidian is solid black on every page; only Liquid Glass keeps per-page tints.
   if (!S.settings?.theme || S.settings.theme === 'default') {
-    if (['music','todo','notes','prayer','water','timer','addons','stash','lyrics','weather'].includes(key)) return islandSurfaceColor(0, 0, 0);
+    if (['music','todo','notes','bookmarks','prayer','water','timer','addons','stash','lyrics','weather'].includes(key)) return islandSurfaceColor(0, 0, 0);
   }
   const surfaces={
     // Music's overlay darkens the in-panel shell; anchored SVG sits outside it.
@@ -297,7 +316,8 @@ function paintIsland() {
   const svg = $('#island-notch-svg');
   if (isAnchored) {
     island.dataset.anchored = '1';
-    island.style.top = '0px';
+    island.style.setProperty('--island-top', islandTopGap(true) + 'px');
+    island.style.top = islandTopGap(true) + 'px';
     island.style.borderRadius = `0 0 ${r} ${r}`;
     
     if (svg) {
@@ -438,7 +458,7 @@ function paintIsland() {
     }
   } else {
     island.dataset.anchored = '0';
-    island.style.top = '10px';
+    island.style.top = islandTopGap(false) + 'px';
     island.style.borderRadius = r;
     if (svg) svg.style.display = 'none';
   }
@@ -537,11 +557,16 @@ function wantKey() {
     if (S.view === 'addons' && !pageList().includes('addons')) S.view = S.addonPages.at(-1) || 'home';
     return S.view;
   }
+  if (S.bmZone) return 'bmdrop';   // a tab or link is being dragged to the notch (or was just saved): js/addons.js
   if (S.notice) return 'notice';
   if (S.glancePreviewActive) return 'idle';
   const musicActive = typeof hasMusic === 'function' && hasMusic();
   if (S.settings && S.settings.quiet && !inside && !musicActive) return 'quiettuck';
-  if (S.tuckApp && S.settings.autoTuck !== false && !inside) return 'tuck';
+  // right after a bookmark was saved the pointer is still on the notch: it closes back to the tucked pill and stays there until the pointer leaves
+  // Preferences > Features > Music > "Keep music visible in browsers": while a song plays the notch stays out instead of tucking away
+  // It holds only for a song that is playing: paused, stopped or closed (dismissed) music lets the notch tuck away again.
+  const keepMusic = S.settings.musicInBrowser === true && musicActive && typeof isPlaying === 'function' && isPlaying();
+  if (S.tuckApp && S.settings.autoTuck !== false && !keepMusic && (!inside || S.bmCool)) return 'tuck';
   if (aiWorkWinsOverMusic()) return 'work';
   if (S.peekaboo && S.settings.autoTuck !== false && !inside && !musicActive) return 'peekaboo';
   if (S.peek) return S.peek;
@@ -564,6 +589,12 @@ function aiStackedOnMusic() {
   const preference = S.settings.musicAiPriority;
   if (preference === 'music' || preference === 'alternate') return false;
   return typeof isPlaying === 'function' && isPlaying() && S.settings.menuMusic !== false && !S.pipOpen;
+}
+// Distance from the top edge of the screen to the notch (Preferences > Size & position > Height from the top). Without a saved value the
+// notch keeps its look: 10 px below the edge when floating, touching it when anchored. 0 is exactly at the edge.
+function islandTopGap(anchored) {
+  const v = S.settings && S.settings.offsetY;
+  return typeof v === 'number' && Number.isFinite(v) ? clamp(Math.round(v), 0, 160) : (anchored ? 0 : 10);
 }
 function layout() {
   if (isSliding) return;
@@ -646,6 +677,7 @@ function layout() {
   }
   sw.t = w; sh.t = h; sr.t = r; kick();
   $$('.view').forEach((v) => v.classList.toggle('on', v.id === 'v-' + (k === 'minimal' || k === 'tuckhide' ? 'none' : (k === 'tuck' ? 'peekaboo' : k))));
+  parkHiddenViews();
   if (bridge.setExpanded) bridge.setExpanded(S.expanded);
   if (PAGE_OF[k]) S.lastPage = PAGE_OF[k];
   renderPager();
@@ -886,15 +918,15 @@ function renderPager() {
   island.dataset.expanded = (S.expanded || curKey === 'ring') ? '1' : '0';
   if (!showPager) return;
   const pageNames={
-    en:{home:'Dashboard',music:'Music',weather:'Weather',timer:'Timer',stash:'File Stash',addons:'Add features',todo:'To-do',notes:'Notes',prayer:'Prayer',water:'Water',notifications:'Notifications'},
-    id:{home:'Beranda',music:'Musik',weather:'Cuaca',timer:'Timer',stash:'Simpan File',addons:'Tambah fitur',todo:'Tugas',notes:'Catatan',prayer:'Sholat',water:'Minum',notifications:'Notifikasi'},
-    fr:{home:'Tableau de bord',music:'Musique',weather:'Météo',timer:'Minuteur',stash:'Fichiers',addons:'Ajouter',todo:'Tâches',notes:'Notes',prayer:'Prière',water:'Hydratation',notifications:'Notifications'},
-    es:{home:'Panel',music:'Música',weather:'Tiempo',timer:'Temporizador',stash:'Archivos',addons:'Añadir',todo:'Tareas',notes:'Notas',prayer:'Oración',water:'Agua',notifications:'Notificaciones'},
-    'zh-CN':{home:'主页',music:'音乐',weather:'天气',timer:'计时器',stash:'文件暂存',addons:'添加功能',todo:'待办',notes:'笔记',prayer:'礼拜',water:'喝水',notifications:'通知'},
-    ko:{home:'대시보드',music:'음악',weather:'날씨',timer:'타이머',stash:'파일 보관함',addons:'기능 추가',todo:'할 일',notes:'메모',prayer:'기도',water:'물 마시기',notifications:'알림'}
+    en:{bookmarks:'Bookmarks',home:'Dashboard',music:'Music',weather:'Weather',timer:'Timer',stash:'File Stash',addons:'Add features',todo:'To-do',notes:'Notes',prayer:'Prayer',water:'Water',notifications:'Notifications'},
+    id:{bookmarks:'Bookmark',home:'Beranda',music:'Musik',weather:'Cuaca',timer:'Timer',stash:'Simpan File',addons:'Tambah fitur',todo:'Tugas',notes:'Catatan',prayer:'Sholat',water:'Minum',notifications:'Notifikasi'},
+    fr:{bookmarks:'Favoris',home:'Tableau de bord',music:'Musique',weather:'Météo',timer:'Minuteur',stash:'Fichiers',addons:'Ajouter',todo:'Tâches',notes:'Notes',prayer:'Prière',water:'Hydratation',notifications:'Notifications'},
+    es:{bookmarks:'Marcadores',home:'Panel',music:'Música',weather:'Tiempo',timer:'Temporizador',stash:'Archivos',addons:'Añadir',todo:'Tareas',notes:'Notas',prayer:'Oración',water:'Agua',notifications:'Notificaciones'},
+    'zh-CN':{bookmarks:'书签',home:'主页',music:'音乐',weather:'天气',timer:'计时器',stash:'文件暂存',addons:'添加功能',todo:'待办',notes:'笔记',prayer:'礼拜',water:'喝水',notifications:'通知'},
+    ko:{bookmarks:'북마크',home:'대시보드',music:'음악',weather:'날씨',timer:'타이머',stash:'파일 보관함',addons:'기능 추가',todo:'할 일',notes:'메모',prayer:'기도',water:'물 마시기',notifications:'알림'}
   };
   const names=pageNames[S.settings.language]||pageNames.en;
-  const icons={home:'gear',music:'note',weather:'weather',timer:'timer',stash:'tray',addons:'plus',todo:'check',notes:'file',prayer:'moon',water:'drop',notifications:'bell'};
+  const icons={home:'gear',music:'note',weather:'weather',timer:'timer',stash:'tray',addons:'plus',todo:'check',notes:'file',prayer:'moon',water:'drop',notifications:'bell',bookmarks:'bookmark'};
   const html = list.map((p) => `<i role="button" tabindex="0" aria-label="${names[p]}" title="${names[p]}" class="${p === pg ? 'on' : ''}" data-act="goto" data-p="${p}"><span aria-hidden="true">${icoOf(icons[p])}</span></i>`).join('');
   setHTML('dots', html);
 }
@@ -1346,11 +1378,12 @@ function setInside(i) {
   if (inside) {
     clearTimeout(collapseT); collapseT = null; S.activityAt = Date.now();
     if (S.peekaboo) { S.peekaboo = false; clearTimeout(peekabooT); }
-    if (!S.expanded && !S.ring && !S.charge && !S.headset && ['idle', 'compact', 'minimal', 'work', 'tuck', 'peekaboo', 'quiettuck'].includes(curKey)) {
+    if (!S.expanded && !S.ring && !S.charge && !S.headset && !S.bmCool && ['idle', 'compact', 'minimal', 'work', 'tuck', 'peekaboo', 'quiettuck'].includes(curKey)) {
       clearTimeout(hoverT);
       hoverT = setTimeout(() => { if (inside && !S.expanded && !S.ring && !S.charge && !S.headset) openFromIsland(); }, 120);
     }
   } else {
+    S.bmCool = false;   // the pointer left: the notch behaves normally again
     clearTimeout(hoverT); hoverT = null;
     clearTimeout(collapseT); collapseT = null;
     if (S.expanded && !S.ring && !S.focusLock && !S.dragLock) {

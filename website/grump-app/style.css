@@ -148,7 +148,7 @@ svg { display: block; }
   display: none;
 }
 #island[data-anchored="1"] {
-  top: 0px !important;
+  top: var(--island-top, 0px) !important;
   background: transparent !important;
   box-shadow: none !important;
   border: none !important;
@@ -388,6 +388,10 @@ svg { display: block; }
 .view:not(.on):not(.sliding),
 .view:not(.on):not(.sliding) * {
   animation-play-state: paused !important;
+}
+/* a page that finished fading out is not rendered at all, so its layers and raster tiles are freed (js/core.js parkHiddenViews) */
+.view.parked:not(.on):not(.sliding) {
+  content-visibility: hidden;
 }
 .view.sliding {
   visibility: visible !important;
@@ -1575,8 +1579,8 @@ svg { display: block; }
   border-radius: inherit;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 80% 65% at 50% 110%, var(--bars-glow, rgba(30, 215, 96, 0.45)), transparent 100%),
-    linear-gradient(to top, color-mix(in srgb, var(--bars-color, #1ed760) 36%, transparent), color-mix(in srgb, var(--bars-color, #1ed760) 16%, transparent) 52%, transparent 100%);
+    radial-gradient(ellipse 80% 65% at 50% 110%, var(--media-beam-glow, rgba(30, 215, 96, 0.45)), transparent 100%),
+    linear-gradient(to top, color-mix(in srgb, var(--media-beam-color, #1ed760) 36%, transparent), color-mix(in srgb, var(--media-beam-color, #1ed760) 16%, transparent) 52%, transparent 100%);
   opacity: 0.85;
   transform-origin: 50% 100%;
   -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,.55), #000 6%, #000 94%, rgba(0,0,0,.55));
@@ -1607,7 +1611,6 @@ svg { display: block; }
   height: 22px;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(0 0 3px rgba(0, 0, 0, .45));
 }
 #c-art [data-ico] svg, #c-app-ico svg {
   width: 100%;
@@ -1713,7 +1716,6 @@ svg { display: block; }
   width: 19px; height: 19px;
   display: flex; align-items: center; justify-content: center;
   flex: none;
-  filter: drop-shadow(0 0 4px rgba(0, 0, 0, .45));
   transition: transform .22s cubic-bezier(.22, 1, .36, 1), opacity .2s ease;
 }
 .app-logo:empty { display: none; }
@@ -4066,3 +4068,80 @@ html[data-platform="linux"] #h-sliders{display:none}
 
 /* Translation under a lyric line (Preferences > Features > Translate lyrics) */
 .ly .ly-tr { display: block; margin-top: 3px; font-size: .62em; font-weight: 500; letter-spacing: 0; line-height: 1.25; opacity: .78; filter: none; }
+
+/* ---------- Bookmarks page (js/addons.js renderBookmarks) ---------- */
+#v-bookmarks.grump-panel{background:#0c0c0e}
+#v-bookmarks .bm-body{height:135px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding-top:4px}
+#v-bookmarks .bm-body::-webkit-scrollbar{display:none}
+.bm-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.bm-tile{position:relative;height:60px;border-radius:16px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff}
+.bm-open,.bm-add{width:100%;height:100%;border:0;background:transparent;color:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:4px 6px;cursor:pointer;border-radius:inherit;font:inherit}
+.bm-add{border:1px dashed rgba(255,255,255,.28);background:rgba(255,255,255,.03)}
+.bm-add svg{width:18px;height:18px}
+.bm-open:hover,.bm-add:hover{background:rgba(255,255,255,.1)}
+.bm-open:focus-visible,.bm-add:focus-visible,.bm-remove:focus-visible,.bm-form button:focus-visible{outline:2px solid rgba(255,255,255,.8);outline-offset:1px}
+.bm-open img{width:24px;height:24px;border-radius:6px;object-fit:contain}
+.bm-letter{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;background:rgba(255,255,255,.16);font-size:13px;font-weight:700}
+.bm-name{max-width:100%;font-size:10.5px;font-weight:600;color:rgba(255,255,255,.88);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.bm-remove{position:absolute;top:-5px;right:-5px;width:20px;height:20px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:#1c1c20;color:#fff;display:grid;place-items:center;padding:0;opacity:0;transition:opacity .15s;cursor:pointer}
+.bm-remove svg{width:10px;height:10px}
+.bm-tile:hover .bm-remove,.bm-remove:focus-visible{opacity:1}
+.bm-empty{margin:10px 2px 0;font-size:11.5px;color:rgba(255,255,255,.7)}
+.bm-form{display:flex;flex-direction:column;gap:7px}
+.bm-input{height:32px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:#fff;padding:0 12px;font:inherit;font-size:12.5px;outline:none}
+.bm-input::placeholder{color:rgba(255,255,255,.5)}
+.bm-input:focus{border-color:rgba(255,255,255,.55)}
+.bm-error{margin:0;font-size:11px;color:rgba(255,255,255,.85)}
+.bm-form-actions{display:flex;justify-content:flex-end;gap:8px}
+.bm-form-actions button{height:28px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.bm-form-actions .bm-save{background:rgba(255,255,255,.9);color:#111}
+#island[data-theme="full-glass"] #v-bookmarks.grump-panel{background:transparent}
+
+/* Bookmarks: paste, copy, status note and the drop target (js/addons.js) */
+.bm-url-row{display:flex;gap:6px}
+.bm-url-row .bm-input{flex:1;min-width:0}
+.bm-paste{flex:none;height:32px;padding:0 12px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.bm-paste:hover{background:rgba(255,255,255,.18)}
+.bm-paste:focus-visible,.bm-copy:focus-visible{outline:2px solid rgba(255,255,255,.8);outline-offset:1px}
+.bm-copy{position:absolute;top:-5px;left:-5px;width:20px;height:20px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:#1c1c20;color:#fff;display:grid;place-items:center;padding:0;opacity:0;transition:opacity .15s;cursor:pointer}
+.bm-copy svg{width:11px;height:11px}
+.bm-tile:hover .bm-copy,.bm-copy:focus-visible{opacity:1}
+.bm-note{margin:8px 2px 0;font-size:11.5px;font-weight:600;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+/* a link held over the page: the grid dims and a dashed edge marks where to let go */
+#v-bookmarks.hot .bm-body{outline:1.5px dashed rgba(255,255,255,.55);outline-offset:-3px;border-radius:16px}
+#v-bookmarks.hot .bm-grid{opacity:.45;transition:opacity .15s}
+/* the tile that was just saved settles in once: a short scale from slightly larger, no loop */
+.bm-new{animation:bmSettle .32s cubic-bezier(.2,.8,.2,1) 1}
+@keyframes bmSettle{from{transform:scale(1.14);border-color:rgba(255,255,255,.7)}to{transform:none}}
+@media (prefers-reduced-motion:reduce){.bm-new{animation:none}}
+
+/* Bookmark drop zone pill (js/addons.js bmZoneShow): shown while a tab or link is dragged to the notch, then the result.
+   Same type as the other notices; the dashed inner edge marks the drop target only while it is waiting for the drop. */
+#v-bmdrop { width: 292px; height: 46px; display: flex; align-items: center; justify-content: center; gap: 9px; overflow: hidden; font-size: 12.5px; font-weight: 600; color: #fff; white-space: nowrap; text-shadow: 0 1px 2px rgba(0,0,0,.35); }
+#v-bmdrop svg { width: 16px; height: 16px; }
+#v-bmdrop .bd-ok { display: none; }
+#v-bmdrop #bd-text { max-width: 236px; overflow: hidden; text-overflow: ellipsis; }
+#island[data-bm-zone="saved"] #v-bmdrop .bd-ico { display: none; }
+#island[data-bm-zone="saved"] #v-bmdrop .bd-ok { display: inline-flex; }
+#island[data-bm-zone="ready"] #v-bmdrop::after { content: ""; position: absolute; inset: 5px; border: 1.5px dashed rgba(255,255,255,.45); border-radius: 18px; pointer-events: none; }
+
+/* Result of the bookmark drop (js/addons.js bmZoneShow): one short motion each, no loops, white only.
+   Saved: the check draws itself and a ring closes in on the pill's edge, then the pill closes back to the tucked notch.
+   Not saved: the cross shakes once. */
+#v-bmdrop .bd-no { display: none; }
+#island[data-bm-zone="fail"] #v-bmdrop .bd-ico { display: none; }
+#island[data-bm-zone="fail"] #v-bmdrop .bd-no { display: inline-flex; animation: bdShake .32s ease-out 1; }
+#island[data-bm-zone="saved"] #v-bmdrop .bd-ok { animation: bdPop .36s cubic-bezier(.2,1.5,.4,1) 1 both; }
+#island[data-bm-zone="saved"] #v-bmdrop .bd-ok path { stroke-dasharray: 26; stroke-dashoffset: 26; animation: bdDraw .3s .08s ease-out forwards; }
+#island[data-bm-zone="saved"] #v-bmdrop #bd-text { animation: bdText .28s .06s ease-out both; }
+#island[data-bm-zone="saved"] #v-bmdrop::after { content: ""; position: absolute; inset: 5px; border: 1.5px solid rgba(255,255,255,.85); border-radius: 18px; pointer-events: none; animation: bdRing .5s ease-out forwards; }
+@keyframes bdPop { from { transform: scale(.4); } to { transform: scale(1); } }
+@keyframes bdDraw { to { stroke-dashoffset: 0; } }
+@keyframes bdText { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes bdRing { from { opacity: .9; inset: 5px; } to { opacity: 0; inset: -1px; } }
+@keyframes bdShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 60% { transform: translateX(3px); } }
+@media (prefers-reduced-motion: reduce) {
+  #island[data-bm-zone] #v-bmdrop *, #island[data-bm-zone] #v-bmdrop::after { animation: none !important; }
+  #island[data-bm-zone="saved"] #v-bmdrop .bd-ok path { stroke-dashoffset: 0; }
+  #island[data-bm-zone="saved"] #v-bmdrop::after { display: none; }
+}

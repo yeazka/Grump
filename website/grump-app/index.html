@@ -4,18 +4,19 @@
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob: file:; font-src 'self' data:; style-src 'self' 'unsafe-inline'">
 <title>Grump</title>
-<link rel="stylesheet" href="style.css?v=20261113-1">
-<link rel="stylesheet" href="island-controls.css?v=20261113-1">
-<link rel="stylesheet" href="waterline-glass.css?v=20261113-1">
-<link rel="stylesheet" href="dashboard-glass.css?v=20261113-1">
-<link rel="stylesheet" href="timer-minimal.css?v=20261113-1">
-<link rel="stylesheet" href="weather-minimal.css?v=20261113-1">
-<link rel="stylesheet" href="obsidian-pages.css?v=20261113-1">
-<link rel="stylesheet" href="reminders-minimal.css?v=20261113-1">
+<link rel="stylesheet" href="style.css?v=20261113-2">
+<link rel="stylesheet" href="island-controls.css?v=20261113-2">
+<link rel="stylesheet" href="waterline-glass.css?v=20261113-2">
+<link rel="stylesheet" href="dashboard-glass.css?v=20261113-2">
+<link rel="stylesheet" href="timer-minimal.css?v=20261113-2">
+<link rel="stylesheet" href="weather-minimal.css?v=20261113-2">
+<link rel="stylesheet" href="obsidian-pages.css?v=20261113-2">
+<link rel="stylesheet" href="reminders-minimal.css?v=20261113-2">
 <!-- Theme-level overrides load last so page-specific solid surfaces cannot cover Liquid Glass. -->
-<link rel="stylesheet" href="glass-modes.css?v=20261113-1">
-<link rel="stylesheet" href="pack.css?v=20261113-1">
-<link rel="stylesheet" href="sprite-eyes.css?v=20261113-1">
+<link rel="stylesheet" href="glass-modes.css?v=20261113-2">
+<link rel="stylesheet" href="pack.css?v=20261113-2">
+<link rel="stylesheet" href="sprite-eyes.css?v=20261113-2">
+<link rel="stylesheet" href="movie.css?v=20261113-2">
 </head>
 <body>
 <!-- SVG Filter untuk Efek Liquid Glass (Refraksi / Distorsi Kaca Cair) -->
@@ -143,6 +144,8 @@
   <section class="view" id="v-notice">
     <span class="notice-whatsapp-beam" aria-hidden="true"></span><span class="n-ico" id="n-ico" data-ico="bell"></span><span id="n-text">—</span>
   </section>
+
+  <section class="view" id="v-bmdrop" role="status" aria-live="polite"><span class="bd-ico" data-ico="bookmark" aria-hidden="true"></span><span class="bd-ok" data-ico="check" aria-hidden="true"></span><span class="bd-no" data-ico="x" aria-hidden="true"></span><span id="bd-text"></span></section>
 
   <section class="view mini-popup" id="v-timerpreview" role="status" aria-live="polite" aria-label="Timer running">
     <div class="tp-actions"><button type="button" id="preview-pause" class="tp-btn tp-pause" data-act="previewpause" aria-label="Pause timer" title="Pause / resume timer"><span data-ico="pause"></span></button><button type="button" class="tp-btn tp-stop" data-act="previewstop" aria-label="Stop timer" title="Stop timer"><span data-ico="close"></span></button></div>
@@ -403,6 +406,7 @@
   <section class="view grump-panel aic-todo-root" id="v-todo" data-theme="dark"><div class="todo-head"><span class="todo-heading"><span class="todo-heading-text">To-do list</span></span><div class="todo-head-actions"><div class="todo-totals" aria-label="Task totals"><span id="todo-open-count" title="Open tasks"></span><span id="todo-done-count" title="Completed tasks"></span></div><button type="button" class="todo-clear aic-pill-control" data-act="todoclear" aria-label="Clear all tasks" title="Clear all tasks" hidden><span data-ico="trash" aria-hidden="true"></span><span class="todo-clear-label">Clear</span></button></div></div><div class="addon-body" id="addon-todo-body"></div></section>
   <section class="view grump-panel" id="v-notes"><div class="addon-head"><span>Notes</span><button class="note-new" data-act="notenew"><span data-ico="plus" aria-hidden="true"></span>New note</button></div><div class="addon-body" id="addon-notes-body"></div></section>
   <section class="view grump-panel" id="v-prayer"><div class="addon-head"><span id="prayer-head-title">Prayer Times</span><span class="prayer-meta" id="prayer-city-badge"></span></div><div class="addon-body" id="addon-prayer-body"></div></section>
+  <section class="view grump-panel" id="v-bookmarks"><div class="addon-head"><span id="bookmarks-head-title">Bookmarks</span><span class="prayer-meta" id="bookmarks-count"></span></div><div class="addon-body bm-body" id="addon-bookmarks-body"></div></section>
   <section class="view grump-panel" id="v-water"><div class="addon-head"><span>Drink Water</span></div><div class="addon-body" id="addon-water-body"></div></section>
   <section class="view grump-panel notification-feed" id="v-notifications">
     <div class="notification-feed-head">
@@ -434,24 +438,25 @@
     <div id="dots"></div>
   </div>
 </div>
-<script src="js/demo-bridge.js?v=20261113-1"></script>
-<script src="js/core.js?v=20261113-1"></script>
-<script src="js/shader-bg.js?v=20261113-1"></script>
-<script src="js/music.js?v=20261113-1"></script>
-<script src="js/shelf.js?v=20261113-1"></script>
-<script src="js/addons.js?v=20261113-1"></script>
-<script src="js/system.js?v=20261113-1"></script>
-<script src="js/sprite-eyes-data.js?v=20261113-1"></script>
-<script src="js/sprite-eyes.js?v=20261113-1"></script>
-<script src="js/laser-eyes.js?v=20261113-1"></script>
-<script src="js/features.js?v=20261113-1"></script>
-<script src="js/pack.js?v=20261113-1"></script>
-<script src="js/timer-ruler.js?v=20261113-1"></script>
-<script src="js/connectivity.js?v=20261113-1"></script>
-<script src="js/personality.js?v=20261113-1"></script>
-<script src="js/dashboard-glass.js?v=20261113-1"></script>
-<script src="js/glass.js?v=20261113-1"></script>
-<script src="js/glass-notch.js?v=20261113-1"></script>
-<script src="js/boot.js?v=20261113-1"></script>
+<script src="js/demo-bridge.js?v=20261113-2"></script>
+<script src="js/core.js?v=20261113-2"></script>
+<script src="js/shader-bg.js?v=20261113-2"></script>
+<script src="js/music.js?v=20261113-2"></script>
+<script src="js/movie-fx.js?v=20261113-2"></script>
+<script src="js/shelf.js?v=20261113-2"></script>
+<script src="js/addons.js?v=20261113-2"></script>
+<script src="js/system.js?v=20261113-2"></script>
+<script src="js/sprite-eyes-data.js?v=20261113-2"></script>
+<script src="js/sprite-eyes.js?v=20261113-2"></script>
+<script src="js/laser-eyes.js?v=20261113-2"></script>
+<script src="js/features.js?v=20261113-2"></script>
+<script src="js/pack.js?v=20261113-2"></script>
+<script src="js/timer-ruler.js?v=20261113-2"></script>
+<script src="js/connectivity.js?v=20261113-2"></script>
+<script src="js/personality.js?v=20261113-2"></script>
+<script src="js/dashboard-glass.js?v=20261113-2"></script>
+<script src="js/glass.js?v=20261113-2"></script>
+<script src="js/glass-notch.js?v=20261113-2"></script>
+<script src="js/boot.js?v=20261113-2"></script>
 </body>
 </html>
