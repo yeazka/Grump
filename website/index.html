@@ -2259,9 +2259,9 @@
          under the headline, and the walkthrough is the largest block because opening an unsigned app is the part people get stuck on. -->
     <section id="mac" class="mac" aria-labelledby="mac-title">
       <div class="mac-wrap">
-        <figure class="mac-eyes">
-          <img src="assets/mac-eyes-2k.webp" srcset="assets/mac-eyes-2k.webp 1940w, assets/mac-eyes-4k.webp 3880w" sizes="(min-width: 1200px) 1120px, 92vw" width="1940" height="640" alt="Grump's glowing orange eyes, close up" loading="lazy" decoding="async" data-i18n-alt="mac-eyes-alt">
-        </figure>
+        <!-- Reason: a faint Apple silhouette is the one soft light on this section. It names the platform without a screenshot and
+             keeps the headline and the countdown as the loudest things. Static: no loop. -->
+        <svg class="mac-bg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><defs><linearGradient id="mac-glint" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".2"/><stop offset=".5" stop-color="#fff" stop-opacity=".06"/><stop offset="1" stop-color="#fff" stop-opacity=".015"/></linearGradient></defs><path fill="url(#mac-glint)" stroke="rgba(255,255,255,.16)" stroke-width=".06" d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>
         <header class="mac-head">
           <h2 class="mac-title" id="mac-title" data-i18n="mac-title">Grump just landed on Mac.</h2>
           <p class="mac-sub" data-i18n="mac-sub">The moody notch now lives on your MacBook too. An early preview: the notch and its eyes, not signed by Apple, and made to be tried.</p>
@@ -2384,9 +2384,9 @@
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .mac{padding:clamp(56px,8vw,112px) 0;border-top:1px solid rgba(255,255,255,.08);background:#0b0704}
 .mac-wrap{width:min(1120px,92vw);margin:0 auto}
-.mac-eyes{margin:0 0 clamp(20px,4vw,48px);position:relative}
-.mac-eyes::before{content:"";position:absolute;inset:-10% -4%;background:radial-gradient(50% 55% at 50% 50%,rgba(245,158,11,.30),transparent 72%);pointer-events:none}
-.mac-eyes img{position:relative;display:block;width:100%;height:auto}
+.mac-wrap{position:relative}
+.mac-wrap>*:not(.mac-bg){position:relative;z-index:1}
+.mac-bg{position:absolute;z-index:0;right:0;top:16px;width:min(36vw,420px);height:auto;pointer-events:none;filter:drop-shadow(0 0 48px rgba(255,255,255,.07))}
 .mac-head{max-width:760px}
 .mac-title{margin:0 0 18px;font-size:clamp(2.4rem,4.4vw,3.8rem);font-weight:300;line-height:1.15;letter-spacing:-.025em}   /* the same voice as the Creator's note quote */
 .mac-sub{margin:0 0 28px;color:var(--muted);font-size:clamp(16px,2vw,20px);line-height:1.55}
@@ -2497,7 +2497,7 @@
 .mac-timer-value[data-done]{font-size:clamp(24px,3.4vw,34px);letter-spacing:-.02em}
 .mac-timer-text{display:grid;gap:2px;color:#cfc8c0;font-size:15px;line-height:1.4}
 .mac-timer-text small{color:#9f9892;font-size:13px}
-@media (max-width:900px){.mac-body{grid-template-columns:1fr}.mac-dl{width:100%}}
+@media (max-width:900px){.mac-body{grid-template-columns:1fr}.mac-dl{width:100%}.mac-bg{width:70vw;right:-12%;top:8px;opacity:.8}}
 @media (prefers-reduced-motion:reduce){.mt-scene *{animation:none !important}.s1 .app{opacity:0}.s1 .mt-cursor{transform:translate(190px,0)}}
 </style>
 
@@ -3066,7 +3066,6 @@
         "btn-dl-linux": "Linux Beta",
         "nav-mac": "Mac",
         "btn-dl-mac": "Mac Preview",
-        "mac-eyes-alt": "Grump's glowing orange eyes, close up",
         "mac-title": "Grump just landed on Mac.",
         "mac-sub": "The moody notch now lives on your MacBook too. An early preview: the notch and its eyes, not signed by Apple, and made to be tried.",
         "mac-dl-arm": "Download for Apple Silicon",
@@ -3230,7 +3229,6 @@
         "btn-dl-linux": "Linux Beta",
         "nav-mac": "Mac",
         "btn-dl-mac": "Pratinjau Mac",
-        "mac-eyes-alt": "Mata oranye Grump yang menyala, dari dekat",
         "mac-title": "Grump akhirnya mendarat di Mac.",
         "mac-sub": "Notch yang moody sekarang tinggal juga di MacBook-mu. Pratinjau awal: notch dan matanya, belum ditandatangani Apple, dan dibuat untuk dicoba.",
         "mac-dl-arm": "Unduh untuk Apple Silicon",
