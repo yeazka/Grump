@@ -2119,9 +2119,9 @@
       <div class="header-right">
         <nav class="main-nav" id="main-navigation" aria-label="Main navigation">
           <a href="#overview" class="nav-link" data-i18n="nav-overview">Overview</a>
+          <a href="#mac" class="nav-link" data-i18n="nav-mac">Mac</a>
           <a href="#features" class="nav-link" data-i18n="nav-features">Features</a>
           <a href="#whats-new-122" class="nav-link" data-i18n="nav-whats-new">What's new</a>
-          <a href="#mac" class="nav-link" data-i18n="nav-mac">Mac</a>
           <a href="#wallpapers" class="nav-link" data-i18n="nav-wallpapers">Wallpapers</a>
           <a href="#specifications" class="nav-link" data-i18n="nav-specifications">Specification</a>
           <a href="#testimonials" class="nav-link" data-i18n="nav-testimonials">Creator notes</a>
@@ -2265,6 +2265,10 @@
         <header class="mac-head">
           <h2 class="mac-title" id="mac-title" data-i18n="mac-title">Grump just landed on Mac.</h2>
           <p class="mac-sub" data-i18n="mac-sub">The moody notch now lives on your MacBook too. An early preview: the notch and its eyes, not signed by Apple, and made to be tried.</p>
+          <div class="mac-timer" id="mac-timer">
+            <time id="mac-timer-value" class="mac-timer-value" role="timer" datetime="2026-11-14T20:00:00+07:00" data-release-at="2026-11-14T20:00:00+07:00" aria-label="Time left until the Grump for Mac preview">--:--:--</time>
+            <span class="mac-timer-text"><span id="mac-timer-label">until the Mac preview, tonight at 8 PM WIB</span><small id="mac-timer-local"></small></span>
+          </div>
           <div class="mac-cta">
             <a id="btn-mac-arm" class="liquid-glass-btn btn-msstore-white mac-dl" href="#mac" aria-disabled="true">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>
@@ -2487,6 +2491,12 @@
 .mt-term p{margin:10px 0;color:var(--muted);font-size:14px;line-height:1.55}
 .mt-code{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .mt-code code{flex:1;min-width:0;padding:10px 12px;border-radius:10px;background:#14110e;border:1px solid rgba(255,255,255,.1);font:13px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#f4eee8;overflow-x:auto;white-space:nowrap}
+.mac-timer{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px;margin:0 0 26px}
+.mac-timer[hidden]{display:none}
+.mac-timer-value{font-size:clamp(34px,5.4vw,56px);line-height:1;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;color:#fff}
+.mac-timer-value[data-done]{font-size:clamp(24px,3.4vw,34px);letter-spacing:-.02em}
+.mac-timer-text{display:grid;gap:2px;color:#cfc8c0;font-size:15px;line-height:1.4}
+.mac-timer-text small{color:#9f9892;font-size:13px}
 @media (max-width:900px){.mac-body{grid-template-columns:1fr}.mac-dl{width:100%}}
 @media (prefers-reduced-motion:reduce){.mt-scene *{animation:none !important}.s1 .app{opacity:0}.s1 .mt-cursor{transform:translate(190px,0)}}
 </style>
@@ -3092,6 +3102,10 @@
         "mac-not-5": "Automatic updates",
         "mac-note": "Free, and nothing is recorded or uploaded.",
         "mac-bug": "Found a bug? Tell us.",
+        "mac-timer-label": "until the Mac preview, tonight at 8 PM WIB",
+        "mac-timer-local": "Your time: ",
+        "mac-timer-done": "Any minute now",
+        "mac-timer-done-label": "The downloads switch on as soon as the files are up.",
         "fb-tag": "FEEDBACK &amp; IDEAS",
         "fb-title": "Got an idea or found a bug? Send it over.",
         "fb-sub": "Your ideas and feedback mean a lot to me. They help make Grump better.",
@@ -3252,6 +3266,10 @@
         "mac-not-5": "Pembaruan otomatis",
         "mac-note": "Gratis, dan tidak ada yang direkam atau diunggah.",
         "mac-bug": "Menemukan bug? Kabari kami.",
+        "mac-timer-label": "lagi sampai pratinjau Mac, malam ini pukul 20.00 WIB",
+        "mac-timer-local": "Waktu kamu: ",
+        "mac-timer-done": "Sebentar lagi",
+        "mac-timer-done-label": "Tombol unduh menyala begitu filenya naik.",
         "fb-tag": "FEEDBACK &amp; IDE",
         "fb-title": "Punya ide atau nemu bug? Kirim langsung ke sini.",
         "fb-sub": "Saran dan kritikmu sangat berarti buatku. Setiap masukan membantu Grump jadi lebih baik.",
@@ -3722,7 +3740,7 @@
           button.title = `Grump ${found.release.tag_name || ''} · ${found.asset.name}`;
           any = true;
         }
-        if (any) { document.getElementById('mac-soon').hidden = true; document.getElementById('mac-ready').hidden = false; }
+        if (any) { document.getElementById('mac-soon').hidden = true; document.getElementById('mac-ready').hidden = false; document.getElementById('mac-timer').hidden = true; }
       } catch (err) {
         console.warn('Mac preview unavailable:', err);
       }
@@ -4081,6 +4099,27 @@
     }
     window.addEventListener('scroll', checkHeaderScroll, { passive: true });
 
+    /* Grump for Mac countdown: to the time in data-release-at. At zero it says "any minute now": the buttons switch on only when the release files exist. */
+    function updateMacTimer() {
+      const el = document.getElementById('mac-timer-value');
+      if (!el) return;
+      const label = document.getElementById('mac-timer-label'), local = document.getElementById('mac-timer-local');
+      const dict = translations[currentLang] || translations.en;
+      const target = new Date(el.getAttribute('data-release-at')).getTime(), left = target - Date.now();
+      if (left <= 0) {
+        el.textContent = dict['mac-timer-done']; el.setAttribute('data-done', '');
+        label.textContent = dict['mac-timer-done-label']; local.textContent = '';
+        return;
+      }
+      el.removeAttribute('data-done');
+      const s = Math.floor(left / 1000), d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60), sec = s % 60;
+      const two = n => String(n).padStart(2, '0');
+      el.textContent = (d ? d + (currentLang === 'id' ? 'h ' : 'd ') : '') + two(h) + ':' + two(m) + ':' + two(sec);
+      label.textContent = dict['mac-timer-label'];
+      local.textContent = dict['mac-timer-local'] + new Intl.DateTimeFormat(currentLang === 'id' ? 'id-ID' : 'en-GB', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' }).format(new Date(target));
+    }
+    setInterval(updateMacTimer, 1000);
+
     /* v1.2.0 release timer: counts down to the time in data-release-at and says 'Releasing now' at zero. It never claims the release is live. */
     let peekTimerId = 0;
     function updatePeekTimer() {
@@ -4112,7 +4151,7 @@
     function startPeekTimer() { updatePeekTimer(); if (!peekTimerId && document.getElementById('peek-timer-value')) peekTimerId = setInterval(updatePeekTimer, 1000); }
 
     window.addEventListener('DOMContentLoaded', () => {
-      startPeekTimer();
+      startPeekTimer(); updateMacTimer();
       const requestedLang = new URLSearchParams(window.location.search).get('lang');
       setLang(requestedLang === 'id' ? 'id' : 'en');
       initHeroCodeRain();
