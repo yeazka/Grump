@@ -55,7 +55,7 @@
       "applicationCategory": "UtilitiesApplication",
       "operatingSystem": "Windows 10, Windows 11",
       "url": "https://yeazka.github.io/Grump/",
-      "downloadUrl": "https://github.com/yeazka/Grump/releases/download/v1.2.2/Grump-Setup-1.2.2.exe",
+      "downloadUrl": "https://github.com/yeazka/Grump/releases/download/v1.2.3/Grump-Setup-1.2.3.exe",
       "image": "https://yeazka.github.io/Grump/assets/grump-logo.jpg",
       "author": { "@type": "Person", "name": "Azka" },
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
@@ -2049,7 +2049,7 @@
       transform: translateY(-2px);
     }
 
-  
+
     /* Sneak peek (v1.2.0): one large feature card, two smaller ones, then a quiet list. Reuses the release section head. */
     .peek-section::before { display: none; }
     .peek-state { color: #d9d2ca; font-size: 12.5px; font-weight: 700; letter-spacing: .04em; }
@@ -2085,7 +2085,7 @@
       .peek-more { grid-template-columns: 1fr; }
       .peek-more ul { grid-template-columns: 1fr; }
     }
-  
+
     /* Scroll intro: the page starts black, the eyes open while you scroll, then the camera falls into them and the overview takes over.
        Purpose: Grump waking up is the product's one brand moment. It is skipped for reduced motion, can be skipped with a button, and plays once per tab. */
     .intro { display: none; position: relative; height: 400vh; height: 400svh; margin-bottom: -100vh; margin-bottom: -100svh; z-index: 60; pointer-events: none; }
@@ -2121,7 +2121,7 @@
           <a href="#overview" class="nav-link" data-i18n="nav-overview">Overview</a>
           <a href="#mac" class="nav-link" data-i18n="nav-mac">Mac</a>
           <a href="#features" class="nav-link" data-i18n="nav-features">Features</a>
-          <a href="#whats-new-122" class="nav-link" data-i18n="nav-whats-new">What's new</a>
+          <a href="#whats-new-123" class="nav-link" data-i18n="nav-whats-new">What's new</a>
           <a href="#wallpapers" class="nav-link" data-i18n="nav-wallpapers">Wallpapers</a>
           <a href="#specifications" class="nav-link" data-i18n="nav-specifications">Specification</a>
           <a href="#testimonials" class="nav-link" data-i18n="nav-testimonials">Creator notes</a>
@@ -2184,7 +2184,7 @@
           <a
             class="liquid-glass-btn liquid-glass-primary"
             id="btn-dl-setup"
-            href="https://github.com/yeazka/Grump/releases/download/v1.2.2/Grump-Setup-1.2.2.exe"
+            href="https://github.com/yeazka/Grump/releases/download/v1.2.3/Grump-Setup-1.2.3.exe"
             target="_blank"
             rel="noopener noreferrer"
             title="Download Grump Setup for Windows"
@@ -2229,7 +2229,7 @@
             title="Grump for Mac (preview)"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>
-            <span data-i18n="btn-dl-mac">Mac Preview</span>
+            <span data-i18n="btn-dl-mac">Mac</span>
           </a>
 
           <!-- 4. Support on Trakteer -->
@@ -2557,7 +2557,7 @@
           </div>
 
           <p id="demo-mode-caption" class="mode-caption" aria-live="polite">
-            Choose a feature above to preview the latest Grump v1.2.0 behavior.
+            Choose a feature above to preview Grump.
           </p>
         </div>
 
@@ -2608,89 +2608,14 @@
     </section>
 
 
-  <!-- What's new in 1.2.2 -->
-  <section id="whats-new-122" class="release-section peek-section" aria-labelledby="wn122-title">
+  <section id="whats-new-123" class="release-section" aria-labelledby="wn123-title">
     <div class="release-inner">
-      <div class="release-head">
-        <div>
-          <span class="release-kicker" data-i18n="wn122-kicker">NEW IN 1.2.2</span>
-          <h2 class="release-title" id="wn122-title" data-i18n="wn122-title">What's New in 1.2.2</h2>
-          <p class="release-sub" data-i18n="wn122-sub">A dock that plays your music, colours that follow the cover, and music that can stay on screen in your browser.</p>
-        </div>
-        <div class="release-status"><span class="release-version">v1.2.2</span></div>
-      </div>
-      <div class="peek-grid">
-        <article class="peek-card peek-main">
-          <figure><img src="assets/whatsnew-122-browser.webp" width="1000" height="491" alt="A browser window with the Grump notch showing music over its middle tab" loading="lazy" decoding="async" data-i18n-alt="wn122-browser-alt"></figure>
-          <div class="peek-copy"><h3 data-i18n="wn122-browser-title">Music stays visible in browsers</h3><p data-i18n="wn122-browser-desc">When YouTube, YouTube Music or TikTok plays a song in your browser, Grump can keep showing it. It is off by default, because the notch then covers the tab in the middle of the browser. Turn it on in Preferences > Features > Music.</p></div>
-        </article>
-        <article class="peek-card">
-          <figure><img src="assets/whatsnew-122-dock.webp" width="1000" height="159" alt="The Grump Dock with a song card that has previous, pause and next buttons" loading="lazy" decoding="async" data-i18n-alt="wn122-dock-alt"></figure>
-          <div class="peek-copy"><h3 data-i18n="wn122-dock-title">A song card in the Dock</h3><p data-i18n="wn122-dock-desc">The cover of the song that is playing, with previous, pause and next. It shows only while music plays. Icon size, bar length and position are yours to set.</p></div>
-        </article>
-        <article class="peek-card">
-          <figure><img src="assets/whatsnew-122-color.webp" width="1000" height="330" alt="The Grump music card without and with colours taken from the album cover" loading="lazy" decoding="async" data-i18n-alt="wn122-color-alt"></figure>
-          <div class="peek-copy"><h3 data-i18n="wn122-color-title">Colours follow the cover</h3><p data-i18n="wn122-color-desc">The beam and the music background take their colour from the album that is playing, so every song looks different.</p></div>
-        </article>
-      </div>
-      <div class="peek-more">
-        <h3 data-i18n="wn122-more-title">Also new</h3>
-        <ul>
-          <li data-i18n="wn122-more-1">Drag a file onto an app icon or its window preview to open it there</li>
-          <li data-i18n="wn122-more-2">Click the active icon again to minimise its window</li>
-          <li data-i18n="wn122-more-3">Movie Nerd Music: Frozen and seven more films give the music page their own look</li>
-          <li data-i18n="wn122-more-4">Lyrics that line up better with the song</li>
-          <li data-i18n="wn122-more-5">A shorter Features menu in Preferences</li>
-          <li data-i18n="wn122-more-6">Floating lyrics stay centred, and YouTube or TikTok are recognised in a background tab</li>
-          <li data-i18n="wn122-more-7">What's New screen, any time from Preferences or the tray</li>
-        </ul>
-      </div>
-      <p class="peek-note" data-i18n="wn122-note">Screenshots from Grump v1.2.2. The cover in the music example is made up.</p>
-    </div>
-  </section>
-
-  <section id="sneak-peek" class="release-section peek-section" aria-labelledby="peek-title">
-    <div class="release-inner">
-      <div class="release-head">
-        <div>
-          <span class="release-kicker" data-i18n="peek-kicker">NEW IN 1.2.0</span>
-          <h2 class="release-title" id="peek-title" data-i18n="peek-title">Grump v1.2.0 is live.</h2>
-          <p class="release-sub" data-i18n="peek-sub">A dock, two looks, and a face that glows. Free for Windows 10 and 11, and the Grump you already have updates itself.</p>
-        </div>
-        <div class="release-status">
-          <span class="release-version">v1.2.0</span>
-          <div class="peek-timer">
-            <time id="peek-timer-value" class="peek-timer-value" role="timer" datetime="2026-11-12T20:00:00+07:00" data-release-at="2026-11-12T20:00:00+07:00" aria-label="Time left until the Grump v1.2.0 release">--:--:--</time>
-            <span class="peek-timer-label" id="peek-timer-label" data-i18n="peek-timer-label">until the release, today at 8 PM WIB</span>
-            <span class="peek-timer-local" id="peek-timer-local"></span>
-          </div>
-        </div>
-      </div>
-      <div class="peek-grid">
-        <article class="peek-card peek-main">
-          <figure><img src="assets/peek-dock.webp?v=2" width="1000" height="489" alt="The Grump Dock at the bottom of a desktop, with taskbar app icons, Wi-Fi and Bluetooth, a clock, and the notch above it" loading="lazy" decoding="async" data-i18n-alt="peek-dock-alt"></figure>
-          <div class="peek-copy"><h3 data-i18n="peek-dock-title">Meet the Dock</h3><p data-i18n="peek-dock-desc">A dock at the bottom of your screen with your taskbar apps, icons that grow under the cursor, a Control Center for Wi-Fi, Bluetooth, volume and brightness, and a glass calendar.</p></div>
-        </article>
-        <article class="peek-card">
-          <figure><img src="assets/peek-themes.webp" width="1000" height="452" alt="Two notch previews side by side: a solid black Obsidian one and a see-through Liquid Glass one" loading="lazy" decoding="async" data-i18n-alt="peek-theme-alt"></figure>
-          <div class="peek-copy"><h3 data-i18n="peek-theme-title">Obsidian or Liquid Glass</h3><p data-i18n="peek-theme-desc">Pick the solid black look or a see-through glass that blurs your desktop. Liquid Glass is heavier, so Obsidian stays for lighter PCs.</p></div>
-        </article>
-        <article class="peek-card">
-          <figure class="peek-eyes"><img src="assets/peek-eyes.webp" width="900" height="190" alt="The Grump notch with glowing orange eyes" loading="lazy" decoding="async" data-i18n-alt="peek-eyes-alt"></figure>
-          <div class="peek-copy"><h3 data-i18n="peek-eyes-title">Grump Eyes</h3><p data-i18n="peek-eyes-desc">A new glowing face with live pupils that follow your cursor, and a hello the first time you open it.</p></div>
-        </article>
-      </div>
-      <div class="peek-more">
-        <h3 data-i18n="peek-more-title">Also new</h3>
-        <ul>
-          <li data-i18n="peek-more-1">Full month calendar with events and notes</li>
-          <li data-i18n="peek-more-2">Privacy dots when a microphone, camera or screen capture is in use</li>
-          <li data-i18n="peek-more-3">Meeting mode for calls</li>
-          <li data-i18n="peek-more-4">Volume and brightness shown under the lyric row</li>
-          <li data-i18n="peek-more-5">AI status for Claude Code, Gemini CLI and Cursor</li>
-        </ul>
-      </div>
-      <p class="peek-note" data-i18n="peek-note">Screenshots from Grump v1.2.0.</p>
+      <div class="release-head"><div>
+        <span class="release-kicker" data-i18n="wn123-kicker">WINDOWS UPDATE</span>
+        <h2 class="release-title" id="wn123-title" data-i18n="wn123-title">Grump 1.2.3</h2>
+        <p class="release-sub" data-i18n="wn123-sub">Connection fixes, reliable Dock previews, and more control over your eyes and notifications.</p>
+      </div><span class="release-version">v1.2.3</span></div>
+      <div class="release-grid"><article class="release-item" style="grid-template-columns:1fr"><div><h3 data-i18n="wn123-0-title">Bluetooth and Wi-Fi</h3><p data-i18n="wn123-0-body">Bluetooth reconnects deliver audio sooner. Connection notices appear while music plays, Wi-Fi notices show the network name, and loading panels stay open while you use them.</p></div></article><article class="release-item" style="grid-template-columns:1fr"><div><h3 data-i18n="wn123-1-title">Dock clicks and window previews</h3><p data-i18n="wn123-1-body">More reliable clicks after switching apps. Multiple windows appear side by side, with restored previews for Explorer, Notepad and Spotify.</p></div></article><article class="release-item" style="grid-template-columns:1fr"><div><h3 data-i18n="wn123-2-title">Brightness and notifications</h3><p data-i18n="wn123-2-body">Fixes duplicate Windows brightness and screenshot banners. Bluetooth notices use a blue beam for connections and a red beam for disconnections.</p></div></article><article class="release-item" style="grid-template-columns:1fr"><div><h3 data-i18n="wn123-3-title">Korean lyrics you can sing along to</h3><p data-i18n="wn123-3-body">Improved lyric version matching, with optional Latin pronunciation below Hangul in the lyrics page and floating lyrics.</p></div></article><article class="release-item" style="grid-template-columns:1fr"><div><h3 data-i18n="wn123-4-title">Eyes, reactions and Dock settings</h3><p data-i18n="wn123-4-body">Static expressions retain your selection. Dragon pupils follow the cursor, Rage respects its toggle, and the anchored notch stays attached. Dock Frost defaults to 80%, with working bottom-gap controls.</p></div></article><article class="release-item" style="grid-template-columns:1fr"><div><h3 data-i18n="wn123-5-title">Resource and scrolling fixes</h3><p data-i18n="wn123-5-body">Reuses unchanged notification and lyric content, releases glass graphics resources when stopped, and removes forced memory trimming. Preferences returns to native scrolling.</p></div></article></div>
     </div>
   </section>
 
@@ -2734,7 +2659,7 @@
     <!-- Creator notes & Feedback Section -->
     <section class="testimonials-section" aria-labelledby="testimonials-heading">
       <div class="wrap testimonial-wrap">
-          
+
           <section class="spec-stage" id="specifications" aria-labelledby="spec-title">
             <div class="testi-layout">
               <div class="testi-left-col"><span class="testi-vertical-label" data-i18n="spec-label">SYSTEM REQUIREMENTS</span><div class="testi-progress-track"><div class="fb-progress-fill" aria-hidden="true"></div></div></div>
@@ -3002,48 +2927,21 @@
         "nav-specifications": "Specification",
       "intro-skip": "Skip intro",
       "intro-hint": "Scroll",
-      "peek-kicker": "NEW IN 1.2.0",
-      "peek-title": "Grump v1.2.0 is live.",
-      "peek-sub": "A dock, two looks, and a face that glows. Free for Windows 10 and 11, and the Grump you already have updates itself.",
-      "peek-state": "Coming soon",
-      "peek-timer-label": "until the release, today at 8 PM WIB",
-      "peek-timer-done": "Out now",
-      "peek-timer-done-label": "Download it now, or let the Grump you have update itself.",
-      "peek-timer-local": "Your time: ",
-      "peek-dock-title": "Meet the Dock",
-      "peek-dock-desc": "A dock at the bottom of your screen with your taskbar apps, icons that grow under the cursor, a Control Center for Wi-Fi, Bluetooth, volume and brightness, and a glass calendar.",
-      "peek-theme-title": "Obsidian or Liquid Glass",
-      "peek-theme-desc": "Pick the solid black look or a see-through glass that blurs your desktop. Liquid Glass is heavier, so Obsidian stays for lighter PCs.",
-      "peek-eyes-title": "Grump Eyes",
-      "peek-eyes-desc": "A new glowing face with live pupils that follow your cursor, and a hello the first time you open it.",
-      "peek-more-title": "Also new",
-      "peek-more-1": "Full month calendar with events and notes",
-      "peek-more-2": "Privacy dots when a microphone, camera or screen capture is in use",
-      "peek-more-3": "Meeting mode for calls",
-      "peek-more-4": "Volume and brightness shown under the lyric row",
-      "peek-more-5": "AI status for Claude Code, Gemini CLI and Cursor",
-      "peek-note": "Screenshots from Grump v1.2.0.",
-      "wn122-kicker": "NEW IN 1.2.2",
-      "wn122-title": "What's New in 1.2.2",
-      "wn122-sub": "A dock that plays your music, colours that follow the cover, and music that can stay on screen in your browser.",
-      "wn122-browser-alt": "A browser window with the Grump notch showing music over its middle tab",
-      "wn122-browser-title": "Music stays visible in browsers",
-      "wn122-browser-desc": "When YouTube, YouTube Music or TikTok plays a song in your browser, Grump can keep showing it. It is off by default, because the notch then covers the tab in the middle of the browser. Turn it on in Preferences > Features > Music.",
-      "wn122-dock-alt": "The Grump Dock with a song card that has previous, pause and next buttons",
-      "wn122-dock-title": "A song card in the Dock",
-      "wn122-dock-desc": "The cover of the song that is playing, with previous, pause and next. It shows only while music plays. Icon size, bar length and position are yours to set.",
-      "wn122-color-alt": "The Grump music card without and with colours taken from the album cover",
-      "wn122-color-title": "Colours follow the cover",
-      "wn122-color-desc": "The beam and the music background take their colour from the album that is playing, so every song looks different.",
-      "wn122-more-title": "Also new",
-      "wn122-more-1": "Drag a file onto an app icon or its window preview to open it there",
-      "wn122-more-2": "Click the active icon again to minimise its window",
-      "wn122-more-3": "Movie Nerd Music: Frozen and seven more films give the music page their own look",
-      "wn122-more-4": "Lyrics that line up better with the song",
-      "wn122-more-5": "A shorter Features menu in Preferences",
-      "wn122-more-6": "Floating lyrics stay centred, and YouTube or TikTok are recognised in a background tab",
-      "wn122-more-7": "What's New screen, any time from Preferences or the tray",
-      "wn122-note": "Screenshots from Grump v1.2.2. The cover in the music example is made up.",
+      "wn123-kicker": "WINDOWS UPDATE",
+      "wn123-title": "Grump 1.2.3",
+      "wn123-sub": "Connection fixes, reliable Dock previews, and more control over your eyes and notifications.",
+      "wn123-0-title": "Bluetooth and Wi-Fi",
+      "wn123-0-body": "Bluetooth reconnects deliver audio sooner. Connection notices appear while music plays, Wi-Fi notices show the network name, and loading panels stay open while you use them.",
+      "wn123-1-title": "Dock clicks and window previews",
+      "wn123-1-body": "More reliable clicks after switching apps. Multiple windows appear side by side, with restored previews for Explorer, Notepad and Spotify.",
+      "wn123-2-title": "Brightness and notifications",
+      "wn123-2-body": "Fixes duplicate Windows brightness and screenshot banners. Bluetooth notices use a blue beam for connections and a red beam for disconnections.",
+      "wn123-3-title": "Korean lyrics you can sing along to",
+      "wn123-3-body": "Improved lyric version matching, with optional Latin pronunciation below Hangul in the lyrics page and floating lyrics.",
+      "wn123-4-title": "Eyes, reactions and Dock settings",
+      "wn123-4-body": "Static expressions retain your selection. Dragon pupils follow the cursor, Rage respects its toggle, and the anchored notch stays attached. Dock Frost defaults to 80%, with working bottom-gap controls.",
+      "wn123-5-title": "Resource and scrolling fixes",
+      "wn123-5-body": "Reuses unchanged notification and lyric content, releases glass graphics resources when stopped, and removes forced memory trimming. Preferences returns to native scrolling.",
       "wp-kicker": "FREE WALLPAPERS",
       "wp-title": "Take Grump's desktops home.",
       "wp-sub": "The two wallpapers behind Grump's own previews. Free for your desktop.",
@@ -3066,7 +2964,7 @@
         "btn-dl-msstore": "Microsoft Store",
         "btn-dl-linux": "Linux Beta",
         "nav-mac": "Mac",
-        "btn-dl-mac": "Mac Preview",
+        "btn-dl-mac": "Mac",
         "mac-title": "Grump just landed on Mac.",
         "mac-sub": "The moody notch now lives on your MacBook too, with the music you are playing and its lyrics. An early preview: not signed by Apple, and made to be tried.",
         "mac-dl-arm": "Download for Apple Silicon",
@@ -3166,48 +3064,21 @@
         "nav-specifications": "Spesifikasi",
       "intro-skip": "Lewati intro",
       "intro-hint": "Gulir ke bawah",
-      "peek-kicker": "BARU DI 1.2.0",
-      "peek-title": "Grump v1.2.0 sudah rilis.",
-      "peek-sub": "Dock, dua tampilan, dan wajah yang menyala. Gratis untuk Windows 10 dan 11, dan Grump yang sudah terpasang akan update sendiri.",
-      "peek-state": "Segera hadir",
-      "peek-timer-label": "lagi sampai rilis, hari ini pukul 20.00 WIB",
-      "peek-timer-done": "Sudah rilis",
-      "peek-timer-done-label": "Unduh sekarang, atau biarkan Grump yang sudah terpasang update sendiri.",
-      "peek-timer-local": "Waktu kamu: ",
-      "peek-dock-title": "Kenalan dengan Dock",
-      "peek-dock-desc": "Dock di bagian bawah layar dengan aplikasi taskbar-mu, ikon yang membesar saat kursor lewat, Control Center untuk Wi-Fi, Bluetooth, volume, dan kecerahan, plus kalender kaca.",
-      "peek-theme-title": "Obsidian atau Liquid Glass",
-      "peek-theme-desc": "Pilih tampilan hitam pekat atau kaca tembus pandang yang memburamkan desktopmu. Liquid Glass lebih berat, jadi Obsidian tetap ada untuk PC yang lebih ringan.",
-      "peek-eyes-title": "Grump Eyes",
-      "peek-eyes-desc": "Wajah baru yang menyala dengan pupil hidup yang mengikuti kursor, dan sapaan saat pertama kali dibuka.",
-      "peek-more-title": "Juga baru",
-      "peek-more-1": "Kalender sebulan penuh dengan acara dan catatan",
-      "peek-more-2": "Titik privasi saat mikrofon, kamera, atau perekaman layar dipakai",
-      "peek-more-3": "Mode meeting untuk panggilan",
-      "peek-more-4": "Volume dan kecerahan tampil di bawah baris lirik",
-      "peek-more-5": "Status AI untuk Claude Code, Gemini CLI, dan Cursor",
-      "peek-note": "Screenshot dari Grump v1.2.0.",
-      "wn122-kicker": "BARU DI 1.2.2",
-      "wn122-title": "What's New in 1.2.2",
-      "wn122-sub": "Dock yang memutar musikmu, warna yang mengikuti sampul, dan musik yang bisa tetap tampil di browser.",
-      "wn122-browser-alt": "Jendela browser dengan notch Grump yang menampilkan musik di atas tab tengahnya",
-      "wn122-browser-title": "Musik tetap tampil di browser",
-      "wn122-browser-desc": "Saat YouTube, YouTube Music, atau TikTok memutar lagu di browser, Grump bisa tetap menampilkannya. Secara bawaan mati, karena notch akan menutupi tab di tengah browser. Nyalakan di Preferences > Features > Music.",
-      "wn122-dock-alt": "Dock Grump dengan kartu lagu yang punya tombol sebelumnya, jeda, dan lanjut",
-      "wn122-dock-title": "Kartu lagu di Dock",
-      "wn122-dock-desc": "Sampul lagu yang sedang diputar, dengan tombol sebelumnya, jeda, dan lanjut. Hanya muncul saat musik diputar. Ukuran ikon, panjang bar, dan posisi bisa kamu atur.",
-      "wn122-color-alt": "Kartu musik Grump tanpa dan dengan warna dari sampul album",
-      "wn122-color-title": "Warna mengikuti sampul",
-      "wn122-color-desc": "Beam dan latar musik mengambil warna dari album yang sedang diputar, jadi tiap lagu terlihat beda.",
-      "wn122-more-title": "Juga baru",
-      "wn122-more-1": "Seret file ke ikon aplikasi atau preview jendelanya untuk membukanya di sana",
-      "wn122-more-2": "Klik ikon yang aktif sekali lagi untuk meminimalkan jendelanya",
-      "wn122-more-3": "Movie Nerd Music: Frozen dan tujuh film lain memberi halaman musik tampilannya sendiri",
-      "wn122-more-4": "Lirik yang lebih pas dengan lagunya",
-      "wn122-more-5": "Menu Features di Preferences lebih singkat",
-      "wn122-more-6": "Lirik mengambang tetap di tengah, dan YouTube atau TikTok dikenali di tab latar",
-      "wn122-more-7": "Layar What's New, kapan saja dari Preferences atau tray",
-      "wn122-note": "Screenshot dari Grump v1.2.2. Sampul di contoh musik adalah rekaan.",
+      "wn123-kicker": "UPDATE WINDOWS",
+      "wn123-title": "Grump 1.2.3",
+      "wn123-sub": "Perbaikan koneksi, preview Dock yang lebih andal, serta kontrol mata dan notifikasi.",
+      "wn123-0-title": "Bluetooth dan Wi-Fi",
+      "wn123-0-body": "Audio lebih cepat terdengar setelah Bluetooth tersambung kembali. Notifikasi koneksi tampil saat musik diputar, Wi-Fi menampilkan nama jaringan, dan panel tetap terbuka saat daftar dimuat.",
+      "wn123-1-title": "Klik Dock dan preview jendela",
+      "wn123-1-body": "Klik lebih andal setelah berpindah aplikasi. Beberapa jendela tampil berjajar, dengan preview Explorer, Notepad, dan Spotify yang diperbaiki.",
+      "wn123-2-title": "Brightness dan notifikasi",
+      "wn123-2-body": "Memperbaiki indikator brightness dan banner screenshot Windows yang muncul ganda. Bluetooth memakai beam biru saat tersambung dan merah saat terputus.",
+      "wn123-3-title": "Lirik Korea untuk sing-along",
+      "wn123-3-body": "Pencocokan versi lirik diperbaiki, dengan opsi cara baca alfabet Latin di bawah Hangul pada halaman lirik dan jendela lirik melayang.",
+      "wn123-4-title": "Mata, reaksi, dan pengaturan Dock",
+      "wn123-4-body": "Pilihan ekspresi Static tersimpan. Pupil Dragon mengikuti kursor, Rage mengikuti toggle, dan notch Anchored tetap menempel. Default Dock Frost menjadi 80%, dengan pengaturan jarak bawah yang berfungsi.",
+      "wn123-5-title": "Perbaikan resource dan scrolling",
+      "wn123-5-body": "Memakai kembali konten notifikasi dan lirik yang sama, melepas resource grafis kaca saat dihentikan, dan menghapus pemangkasan memori paksa. Preferences kembali memakai scrolling bawaan.",
       "wp-kicker": "WALLPAPER GRATIS",
       "wp-title": "Bawa pulang desktop Grump.",
       "wp-sub": "Dua wallpaper yang dipakai di preview Grump. Gratis untuk desktopmu.",
@@ -3230,7 +3101,7 @@
         "btn-dl-msstore": "Microsoft Store",
         "btn-dl-linux": "Linux Beta",
         "nav-mac": "Mac",
-        "btn-dl-mac": "Pratinjau Mac",
+        "btn-dl-mac": "Mac",
         "mac-title": "Grump akhirnya mendarat di Mac.",
         "mac-sub": "Notch yang moody sekarang tinggal juga di MacBook-mu, lengkap dengan musik yang kamu putar dan liriknya. Pratinjau awal: belum ditandatangani Apple, dan dibuat untuk dicoba.",
         "mac-dl-arm": "Unduh untuk Apple Silicon",
@@ -3327,7 +3198,7 @@
       en: {
         anchored: "Anchored mode: Grump merges directly into the top bezel of your screen like a native MacBook notch.",
         island: "Floating mode: Grump detaches from the top bezel and floats as a sleek rounded floating notch.",
-        berserk: "Grump Eyes: the glowing orange face from v1.2.0. Move your cursor close and watch the pupils follow it.",
+        berserk: "Grump Eyes: the glowing orange face Move your cursor close and watch the pupils follow it.",
         whatsapp: "A compact two-line WhatsApp Web preview with adaptive width and the same green beam treatment as media.",
         "compact-music": "The current compact lyric view keeps the song and synced words in the Island, with volume and brightness shown below the lyric row.",
         music: "Full media player with reactive WebGL shader background, album art color extraction, and interactive playback controls.",
@@ -3340,7 +3211,7 @@
       id: {
         anchored: "Mode Menempel: Grump nempel menyatu sama bezel atas layar lu persis kayak notch bawaan MacBook.",
         island: "Mode Melayang: Grump lepas dari bezel atas dan melayang jadi kapsul floating notch.",
-        berserk: "Grump Eyes: wajah oranye menyala dari v1.2.0. Dekatkan kursor dan lihat pupilnya mengikuti.",
+        berserk: "Grump Eyes: wajah oranye menyala Dekatkan kursor dan lihat pupilnya mengikuti.",
         whatsapp: "Preview WhatsApp Web dua baris dengan lebar adaptif dan beam hijau yang konsisten dengan media.",
         "compact-music": "Compact Lyric terbaru menampilkan lagu dan lirik tersinkronisasi di Island, dengan volume dan kecerahan di bawah baris lirik.",
         music: "Pemutar musik lengkap dengan background WebGL shader reaktif, ekstraksi warna cover lagu, dan kontrol penuh.",
@@ -3601,7 +3472,7 @@
       if (!window.__introHold) startHeroScramble(lang);
       updateCaption();
       renderTestimonial(activeTestiIndex);
-      updatePeekTimer();
+
     }
 
     function initMobileMenu() {
@@ -3681,7 +3552,7 @@
         translations.id['btn-dl-setup'] = 'Download Setup';
 
         button.querySelector('[data-i18n="btn-dl-setup"]').textContent = translations[currentLang]['btn-dl-setup'];
-        
+
         document.querySelector('[data-i18n="hero-downloads"]').textContent = translations[currentLang]['hero-downloads'];
       } catch (err) {
         // Keep the verified release link when GitHub API is rate-limited.
@@ -3989,7 +3860,7 @@
       resetTestiTimer();
     }
 
-    
+
     function selectFbType(btn) {
       document.querySelectorAll('.fb-type-chip').forEach(c => c.classList.remove('active'));
       btn.classList.add('active');
@@ -4121,38 +3992,8 @@
     }
     setInterval(updateMacTimer, 1000);
 
-    /* v1.2.0 release timer: counts down to the time in data-release-at and says 'Releasing now' at zero. It never claims the release is live. */
-    let peekTimerId = 0;
-    function updatePeekTimer() {
-      const el = document.getElementById('peek-timer-value');
-      if (!el) return;
-      const label = document.getElementById('peek-timer-label');
-      const local = document.getElementById('peek-timer-local');
-      const dict = translations[currentLang] || translations.en;
-      const target = new Date(el.getAttribute('data-release-at')).getTime();
-      const left = target - Date.now();
-      if (left <= 0) {
-        el.textContent = dict['peek-timer-done']; el.setAttribute('data-done', '');
-        if (label) label.textContent = dict['peek-timer-done-label'];
-        if (local) local.textContent = '';
-        if (peekTimerId) { clearInterval(peekTimerId); peekTimerId = 0; }
-        return;
-      }
-      el.removeAttribute('data-done');
-      const s = Math.floor(left / 1000), d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60), sec = s % 60;
-      const two = n => String(n).padStart(2, '0');
-      el.textContent = (d ? d + (currentLang === 'id' ? 'h ' : 'd ') : '') + two(h) + ':' + two(m) + ':' + two(sec);
-      if (label && label.textContent !== dict['peek-timer-label']) label.textContent = dict['peek-timer-label'];
-      if (local) {
-        const t = new Date(target);
-        const zone = new Intl.DateTimeFormat(currentLang === 'id' ? 'id-ID' : 'en-GB', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' }).format(t);
-        local.textContent = dict['peek-timer-local'] + zone;
-      }
-    }
-    function startPeekTimer() { updatePeekTimer(); if (!peekTimerId && document.getElementById('peek-timer-value')) peekTimerId = setInterval(updatePeekTimer, 1000); }
-
     window.addEventListener('DOMContentLoaded', () => {
-      startPeekTimer(); updateMacTimer();
+      updateMacTimer();
       const requestedLang = new URLSearchParams(window.location.search).get('lang');
       setLang(requestedLang === 'id' ? 'id' : 'en');
       initHeroCodeRain();
@@ -4349,7 +4190,7 @@
     <h3 id="dlc-title"></h3>
     <p id="dlc-body"></p>
     <div class="dlc-actions">
-      <a id="dlc-new" class="dlc-btn dlc-new" href="https://github.com/yeazka/Grump/releases/download/v1.2.2/Grump-Setup-1.2.2.exe" rel="noopener noreferrer"></a>
+      <a id="dlc-new" class="dlc-btn dlc-new" href="https://github.com/yeazka/Grump/releases/download/v1.2.3/Grump-Setup-1.2.3.exe" rel="noopener noreferrer"></a>
       <a id="dlc-old" class="dlc-btn dlc-old" href="https://github.com/yeazka/Grump/releases/download/v1.1.5/Grump-Setup-1.1.5.exe" rel="noopener noreferrer"></a>
     </div>
     <button type="button" class="dlc-cancel" data-dlc-close></button>
@@ -4373,10 +4214,10 @@
 <script>
 (function(){
   const T={
-    en:{title:'Heads up: v1.2.2 is brand new',body:'Some new features still have bugs we are fixing right now. If you want the settled version, grab v1.1.5. Grump updates itself when the fixes are out.',
-        nw:'Download v1.2.2 anyway<small>Dock, Bookmarks, Liquid Glass, Grump Eyes</small>',old:'Download v1.1.5<small>Stable and lighter</small>',cancel:'Cancel'},
-    id:{title:'Info dulu: v1.2.2 masih baru banget',body:'Beberapa fitur baru masih ada bug yang lagi kami perbaiki. Kalau mau versi yang sudah stabil, ambil v1.1.5. Grump akan update sendiri begitu perbaikannya keluar.',
-        nw:'Tetap download v1.2.2<small>Dock, Bookmark, Liquid Glass, Grump Eyes</small>',old:'Download v1.1.5<small>Stabil dan lebih ringan</small>',cancel:'Batal'}};
+    en:{title:'Grump 1.2.3 for Windows',body:'The latest update includes connection, Dock preview, notification and resource fixes. The older v1.1.5 download is also available.',
+        nw:'Download v1.2.3<small>Dock, Bookmarks, Liquid Glass, Grump Eyes</small>',old:'Download v1.1.5<small>Stable and lighter</small>',cancel:'Cancel'},
+    id:{title:'Grump 1.2.3 untuk Windows',body:'Update terbaru mencakup perbaikan koneksi, preview Dock, notifikasi, dan resource. Unduhan versi lama v1.1.5 juga tersedia.',
+        nw:'Download v1.2.3<small>Dock, Bookmark, Liquid Glass, Grump Eyes</small>',old:'Download v1.1.5<small>Stabil dan lebih ringan</small>',cancel:'Batal'}};
   const box=document.getElementById('dl-choice');let back=null;
   function lang(){try{return (typeof currentLang!=='undefined'&&currentLang==='id')?'id':'en'}catch(e){return 'en'}}
   function open(){const t=T[lang()];
