@@ -2496,7 +2496,7 @@
 .mac-timer-value[data-done]{font-size:clamp(24px,3.4vw,34px);letter-spacing:-.02em}
 .mac-timer-text{display:grid;gap:2px;color:#cfc8c0;font-size:15px;line-height:1.4}
 .mac-timer-text small{color:#9f9892;font-size:13px}
-@media (max-width:900px){.mac-body{grid-template-columns:1fr}.mac-dl{width:100%}.mac-bg{width:70vw;right:-12%;top:8px;opacity:.8}}
+@media (max-width:900px){.mac-body{grid-template-columns:1fr}.mac-dl{width:100%}.mac-bg{width:70vw;right:0;top:8px;opacity:.8}}
 @media (prefers-reduced-motion:reduce){.mt-scene *{animation:none !important}.s1 .app{opacity:0}.s1 .mt-cursor{transform:translate(190px,0)}}
 </style>
 
@@ -2927,7 +2927,8 @@
   <script>
     const translations = {
       en: {
-        "page-title": "Grump Notch: Your Desktop Just Got Angrier",
+        "page-title": "Grump: Interactive Notch and Dock for Windows 10 & 11",
+        "page-description": "Grump brings an interactive notch and Dock to Windows 10 and 11, with music controls, synced lyrics, notifications, focus timer, and expressive eyes.",
         "nav-overview": "Overview",
         "nav-features": "Features",
         "nav-whats-new": "What's new",
@@ -3064,7 +3065,8 @@
         "footer-crafted": "Crafted with attitude &bull; &copy; 2026 Grump"
       },
       id: {
-        "page-title": "Grump Notch: Desktop Lu Jadi Lebih Galak",
+        "page-title": "Grump: Notch Interaktif dan Dock untuk Windows 10 & 11",
+        "page-description": "Grump menghadirkan notch interaktif dan Dock untuk Windows 10 dan 11, dengan kontrol musik, lirik sinkron, notifikasi, timer fokus, dan mata yang bereaksi pada kursor.",
         "nav-overview": "Ringkasan",
         "nav-features": "Fitur",
         "nav-whats-new": "Yang baru",
@@ -3460,6 +3462,8 @@
       const dict = translations[lang];
       if (dict && dict["page-title"]) {
         document.title = dict["page-title"];
+        const metaDescription = document.querySelector('meta[name="description"]');
+        if (metaDescription && dict["page-description"]) metaDescription.content = dict["page-description"];
       }
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
