@@ -1196,6 +1196,18 @@
     .footer-sep {
       color: rgba(255, 235, 200, 0.25);
     }
+    .footer-guides {
+      flex-basis: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      font-size: 12px;
+    }
+    .footer-guides span { color: rgba(255, 235, 200, 0.4); letter-spacing: .04em; text-transform: uppercase; font-size: 11px; }
+    #feedback-container { scroll-margin-top: 90px; }
 
     .testi-trakteer-btn {
       display: inline-flex;
@@ -2100,7 +2112,6 @@
     html.intro-on.intro-late .intro-skip { display: none; }
     @media (prefers-reduced-motion: reduce) { html.intro-on .intro, html.intro-on .intro-skip { display: none; } html.intro-on .site-header { opacity: 1; visibility: visible; } }
   </style>
-  <style>.seo-guides{max-width:1100px;margin:0 auto;padding:48px 24px 64px;color:#fff}.seo-guides h2{font-size:clamp(24px,3vw,38px);margin:0 0 10px}.seo-guides p{color:#b8b2ac;margin:0 0 26px}.seo-guide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.seo-guide-grid a{display:block;padding:22px;border:1px solid #4a4038;border-radius:18px;color:#fff;text-decoration:none;background:#17120e}.seo-guide-grid a:hover,.seo-guide-grid a:focus-visible{border-color:#eea348;outline:none}.seo-guide-grid strong{display:block;font-size:18px;margin-bottom:8px}.seo-guide-grid span{color:#b8b2ac;line-height:1.5}</style>
 </head>
 <body>
   <button type="button" class="intro-skip" id="intro-skip" data-i18n="intro-skip">Skip intro</button>
@@ -2230,14 +2241,12 @@
             <span data-i18n="btn-dl-mac">Mac</span>
           </a>
 
-          <!-- 4. Support on Trakteer -->
+          <!-- 4. Support: scrolls to the support and feedback card (to be redesigned as its own page) -->
           <a
             class="liquid-glass-btn btn-trakteer"
             id="btn-trakteer"
-            href="https://trakteer.id/sewelaspixel/tip"
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Support on Trakteer"
+            href="#feedback-container"
+            title="Support Grump"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="#fbbf24" aria-hidden="true">
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
@@ -2889,16 +2898,6 @@
       </div>
     </section>
 
-    <section class="seo-guides" aria-labelledby="seo-guides-title">
-      <h2 id="seo-guides-title">Kenali Grump lebih dekat</h2>
-      <p>Cari tahu fitur yang cocok buat kamu, lalu coba langsung di Windows.</p>
-      <div class="seo-guide-grid">
-        <a href="guides/dock-windows.html"><strong>Dock untuk Windows</strong><span>Pindah aplikasi dan lihat preview jendela dari Dock.</span></a>
-        <a href="guides/lirik-musik.html"><strong>Musik dan lirik</strong><span>Kontrol lagu dan lihat lirik yang mengikuti musik.</span></a>
-        <a href="guides/notifikasi-windows.html"><strong>Notifikasi lebih rapi</strong><span>Lihat pesan, status koneksi, dan indikator sistem di notch.</span></a>
-        <a href="guides/pasang-grump.html"><strong>Cara pasang Grump</strong><span>Pilih installer atau Microsoft Store dan mulai pakai Grump.</span></a>
-      </div>
-    </section>
   </main>
 
   <footer class="site-footer">
@@ -2910,8 +2909,9 @@
       </div>
       <div class="footer-links-row">
         <a href="https://trakteer.id/sewelaspixel/tip" target="_blank" rel="noopener noreferrer" class="footer-link">Trakteer</a>
-        <span class="footer-sep">&bull;</span>
-        <a href="https://github.com/sponsors/yeazka" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub Sponsors</a>
+        <span class="footer-sep" id="paypal-sep" hidden>&bull;</span>
+        <!-- PayPal replaces GitHub Sponsors. It stays hidden until the link exists: set href, then remove both hidden attributes. -->
+        <a href="" target="_blank" rel="noopener noreferrer" class="footer-link" id="paypal-link" hidden>PayPal</a>
         <span class="footer-sep">&bull;</span>
         <a href="https://discord.gg/F7u3RTzKXM" target="_blank" rel="noopener noreferrer" class="footer-link">Discord</a>
         <span class="footer-sep">&bull;</span>
@@ -2921,6 +2921,13 @@
         <span class="footer-sep">&bull;</span>
         <span class="footer-note" data-i18n="footer-crafted">Crafted with attitude &bull; &copy; 2026 Grump</span>
       </div>
+      <nav class="footer-guides" aria-label="Panduan Grump" lang="id">
+        <span>Panduan</span>
+        <a href="guides/dock-windows.html" class="footer-link">Dock untuk Windows</a>
+        <a href="guides/lirik-musik.html" class="footer-link">Musik dan lirik</a>
+        <a href="guides/notifikasi-windows.html" class="footer-link">Notifikasi</a>
+        <a href="guides/pasang-grump.html" class="footer-link">Cara pasang</a>
+      </nav>
     </div>
   </footer>
 
