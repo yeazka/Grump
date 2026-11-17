@@ -482,7 +482,7 @@
 
     /* Overview / Hero Section */
     /* the hero keeps room under its last line for the wordmark band that is pulled up over it (see --lift on .hwf-band) */
-    :root { --lift: calc(64px + 12dvh); }
+    :root { --lift: calc((64px + 12dvh) * 1.2); }   /* 20% higher than before (it was 64px + 12dvh) */
     .hero-section {
       position: relative;
       width: 100%;
@@ -564,12 +564,34 @@
       text-shadow: 0 4px 28px rgba(0, 0, 0, 0.72);
       max-width: 980px;
     }
+    /* The accent word: a bright, glowing gradient. The gradient is clipped to the text's own box, and that box is only as tall as the line, so the
+       tail of the g was cut off: the box is made taller at the bottom (and pulled back with a negative margin, so the lines do not move). The glow
+       is a blurred copy of the word behind it (data-text), because text-shadow and filter do not show through transparent text here. */
     .hero-title .word-accent {
-      background: linear-gradient(95deg, #fde68a 0%, #fbbf24 45%, #f97316 100%);
+      position: relative;
+      isolation: isolate;
+      padding: 0.04em 0.06em 0.2em;
+      margin: -0.04em -0.06em -0.2em 0;
+      background: linear-gradient(95deg, #fff3b0 0%, #ffd84a 38%, #ffb020 70%, #ff8a1f 100%);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
+      text-shadow: none;   /* the title's dark shadow would be drawn over the gradient and dim it */
       font-weight: 800;
+    }
+    .hero-title .word-accent::before {
+      content: attr(data-text);
+      position: absolute;
+      inset: 0.04em 0.06em 0.2em;
+      z-index: -1;
+      background: linear-gradient(95deg, #ffe27a, #ff9a1a);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: none;
+      filter: blur(0.32em);
+      opacity: 0.8;
+      pointer-events: none;
     }
     .hero-title .word-accent:hover { text-shadow: none; }
     @media (max-width: 760px) { .hero-break { display: none; } }
@@ -3267,6 +3289,7 @@
           span.className = 'word' + (el.dataset.accent === 'last' && i === words.length - 1 ? ' word-accent' : '');
           span.style.setProperty('--d', (start + i * stepOf(el)) + 'ms');
           span.setAttribute('aria-hidden', 'true');
+          if (span.classList.contains('word-accent')) span.dataset.text = w;   // the glow behind the accent word
           if (el.id === 'hero-kicker' && /^grump$/i.test(w.replace(/[^\w]/g, ''))) { const b = document.createElement('b'); b.textContent = w; span.replaceChildren(b); } else span.textContent = w;
           if (i + 1 === breakAfter) { const br = document.createElement('br'); br.className = 'hero-break'; return [span, br]; }
           return [span];
