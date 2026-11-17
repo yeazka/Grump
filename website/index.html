@@ -54,7 +54,7 @@
       "description": "A Dynamic Island look-alike for Windows 10 and 11, with a Dock too. Music and synced lyrics, notifications and a cleaner desktop.",
       "alternateName": ["Grump", "Grump Notch", "Dynamic Island for Windows"],
       "url": "https://yeazka.github.io/Grump/",
-      "downloadUrl": "https://github.com/yeazka/Grump/releases/download/v1.2.3/Grump-Setup-1.2.3.exe",
+      "downloadUrl": "https://github.com/yeazka/Grump/releases/download/v1.2.4/Grump-Setup-1.2.4.exe",
       "image": "https://yeazka.github.io/Grump/assets/grump-logo.jpg",
       "author": { "@type": "Person", "name": "Azka" },
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
@@ -2107,7 +2107,7 @@
           <a href="#overview" class="nav-link" data-i18n="nav-overview">Overview</a>
           <a href="#mac" class="nav-link" data-i18n="nav-mac">Mac</a>
           <a href="#features" class="nav-link" data-i18n="nav-features">Features</a>
-          <a href="#whats-new-123" class="nav-link" data-i18n="nav-whats-new">What's new</a>
+          <a href="#whats-new-124" class="nav-link" data-i18n="nav-whats-new">What's new</a>
           <a href="#wallpapers" class="nav-link" data-i18n="nav-wallpapers">Wallpapers</a>
           <a href="#specifications" class="nav-link" data-i18n="nav-specifications">Specification</a>
           <a href="#testimonials" class="nav-link" data-i18n="nav-testimonials">Creator notes</a>
@@ -2190,7 +2190,7 @@
           <a
             class="liquid-glass-btn liquid-glass-primary"
             id="btn-dl-setup"
-            href="https://github.com/yeazka/Grump/releases/download/v1.2.3/Grump-Setup-1.2.3.exe"
+            href="https://github.com/yeazka/Grump/releases/download/v1.2.4/Grump-Setup-1.2.4.exe"
             target="_blank"
             rel="noopener noreferrer"
             title="Download Grump Setup for Windows"
@@ -2624,14 +2624,85 @@
     </section>
 
 
-  <section id="whats-new-123" class="release-section" aria-labelledby="wn123-title">
+  <!-- Slurp: the PiP effect of 1.2.4, drawn live (assets/pour-demo.js with the app's own curve, assets/genie-shape.js) next to a plain window -->
+  <section id="slurp" class="release-section slurp" aria-labelledby="sl-title">
+    <div class="release-inner">
+      <span class="release-kicker" data-i18n="sl-kicker">NEW IN 1.2.4</span>
+      <h2 class="release-title" id="sl-title" data-i18n="sl-title">Meet the Slurp.</h2>
+      <p class="release-sub" data-i18n="sl-sub">To-do, Notes and lyrics can now leave the notch as a small floating window (PiP) that stays above your other apps. It pours out of the notch when it opens, and the notch slurps it back in when it closes.</p>
+      <div class="sl-body">
+        <div>
+          <div class="sl-stage" id="sl-stage" role="img" aria-label="A To-do window being slurped into the notch at the top of the screen, then poured back out"></div>
+          <div class="sl-bar">
+            <div class="sl-seg" role="group" aria-label="Effect"><button type="button" data-mode="slurp" aria-pressed="true" data-i18n="sl-slurp">Slurp effect</button><button type="button" data-mode="plain" aria-pressed="false" data-i18n="sl-plain">Plain window</button></div>
+            <label class="sl-slow"><input type="checkbox" id="sl-slow"><span class="sl-knob" aria-hidden="true"></span><span data-i18n="sl-slow">Slow motion</span></label>
+          </div>
+          <p class="sl-note" data-i18n="sl-note">Drawn with the same curve Grump uses, at its real speed. Switch to a plain window to see the difference.</p>
+        </div>
+        <ul class="sl-points">
+          <li data-i18n="sl-1">Open it with the PiP button on the To-do, Notes or lyrics page in the notch</li>
+          <li data-i18n="sl-2">Always on top, and you can move and resize it</li>
+          <li data-i18n="sl-3">Close it and it goes back into the notch, nothing left on screen</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+<style>
+.sl-body{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:clamp(28px,5vw,64px);align-items:start}
+.sl-stage{position:relative;aspect-ratio:480/300;border-radius:16px;overflow:hidden;background:#0d1410 url(assets/mac-demo-bg.webp) center/cover;border:1px solid rgba(255,255,255,.1)}
+.sl-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:14px}
+.sl-seg{display:inline-flex;padding:4px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04)}
+.sl-seg button{border:0;background:transparent;color:var(--muted);font:600 14px/1 inherit;font-family:inherit;padding:10px 16px;border-radius:999px;cursor:pointer}
+.sl-seg button[aria-pressed="true"]{background:#f4eee8;color:#140c05}
+.sl-seg button:focus-visible{outline:2px solid var(--amber-bright);outline-offset:2px}
+.sl-slow{position:relative;display:inline-flex;align-items:center;gap:10px;color:var(--muted);font-size:14px;cursor:pointer}
+.sl-slow input{position:absolute;opacity:0;width:1px;height:1px}
+.sl-knob{position:relative;width:38px;height:22px;border-radius:999px;background:rgba(255,255,255,.18);transition:background .15s}
+.sl-knob::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .15s}
+.sl-slow input:checked+.sl-knob{background:var(--amber-bright)}
+.sl-slow input:checked+.sl-knob::after{transform:translateX(16px)}
+.sl-slow input:focus-visible+.sl-knob{outline:2px solid var(--amber-bright);outline-offset:2px}
+.sl-note{margin:12px 0 0;color:#9f9892;font-size:13.5px;line-height:1.55}
+.sl-points{margin:0;padding:0;list-style:none;display:grid;gap:12px}
+.sl-points li{color:#e8e1da;font-size:16px;line-height:1.5;padding-left:18px;position:relative}
+.sl-points li::before{content:"";position:absolute;left:2px;top:.62em;width:6px;height:6px;border-radius:50%;background:#f4eee8}
+@media (max-width:860px){.sl-body{grid-template-columns:1fr}}
+</style>
+<script src="assets/genie-shape.js" defer></script>
+<script src="assets/pour-demo.js" defer></script>
+<script>
+addEventListener('DOMContentLoaded', () => {
+  const host = document.getElementById('sl-stage');
+  if (!host || !window.GrumpPourDemo) return;
+  const lang = () => (document.documentElement.lang === 'id' ? 'id' : 'en');
+  const demo = window.GrumpPourDemo.mount(host, { lang: lang() });
+  new MutationObserver(() => demo.setLang(lang())).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+  const buttons = document.querySelectorAll('.sl-seg button');
+  buttons.forEach((b) => b.addEventListener('click', () => { buttons.forEach((o) => o.setAttribute('aria-pressed', String(o === b))); demo.setMode(b.dataset.mode); }));
+  document.getElementById('sl-slow').addEventListener('change', (e) => demo.setSlow(e.target.checked));
+});
+</script>
+
+  <!-- The Dock fixes of 1.2.4: the most reported problem, so it is a headline next to Slurp -->
+  <section id="dock-fix" class="release-section" aria-labelledby="fx-title">
     <div class="release-inner">
       <div class="release-head"><div>
-        <span class="release-kicker" data-i18n="wn123-kicker">WINDOWS UPDATE</span>
-        <h2 class="release-title" id="wn123-title" data-i18n="wn123-title">Grump 1.2.3</h2>
-        <p class="release-sub" data-i18n="wn123-sub">Connection fixes, reliable Dock previews, and more control over your eyes and notifications.</p>
-      </div><span class="release-version">v1.2.3</span></div>
-      <div class="release-grid"><article class="release-item" style="grid-template-columns:1fr"><div><h3 data-i18n="wn123-0-title">Bluetooth and Wi-Fi</h3><p data-i18n="wn123-0-body">Bluetooth reconnects deliver audio sooner. Connection notices appear while music plays, Wi-Fi notices show the network name, and loading panels stay open while you use them.</p></div></article><article class="release-item" style="grid-template-columns:1fr"><div><h3 data-i18n="wn123-1-title">Dock clicks and window previews</h3><p data-i18n="wn123-1-body">More reliable clicks after switching apps. Multiple windows appear side by side, with restored previews for Explorer, Notepad and Spotify.</p></div></article><article class="release-item" style="grid-template-columns:1fr"><div><h3 data-i18n="wn123-2-title">Brightness and notifications</h3><p data-i18n="wn123-2-body">Fixes duplicate Windows brightness and screenshot banners. Bluetooth notices use a blue beam for connections and a red beam for disconnections.</p></div></article><article class="release-item" style="grid-template-columns:1fr"><div><h3 data-i18n="wn123-3-title">Korean lyrics you can sing along to</h3><p data-i18n="wn123-3-body">Improved lyric version matching, with optional Latin pronunciation below Hangul in the lyrics page and floating lyrics.</p></div></article><article class="release-item" style="grid-template-columns:1fr"><div><h3 data-i18n="wn123-4-title">Eyes, reactions and Dock settings</h3><p data-i18n="wn123-4-body">Static expressions retain your selection. Dragon pupils follow the cursor, Rage respects its toggle, and the anchored notch stays attached. Dock Frost defaults to 80%, with working bottom-gap controls.</p></div></article><article class="release-item" style="grid-template-columns:1fr"><div><h3 data-i18n="wn123-5-title">Resource and scrolling fixes</h3><p data-i18n="wn123-5-body">Reuses unchanged notification and lyric content, releases glass graphics resources when stopped, and removes forced memory trimming. Preferences returns to native scrolling.</p></div></article></div>
+        <span class="release-kicker" data-i18n="fx-kicker">FIXED IN 1.2.4</span>
+        <h2 class="release-title" id="fx-title" data-i18n="fx-title">A Dock that always answers.</h2>
+        <p class="release-sub" data-i18n="fx-sub">Many of you told us on Discord and Threads that a click on the Dock sometimes did nothing. Thank you so much! We found the cause and fixed it.</p>
+      </div></div>
+      <div class="release-grid"><article class="release-item" style="grid-template-columns:1fr"><div><h3 data-i18n="fx-0-title">Clicks land right away</h3><p data-i18n="fx-0-body">A click on the Dock no longer waits behind whatever else Grump is doing, so it responds right away.</p></div></article><article class="release-item" style="grid-template-columns:1fr"><div><h3 data-i18n="fx-1-title">A frozen app no longer holds the Dock back</h3><p data-i18n="fx-1-body">If an app freezes, the Dock keeps working as usual.</p></div></article><article class="release-item" style="grid-template-columns:1fr"><div><h3 data-i18n="fx-2-title">The window you click really shows up</h3><p data-i18n="fx-2-body">Windows used to refuse now and then, and only the taskbar button flashed. Now the window comes to the front.</p></div></article><article class="release-item" style="grid-template-columns:1fr"><div><h3 data-i18n="fx-3-title">No yellow box on Windows 10</h3><p data-i18n="fx-3-body">On Windows 10, the screen got a yellow frame while Liquid Glass ran. There, Grump now uses the regular glass, so the frame is gone.</p></div></article></div>
+    </div>
+  </section>
+
+  <section id="whats-new-124" class="release-section" aria-labelledby="wn124-title">
+    <div class="release-inner">
+      <div class="release-head"><div>
+        <span class="release-kicker" data-i18n="wn124-kicker">WINDOWS UPDATE</span>
+        <h2 class="release-title" id="wn124-title" data-i18n="wn124-title">Grump 1.2.4</h2>
+        <p class="release-sub" data-i18n="wn124-sub">Slurp and floating windows, a Dock that always answers, Japanese romaji lyrics, and tidier Dock previews.</p>
+      </div><span class="release-version">v1.2.4</span></div>
+      <div class="release-grid"><article class="release-item" style="grid-template-columns:1fr"><div><h3 data-i18n="wn124-0-title">A To-do list that floats</h3><p data-i18n="wn124-0-body">Pop the To-do list out of the notch into a small window that stays on top. Three priorities (urgent, important, normal), drag to reorder, reminders in the notch, and the Slurp effect on the way out and back.</p></div></article><article class="release-item" style="grid-template-columns:1fr"><div><h3 data-i18n="wn124-1-title">Floating Notes and lyrics</h3><p data-i18n="wn124-1-body">Notes can have their own floating window too, and the floating lyrics now come out of the notch and go back with the same Slurp effect.</p></div></article><article class="release-item" style="grid-template-columns:1fr"><div><h3 data-i18n="wn124-2-title">Japanese lyrics in romaji</h3><p data-i18n="wn124-2-body">Japanese lyrics show their romaji reading under each line, like Korean lyrics. It is on by default, and you can turn it off in Preferences > Features > Music.</p></div></article><article class="release-item" style="grid-template-columns:1fr"><div><h3 data-i18n="wn124-3-title">Tidier Dock previews</h3><p data-i18n="wn124-3-body">The window you point at gets a white outline, the preview stays open over the picture, and an X in the corner closes that one window.</p></div></article><article class="release-item" style="grid-template-columns:1fr"><div><h3 data-i18n="wn124-4-title">Hide Grump for a moment</h3><p data-i18n="wn124-4-body">Ctrl+Alt+G hides the notch, the Dock and the floating windows for five seconds. The tray menu has the same option.</p></div></article><article class="release-item" style="grid-template-columns:1fr"><div><h3 data-i18n="wn124-5-title">Lighter while idle</h3><p data-i18n="wn124-5-body">Grump does less work when nothing changes on screen, so it uses less CPU while it sits idle. Reminders now show only in the notch, not as a Windows notification.</p></div></article><article class="release-item" style="grid-template-columns:1fr"><div><h3 data-i18n="wn124-6-title">Dock clicks that always work</h3><p data-i18n="wn124-6-body">Clicks no longer wait behind slow commands or freeze with a hung app, and the clicked window comes forward.</p></div></article><article class="release-item" style="grid-template-columns:1fr"><div><h3 data-i18n="wn124-7-title">Yellow box and notification logos</h3><p data-i18n="wn124-7-body">No yellow frame around the screen on Windows 10. Antigravity and Windows' own apps show their logo in notifications.</p></div></article></div>
     </div>
   </section>
 
@@ -2950,6 +3021,7 @@
           <li><a href="https://discord.gg/F7u3RTzKXM" target="_blank" rel="noopener noreferrer">Discord</a></li>
           <li><a href="https://github.com/yeazka/Grump" target="_blank" rel="noopener noreferrer">GitHub</a></li>
           <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="terms.html">Terms</a></li>
         </ul>
       </nav>
     </div>
@@ -2969,21 +3041,46 @@
         "nav-specifications": "Specification",
       "intro-skip": "Skip intro",
       "intro-hint": "Scroll",
-      "wn123-kicker": "WINDOWS UPDATE",
-      "wn123-title": "Grump 1.2.3",
-      "wn123-sub": "Connection fixes, reliable Dock previews, and more control over your eyes and notifications.",
-      "wn123-0-title": "Bluetooth and Wi-Fi",
-      "wn123-0-body": "Bluetooth reconnects deliver audio sooner. Connection notices appear while music plays, Wi-Fi notices show the network name, and loading panels stay open while you use them.",
-      "wn123-1-title": "Dock clicks and window previews",
-      "wn123-1-body": "More reliable clicks after switching apps. Multiple windows appear side by side, with restored previews for Explorer, Notepad and Spotify.",
-      "wn123-2-title": "Brightness and notifications",
-      "wn123-2-body": "Fixes duplicate Windows brightness and screenshot banners. Bluetooth notices use a blue beam for connections and a red beam for disconnections.",
-      "wn123-3-title": "Korean lyrics you can sing along to",
-      "wn123-3-body": "Improved lyric version matching, with optional Latin pronunciation below Hangul in the lyrics page and floating lyrics.",
-      "wn123-4-title": "Eyes, reactions and Dock settings",
-      "wn123-4-body": "Static expressions retain your selection. Dragon pupils follow the cursor, Rage respects its toggle, and the anchored notch stays attached. Dock Frost defaults to 80%, with working bottom-gap controls.",
-      "wn123-5-title": "Resource and scrolling fixes",
-      "wn123-5-body": "Reuses unchanged notification and lyric content, releases glass graphics resources when stopped, and removes forced memory trimming. Preferences returns to native scrolling.",
+      "sl-kicker": "NEW IN 1.2.4",
+      "sl-title": "Meet the Slurp.",
+      "sl-sub": "To-do, Notes and lyrics can now leave the notch as a small floating window (PiP) that stays above your other apps. It pours out of the notch when it opens, and the notch slurps it back in when it closes.",
+      "sl-slurp": "Slurp effect",
+      "sl-plain": "Plain window",
+      "sl-slow": "Slow motion",
+      "sl-note": "Drawn with the same curve Grump uses, at its real speed. Switch to a plain window to see the difference.",
+      "sl-1": "Open it with the PiP button on the To-do, Notes or lyrics page in the notch",
+      "sl-2": "Always on top, and you can move and resize it",
+      "sl-3": "Close it and it goes back into the notch, nothing left on screen",
+      "fx-kicker": "FIXED IN 1.2.4",
+      "fx-title": "A Dock that always answers.",
+      "fx-sub": "Many of you told us on Discord and Threads that a click on the Dock sometimes did nothing. Thank you so much! We found the cause and fixed it.",
+      "fx-0-title": "Clicks land right away",
+      "fx-0-body": "A click on the Dock no longer waits behind whatever else Grump is doing, so it responds right away.",
+      "fx-1-title": "A frozen app no longer holds the Dock back",
+      "fx-1-body": "If an app freezes, the Dock keeps working as usual.",
+      "fx-2-title": "The window you click really shows up",
+      "fx-2-body": "Windows used to refuse now and then, and only the taskbar button flashed. Now the window comes to the front.",
+      "fx-3-title": "No yellow box on Windows 10",
+      "fx-3-body": "On Windows 10, the screen got a yellow frame while Liquid Glass ran. There, Grump now uses the regular glass, so the frame is gone.",
+      "wn124-6-title": "Dock clicks that always work",
+      "wn124-6-body": "Clicks no longer wait behind slow commands or freeze with a hung app, and the clicked window comes forward.",
+      "wn124-7-title": "Yellow box and notification logos",
+      "wn124-7-body": "No yellow frame around the screen on Windows 10. Antigravity and Windows' own apps show their logo in notifications.",
+      "wn124-kicker": "WINDOWS UPDATE",
+      "wn124-title": "Grump 1.2.4",
+      "wn124-sub": "Slurp and floating windows, a Dock that always answers, Japanese romaji lyrics, and tidier Dock previews.",
+      "wn124-0-title": "A To-do list that floats",
+      "wn124-0-body": "Pop the To-do list out of the notch into a small window that stays on top. Three priorities (urgent, important, normal), drag to reorder, reminders in the notch, and the Slurp effect on the way out and back.",
+      "wn124-1-title": "Floating Notes and lyrics",
+      "wn124-1-body": "Notes can have their own floating window too, and the floating lyrics now come out of the notch and go back with the same Slurp effect.",
+      "wn124-2-title": "Japanese lyrics in romaji",
+      "wn124-2-body": "Japanese lyrics show their romaji reading under each line, like Korean lyrics. It is on by default, and you can turn it off in Preferences > Features > Music.",
+      "wn124-3-title": "Tidier Dock previews",
+      "wn124-3-body": "The window you point at gets a white outline, the preview stays open over the picture, and an X in the corner closes that one window.",
+      "wn124-4-title": "Hide Grump for a moment",
+      "wn124-4-body": "Ctrl+Alt+G hides the notch, the Dock and the floating windows for five seconds. The tray menu has the same option.",
+      "wn124-5-title": "Lighter while idle",
+      "wn124-5-body": "Grump does less work when nothing changes on screen, so it uses less CPU while it sits idle. Reminders now show only in the notch, not as a Windows notification.",
       "wp-kicker": "FREE WALLPAPERS",
       "wp-title": "Take Grump's desktops home.",
       "wp-sub": "The two wallpapers behind Grump's own previews. Free for your desktop.",
@@ -3109,21 +3206,46 @@
         "nav-specifications": "Spesifikasi",
       "intro-skip": "Lewati intro",
       "intro-hint": "Gulir ke bawah",
-      "wn123-kicker": "UPDATE WINDOWS",
-      "wn123-title": "Grump 1.2.3",
-      "wn123-sub": "Perbaikan koneksi, preview Dock yang lebih andal, serta kontrol mata dan notifikasi.",
-      "wn123-0-title": "Bluetooth dan Wi-Fi",
-      "wn123-0-body": "Audio lebih cepat terdengar setelah Bluetooth tersambung kembali. Notifikasi koneksi tampil saat musik diputar, Wi-Fi menampilkan nama jaringan, dan panel tetap terbuka saat daftar dimuat.",
-      "wn123-1-title": "Klik Dock dan preview jendela",
-      "wn123-1-body": "Klik lebih andal setelah berpindah aplikasi. Beberapa jendela tampil berjajar, dengan preview Explorer, Notepad, dan Spotify yang diperbaiki.",
-      "wn123-2-title": "Brightness dan notifikasi",
-      "wn123-2-body": "Memperbaiki indikator brightness dan banner screenshot Windows yang muncul ganda. Bluetooth memakai beam biru saat tersambung dan merah saat terputus.",
-      "wn123-3-title": "Lirik Korea untuk sing-along",
-      "wn123-3-body": "Pencocokan versi lirik diperbaiki, dengan opsi cara baca alfabet Latin di bawah Hangul pada halaman lirik dan jendela lirik melayang.",
-      "wn123-4-title": "Mata, reaksi, dan pengaturan Dock",
-      "wn123-4-body": "Pilihan ekspresi Static tersimpan. Pupil Dragon mengikuti kursor, Rage mengikuti toggle, dan notch Anchored tetap menempel. Default Dock Frost menjadi 80%, dengan pengaturan jarak bawah yang berfungsi.",
-      "wn123-5-title": "Perbaikan resource dan scrolling",
-      "wn123-5-body": "Memakai kembali konten notifikasi dan lirik yang sama, melepas resource grafis kaca saat dihentikan, dan menghapus pemangkasan memori paksa. Preferences kembali memakai scrolling bawaan.",
+      "sl-kicker": "BARU DI 1.2.4",
+      "sl-title": "Kenalan dengan Slurp.",
+      "sl-sub": "To-do, Notes, dan lirik sekarang bisa keluar dari notch jadi jendela kecil yang melayang (PiP) di atas aplikasi lain. Saat dibuka, jendelanya dituang keluar dari notch. Saat ditutup, notch menyedotnya masuk lagi.",
+      "sl-slurp": "Efek Slurp",
+      "sl-plain": "Jendela biasa",
+      "sl-slow": "Gerak lambat",
+      "sl-note": "Digambar dengan lengkungan yang sama seperti di Grump, dengan kecepatan aslinya. Pilih jendela biasa untuk melihat bedanya.",
+      "sl-1": "Buka lewat tombol PiP di halaman To-do, Notes, atau lirik di notch",
+      "sl-2": "Selalu di atas, bisa digeser dan diubah ukurannya",
+      "sl-3": "Tutup, dan ia masuk lagi ke notch tanpa sisa di layar",
+      "fx-kicker": "DIPERBAIKI DI 1.2.4",
+      "fx-title": "Dock yang selalu merespons.",
+      "fx-sub": "Banyak dari kalian melapor di Discord dan Threads kalau klik di dock kadang tidak ada efeknya. Makasih banyak, ya! Penyebabnya sudah ketemu dan diperbaiki.",
+      "fx-0-title": "Klik langsung terasa",
+      "fx-0-body": "Klik di dock tidak lagi ikut antre di belakang hal lain yang sedang berjalan, jadi responsnya langsung terasa.",
+      "fx-1-title": "Aplikasi yang macet tidak lagi menahan dock",
+      "fx-1-body": "Kalau ada aplikasi yang macet, dock tetap jalan seperti biasa.",
+      "fx-2-title": "Jendela yang kamu klik benar-benar muncul",
+      "fx-2-body": "Dulu Windows kadang menolak dan cuma tombol taskbar yang berkedip. Sekarang jendelanya maju ke depan.",
+      "fx-3-title": "Tidak ada kotak kuning di Windows 10",
+      "fx-3-body": "Di Windows 10, layar sempat dibingkai kuning selama Liquid Glass aktif. Di sana Grump sekarang memakai kaca biasa, jadi bingkainya tidak muncul lagi.",
+      "wn124-6-title": "Klik Dock yang selalu jalan",
+      "wn124-6-body": "Klik tidak lagi antre di belakang perintah lambat atau ikut macet karena aplikasi hang, dan jendela yang diklik muncul di depan.",
+      "wn124-7-title": "Kotak kuning dan logo notifikasi",
+      "wn124-7-body": "Tidak ada lagi bingkai kuning di layar Windows 10. Antigravity dan aplikasi bawaan Windows punya logo di notifikasi.",
+      "wn124-kicker": "UPDATE WINDOWS",
+      "wn124-title": "Grump 1.2.4",
+      "wn124-sub": "Slurp dan jendela mengambang, Dock yang selalu merespons, lirik Jepang dalam romaji, dan preview Dock yang lebih rapi.",
+      "wn124-0-title": "To-do yang bisa melayang",
+      "wn124-0-body": "Keluarkan daftar To-do dari notch jadi jendela kecil yang selalu di atas. Tiga prioritas (mendesak, penting, biasa), seret untuk mengatur urutan, pengingat di notch, dan efek Slurp saat keluar dan masuk lagi.",
+      "wn124-1-title": "Notes dan lirik mengambang",
+      "wn124-1-body": "Notes juga bisa jadi jendela mengambang sendiri, dan jendela lirik sekarang keluar dari notch dan masuk lagi dengan efek Slurp yang sama.",
+      "wn124-2-title": "Lirik Jepang dalam romaji",
+      "wn124-2-body": "Lirik Jepang menampilkan cara baca romaji di bawah tiap baris, seperti lirik Korea. Aktif otomatis, dan bisa kamu matikan di Preferences > Features > Music.",
+      "wn124-3-title": "Preview Dock yang lebih rapi",
+      "wn124-3-body": "Jendela yang disorot diberi garis putih, preview tetap terbuka saat kursor di atas gambarnya, dan tombol X di pojok menutup jendela itu.",
+      "wn124-4-title": "Sembunyikan Grump sebentar",
+      "wn124-4-body": "Ctrl+Alt+G menyembunyikan notch, Dock, dan jendela mengambang selama lima detik. Pilihan yang sama ada di menu tray.",
+      "wn124-5-title": "Lebih ringan saat diam",
+      "wn124-5-body": "Grump bekerja lebih sedikit saat layar tidak berubah, jadi pemakaian CPU saat diam lebih kecil. Pengingat sekarang hanya muncul di notch, bukan notifikasi Windows.",
       "wp-kicker": "WALLPAPER GRATIS",
       "wp-title": "Bawa pulang desktop Grump.",
       "wp-sub": "Dua wallpaper yang dipakai di preview Grump. Gratis untuk desktopmu.",
