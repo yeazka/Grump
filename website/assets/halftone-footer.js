@@ -52,8 +52,9 @@
     var inkColor = root.getAttribute('data-ink') || '#efe3d2';
     var warmColor = root.getAttribute('data-warm') || '#fbbf24';
     var dotGap = Number(root.getAttribute('data-gap')) || 6;
-    var crop = Math.max(0, Math.min(0.6, Number(root.getAttribute('data-crop')) || 0.2));
-    var grain = Math.max(0, Math.min(1, Number(root.getAttribute('data-grain')) || 0.5));
+    var num = function (name, fallback) { var v = root.getAttribute(name); return v !== null && v !== '' && isFinite(Number(v)) ? Number(v) : fallback; };   // 0 is a real value
+    var crop = Math.max(0, Math.min(0.6, num('data-crop', 0.2)));
+    var grain = Math.max(0, Math.min(1, num('data-grain', 0.5)));
     var radius = Number(root.getAttribute('data-radius')) || 80;
 
     var motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -111,7 +112,8 @@
     function draw(now) {
       var reduced = motionQuery.matches;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.fillStyle = background; ctx.fillRect(0, 0, w, h);
+      if (background === 'transparent') ctx.clearRect(0, 0, w, h);   // a see-through band shows what is behind it
+      else { ctx.fillStyle = background; ctx.fillRect(0, 0, w, h); }
       var r = reduced ? 0 : Math.max(0, radius);
       var ringAge = ring.t < 0 ? 1e9 : now - ring.t, ringR = ringAge * 0.9, moving = false;
       // dots at rest share one path and one fill; only the pushed (warming) ones are filled one by one

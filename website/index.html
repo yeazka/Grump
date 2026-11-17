@@ -1154,7 +1154,8 @@
 
     /* Halftone wordmark band: "Grump" set enormous, cropped by the bottom edge and printed as dots that part around the pointer (assets/halftone-footer.js).
        It sits between the hero and the Mac section; its height follows the word (about 0.19 of the width) plus room above it. */
-    .hwf-band { position: relative; width: 100%; height: calc(19vw + 64px); overflow: hidden; isolation: isolate; background: var(--bg); }
+    .hwf-band { --lift: calc(64px + 12dvh); position: relative; width: 100%; height: calc(19vw + 64px); margin-top: calc(-1 * var(--lift)); z-index: 11; overflow: hidden; isolation: isolate; background: linear-gradient(180deg, transparent var(--lift), #070403 var(--lift)); }
+    /* --lift pulls the band up over the bottom of the hero, so the tops of the letters show in the first screen (a hint that there is something to play with below) */
     .hwf-band canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; max-width: none; }
     /* the footer: only the links, on the same black as the Creator notes section */
     .hwf-footer { position: relative; width: 100%; padding-bottom: 28px; background: #000000; color: #efe3d2; -webkit-font-smoothing: antialiased; }
@@ -2215,7 +2216,7 @@
     </section>
 
     <!-- The wordmark you can play with: dots part around the pointer. Decorative, so the canvas is hidden from assistive tech and the word is read once. -->
-    <section class="hwf-band" data-halftone-footer data-wordmark="Grump" data-font='"Google Sans Flex","Plus Jakarta Sans",sans-serif' data-weight="800" data-ink="#efe3d2" data-warm="#fbbf24" data-background="#0b0704" aria-label="Grump">
+    <section class="hwf-band" data-halftone-footer data-wordmark="Grump" data-font='"Google Sans Flex","Plus Jakarta Sans",sans-serif' data-weight="800" data-ink="#efe3d2" data-warm="#fbbf24" data-background="transparent" data-grain="0" aria-label="Grump">
       <canvas aria-hidden="true"></canvas>
     </section>
 
