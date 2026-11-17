@@ -61,7 +61,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,500;0,600;0,700;0,800;1,700;1,800&family=Google+Sans+Flex:wght@500..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,500;0,600;0,700;0,800;1,700;1,800&family=Google+Sans+Flex:wght@200..900&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -478,40 +478,48 @@
     }
 
     /* Overview / Hero Section */
+    /* the hero keeps room under its last line for the wordmark band that is pulled up over it (see --lift on .hwf-band) */
+    :root { --lift: calc(64px + 12dvh); }
     .hero-section {
       position: relative;
       width: 100%;
       min-height: 94dvh;
       display: flex;
-      align-items: center;
+      align-items: stretch;
       justify-content: center;
-      padding: 112px 20px 88px;
+      padding: 112px 20px calc(var(--lift) + 28px);
       overflow: hidden;
+      isolation: isolate;
       background:
-        radial-gradient(circle at 50% 34%, rgba(245, 158, 11, 0.14), transparent 42%),
-        linear-gradient(180deg, #0c0805 0%, #070403 100%);
+        radial-gradient(circle at 50% 34%, rgba(245, 158, 11, 0.12), transparent 46%),
+        linear-gradient(135deg, #1b1209 0%, #000000 52%, #2a1a0b 100%);
     }
 
-    .hero-code-rain {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-      pointer-events: none;
-    }
+    /* Decoration: a fine grid with four drawn lines, small dots, corner marks and drifting specks (owner-supplied hero design, amber on dark) */
+    .hero-grid { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+    .grid-line { stroke: rgba(251, 191, 36, 0.14); stroke-width: 0.5; stroke-dasharray: 5 5; stroke-dashoffset: 1000; opacity: 0; animation: grid-draw 2s ease-out forwards; }
+    .detail-dot { fill: #fbbf24; opacity: 0; animation: dot-appear 0.8s ease-out forwards; }
+    @keyframes grid-draw { to { stroke-dashoffset: 0; opacity: 0.3; } }
+    @keyframes dot-appear { to { opacity: 0.5; } }
+    .corner-element { position: absolute; z-index: 1; width: 8px; height: 8px; background: #fbbf24; opacity: 0; pointer-events: none; animation: dot-appear 0.8s ease-out forwards; }
+    .corner-tl { top: 32px; left: 32px; } .corner-tr { top: 32px; right: 32px; }
+    .corner-bl { bottom: 32px; left: 32px; } .corner-br { bottom: 32px; right: 32px; }
+    .floating-element { position: absolute; z-index: 1; width: 3px; height: 3px; border-radius: 50%; background: #fbbf24; opacity: 0; pointer-events: none; animation: float-speck 7s ease-in-out infinite; }
+    @keyframes float-speck { 0%, 100% { opacity: 0.1; transform: translateY(0); } 50% { opacity: 0.5; transform: translateY(-14px); } }
+    .hero-pointer-glow { position: absolute; z-index: 1; width: 384px; height: 384px; border-radius: 50%; pointer-events: none; opacity: 0; filter: blur(48px); background: radial-gradient(circle, rgba(251, 191, 36, 0.11) 0%, transparent 100%); transition: opacity 0.5s ease-out; }
+    .hero-ripple { position: absolute; z-index: 3; width: 4px; height: 4px; border-radius: 50%; background: rgba(251, 191, 36, 0.6); transform: translate(-50%, -50%); pointer-events: none; animation: ripple-out 1s ease-out forwards; }
+    @keyframes ripple-out { 0% { opacity: 0.8; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(40); } }
 
-    .warm-ambient-glow {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      background:
-        radial-gradient(circle at 50% 36%, rgba(11, 7, 4, 0.02) 0%, rgba(11, 7, 4, 0.24) 70%, rgba(11, 7, 4, 0.88) 100%),
-        radial-gradient(circle at 50% 30%, rgba(249, 115, 22, 0.18) 0%, transparent 58%);
-      pointer-events: none;
-    }
+    /* Words appear one after another (JS wraps them); .hero-fade blocks appear after the headline */
+    .word { display: inline-block; margin-right: 0.26em; transition: text-shadow 0.25s ease; }
+    .word:last-child { margin-right: 0; }
+    .word:hover { text-shadow: 0 0 20px rgba(251, 191, 36, 0.45); }
+    .hero-section.is-prep .word, .hero-section.is-prep .hero-fade { opacity: 0; }
+    .hero-section.is-revealing .word, .hero-section.is-revealing .hero-fade { animation: word-appear 0.8s ease-out both; animation-delay: var(--d, 0ms); }
+    @keyframes word-appear { from { opacity: 0; transform: translateY(10px); filter: blur(5px); } to { opacity: 1; transform: none; filter: blur(0); } }
 
     .hero-bottom-fade {
+
       position: absolute;
       bottom: 0;
       left: 0;
@@ -532,61 +540,52 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: space-between;
+      gap: 36px;
     }
+    .hero-main { display: flex; flex-direction: column; align-items: center; width: 100%; }
+    .hero-kicker, .hero-tagline { margin: 0; color: #d6b98c; opacity: 0.9; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: clamp(11px, 1.1vw, 13px); font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase; line-height: 1.8; }
+    .hero-kicker b { color: #fff3dd; font-weight: 700; }
+    .hero-rule { width: 64px; height: 1px; margin-top: 16px; background: linear-gradient(to right, transparent, #fbbf24, transparent); opacity: 0.35; }
+    .hero-dots { display: flex; justify-content: center; gap: 14px; margin-top: 18px; }
+    .hero-dots i { width: 4px; height: 4px; border-radius: 50%; background: #fbbf24; opacity: 0.45; }
+    .hero-dots i:nth-child(2) { opacity: 0.7; }
 
-    /* Strictly 2-Line Headline in both EN and ID */
     .hero-title {
       margin: 0;
-      font-size: clamp(24px, 4.5vw, 66px);
-      font-weight: 800;
+      font-size: clamp(30px, 5vw, 68px);
+      font-weight: 300;
       line-height: 1.12;
-      letter-spacing: -0.04em;
-      color: var(--text);
+      letter-spacing: -0.035em;
+      color: #fff8ef;
       text-shadow: 0 4px 28px rgba(0, 0, 0, 0.72);
-      min-height: 1.2em;
-      display: grid;
-      place-items: center;
-      max-width: 1000px;
+      max-width: 980px;
     }
-
-    .hero-scramble-copy {
-      display: block;
-      max-width: 100%;
-    }
-
-    .hero-scramble-dud {
-      color: #f59e0b;
-      text-shadow: 0 0 14px rgba(249, 115, 22, 0.82);
-    }
-
-    .hero-line {
-      display: block;
-      white-space: nowrap;
-    }
-
-    .hero-title-accent {
+    .hero-title .word-accent {
       background: linear-gradient(95deg, #fde68a 0%, #fbbf24 45%, #f97316 100%);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      font-style: italic;
-      font-weight: 800;
-      padding-right: 4px;
+      font-weight: 700;
     }
+    .hero-title .word-accent:hover { text-shadow: none; }
+    @media (max-width: 760px) { .hero-break { display: none; } }
 
     @media (prefers-reduced-motion: reduce) {
-      .hero-code-rain {
-        display: none;
-      }
+      .grid-line, .detail-dot, .corner-element, .floating-element, .hero-pointer-glow { animation: none !important; }
+      .grid-line { stroke-dashoffset: 0; opacity: 0.3; }
+      .detail-dot, .corner-element { opacity: 0.5; }
+      .floating-element, .hero-pointer-glow, .hero-ripple { display: none; }
+      .word, .hero-fade { animation: none !important; opacity: 1 !important; transform: none !important; filter: none !important; }
     }
 
     .hero-lead {
-      margin: 14px auto 0;
+      margin: 22px auto 0;
       max-width: 640px;
       font-size: clamp(16px, 1.8vw, 19px);
-      font-weight: 500;
+      font-weight: 400;
       line-height: 1.65;
-      color: #ded8d2;
+      color: #d9c3a5;
       text-shadow: 0 2px 18px rgba(0, 0, 0, 0.78);
     }
 
@@ -1154,7 +1153,7 @@
 
     /* Halftone wordmark band: "Grump" set enormous, cropped by the bottom edge and printed as dots that part around the pointer (assets/halftone-footer.js).
        It sits between the hero and the Mac section; its height follows the word (about 0.19 of the width) plus room above it. */
-    .hwf-band { --lift: calc(64px + 12dvh); position: relative; width: 100%; height: calc(19vw + 64px); margin-top: calc(-1 * var(--lift)); z-index: 11; overflow: hidden; isolation: isolate; background: linear-gradient(180deg, transparent var(--lift), #070403 var(--lift)); }
+    .hwf-band { position: relative; width: 100%; height: calc(19vw + 64px); margin-top: calc(-1 * var(--lift)); z-index: 11; overflow: hidden; isolation: isolate; background: linear-gradient(180deg, transparent var(--lift), var(--bg) var(--lift)); }
     /* --lift pulls the band up over the bottom of the hero, so the tops of the letters show in the first screen (a hint that there is something to play with below) */
     .hwf-band canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; max-width: none; }
     /* the footer: only the links, on the same black as the Creator notes section */
@@ -1284,8 +1283,9 @@
       }
 
       .hero-section {
-        padding: 96px 14px 68px;
+        padding: 96px 14px calc(var(--lift) + 20px);
       }
+      .corner-element { display: none; }
 
       .hero-content,
       .hero-lead {
@@ -1296,10 +1296,6 @@
 
       .hero-lead {
         overflow-wrap: anywhere;
-      }
-
-      .hero-line {
-        white-space: normal;
       }
 
       .hero-cta-row {
@@ -2127,21 +2123,43 @@
     </section>
 
     <section id="overview" class="hero-section" aria-labelledby="hero-heading">
-      <canvas id="hero-code-rain" class="hero-code-rain" aria-hidden="true"></canvas>
-
-      <div class="warm-ambient-glow" aria-hidden="true"></div>
+      <svg class="hero-grid" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs><pattern id="hero-grid-pattern" width="60" height="60" patternUnits="userSpaceOnUse"><path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(251,191,36,0.07)" stroke-width="0.5"/></pattern></defs>
+        <rect width="100%" height="100%" fill="url(#hero-grid-pattern)"/>
+        <line x1="0" y1="20%" x2="100%" y2="20%" class="grid-line" style="animation-delay:.5s"/>
+        <line x1="0" y1="80%" x2="100%" y2="80%" class="grid-line" style="animation-delay:1s"/>
+        <line x1="20%" y1="0" x2="20%" y2="100%" class="grid-line" style="animation-delay:1.5s"/>
+        <line x1="80%" y1="0" x2="80%" y2="100%" class="grid-line" style="animation-delay:2s"/>
+        <circle cx="20%" cy="20%" r="2" class="detail-dot" style="animation-delay:2.4s"/>
+        <circle cx="80%" cy="20%" r="2" class="detail-dot" style="animation-delay:2.6s"/>
+        <circle cx="20%" cy="80%" r="2" class="detail-dot" style="animation-delay:2.8s"/>
+        <circle cx="80%" cy="80%" r="2" class="detail-dot" style="animation-delay:3s"/>
+      </svg>
+      <span class="corner-element corner-tl" style="animation-delay:2.6s" aria-hidden="true"></span>
+      <span class="corner-element corner-tr" style="animation-delay:2.8s" aria-hidden="true"></span>
+      <span class="corner-element corner-bl" style="animation-delay:3s" aria-hidden="true"></span>
+      <span class="corner-element corner-br" style="animation-delay:3.2s" aria-hidden="true"></span>
+      <span class="floating-element" style="top:25%;left:15%;animation-delay:1s" aria-hidden="true"></span>
+      <span class="floating-element" style="top:60%;left:85%;animation-delay:2s" aria-hidden="true"></span>
+      <span class="floating-element" style="top:40%;left:10%;animation-delay:3s" aria-hidden="true"></span>
+      <span class="floating-element" style="top:70%;left:90%;animation-delay:4s" aria-hidden="true"></span>
       <div class="hero-bottom-fade" aria-hidden="true"></div>
+      <div class="hero-pointer-glow" id="hero-pointer-glow" aria-hidden="true"></div>
 
       <div class="hero-content">
-        <h1 id="hero-heading" class="hero-title" aria-label="Your desktop is boring af, so we made it angrier.">
-          <span id="hero-scramble-copy" class="hero-scramble-copy" aria-hidden="true">Your desktop is boring af,<br>so we made it angrier.</span>
-        </h1>
+        <div class="hero-top">
+          <p class="hero-kicker" id="hero-kicker" data-reveal="hero-kicker" data-step="70">Welcome to <b>Grump</b> &mdash; the moody notch for Windows.</p>
+          <div class="hero-rule hero-fade" style="--d:600ms" aria-hidden="true"></div>
+        </div>
 
-        <p class="hero-lead" data-i18n="hero-subtext">
-          The moody Notch for Windows. It judges your Spotify taste, controls your PC, and reacts when your cursor gets too close.
-        </p>
+        <div class="hero-main">
+          <h1 id="hero-heading" class="hero-title" data-reveal="hero-headline" data-step="110" data-start="400" data-accent="last">Your desktop is boring af, so we made it angrier.</h1>
 
-        <div class="hero-cta-row">
+          <p class="hero-lead" data-reveal="hero-subtext" data-step="26" data-after="heading">
+            The moody Notch for Windows. It judges your Spotify taste, controls your PC, and reacts when your cursor gets too close.
+          </p>
+
+        <div class="hero-cta-row hero-fade" data-fade-after="lead">
           <!-- 1. Download Setup installer -->
           <a
             class="liquid-glass-btn liquid-glass-primary"
@@ -2209,8 +2227,15 @@
 
         </div>
 
-        <div class="hero-downloads-text" aria-label="Download statistics">
+        <div class="hero-downloads-text hero-fade" aria-label="Download statistics" data-fade-after="lead" data-fade-extra="120">
           <span class="stats-text" data-i18n="hero-downloads">Download count unavailable</span>
+        </div>
+        </div>
+
+        <div class="hero-bottom">
+          <div class="hero-rule hero-fade" data-fade-after="lead" data-fade-extra="260" aria-hidden="true" style="margin: 0 auto 16px"></div>
+          <p class="hero-tagline hero-fade" id="hero-tagline" data-fade-after="lead" data-fade-extra="320" data-i18n="hero-tagline">Dock previews, synced lyrics, tidy notifications, free to download.</p>
+          <div class="hero-dots hero-fade" data-fade-after="lead" data-fade-extra="420" aria-hidden="true"><i></i><i></i><i></i></div>
         </div>
       </div>
     </section>
@@ -2945,6 +2970,7 @@
         "qris-title": "Scan from your payment app", "qris-desc": "This is the creator's original QRIS.", "pay-indonesia": "Indonesia", "pay-international": "International", "pay-soon": "Coming soon",
         "hero-title": "<span class=\"hero-line\">Your desktop is boring af,</span><span class=\"hero-line\">so we made it <span class=\"hero-title-accent\">angrier.</span></span>",
         "hero-subtext": "The moody Notch for Windows. It judges your Spotify taste, controls your PC, and reacts when your cursor gets too close.",
+        "hero-kicker": "Welcome to Grump &mdash; the moody notch for Windows.", "hero-headline": "Your desktop is boring af,|so we made it angrier.", "hero-tagline": "Dock previews, synced lyrics, tidy notifications, free to download.",
         "btn-download": "Download for Windows",
         "btn-support": "Support me",
         "btn-discord": "Join Discord",
@@ -3084,6 +3110,7 @@
         "qris-title": "Pindai dari aplikasi pembayaran", "qris-desc": "Ini adalah QRIS asli milik kreator.", "pay-indonesia": "Indonesia", "pay-international": "Internasional", "pay-soon": "Segera hadir",
         "hero-title": "<span class=\"hero-line\">Desktop lu ngebosenin bgt,</span><span class=\"hero-line\">makanya kita bikin lebih <span class=\"hero-title-accent\">galak.</span></span>",
         "hero-subtext": "Notch moody buat Windows. Nge-judge selera Spotify lu, kontrol PC lu, dan bereaksi kalau kursor lu terlalu dekat.",
+        "hero-kicker": "Selamat datang di Grump &mdash; notch moody buat Windows.", "hero-headline": "Desktop lu ngebosenin bgt,|makanya kita bikin lebih galak.", "hero-tagline": "Preview jendela di Dock, lirik tersinkron, notifikasi rapi, gratis diunduh.",
         "btn-download": "Download buat Windows",
         "btn-support": "Support me",
         "btn-discord": "Gabung Discord",
@@ -3217,219 +3244,83 @@
       }
     };
 
-    const heroPhrases = {
-      en: [
-        'Your desktop is boring af.',
-        'So we made it angrier.',
-        'Meet Grump.'
-      ],
-      id: [
-        'Desktop lu ngebosenin bgt.',
-        'Makanya kita bikin lebih galak.',
-        'Kenalan sama Grump.'
-      ]
-    };
-
-    let heroScrambleStop = null;
-
-    function startHeroScramble(lang) {
-      if (heroScrambleStop) heroScrambleStop();
-      const target = document.getElementById('hero-scramble-copy');
+    // ---- hero: words appear one after another; the buttons and the lines under them follow the headline ----
+    const heroReduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function buildHeroWords(lang) {
+      const dict = translations[lang] || translations.en;
       const heading = document.getElementById('hero-heading');
-      if (!target || !heading) return;
-
-      const phrases = heroPhrases[lang] || heroPhrases.en;
-      heading.setAttribute('aria-label', phrases.join(' '));
-
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        target.textContent = phrases.slice(0, 2).join(' ');
-        return;
-      }
-
-      const scrambleChars = '!<>-_\\/[]{}—=+*^?#';
-      let phraseIndex = 0;
-      let frameRequest = 0;
-      let holdTimer = 0;
-      let stopped = false;
-
-      const renderPhrase = phrase => {
-        const from = target.textContent || '';
-        const length = Math.max(from.length, phrase.length);
-        const queue = Array.from({ length }, (_, index) => {
-          const start = Math.floor(Math.random() * 24);
-          return {
-            from: from[index] || '',
-            to: phrase[index] || '',
-            start,
-            end: start + 18 + Math.floor(Math.random() * 22),
-            dud: ''
-          };
-        });
-        let frame = 0;
-
-        const update = () => {
-          if (stopped) return;
-          let complete = 0;
-          const fragment = document.createDocumentFragment();
-
-          queue.forEach(item => {
-            if (frame >= item.end) {
-              complete += 1;
-              fragment.append(document.createTextNode(item.to));
-            } else if (frame >= item.start) {
-              if (!item.dud || Math.random() < 0.28) {
-                item.dud = scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
-              }
-              const dud = document.createElement('span');
-              dud.className = 'hero-scramble-dud';
-              dud.textContent = item.dud;
-              fragment.append(dud);
-            } else {
-              fragment.append(document.createTextNode(item.from));
-            }
-          });
-
-          target.replaceChildren(fragment);
-          if (complete === queue.length) {
-            // one pass through the phrases, then the headline rests on the last one (it used to loop forever)
-            if (phraseIndex >= phrases.length - 1) return;
-            phraseIndex += 1;
-            holdTimer = window.setTimeout(() => renderPhrase(phrases[phraseIndex]), 1500);
-            return;
-          }
-          frame += 1;
-          frameRequest = requestAnimationFrame(update);
-        };
-
-        update();
-      };
-
-      renderPhrase(phrases[phraseIndex]);
-      heroScrambleStop = () => {
-        stopped = true;
-        cancelAnimationFrame(frameRequest);
-        clearTimeout(holdTimer);
-      };
+      let cursor = 0;   // ms: where the next block of words starts
+      const stepOf = el => Number(el.dataset.step) || 60;
+      const blocks = [...document.querySelectorAll('[data-reveal]')];
+      blocks.forEach(el => {
+        const raw = (dict[el.dataset.reveal] || el.textContent).replace(/&mdash;/g, '\u2014').replace(/<[^>]+>/g, '').trim();
+        const text = raw.replace(/\|/g, ' ').replace(/\s+/g, ' ');   // "|" marks where the headline breaks onto a new line
+        const breakAfter = raw.includes('|') ? raw.split('|')[0].trim().split(/\s+/).length : -1;
+        const words = text.split(/\s+/);
+        const start = el.dataset.after === 'heading' ? cursor : (Number(el.dataset.start) || 0);
+        el.replaceChildren(...words.flatMap((w, i) => {
+          const span = document.createElement('span');
+          span.className = 'word' + (el.dataset.accent === 'last' && i === words.length - 1 ? ' word-accent' : '');
+          span.style.setProperty('--d', (start + i * stepOf(el)) + 'ms');
+          span.setAttribute('aria-hidden', 'true');
+          if (el.id === 'hero-kicker' && /^grump$/i.test(w.replace(/[^\w]/g, ''))) { const b = document.createElement('b'); b.textContent = w; span.replaceChildren(b); } else span.textContent = w;
+          if (i + 1 === breakAfter) { const br = document.createElement('br'); br.className = 'hero-break'; return [span, br]; }
+          return [span];
+        }));
+        el.setAttribute('aria-label', text);
+        cursor = Math.max(cursor, start + words.length * stepOf(el));
+      });
+      // blocks that fade in after the lead
+      document.querySelectorAll('.hero-fade').forEach(el => {
+        const after = el.dataset.fadeAfter ? cursor : 0;
+        el.style.setProperty('--d', (el.dataset.fadeAfter ? after + (Number(el.dataset.fadeExtra) || 0) : Number(el.style.getPropertyValue('--d').replace('ms', '')) || 600) + 'ms');
+      });
+      if (heading) heading.setAttribute('aria-label', (dict['hero-headline'] || '').replace(/<[^>]+>/g, ''));
+    }
+    // prep: the words are built and hidden; reveal: they play once (right away on a language switch the words are simply shown)
+    function startHeroReveal(lang, instant) {
+      const hero = document.getElementById('overview');
+      if (!hero) return;
+      buildHeroWords(lang);
+      hero.classList.remove('is-prep');
+      if (instant || heroReduced()) { hero.classList.remove('is-revealing'); return; }
+      hero.classList.remove('is-revealing'); void hero.offsetWidth; hero.classList.add('is-revealing');
+    }
+    function prepHero(lang) {
+      const hero = document.getElementById('overview');
+      if (!hero) return;
+      buildHeroWords(lang);
+      if (!heroReduced()) hero.classList.add('is-prep');
     }
 
-    function initHeroCodeRain() {
-      const canvas = document.getElementById('hero-code-rain');
-      const section = document.getElementById('overview');
-      if (!canvas || !section || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-      const context = canvas.getContext('2d');
-      if (!context) return;
-
-      const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*+-=[]{}<>?';
-      let glyphs = [];
-      let grumpDrops = [];
-      let width = 0;
-      let height = 0;
-      let running = false;
-      let frameRequest = 0;
-      let lastTime = performance.now();
-      let nextGrumpDrop = 2600;
-
-      const randomGlyph = () => alphabet[Math.floor(Math.random() * alphabet.length)];
-      const makeGlyph = (atTop = false) => ({
-        char: randomGlyph(),
-        x: Math.random() * width,
-        y: atTop ? -20 - Math.random() * height * 0.25 : Math.random() * height,
-        speed: 12 + Math.random() * 24,
-        size: 12 + Math.random() * 10,
-        alpha: 0.12 + Math.random() * 0.28,
-        pulse: Math.random() * Math.PI * 2
+    // pointer glow, click ripple (inside the hero, never over the buttons)
+    function initHeroEffects() {
+      const hero = document.getElementById('overview');
+      const glow = document.getElementById('hero-pointer-glow');
+      if (!hero || !glow || heroReduced()) return;
+      hero.addEventListener('pointermove', e => {
+        if (e.pointerType === 'touch') return;
+        const r = hero.getBoundingClientRect();
+        glow.style.left = (e.clientX - r.left - 192) + 'px';
+        glow.style.top = (e.clientY - r.top - 192) + 'px';
+        glow.style.opacity = '1';
       });
-
-      const resize = () => {
-        const rect = section.getBoundingClientRect();
-        width = Math.max(1, rect.width);
-        height = Math.max(1, rect.height);
-        const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
-        canvas.width = Math.round(width * ratio);
-        canvas.height = Math.round(height * ratio);
-        canvas.style.width = `${width}px`;
-        canvas.style.height = `${height}px`;
-        context.setTransform(ratio, 0, 0, ratio, 0, 0);
-        const count = Math.min(130, Math.max(58, Math.round((width * height) / 11500)));
-        glyphs = Array.from({ length: count }, () => makeGlyph());
-      };
-
-      const spawnGrump = () => {
-        grumpDrops.push({
-          x: width * (0.12 + Math.random() * 0.76),
-          y: -42,
-          speed: 18 + Math.random() * 10,
-          size: 18 + Math.random() * 7,
-          alpha: 0.72,
-          label: Math.random() > 0.18 ? 'GRUMP' : 'GRUMP.'
-        });
-      };
-
-      const draw = now => {
-        if (!running) return;
-        const elapsed = Math.min(40, now - lastTime);
-        const seconds = elapsed / 1000;
-        lastTime = now;
-        context.clearRect(0, 0, width, height);
-
-        glyphs.forEach(glyph => {
-          glyph.y += glyph.speed * seconds;
-          glyph.pulse += seconds * 2.1;
-          if (glyph.y > height + 24) Object.assign(glyph, makeGlyph(true));
-          const flicker = Math.max(0, Math.sin(glyph.pulse));
-          const active = flicker > 0.94;
-          context.font = `${active ? 700 : 400} ${glyph.size + (active ? 3 : 0)}px ui-monospace, SFMono-Regular, Consolas, monospace`;
-          context.fillStyle = active
-            ? `rgba(251, 191, 36, ${0.72 + flicker * 0.24})`
-            : `rgba(180, 83, 9, ${glyph.alpha})`;
-          context.shadowBlur = active ? 14 : 0;
-          context.shadowColor = 'rgba(249, 115, 22, 0.9)';
-          context.fillText(glyph.char, glyph.x, glyph.y);
-        });
-
-        nextGrumpDrop -= elapsed;
-        if (nextGrumpDrop <= 0) {
-          spawnGrump();
-          nextGrumpDrop = 5200 + Math.random() * 5200;
-        }
-
-        grumpDrops = grumpDrops.filter(drop => {
-          drop.y += drop.speed * seconds;
-          context.font = `800 ${drop.size}px ui-monospace, SFMono-Regular, Consolas, monospace`;
-          context.fillStyle = `rgba(251, 146, 60, ${drop.alpha})`;
-          context.shadowBlur = 18;
-          context.shadowColor = 'rgba(249, 115, 22, 0.92)';
-          context.fillText(drop.label, drop.x, drop.y);
-          return drop.y < height + 48;
-        });
-
-        context.shadowBlur = 0;
-        frameRequest = requestAnimationFrame(draw);
-      };
-
-      const setRunning = value => {
-        if (running === value) return;
-        running = value;
-        if (running) {
-          lastTime = performance.now();
-          frameRequest = requestAnimationFrame(draw);
-        } else {
-          cancelAnimationFrame(frameRequest);
-        }
-      };
-
-      resize();
-      new ResizeObserver(resize).observe(section);
-      new IntersectionObserver(entries => {
-        setRunning(entries[0]?.isIntersecting && !document.hidden);
-      }, { threshold: 0.02 }).observe(section);
-      document.addEventListener('visibilitychange', () => {
-        setRunning(!document.hidden && section.getBoundingClientRect().bottom > 0);
+      hero.addEventListener('pointerleave', () => { glow.style.opacity = '0'; });
+      hero.addEventListener('pointerdown', e => {
+        if (e.target.closest('a, button')) return;
+        const r = hero.getBoundingClientRect();
+        const ripple = document.createElement('span');
+        ripple.className = 'hero-ripple';
+        ripple.style.left = (e.clientX - r.left) + 'px';
+        ripple.style.top = (e.clientY - r.top) + 'px';
+        hero.append(ripple);
+        setTimeout(() => ripple.remove(), 1000);
       });
     }
 
     let currentLang = 'en';
+    let heroRevealed = false;   // after the first reveal, a language switch shows the new words at once
+
     let currentCaptionKey = 'berserk';
 
     function updateCaption(key) {
@@ -3465,7 +3356,8 @@
       if (sw) sw.setAttribute('data-lang', lang);
       if (btnEn) btnEn.setAttribute('aria-pressed', String(lang === 'en'));
       if (btnId) btnId.setAttribute('aria-pressed', String(lang === 'id'));
-      if (!window.__introHold) startHeroScramble(lang);
+      if (!window.__introHold) startHeroReveal(lang, heroRevealed); else prepHero(lang);
+      heroRevealed = true;
       updateCaption();
       renderTestimonial(activeTestiIndex);
 
@@ -3992,7 +3884,7 @@
       updateMacTimer();
       const requestedLang = new URLSearchParams(window.location.search).get('lang');
       setLang(requestedLang === 'id' ? 'id' : 'en');
-      initHeroCodeRain();
+      initHeroEffects();
       initMobileMenu();
       initTestiParallax();
       checkHeaderScroll();
@@ -4107,7 +3999,7 @@
         window.__introHold = false; handoff();
         if (jump) { root.classList.remove('intro-on'); window.scrollTo({ top: 0, behavior: 'instant' }); }   /* the intro leaves the layout, so the overview is at the top */
       }
-      function handoff() { if (handed) return; handed = true; window.__introHold = false; if (typeof startHeroScramble === 'function') startHeroScramble(typeof currentLang === 'string' ? currentLang : 'en'); }
+      function handoff() { if (handed) return; handed = true; window.__introHold = false; if (typeof startHeroReveal === 'function') { startHeroReveal(typeof currentLang === 'string' ? currentLang : 'en', false); heroRevealed = true; } }
 
       function frame() {
         raf = 0;
