@@ -10,6 +10,11 @@
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
+  <url>
+    <loc>https://yeazka.github.io/Grump/terms.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
   <url><loc>https://yeazka.github.io/Grump/guides/dock-windows.html</loc></url>
   <url><loc>https://yeazka.github.io/Grump/guides/lirik-musik.html</loc></url>
   <url><loc>https://yeazka.github.io/Grump/guides/notifikasi-windows.html</loc></url>
