@@ -1152,9 +1152,12 @@
     /* Headlines are set in Google Sans Flex; the body text stays Plus Jakarta Sans */
     h1, h2, .hero-title, .release-title, .mac-title, .fb-hero-title { font-family: var(--font-headline); }
 
-    /* Halftone wordmark footer: "Grump" set enormous, cropped by the bottom edge and printed as dots that part around the pointer (assets/halftone-footer.js) */
-    .hwf-root { position: relative; width: 100%; height: clamp(520px, 40vw, 600px); overflow: hidden; isolation: isolate; background: #000000; color: #efe3d2; -webkit-font-smoothing: antialiased; }
-    .hwf-root canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; max-width: none; }
+    /* Halftone wordmark band: "Grump" set enormous, cropped by the bottom edge and printed as dots that part around the pointer (assets/halftone-footer.js).
+       It sits between the hero and the Mac section; its height follows the word (about 0.19 of the width) plus room above it. */
+    .hwf-band { position: relative; width: 100%; height: calc(19vw + 64px); overflow: hidden; isolation: isolate; background: var(--bg); }
+    .hwf-band canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; max-width: none; }
+    /* the footer: only the links, on the same black as the Creator notes section */
+    .hwf-footer { position: relative; width: 100%; padding-bottom: 28px; background: #000000; color: #efe3d2; -webkit-font-smoothing: antialiased; }
     .hwf-top { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1.25fr) repeat(3, minmax(0, 1fr)); gap: 24px; padding: clamp(22px, 3.4vw, 40px) clamp(20px, 3.4vw, 44px) 0; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; line-height: 1.75; }
     .hwf-brand strong { display: block; font-weight: 600; }
     .hwf-brand span { display: block; opacity: .62; }
@@ -1165,7 +1168,6 @@
     .hwf-col a:focus-visible, .hwf-up:focus-visible { outline: 1px solid currentColor; outline-offset: 3px; opacity: 1; }
     .hwf-col [hidden] { display: none; }
     .hwf-rule { position: relative; z-index: 1; display: flex; justify-content: flex-end; align-items: center; margin: clamp(18px, 2.6vw, 30px) clamp(20px, 3.4vw, 44px) 0; padding-top: 12px; border-top: 0.5px solid var(--line); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; }
-    .hwf-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
     @media (max-width: 720px) { .hwf-top { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); row-gap: 18px; } .hwf-brand { grid-column: 1 / -1; } }
     @media (prefers-reduced-motion: reduce) { .hwf-col a, .hwf-up { transition: none; } }
     #feedback-container { scroll-margin-top: 90px; }
@@ -2212,6 +2214,11 @@
       </div>
     </section>
 
+    <!-- The wordmark you can play with: dots part around the pointer. Decorative, so the canvas is hidden from assistive tech and the word is read once. -->
+    <section class="hwf-band" data-halftone-footer data-wordmark="Grump" data-font='"Google Sans Flex","Plus Jakarta Sans",sans-serif' data-weight="800" data-ink="#efe3d2" data-warm="#fbbf24" data-background="#0b0704" aria-label="Grump">
+      <canvas aria-hidden="true"></canvas>
+    </section>
+
     <!-- Grump for Mac (preview). Reason for the shape: the eyes are the one glowing thing (the brand motif), the downloads come right
          under the headline, and the walkthrough is the largest block because opening an unsigned app is the part people get stuck on. -->
     <section id="mac" class="mac" aria-labelledby="mac-title">
@@ -2860,9 +2867,7 @@
 
   </main>
 
-  <footer class="hwf-root" data-halftone-footer data-wordmark="Grump" data-font='"Google Sans Flex","Plus Jakarta Sans",sans-serif' data-weight="800" data-ink="#efe3d2" data-warm="#fbbf24" data-background="#000000">
-    <canvas aria-hidden="true"></canvas>
-    <span class="hwf-sr">Grump</span>
+  <footer class="hwf-footer">
     <div class="hwf-top">
       <div class="hwf-brand">
         <strong>Grump Notch</strong>
