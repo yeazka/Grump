@@ -48,7 +48,7 @@
     var word = root.getAttribute('data-wordmark') || 'Grump';
     var fontFamily = root.getAttribute('data-font') || '"Plus Jakarta Sans", sans-serif';
     var weight = Number(root.getAttribute('data-weight')) || 800;
-    var background = root.getAttribute('data-background') || '#0b0704';
+    var background = root.getAttribute('data-background') || '#000000';
     var inkColor = root.getAttribute('data-ink') || '#efe3d2';
     var warmColor = root.getAttribute('data-warm') || '#fbbf24';
     var dotGap = Number(root.getAttribute('data-gap')) || 6;
