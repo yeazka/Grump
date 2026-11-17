@@ -72,6 +72,7 @@
       --muted: #b8b2ac;
       --line: rgba(255, 235, 200, 0.12);
       --amber: #f59e0b;
+      --font-body: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       --font-headline: "Google Sans Flex", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       --amber-bright: #fbbf24;
       --orange: #ea580c;
@@ -1150,6 +1151,8 @@
     /* Footer */
     /* Headlines are set in Google Sans Flex; the body text stays Plus Jakarta Sans */
     h1, h2, h3, h4, .hero-title, .release-title, .mac-title, .fb-hero-title { font-family: var(--font-headline); }
+    /* the text on every button is Plus Jakarta Sans */
+    button, .liquid-glass-btn, .fb-support-btn, .fb-grand-submit-btn, .fb-type-chip, .support-pay-btn, .lang-btn, .mt-btn, .mt-dot, .wp-dl, .testi-nav-btn, .btn-trakteer, .hero-cta-row a { font-family: var(--font-body); }
 
     /* Halftone wordmark band: "Grump" set enormous, cropped by the bottom edge and printed as dots that part around the pointer (assets/halftone-footer.js).
        It sits between the hero and the Mac section; its height follows the word (about 0.19 of the width) plus room above it. */
