@@ -2281,22 +2281,18 @@
         <header class="mac-head">
           <h2 class="mac-title" id="mac-title" data-i18n="mac-title">Grump just landed on Mac.</h2>
           <p class="mac-sub" data-i18n="mac-sub">The moody notch now lives on your MacBook too, with the music you are playing and its lyrics. An early preview: not signed by Apple, and made to be tried.</p>
-          <div class="mac-timer" id="mac-timer">
-            <time id="mac-timer-value" class="mac-timer-value" role="timer" datetime="2026-11-14T20:00:00+07:00" data-release-at="2026-11-14T20:00:00+07:00" aria-label="Time left until the Grump for Mac preview">--:--:--</time>
-            <span class="mac-timer-text"><span id="mac-timer-label">until the Mac preview, tonight at 8 PM WIB</span><small id="mac-timer-local"></small></span>
-          </div>
           <div class="mac-cta">
-            <a id="btn-mac-arm" class="liquid-glass-btn btn-msstore-white mac-dl" href="#mac" aria-disabled="true">
+            <a id="btn-mac-arm" class="liquid-glass-btn btn-msstore-white mac-dl" href="https://github.com/yeazka/Grump/releases/download/v1.2.4-mac-preview/Grump-1.2.4-mac-arm64.dmg">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>
               <span><b data-i18n="mac-dl-arm">Download for Apple Silicon</b><small data-i18n="mac-dl-arm-sub">M1 and newer · .dmg</small></span>
             </a>
-            <a id="btn-mac-intel" class="liquid-glass-btn btn-msstore-white mac-dl" href="#mac" aria-disabled="true">
+            <a id="btn-mac-intel" class="liquid-glass-btn btn-msstore-white mac-dl" href="https://github.com/yeazka/Grump/releases/download/v1.2.4-mac-preview/Grump-1.2.4-mac-x64.dmg">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>
               <span><b data-i18n="mac-dl-intel">Download for Intel</b><small data-i18n="mac-dl-intel-sub">Intel Macs · .dmg</small></span>
             </a>
           </div>
-          <p class="mac-status" id="mac-soon" data-i18n="mac-soon">Coming soon. The downloads switch on the moment the preview is published.</p>
-          <p class="mac-status" id="mac-ready" data-i18n="mac-ready" hidden>Free preview. Needs macOS 13 or newer. Not sure which Mac you have? Apple menu > About This Mac: a "Chip" line means Apple Silicon.</p>
+          <p class="mac-status" id="mac-soon" hidden data-i18n="mac-soon">Coming soon. The downloads switch on the moment the preview is published.</p>
+          <p class="mac-status" id="mac-ready" data-i18n="mac-ready">Free preview. Needs macOS 13 or newer. Not sure which Mac you have? Apple menu > About This Mac: a "Chip" line means Apple Silicon.</p>
         </header>
 
         <div class="mac-body">
@@ -3643,38 +3639,7 @@ addEventListener('DOMContentLoaded', () => {
     resolveLinuxBeta();
 
     // Grump for Mac: the two buttons stay off until a public release carries the dmg files.
-    async function resolveMacPreview() {
-      try {
-        const res = await fetch('https://api.github.com/repos/yeazka/Grump/releases?per_page=20', {
-          headers: { Accept: 'application/vnd.github+json' }, signal: AbortSignal.timeout(8000)
-        });
-        if (!res.ok) throw new Error('releases unavailable');
-        const releases = await res.json();
-        const pick = (re) => {
-          for (const release of releases) {
-            if (release.draft) continue;
-            const asset = (release.assets || []).find(item => re.test(item.name || '') && /^https:\/\/github\.com\//i.test(item.browser_download_url || ''));
-            if (asset) return { asset, release };
-          }
-          return null;
-        };
-        const arm = pick(/^Grump-\d+\.\d+\.\d+-mac-arm64\.dmg$/i), intel = pick(/^Grump-\d+\.\d+\.\d+-mac-x64\.dmg$/i);
-        let any = false;
-        for (const [id, found] of [['btn-mac-arm', arm], ['btn-mac-intel', intel]]) {
-          if (!found) continue;
-          const button = document.getElementById(id);
-          button.href = found.asset.browser_download_url;
-          button.rel = 'noopener noreferrer';
-          button.removeAttribute('aria-disabled');
-          button.title = `Grump ${found.release.tag_name || ''} · ${found.asset.name}`;
-          any = true;
-        }
-        if (any) { document.getElementById('mac-soon').hidden = true; document.getElementById('mac-ready').hidden = false; document.getElementById('mac-timer').hidden = true; }
-      } catch (err) {
-        console.warn('Mac preview unavailable:', err);
-      }
-    }
-    resolveMacPreview();
+
 
     // The Mac walkthrough: four scenes, one pass of motion each, Back / Next / numbered steps / arrow keys.
     (function () {
