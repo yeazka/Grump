@@ -1948,6 +1948,19 @@
       box-shadow: 0 10px 30px rgba(88, 101, 242, 0.38);
     }
 
+    /* Telegram's own blue, the same treatment as the Discord button beside it */
+    #btn-telegram {
+      background: #229ed9;
+      border-color: rgba(255, 255, 255, 0.34);
+      box-shadow: 0 8px 24px rgba(34, 158, 217, 0.28);
+    }
+
+    #btn-telegram:hover {
+      background: #1a86ba;
+      border-color: rgba(255, 255, 255, 0.48);
+      box-shadow: 0 10px 30px rgba(34, 158, 217, 0.38);
+    }
+
     /* Support panel (QRIS shown directly): the welcome screen's support page, a white QRIS card and rounded pay buttons with a small line under the name */
     .support-panel { display: grid; grid-template-columns: minmax(190px, 300px) 1fr; gap: 28px; align-items: center; margin-top: 22px; padding: 22px; border: 1px solid var(--line); border-radius: 22px; background: rgba(255, 255, 255, 0.035); }
     .support-qris { justify-self: center; padding: 10px; border-radius: 16px; background: #fff; }
@@ -2937,6 +2950,12 @@ addEventListener('DOMContentLoaded', () => {
                         </svg>
                         <span data-i18n="btn-discord">Join Discord</span>
                       </a>
+                      <a class="fb-support-btn" id="btn-telegram" href="https://t.me/+WBxy9v0RUEo5Zjdl" target="_blank" rel="noopener noreferrer">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                          <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/>
+                        </svg>
+                        <span data-i18n="btn-telegram">Join Telegram</span>
+                      </a>
                       <button type="submit" class="fb-grand-submit-btn" id="fb-submit-btn">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                           <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -3108,6 +3127,7 @@ addEventListener('DOMContentLoaded', () => {
         "btn-download": "Download for Windows",
         "btn-support": "Support me",
         "btn-discord": "Join Discord",
+        "btn-telegram": "Join Telegram",
         "testi-trakteer": "Tip on Trakteer",
         "nav-testimonials": "Creator notes",
         "testi-section-label": "CREATOR'S NOTE",
@@ -3278,6 +3298,7 @@ addEventListener('DOMContentLoaded', () => {
         "btn-download": "Download buat Windows",
         "btn-support": "Support me",
         "btn-discord": "Gabung Discord",
+        "btn-telegram": "Gabung Telegram",
         "testi-trakteer": "Traktir Kopi",
         "nav-testimonials": "Catatan kreator",
         "testi-section-label": "CATATAN KREATOR",
