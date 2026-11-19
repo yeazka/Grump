@@ -87,12 +87,12 @@ export default {
     const text=typeof input.text==='string'?input.text.trim():'';
     const contact=typeof input.contact==='string'?input.contact.trim():'';
     if(!LABELS[type]||text.length<3||text.length>1500||contact.length>120)return json({error:'Invalid input'},400,origin);
-    // Which Grump the person uses. The website form (schema 2) must send it with a bug report; older clients that send none are still
-    // accepted and shown as "not given", so no report is lost.
+    // Which Grump the person uses. The website form (schema 2) must send the OS and the version with every message; older clients that
+    // send none are still accepted and shown as "not given", so no report is lost.
     const platform=['windows','mac','linux'].includes(input.platform)?input.platform:'';
     const version=typeof input.version==='string'&&/^(?:\d{1,3}\.\d{1,3}\.\d{1,3}(?:-[A-Za-z0-9.]{1,20})?|older)$/.test(input.version)?input.version:'';
     const source=input.source==='app'?'app':'web';
-    if(input.schema===2&&type==='bug'&&(!platform||!version))return json({error:'Version required'},400,origin);
+    if(input.schema===2&&(!platform||!version))return json({error:'Version required'},400,origin);
     const ip=request.headers.get('CF-Connecting-IP')||'unknown';
     const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ip));
     const key='feedback:'+Array.from(new Uint8Array(hash),b=>b.toString(16).padStart(2,'0')).join('');

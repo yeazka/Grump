@@ -1803,9 +1803,8 @@
     .fb-grump-selects { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .fb-select { appearance: none; -webkit-appearance: none; cursor: pointer; padding-right: 34px; background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%); background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%; background-size: 5px 5px; background-repeat: no-repeat; }
     .fb-select option { color: #111; background: #fff; }
-    .fb-select:disabled { opacity: .5; cursor: not-allowed; }
     .fb-grump-hint { margin: 8px 2px 0; font-size: 12.5px; line-height: 1.45; opacity: .65; }
-    .fb-grump.fb-grump-needed .fb-grump-hint { opacity: 1; color: #ffb74d; }
+    .fb-grump.fb-grump-needed .fb-grump-hint { opacity: 1; color: #ffb74d; }   /* set after a try without them */
     .fb-grump.fb-grump-missing .fb-select:invalid, .fb-grump.fb-grump-missing .fb-select[data-empty="1"] { border-color: #ff8a65; }
     .fb-textarea {
       width: 100%;
@@ -2914,20 +2913,20 @@ addEventListener('DOMContentLoaded', () => {
                     ></textarea>
                   </div>
 
-                  <!-- Which Grump: required for a bug report, so we know which version the problem is in -->
+                  <!-- Which Grump: required for every message, so we know which OS and version it comes from -->
                   <div class="fb-field fb-grump" id="fb-grump-row">
                     <div class="fb-grump-selects">
-                      <select id="fb-platform" class="fb-input fb-select" aria-label="Which Grump do you use? Platform" onchange="fillFbVersions()">
-                        <option value="" data-i18n="fb-platform-ph">Windows, Mac or Linux?</option>
+                      <select id="fb-platform" class="fb-input fb-select" aria-label="Select your OS" aria-required="true" onchange="fillFbVersions(); markFbSelect(this)">
+                        <option value="" data-i18n="fb-platform-ph">Select OS *</option>
                         <option value="windows">Windows</option>
                         <option value="mac">Mac</option>
                         <option value="linux">Linux</option>
                       </select>
-                      <select id="fb-version" class="fb-input fb-select" aria-label="Which Grump do you use? Version" disabled>
-                        <option value="" data-i18n="fb-version-ph">Which version?</option>
+                      <select id="fb-version" class="fb-input fb-select" aria-label="Select your Grump version" aria-required="true" onchange="markFbSelect(this)" onmousedown="return guardFbVersion(event)">
+                        <option value="" data-i18n="fb-version-ph">Select version *</option>
                       </select>
                     </div>
-                    <p class="fb-grump-hint" id="fb-grump-hint" data-i18n="fb-grump-hint">For a bug, please pick your Grump version. You can see it in Preferences, next to the update button.</p>
+                    <p class="fb-grump-hint" id="fb-grump-hint" data-i18n="fb-grump-hint">Please select your OS and Grump version. You can see the version in Preferences, next to the update button.</p>
                   </div>
 
                   <!-- Optional Contact Handle / Email -->
@@ -3162,9 +3161,9 @@ addEventListener('DOMContentLoaded', () => {
         "fb-type-cheer": "Cheer",
         "fb-placeholder": "What's on your mind? Share your thoughts, feature ideas, or issues...",
         "fb-contact-placeholder": "Your email or contact handle (optional)",
-        "fb-platform-ph": "Windows, Mac or Linux?",
-        "fb-version-ph": "Which version?",
-        "fb-grump-hint": "For a bug, please pick your Grump version. You can see it in Preferences, next to the update button.",
+        "fb-platform-ph": "Select OS *",
+        "fb-version-ph": "Select version *",
+        "fb-grump-hint": "Please select your OS and Grump version. You can see the version in Preferences, next to the update button.",
         "fb-message-label": "Feedback message",
         "fb-contact-label": "Email or contact handle (optional)",
         "fb-btn-submit": "Send Feedback",
@@ -3305,9 +3304,9 @@ addEventListener('DOMContentLoaded', () => {
         "fb-type-cheer": "Apresiasi",
         "fb-placeholder": "Ada ide baru atau nemu kendala? Tulis unek-unek lu di sini...",
         "fb-contact-placeholder": "Email atau kontak lu (opsional)",
-        "fb-platform-ph": "Windows, Mac, atau Linux?",
-        "fb-version-ph": "Versi berapa?",
-        "fb-grump-hint": "Untuk bug, pilih versi Grump-mu, ya. Versinya ada di Preferences, di sebelah tombol update.",
+        "fb-platform-ph": "Pilih OS *",
+        "fb-version-ph": "Pilih versi *",
+        "fb-grump-hint": "Pilih OS dan versi Grump-mu, ya. Versinya ada di Preferences, di sebelah tombol update.",
         "fb-message-label": "Pesan feedback",
         "fb-contact-label": "Email atau kontak (opsional)",
         "fb-btn-submit": "Kirim Feedback",
@@ -3860,13 +3859,6 @@ addEventListener('DOMContentLoaded', () => {
     function selectFbType(btn) {
       document.querySelectorAll('.fb-type-chip').forEach(c => c.classList.remove('active'));
       btn.classList.add('active');
-      // The version is asked for a bug; for an idea or a cheer it stays a quiet option.
-      const row = document.getElementById('fb-grump-row');
-      if (row) {
-        const bug = btn.getAttribute('data-type') === 'bug';
-        row.classList.toggle('fb-grump-needed', bug);
-        if (!bug) row.classList.remove('fb-grump-missing');
-      }
     }
 
     // The versions people can have, newest first. Mac is a preview and Linux a beta, with their own numbers.
@@ -3875,12 +3867,23 @@ addEventListener('DOMContentLoaded', () => {
       mac: ['1.2.4-mac-preview', '1.2.2-mac-preview', 'older'],
       linux: ['1.2.0-beta.1', '1.1.1-beta.1', 'older']
     };
+    // A chosen select loses its red border.
+    function markFbSelect(select) { if (select && select.value) select.removeAttribute('data-empty'); }
+    // The version list follows the OS: with no OS chosen yet, tapping the version sends the person to the OS first.
+    function guardFbVersion(event) {
+      if (document.getElementById('fb-platform')?.value) return true;
+      event.preventDefault();
+      const os = document.getElementById('fb-platform');
+      os?.setAttribute('data-empty', '1'); document.getElementById('fb-grump-row')?.classList.add('fb-grump-needed', 'fb-grump-missing');
+      os?.focus();
+      return false;
+    }
     function fillFbVersions() {
       const platform = document.getElementById('fb-platform')?.value || '';
       const select = document.getElementById('fb-version');
       if (!select) return;
       const older = currentLang === 'id' ? 'Versi yang lebih lama' : 'An older version';
-      const ph = currentLang === 'id' ? 'Versi berapa?' : 'Which version?';
+      const ph = currentLang === 'id' ? 'Pilih versi *' : 'Select version *';
       select.innerHTML = '';
       const first = document.createElement('option'); first.value = ''; first.textContent = ph; first.setAttribute('data-i18n', 'fb-version-ph'); select.appendChild(first);
       for (const v of (FB_VERSIONS[platform] || [])) {
@@ -3890,8 +3893,8 @@ addEventListener('DOMContentLoaded', () => {
         o.textContent = v === 'older' ? older : v.replace('-mac-preview', ' (preview)').replace('-beta.1', ' (beta)');
         select.appendChild(o);
       }
-      select.disabled = !platform;
       select.value = '';
+      select.removeAttribute('data-empty');
     }
 
       // Public Worker endpoint; the Discord webhook stays in the Worker secret.
@@ -3912,15 +3915,17 @@ addEventListener('DOMContentLoaded', () => {
 
         const platform = document.getElementById('fb-platform')?.value || '';
         const version = document.getElementById('fb-version')?.value || '';
-        // A bug report needs the version, so we know where the problem is.
-        if (type === 'bug' && (!platform || !version)) {
+        // Every message needs the OS and the version, so we know where it comes from.
+        if (!platform || !version) {
           const row = document.getElementById('fb-grump-row');
           if (row) { row.classList.add('fb-grump-needed', 'fb-grump-missing'); }
+          if (!platform) document.getElementById('fb-platform')?.setAttribute('data-empty', '1');
+          document.getElementById('fb-version')?.setAttribute('data-empty', '1');
           document.getElementById(!platform ? 'fb-platform' : 'fb-version')?.focus();
           if (errBanner) {
             errBanner.textContent = (currentLang === 'id')
-              ? 'Pilih versi Grump-mu dulu, ya. Itu membantu kami menemukan masalahnya.'
-              : 'Please pick your Grump version first. It helps us find the problem.';
+              ? (!platform ? 'Pilih OS-mu dulu, ya.' : 'Pilih versi Grump-mu dulu, ya. Itu membantu kami menemukan masalahnya.')
+              : (!platform ? 'Please select your OS first.' : 'Please select your Grump version first. It helps us find the problem.');
             errBanner.style.display = 'block';
             setTimeout(() => { errBanner.style.display = 'none'; }, 6000);
           }
