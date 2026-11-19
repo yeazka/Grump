@@ -10,6 +10,14 @@ class_name = "FeedbackLimiter"
 tag = "v1-feedback-limiter"
 new_sqlite_classes = ["FeedbackLimiter"]
 
+[[durable_objects.bindings]]
+name = "DIAGNOSTICS_STORE"
+class_name = "DiagnosticsStore"
+
+[[migrations]]
+tag = "v2-diagnostics-store"
+new_sqlite_classes = ["DiagnosticsStore"]
+
 [vars]
 # Replace with your production domain (without trailing slash)
 ALLOWED_ORIGIN = "https://yeazka.github.io,http://localhost:3000"
@@ -18,3 +26,5 @@ ALLOWED_ORIGIN = "https://yeazka.github.io,http://localhost:3000"
 # 2. Add your private Discord Webhook URL as a Cloudflare Worker secret:
 #    npx wrangler secret put DISCORD_WEBHOOK_URL
 #    npx wrangler secret put DIAGNOSTICS_WEBHOOK_URL
+# 3. The token that lets the owner read the stored diagnostic reports (tools/read-diagnostics.cjs):
+#    npx wrangler secret put DIAGNOSTICS_READ_TOKEN
