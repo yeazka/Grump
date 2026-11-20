@@ -1,6 +1,6 @@
 /* The Dock demo on the welcome screen: dock.css does the real styling, this only lays the icons out in a row (the real dock places
    them with JS) and gives the translucent capsule something to blur. */
-html { background: #172018 url('../assets/wallpapers/grump-wallpaper-meadow-lookout.png') center bottom -100px / auto 666px no-repeat !important; }
+html { background: #2a1232 url('../assets/wallpapers/grump-wallpaper-vice-afterglow.png') center bottom -100px / auto 666px no-repeat !important; }
 body { background: transparent !important; }
 .demo { pointer-events: auto; }
 .demo-wrapper { bottom: 20px; }
