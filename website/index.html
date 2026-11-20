@@ -4065,7 +4065,10 @@ addEventListener('DOMContentLoaded', () => {
       var canvas = document.getElementById('intro-canvas'), ctx = canvas.getContext('2d');
       var skip = document.getElementById('intro-skip');
       var DATA = {"w": 970, "h": 320, "scale": 1.0, "eyes": [{"G": [238.94, 152.22], "R": 185.19, "c": [279.0, 153.75], "rx": 51.0, "ry": 89.25, "ang": 0.0, "color": [23, 7, 0], "safe": [[358.0, 237.0], [322.0, 253.0], [268.0, 256.0], [235.0, 250.0], [183.0, 226.0], [153.0, 200.0], [132.0, 172.0], [114.0, 135.0], [102.0, 87.0], [195.0, 136.0]]}, {"G": [728.5, 158.5], "R": 184.51, "c": [688.0, 153.75], "rx": 51.0, "ry": 89.25, "ang": 0.0, "color": [27, 10, 0], "safe": [[863.0, 87.0], [853.0, 131.0], [834.0, 171.0], [806.0, 206.0], [775.0, 230.0], [734.0, 249.0], [689.0, 256.0], [647.0, 253.0], [608.0, 237.0]]}]};
-      var base = new Image(), mask = new Image(), brow = new Image(), loaded = 0;
+      /* VICE: for now the eyes carry the Vice Afterglow look of the app's new reaction style (a sunset horizon with palms, pink to teal) and the
+         glow behind them is pink and teal, not orange. Set it to false to bring the original warm eyes back; nothing else has to change. */
+      var VICE = true;
+      var base = new Image(), mask = new Image(), brow = new Image(), horizon = new Image(), loaded = 0;
       var face = document.createElement('canvas'), eyes = document.createElement('canvas'), glow = document.createElement('canvas');
       var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
       var lerp = function (a, b, t) { return a + (b - a) * t; };
@@ -4104,6 +4107,9 @@ addEventListener('DOMContentLoaded', () => {
           d[i] = Math.min(255, Math.round(d[i] * 255 / a)); d[i + 1] = Math.min(255, Math.round(d[i + 1] * 255 / a)); d[i + 2] = Math.min(255, Math.round(d[i + 2] * 255 / a)); d[i + 3] = a;
         }
         x.putImageData(im, 0, 0);
+        if (VICE && horizon.naturalWidth > 0) {                                        /* the same horizon as the app's Vice eyes, laid over the glowing eyes only */
+          x.globalCompositeOperation = 'source-atop'; x.drawImage(horizon, 0, 0, W, H); x.globalCompositeOperation = 'source-over';
+        }
       }
       /* the eyes at the picture's own resolution: face, live pupils clipped by the eye opening, then the opening slit (lids) and feathered sides */
       function paintEyes(gx, gy, open) {
@@ -4143,7 +4149,8 @@ addEventListener('DOMContentLoaded', () => {
         var gx = glow.getContext('2d'); gx.globalCompositeOperation = 'source-over'; gx.clearRect(0, 0, CW, CH);
         if (glowA > .001) {
           var R = .78 * Math.min(.86 * canvas.clientWidth, 980) * dpr * glowScale, g = gx.createRadialGradient(cx, cy, 0, cx, cy, R);   /* sized by the eyes, not the screen, so a tall phone gets the same glow */
-          g.addColorStop(0, 'rgba(255,150,30,.55)'); g.addColorStop(.45, 'rgba(245,158,11,.22)'); g.addColorStop(.72, 'rgba(245,158,11,0)'); g.addColorStop(1, 'rgba(245,158,11,0)');
+          if (VICE) { g.addColorStop(0, 'rgba(255,92,160,.55)'); g.addColorStop(.4, 'rgba(239,64,149,.24)'); g.addColorStop(.62, 'rgba(25,186,190,.12)'); g.addColorStop(.78, 'rgba(25,186,190,0)'); g.addColorStop(1, 'rgba(25,186,190,0)'); }
+          else { g.addColorStop(0, 'rgba(255,150,30,.55)'); g.addColorStop(.45, 'rgba(245,158,11,.22)'); g.addColorStop(.72, 'rgba(245,158,11,0)'); g.addColorStop(1, 'rgba(245,158,11,0)'); }
           gx.globalAlpha = glowA; gx.fillStyle = g; gx.fillRect(0, 0, CW, CH); gx.globalAlpha = 1;
           var hide = 1;                                                  /* the brow hides the glow in every phase, also while the camera falls in */
           if (hide > .001) {
@@ -4190,6 +4197,9 @@ addEventListener('DOMContentLoaded', () => {
       function request() { if (!raf) raf = requestAnimationFrame(frame); }
       function onload() { if (++loaded === 3) { keyFace(); size(); request(); } }
       base.onload = mask.onload = brow.onload = onload;
+      /* the horizon may arrive after the eyes: key the face again with it and repaint */
+      horizon.onload = function () { if (VICE && loaded >= 3) { keyFace(); state.dirty = true; last = null; request(); } };
+      if (VICE) horizon.src = 'assets/intro-vice-horizon.svg';
       /* two sizes of the same picture (AI-upscaled from the original): the 4K one only for big or sharp screens */
       var big = window.innerWidth * (window.devicePixelRatio || 1) > 1500;
       base.src = big ? 'assets/intro-eyes-base-4k.webp' : 'assets/intro-eyes-base-2k.webp'; mask.src = 'assets/intro-eyes-mask.webp?v=2'; brow.src = 'assets/intro-eyes-brow.webp?v=6';
