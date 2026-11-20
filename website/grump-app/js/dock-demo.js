@@ -1,6 +1,16 @@
 'use strict';
 // Dock demo for the welcome screen: the real dock's cosine magnification wave on a few demo icons. It sweeps by itself and follows the mouse.
 (() => {
+  const parentScreen = window.parent.document.getElementById('laptop-screen');
+  if (parentScreen) {
+    const alignWallpaper = () => {
+      const frame = window.frameElement;
+      document.documentElement.style.backgroundSize = `auto ${parentScreen.clientHeight}px`;
+      document.documentElement.style.backgroundPosition = `center bottom -${Math.round(parseFloat(getComputedStyle(frame).bottom))}px`;
+    };
+    alignWallpaper();
+    new ResizeObserver(alignWallpaper).observe(parentScreen);
+  }
   const stage = document.getElementById('stage');
   const withSong = /[?&]np=1/.test(location.search);
   const all = ['dock-win/explorer', 'dock-win/notepad', 'dock-win/claude', 'dock-win/chatgpt', 'dock-win/antigravity', 'dock/terminal', 'dock/code', 'dock/settings'];
